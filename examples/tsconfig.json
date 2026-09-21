@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "build",
+    "rootDir": ".",
+    "baseUrl": ".",
+    // Resolve the bare specifier against the built types, exactly as a
+    // consuming product repo would. tsc leaves the specifier alone on emit,
+    // so the browser import map can resolve it at runtime.
+    "paths": { "@scalar/design-system": ["../dist/index.d.ts"] }
+  },
+  "include": ["screens", "*.tsx"]
+}

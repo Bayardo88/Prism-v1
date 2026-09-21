@@ -39,7 +39,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "gen:tokens": "node scripts/gen-tokens.mjs",
-    "verify": "npm run typecheck && npm run lint:tokens"
+    "verify": "npm run typecheck && npm run lint:tokens",
+    "build:examples": "tsc -p examples/tsconfig.json"
   },
   "peerDependencies": {
     "react": ">=18",
