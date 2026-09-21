@@ -97,6 +97,7 @@ ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 
 | Read this | When |
 |---|---|
+| **[ONBOARDING.md](ONBOARDING.md)** | **New here?** Install, first component, the nine rules, and the two live blockers. Ten minutes. |
 | **[AI-GUIDE.md](AI-GUIDE.md)** | **Start here.** The complete contract: rules, decision tables, component API, anti-patterns. Written to be read by both people and coding agents before building a page. |
 | [CLAUDE.md](CLAUDE.md) | Auto-loaded by agents working *on* this package. Points at AI-GUIDE and lists the non-negotiables. |
 | [docs/tokens.md](docs/tokens.md) | The full token reference — every colour in Light and Dark, every scale, the type ramp in all three modes. Generated. |

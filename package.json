@@ -30,6 +30,7 @@
     "dist",
     "AI-GUIDE.md",
     "CLAUDE.md",
+    "ONBOARDING.md",
     "docs"
   ],
   "scripts": {
