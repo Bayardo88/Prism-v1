@@ -19,7 +19,9 @@ so a categorical series and a semantic "bad" both read as the same red.
 legend **and** direct labels or texture. `seriesAccessibilityWarning()` in
 `src/components/charts/series.ts` is the programmatic guard.
 
-**Real fix:** re-step the `Chart/Series` ramp in the v1.1 tokens file.
+**Real fix:** re-step the `Chart/Series` ramp in the v1.1 tokens file. Still
+outstanding as of 2026-09-21 — confirmed unchanged after the libraries were
+published (see gap 7).
 
 ---
 
@@ -93,12 +95,24 @@ gap — `WaterfallChart` uses it for total bars.
 
 ---
 
-## 7. The v1.1 library has not been published
+## 7. ~~The v1.1 library has not been published~~ — RESOLVED 2026-09-21
 
-The tokens file is still titled v1.0 and the library has not been republished.
-Components in the Figma file therefore still resolve a handful of bindings
-through the old primitive collections. This does not affect the code layer,
-which was generated from the variable values directly.
+All Scalar Figma libraries are now published.
+
+The code layer was re-checked against the live library after publishing: all
+**145 semantic colour tokens match on both Light and Dark**, and every other
+collection is unchanged (Spacing 10 · Radius 8 · Sizing 17 · Type 78 ·
+Breakpoint 5 · Primitive Color 142). Publishing changed no values, so no
+regeneration was needed.
+
+What this does change: Figma consumers now resolve through the v1.1 semantic
+collections rather than falling back to the old primitives, so newly built
+screens and the code layer are finally on the same tier.
+
+**It does not change the chart ramp.** `Chart/Series 2` is still `#808135`,
+`Chart/Series 3` still `#cb0000`, and `Chart/Negative` still shares that hex in
+Light. Gap 1 remains fully open — publishing distributed the ramp, it did not
+re-step it.
 
 ---
 
