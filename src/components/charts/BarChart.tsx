@@ -1,7 +1,9 @@
-import { cx } from '../../utils/cx.js';
-import { ChartFrame, PLOT, type ChartGrid } from './ChartFrame.js';
+import type { ChartConfiguration } from 'chart.js';
+import { ChartCanvas } from './ChartCanvas.js';
 import { ChartLegend } from './ChartLegend.js';
-import { seriesColor } from './series.js';
+import { baseChartOptions, chartScaffold, type ChartGrid } from './chartSetup.js';
+import { directLabelsPlugin } from './plugins.js';
+import type { ChartTokens } from './chartTokens.js';
 
 export interface BarChartProps {
   categories: string[];
@@ -15,85 +17,101 @@ export interface BarChartProps {
    */
   type?: 'grouped' | 'stacked';
   grid?: ChartGrid;
-  title?: string;
-  /** Formats the y-axis ticks and any direct labels. */
+  title: string;
   format?: (value: number) => string;
+  /** The category axis name, used in the screen-reader table. */
+  categoryLabel?: string;
+  height?: number;
   className?: string;
 }
-
-const GAP = 2; // 2px surface gap between adjacent bars and stacked segments.
-const RADIUS = 4; // Rounded tops only — bars are anchored to the baseline.
 
 /**
  * Bar Chart — magnitude compared across categories.
  *
  * Marks follow the house spec: bars anchored to the baseline with 4px rounded
- * tops only, and a 2px surface gap between adjacent bars and stacked segments.
+ * tops only, and a 2px surface gap between adjacent bars and between stacked
+ * segments.
  *
- * Accessibility: the Chart/Series ramp has not passed CVD validation in Light
- * mode, so this chart always ships a legend. With three or more series, add
- * direct labels or spatial separation as well.
+ * Accessibility: always ships a legend and a screen-reader data table. With
+ * three or more series it also turns on direct labels, because the
+ * Chart/Series ramp has not passed CVD validation.
  */
 export function BarChart({
-  categories, series, type = 'grouped', grid = 'horizontal', title, format = String, className,
+  categories, series, type = 'grouped', grid = 'horizontal',
+  title, format = String, categoryLabel = 'Category', height = 240, className,
 }: BarChartProps) {
-  const { x, y, width, height } = PLOT;
-  const bandWidth = width / Math.max(categories.length, 1);
+  const stacked = type === 'stacked';
 
-  const max =
-    type === 'stacked'
-      ? Math.max(...categories.map((_, ci) => series.reduce((sum, s) => sum + (s.values[ci] ?? 0), 0)), 0)
-      : Math.max(...series.flatMap((s) => s.values), 0);
-  const scale = max > 0 ? height / max : 0;
+  /**
+   * Direct labels, and where they go.
+   *
+   * Grouped: label every bar. Three or more series hits the unresolved
+   * Series 2/3 CVD clash, so identity cannot rest on the legend alone, and a
+   * label above a grouped bar lands on the page background where it is legible.
+   *
+   * Stacked: label the column total only. A per-segment label sits on top of
+   * the segment above it, which puts dark text on a dark fill — and there is no
+   * per-series on-colour token to switch to. Stacked bars carry identity by
+   * stack order instead, which is a non-colour channel and is stable across
+   * categories, and the total is the reason to stack in the first place.
+   */
+  const directLabels = stacked || series.length >= 3 || series.length === 1;
+  const topDataset = series.length - 1;
+  const columnTotal = (ci: number) => series.reduce((sum, s) => sum + (s.values[ci] ?? 0), 0);
 
-  const ticks = Array.from({ length: 5 }, (_, i) => format((max / 4) * (4 - i)));
+  const build = (t: ChartTokens): ChartConfiguration<'bar'> => {
+    const scales = chartScaffold(t, grid, format);
+    return {
+      type: 'bar',
+      data: {
+        labels: categories,
+        datasets: series.map((s, i) => ({
+          label: s.label,
+          data: s.values,
+          backgroundColor: t.series[i % 8],
+          // Rounded tops only: the bar is anchored to the baseline. In a stack
+          // only the topmost segment gets the radius.
+          borderRadius: !stacked || i === series.length - 1 ? 4 : 0,
+          borderSkipped: 'bottom' as const,
+          // The 2px surface gap between stacked segments.
+          ...(stacked ? { borderColor: t.surface, borderWidth: { top: 2 } } : {}),
+        })),
+      },
+      options: {
+        ...baseChartOptions(t),
+        scales: {
+          x: { ...scales.x, stacked },
+          y: { ...scales.y, stacked },
+        },
+        // Leaves a 2px-equivalent gap between adjacent bars in a group.
+        datasets: { bar: { categoryPercentage: 0.7, barPercentage: 0.9 } },
+      },
+      plugins: directLabels
+        ? [
+            directLabelsPlugin({
+              tokens: t,
+              format,
+              valueAt: stacked
+                ? (di, i) => (di === topDataset ? columnTotal(i) : null)
+                : undefined,
+            }),
+          ]
+        : [],
+    };
+  };
 
   return (
-    <figure className={cx('scalar-chart-figure', className)}>
-      <ChartFrame ticks={ticks} categories={categories} grid={grid} title={title}>
-        {categories.map((_, ci) => {
-          const bandX = x + bandWidth * ci;
-
-          if (type === 'stacked') {
-            let cursor = y + height;
-            return series.map((s, si) => {
-              const value = s.values[ci] ?? 0;
-              const h = Math.max(value * scale - GAP, 0);
-              cursor -= h + GAP;
-              const isTop = si === series.length - 1;
-              return (
-                <rect
-                  key={`${ci}-${si}`}
-                  x={bandX + bandWidth * 0.2}
-                  y={cursor}
-                  width={bandWidth * 0.6}
-                  height={h}
-                  rx={isTop ? RADIUS : 0}
-                  fill={seriesColor(si)}
-                />
-              );
-            });
-          }
-
-          const slot = (bandWidth * 0.7) / Math.max(series.length, 1);
-          return series.map((s, si) => {
-            const value = s.values[ci] ?? 0;
-            const h = value * scale;
-            return (
-              <rect
-                key={`${ci}-${si}`}
-                x={bandX + bandWidth * 0.15 + slot * si + GAP / 2}
-                y={y + height - h}
-                width={Math.max(slot - GAP, 1)}
-                height={h}
-                rx={RADIUS}
-                fill={seriesColor(si)}
-              />
-            );
-          });
-        })}
-      </ChartFrame>
+    <ChartCanvas
+      build={build}
+      title={title}
+      height={height}
+      className={className}
+      table={{
+        columns: [categoryLabel, ...series.map((s) => s.label)],
+        rows: categories.map((c, ci) => [c, ...series.map((s) => format(s.values[ci] ?? 0))]),
+      }}
+    >
       <ChartLegend labels={series.map((s) => s.label)} />
-    </figure>
+    </ChartCanvas>
   );
 }

@@ -19,7 +19,8 @@
   "react": "https://esm.sh/react@18.3.1",
   "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
   "react-dom": "https://esm.sh/react-dom@18.3.1",
-  "react-dom/client": "https://esm.sh/react-dom@18.3.1/client"
+  "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
+  "chart.js": "https://esm.sh/chart.js@4.5.1"
 } }
 </script>
 </head>
@@ -158,13 +159,55 @@ function Demo() {
 
     h('div', { className: 'grid2' },
       h('div', { className: 'panel' },
-        h(S.Heading, { level: 2, step: 'l' }, 'Charts'),
+        h(S.Heading, { level: 2, step: 'l' }, 'Bar — grouped'),
         h(S.BarChart, {
           title: 'Revenue by quarter',
+          categoryLabel: 'Quarter',
           categories: ['Q1', 'Q2', 'Q3', 'Q4'],
           series: [
             { label: 'Product', values: [12, 18, 15, 22] },
             { label: 'Services', values: [8, 10, 14, 12] }
+          ],
+          format: (v) => '$' + Math.round(v) + 'M'
+        })
+      ),
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Bar — stacked, 3 series'),
+        h(S.BarChart, {
+          title: 'Headcount by function',
+          type: 'stacked',
+          categoryLabel: 'Quarter',
+          categories: ['Q1', 'Q2', 'Q3', 'Q4'],
+          series: [
+            { label: 'Engineering', values: [20, 24, 26, 30] },
+            { label: 'Sales', values: [10, 12, 14, 15] },
+            { label: 'Ops', values: [6, 7, 7, 9] }
+          ],
+          format: (v) => Math.round(v)
+        })
+      ),
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Line'),
+        h(S.LineChart, {
+          title: 'Valuation over time',
+          categoryLabel: 'Quarter',
+          categories: ['Q1', 'Q2', 'Q3', 'Q4'],
+          series: [
+            { label: 'Equity value', values: [24, 28, 27, 36] },
+            { label: 'Enterprise value', values: [30, 33, 34, 41] }
+          ],
+          format: (v) => '$' + Math.round(v) + 'M'
+        })
+      ),
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Line — area'),
+        h(S.LineChart, {
+          title: 'Cash position',
+          type: 'area',
+          categoryLabel: 'Quarter',
+          categories: ['Q1', 'Q2', 'Q3', 'Q4'],
+          series: [
+            { label: 'Cash', values: [18, 22, 19, 26] }
           ],
           format: (v) => '$' + Math.round(v) + 'M'
         })
@@ -179,6 +222,20 @@ function Demo() {
             { label: 'New round', value: 12 },
             { label: 'Buyback', value: -6 },
             { label: 'End', value: 36, total: true }
+          ]
+        })
+      ),
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Donut'),
+        h(S.DonutChart, {
+          title: 'Ownership split',
+          total: '100%',
+          caption: 'Fully diluted',
+          slices: [
+            { label: 'Founders', value: 42 },
+            { label: 'Series A', value: 28 },
+            { label: 'Series B', value: 18 },
+            { label: 'Option pool', value: 12 }
           ]
         })
       )

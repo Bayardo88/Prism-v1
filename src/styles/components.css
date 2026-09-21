@@ -1127,6 +1127,10 @@
 .scalar-chart__value { fill: var(--color-text-primary); font-size: var(--font-size-text-s); font-weight: var(--font-weight-semi-bold); }
 .scalar-chart__marker-ring { stroke: var(--color-bg-surface); stroke-width: 2; }
 
+/* Chart.js draws into this box; it owns the height, the canvas fills it. */
+.scalar-chart-canvas { position: relative; width: 100%; }
+.scalar-chart-canvas > canvas { display: block; width: 100% !important; height: 100% !important; }
+
 .scalar-chart-legend { display: flex; flex-wrap: wrap; gap: var(--space-m); }
 .scalar-chart-legend-item { display: inline-flex; align-items: center; gap: var(--space-xs); font-family: var(--font-family-default); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); color: var(--color-text-primary); }
 .scalar-chart-legend-item__swatch { width: var(--space-m); height: var(--space-m); border-radius: var(--radius-2xs); flex: none; }

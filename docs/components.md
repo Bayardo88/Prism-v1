@@ -145,14 +145,31 @@ header behaviour is not re-implemented per page.
 
 ## 12 · Charts (6)
 
+Charts are the one group not drawn by this package: they are **Chart.js 4**
+configured against the Scalar tokens.
+
 | Figma | Variants | React | File |
 |---|---|---|---|
-| Chart Frame | Grid | = `ChartFrame` | `charts/ChartFrame.tsx` |
+| Chart Frame | Grid | ⊕ `chartScaffold()` | `charts/chartSetup.ts` |
 | Chart Legend Item | Series 1–8 | = `ChartLegendItem` (+ `ChartLegend`) | `charts/ChartLegend.tsx` |
 | Bar Chart | Type | = `BarChart` | `charts/BarChart.tsx` |
 | Line Chart | Type | = `LineChart` | `charts/LineChart.tsx` |
 | Waterfall Chart | — | = `WaterfallChart` | `charts/WaterfallChart.tsx` |
 | Donut Chart | State | = `DonutChart` | `charts/DonutChart.tsx` |
+| — | — | ＋ `ChartCanvas` | `charts/ChartCanvas.tsx` |
+| — | — | ＋ `useChartTokens` / `resolveChartTokens` | `charts/useChartTokens.ts` |
+| — | — | ＋ direct-label, connector and donut-centre plugins | `charts/plugins.ts` |
+
+**`Chart Frame` is not a component here.** In Figma it is drawn geometry — a
+416 × 192 plot area at an origin of 48, 8. With Chart.js the scaffold is scale
+configuration, so it is expressed as `chartScaffold(tokens, grid, format)`
+returning Chart.js scale options, and Chart.js owns the geometry responsively.
+Its `Grid` variant survives as the `grid` prop (`horizontal` · `both` · `none`).
+
+**Additions exist because canvas cannot read CSS.** `ChartCanvas` owns the
+Chart.js lifecycle, re-resolving tokens on theme change, and the screen-reader
+data table. The plugins cover marks Chart.js has no native equivalent for:
+direct labels, waterfall connectors, and the donut's centre total.
 
 ## 13 · Summary Card (2)
 
@@ -225,6 +242,9 @@ repeating them per page would guarantee drift.
 | `Icon` | Sizing and tint wrapper. Enforces the re-tint that SDS_Main glyphs require. |
 | `Typography` / `Heading` / `Text` / `Label` / `Overline` | The type ramp as components. Figma expresses this as 68 text styles. |
 | `DataGrid` | The grid shell — sticky header and scroll container. |
+| `ChartCanvas` | Chart.js lifecycle, token re-resolution on theme change, and the screen-reader data table. |
+| `chartScaffold` / `baseChartOptions` | The Figma Chart Frame spec as Chart.js options. |
+| `useChartTokens` / `resolveChartTokens` | The CSS-variable → canvas bridge. |
 | `Modal` | The reusable dialog shell behind `Add_Column_Modal`. |
 | `ToastViewport` | The fixed stack toasts render into. |
 | `MenuPanel` / `MenuGroupLabel` | The floating surface shared by every dropdown. |

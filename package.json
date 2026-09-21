@@ -20,7 +20,11 @@
       "types": "./dist/tokens/index.d.ts",
       "default": "./dist/tokens/index.js"
     },
-    "./styles.css": "./dist/styles/scalar.css"
+    "./styles.css": "./dist/styles/scalar.css",
+    "./charts": {
+      "types": "./dist/components/charts/index.d.ts",
+      "default": "./dist/components/charts/index.js"
+    }
   },
   "files": [
     "dist"
@@ -41,5 +45,8 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.1"
   }
 }

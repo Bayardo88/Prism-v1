@@ -16,8 +16,15 @@ separate by only **ΔE 4.9 under deuteranopia**, below the ΔE 6 floor. Separate
 so a categorical series and a semantic "bad" both read as the same red.
 
 **Mitigation, required today:** any chart using three or more series ships a
-legend **and** direct labels or texture. `seriesAccessibilityWarning()` in
-`src/components/charts/series.ts` is the programmatic guard.
+legend **and** direct labels or texture. `BarChart` does this automatically.
+`seriesAccessibilityWarning()` in `src/components/charts/series.ts` is the
+programmatic guard for charts you build yourself.
+
+Stacked bars are a deliberate exception: a per-segment label sits on top of the
+segment above it, putting dark text on a dark fill, and the system has no
+per-series on-colour token to switch to. They label the column total instead and
+carry identity by stack order — a non-colour channel, stable across categories.
+A `Chart/Series N/On` ramp would remove the exception.
 
 **Real fix:** re-step the `Chart/Series` ramp in the v1.1 tokens file. Still
 outstanding as of 2026-09-21 — confirmed unchanged after the libraries were

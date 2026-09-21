@@ -38,6 +38,13 @@ Everything else imports by name from the package root:
 import { Button, DataGrid, Cell, color, space, type } from '@scalar/design-system';
 ```
 
+Charts pull in Chart.js. If your bundle is size-sensitive and a route uses no
+charts, import them from the narrow entry point instead of the root barrel:
+
+```tsx
+import { BarChart } from '@scalar/design-system/charts';
+```
+
 ---
 
 ## 1. The hard rules
@@ -201,6 +208,11 @@ Find the **intent**, not the shape.
 | A dense grid of figures | `DataGrid` + `Row` + `Cell` | an HTML `<table>` |
 | Explain the control under the pointer | `Tooltip` | placeholder text |
 | Search everything, from anywhere | `GlobalSearch` | a page filter |
+| Compare magnitude across categories | `BarChart` | a line chart |
+| Show change over time | `LineChart` | a bar chart |
+| Show composition **and** a meaningful total | `BarChart type="stacked"` | a donut over time |
+| Show one composition's split | `DonutChart` (≤8 slices) | a pie |
+| Show how a figure becomes another figure | `WaterfallChart` | a bar chart |
 
 ---
 
@@ -366,13 +378,43 @@ The header is sticky in use — keep it in `head`, outside the scroll container.
 
 ### Charts
 
-`BarChart` · `LineChart` · `WaterfallChart` · `DonutChart` · `ChartFrame` ·
-`ChartLegend` + `ChartLegendItem` · `seriesColor` · `seriesAccessibilityWarning`
+Built on **Chart.js 4**. `BarChart` · `LineChart` · `WaterfallChart` ·
+`DonutChart` · `ChartCanvas` · `ChartLegend` + `ChartLegendItem` ·
+`chartScaffold` · `resolveChartTokens` · `useChartTokens` · the plugins.
+
+```tsx
+<BarChart
+  title="Revenue by quarter"        // required — the canvas's accessible name
+  categoryLabel="Quarter"           // column heading in the hidden data table
+  categories={['Q1', 'Q2', 'Q3', 'Q4']}
+  series={[{ label: 'Product', values: [12, 18, 15, 22] }]}
+  format={(v) => `$${v}M`}
+/>
+```
+
+**Chart.js draws to a canvas, and canvas cannot read CSS custom properties.**
+Every token is therefore resolved to a concrete value before it is handed over,
+and re-resolved when the theme changes. That bridge is `useChartTokens`, and it
+watches three things: `data-theme`, `data-viewport`, and the OS colour scheme
+(which fires no attribute mutation at all). **Never pass a raw hex or a
+`var(--…)` string into a Chart.js config** — `var()` does not resolve on canvas
+and will render as transparent. Take the value off the `ChartTokens` object.
+
+Building a chart this package does not ship? Use `ChartCanvas` with
+`chartScaffold()` and `baseChartOptions()` rather than configuring Chart.js from
+scratch — that is what keeps a new chart on the system's axis, grid and type
+tokens.
+
+Rules:
 
 - Assign series **in order** and never cycle. A ninth series folds into "Other"
   or becomes small multiples.
-- A legend is **mandatory** at two or more series. At four or fewer, direct-label
-  on the chart as well.
+- A legend is **mandatory** at two or more series. The built-in Chart.js legend
+  is always off: the Scalar legend is a real DOM component, because a
+  canvas-drawn legend is unreachable by a screen reader.
+- **Every chart ships a `title` and a hidden data table.** A canvas is opaque to
+  assistive technology, so the table is the only way the numbers are reachable
+  without sight. The shipped charts build it for you.
 - `BarChart type="stacked"` only when the **total** is meaningful.
 - `LineChart type="area"` only for one cumulative quantity, or ≤3 series.
 - **Never two y-scales on one chart.** Two magnitudes become two charts, or one
@@ -384,10 +426,18 @@ The header is sticky in use — keep it in `head`, outside the scroll container.
 
 > ⚠️ **Open accessibility gap.** `Chart/Series` has not passed CVD validation in
 > Light mode: Series 2 and Series 3 separate by only ΔE 4.9 under deuteranopia
-> (floor is ΔE 6), and Series 3 shares its hex with `Chart/Negative`. Until those
-> tokens are re-stepped, **any chart using three or more series must carry direct
-> labels or texture in addition to the legend.** `seriesAccessibilityWarning()`
+> (floor is ΔE 6), and Series 3 shares its hex with `Chart/Negative`.
+>
+> The shipped charts mitigate this **automatically** — `BarChart` turns direct
+> labels on at three or more series. If you build your own chart, you own that
+> obligation: add direct labels or texture, and `seriesAccessibilityWarning()`
 > is the programmatic guard.
+>
+> Stacked bars are the one exception, and deliberately so: a per-segment label
+> sits on top of the segment above it, putting dark text on a dark fill, and
+> there is no per-series on-colour token to switch to. Stacked bars label the
+> **column total** instead and carry identity by stack order, which is a
+> non-colour channel and is stable across categories.
 
 ### Feedback, containers, search
 

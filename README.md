@@ -120,9 +120,19 @@ Never edit `tokens.json` or `generated.ts` by hand — they are regenerated.
 
 ## Styling approach
 
-Plain CSS with custom properties. No CSS-in-JS, no Tailwind, no runtime
-dependency beyond React. Theming is a `data-theme` attribute, so switching mode
-costs nothing and never re-renders a component tree.
+Plain CSS with custom properties. No CSS-in-JS, no Tailwind. Theming is a
+`data-theme` attribute, so switching mode costs nothing and never re-renders a
+component tree.
+
+The one runtime dependency is **Chart.js 4**, used by the chart components.
+Because canvas cannot read CSS custom properties, charts resolve their tokens to
+concrete values and re-resolve them whenever the theme changes — see
+`src/components/charts/useChartTokens.ts`. If a route uses no charts, import
+from the narrow entry point so Chart.js stays out of that bundle:
+
+```tsx
+import { BarChart } from '@scalar/design-system/charts';
+```
 
 Component classes are prefixed `scalar-`. To extend a component, pass
 `className` — every component forwards it.

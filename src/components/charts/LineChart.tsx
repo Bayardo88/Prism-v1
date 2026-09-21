@@ -1,7 +1,8 @@
-import { cx } from '../../utils/cx.js';
-import { ChartFrame, PLOT, type ChartGrid } from './ChartFrame.js';
+import type { ChartConfiguration } from 'chart.js';
+import { ChartCanvas } from './ChartCanvas.js';
 import { ChartLegend } from './ChartLegend.js';
-import { seriesColor, seriesSubtleColor } from './series.js';
+import { baseChartOptions, chartScaffold, type ChartGrid } from './chartSetup.js';
+import type { ChartTokens } from './chartTokens.js';
 
 export interface LineChartProps {
   categories: string[];
@@ -12,8 +13,10 @@ export interface LineChartProps {
    */
   type?: 'line' | 'area';
   grid?: ChartGrid;
-  title?: string;
+  title: string;
   format?: (value: number) => string;
+  categoryLabel?: string;
+  height?: number;
   className?: string;
 }
 
@@ -30,65 +33,62 @@ export interface LineChartProps {
  * become two charts, or one indexed to a common base.
  */
 export function LineChart({
-  categories, series, type = 'line', grid = 'horizontal', title, format = String, className,
+  categories, series, type = 'line', grid = 'horizontal',
+  title, format = String, categoryLabel = 'Category', height = 240, className,
 }: LineChartProps) {
-  const { x, y, width, height } = PLOT;
-  const band = width / Math.max(categories.length, 1);
-  const max = Math.max(...series.flatMap((s) => s.values), 0);
-  const scale = max > 0 ? height / max : 0;
-  const ticks = Array.from({ length: 5 }, (_, i) => format((max / 4) * (4 - i)));
+  const area = type === 'area';
 
-  const pointsFor = (values: number[]) =>
-    values.map((v, i) => ({ px: x + band * i + band / 2, py: y + height - v * scale }));
+  const build = (t: ChartTokens): ChartConfiguration<'line'> => {
+    const scales = chartScaffold(t, grid, format);
 
-  // Largest first, so smaller series are never buried under a bigger fill.
-  const paintOrder = series
-    .map((s, i) => ({ s, i, total: s.values.reduce((a, b) => a + b, 0) }))
-    .sort((a, b) => b.total - a.total);
+    // Largest total first, so a bigger fill never buries a smaller one.
+    const paintOrder = series
+      .map((s, i) => ({ i, total: s.values.reduce((a, b) => a + b, 0) }))
+      .sort((a, b) => b.total - a.total)
+      .reduce<Record<number, number>>((acc, entry, rank) => ({ ...acc, [entry.i]: rank }), {});
+
+    return {
+      type: 'line',
+      data: {
+        labels: categories,
+        datasets: series.map((s, i) => ({
+          label: s.label,
+          data: s.values,
+          borderColor: t.series[i % 8],
+          backgroundColor: area ? t.seriesSubtle[i % 8] : t.series[i % 8],
+          fill: area ? 'origin' : false,
+          order: paintOrder[i] ?? i,
+          tension: 0,
+          borderWidth: 2,
+          borderCapStyle: 'round' as const,
+          borderJoinStyle: 'round' as const,
+          pointRadius: 4,
+          pointHoverRadius: 5,
+          pointBackgroundColor: t.series[i % 8],
+          pointBorderColor: t.surface,
+          pointBorderWidth: 2,
+        })),
+      },
+      options: {
+        ...baseChartOptions(t),
+        scales: { x: scales.x, y: scales.y },
+        interaction: { mode: 'index' as const, intersect: false },
+      },
+    };
+  };
 
   return (
-    <figure className={cx('scalar-chart-figure', className)}>
-      <ChartFrame ticks={ticks} categories={categories} grid={grid} title={title}>
-        {type === 'area' &&
-          paintOrder.map(({ s, i }) => {
-            const pts = pointsFor(s.values);
-            if (pts.length === 0) return null;
-            const d =
-              `M ${pts[0]!.px} ${y + height} ` +
-              pts.map((p) => `L ${p.px} ${p.py}`).join(' ') +
-              ` L ${pts[pts.length - 1]!.px} ${y + height} Z`;
-            return <path key={`area-${i}`} d={d} fill={seriesSubtleColor(i)} />;
-          })}
-
-        {series.map((s, i) => {
-          const pts = pointsFor(s.values);
-          return (
-            <polyline
-              key={`line-${i}`}
-              points={pts.map((p) => `${p.px},${p.py}`).join(' ')}
-              fill="none"
-              stroke={seriesColor(i)}
-              strokeWidth={2}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          );
-        })}
-
-        {series.map((s, i) =>
-          pointsFor(s.values).map((p, pi) => (
-            <circle
-              key={`m-${i}-${pi}`}
-              className="scalar-chart__marker-ring"
-              cx={p.px}
-              cy={p.py}
-              r={4}
-              fill={seriesColor(i)}
-            />
-          )),
-        )}
-      </ChartFrame>
+    <ChartCanvas
+      build={build}
+      title={title}
+      height={height}
+      className={className}
+      table={{
+        columns: [categoryLabel, ...series.map((s) => s.label)],
+        rows: categories.map((c, ci) => [c, ...series.map((s) => format(s.values[ci] ?? 0))]),
+      }}
+    >
       <ChartLegend labels={series.map((s) => s.label)} />
-    </figure>
+    </ChartCanvas>
   );
 }
