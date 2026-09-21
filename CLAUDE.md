@@ -19,7 +19,9 @@ on it.
    `docs/tokens.md` are **generated** — never hand-edit them.
 2. **`npm run verify` must pass** before any commit. It typechecks and runs the
    token-contract linter, which fails on raw hex, raw px in scaled properties,
-   and unresolved `var()` references.
+   unresolved `var()` references, and contract violations inside JSX
+   `style={{ … }}` objects — including type set from a sizing token, and the
+   `space` / `size` scales being crossed.
 3. **No raw colour or spacing literals in `src/styles/components.css`.** The
    component layer resolves to semantic tokens only. The linter enforces this.
 4. **Never consume a `--primitive-*` token in a component.** They have no mode

@@ -151,7 +151,7 @@ scripts/
 |---|---|
 | `npm run verify` | Typecheck **and** token-contract lint. Run before every PR. |
 | `npm run build` | Compiles TS to `dist/` and bundles `dist/styles/scalar.css`. |
-| `npm run lint:tokens` | Fails on raw hex, raw px in scaled properties, and unresolved `var()` references. |
+| `npm run lint:tokens` | Fails on raw hex, raw px in scaled properties, unresolved `var()` references, and the same violations inside JSX `style={{ … }}` objects. |
 | `npm run gen:tokens` | Regenerates the TS token layer from `tokens.css`. |
 | `npm run typecheck` | `tsc --noEmit`. |
 

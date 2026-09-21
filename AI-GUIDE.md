@@ -484,6 +484,10 @@ Rules:
 npm run verify     # typecheck + token-contract lint
 ```
 
+The linter reads both CSS **and** JSX `style={{ … }}` objects, so it catches a
+raw hex, a hard-coded gap, type set from a sizing token, and the `space` /
+`size` scales being crossed — wherever you wrote them.
+
 Then check by hand:
 
 - [ ] No raw hex, `rgb()`, or hard-coded px in anything you wrote.
