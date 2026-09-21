@@ -27,7 +27,17 @@ picture of a screen.
 | Tokens | `anrnTIJKgu27zV224h7vON` | variables + 3 elevation styles |
 
 Both are published, so `importComponentByKeyAsync` and
-`importVariableByKeyAsync` work from any file.
+`importVariableByKeyAsync` work from any file — **except `cell` and `Header`,
+which are UNPUBLISHED** and will fail to import. They are the atoms of the data
+grid, so a data-sheet screen cannot have its grid filled until they are
+published. Leave the region marked rather than redrawing it. See
+`docs/known-gaps.md` gap 9.
+
+Check before you start:
+
+```js
+await node.getPublishStatusAsync()   // 'CURRENT' | 'CHANGED' | 'UNPUBLISHED'
+```
 
 ## Sequence
 
@@ -39,13 +49,19 @@ Both are published, so `importComponentByKeyAsync` and
    region of the screen. Return the node ids.
 4. **Fill one region per call.** Instance the component, set its variant
    properties to match the React props, then `placeholder = false`.
-5. **Bind variables, do not paste values.** Padding and gap bind to
+5. **Set content through component properties, not by redrawing.** Nested
+   instances expose their own text and variant properties — read
+   `instance.componentProperties` and set them with `setProperties`. A composed
+   component may already contain a region you were about to add yourself:
+   `Company info` carries its own secondary nav, so adding a separate bar
+   duplicates it.
+6. **Bind variables, do not paste values.** Padding and gap bind to
    `Semantic: Spacing`, fills to `Semantic: Color`, radius to `Semantic: Radius`,
    type to `Semantic: Type`. A hard-coded hex in Figma is the same bug as a hard
    -coded hex in CSS.
-6. **Set the type mode on the frame** — Desktop (1440), Desktop Large (1920) or
+7. **Set the type mode on the frame** — Desktop (1440), Desktop Large (1920) or
    Mobile (393). Never hand-resize type to fit.
-7. **Screenshot and compare** against the rendered React screen. Fix drift
+8. **Screenshot and compare** against the rendered React screen. Fix drift
    before handing over.
 
 ## Mapping props to variants

@@ -123,6 +123,41 @@ re-step it.
 
 ---
 
+## 9. `cell` and `Header` are not published
+
+**Severity: blocks assembling any data sheet in Figma from the library.**
+
+Found 2026-09-21 while pushing a generated cap-table screen back into Figma.
+`importComponentSetByKeyAsync` failed for both, and `getPublishStatusAsync()`
+confirms it:
+
+| Component | Variants | Publish status |
+|---|---|---|
+| `cell` | 145 | **UNPUBLISHED** |
+| `Header` | 11 | **UNPUBLISHED** |
+| every other component sampled, across 4 pages | — | `CURRENT` |
+
+These two are the atoms of the data grid — the core Scalar screen. While they
+are unpublished, a designer cannot place a data cell or a column header from the
+library in any file, and the code→design push cannot fill the grid region of a
+data-sheet screen.
+
+They are also the two highest-variant sets in the file, which is the likely
+cause: large variant sets are the usual thing to fail or get skipped during a
+publish.
+
+**Mitigation:** none worth having. A grid redrawn from rectangles and text looks
+right in a screenshot and is worthless afterwards — it will not respond to a
+token change and no variant can be swapped. The generated screen leaves the
+region marked instead.
+
+**Real fix:** publish both from the components file, then re-run the push.
+
+This does not affect the code layer: `Cell`, `ColumnHeader` and `Row` are
+generated from the component definitions, not from the published library.
+
+---
+
 ## 8. Row grouping is modelled three different ways
 
 `Row-reading`, `Row-input` and `cell` each express grouping with their own
