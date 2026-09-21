@@ -1,0 +1,115 @@
+/* =============================================================================
+ * SCALAR DESIGN SYSTEM — BASE LAYER
+ * Page defaults, the type ramp as utility classes, and the shared primitives
+ * every component leans on (focus ring, touch target, visually-hidden).
+ * ========================================================================== */
+
+.scalar-page {
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-text-m);
+  line-height: var(--line-height-text-m);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* -----------------------------------------------------------------------------
+ * Focus ring — 2px OUTSIDE the control, on Stroke/Focus.
+ * Drawn outside so it never changes the control's box and never overlaps the
+ * label. `:focus-visible` only: a mouse press must not paint a ring.
+ * -------------------------------------------------------------------------- */
+.scalar-focusable:focus-visible,
+.scalar-focus-ring {
+  outline: 2px solid var(--color-stroke-focus);
+  outline-offset: 2px;
+}
+
+/* -----------------------------------------------------------------------------
+ * Touch target — mirrors the locked "Touch target" frame in Figma.
+ * The drawn control stays its designed size; a centred pseudo-element carries
+ * the 44px target (Semantic: Sizing/Target/Minimum).
+ * -------------------------------------------------------------------------- */
+.scalar-target::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  min-width: var(--size-target-minimum);
+  min-height: var(--size-target-minimum);
+  width: 100%;
+  height: 100%;
+}
+
+/* Dense grid furniture cannot reach 44px — a documented, deliberate exception. */
+.scalar-target--dense::after {
+  min-width: var(--size-target-dense);
+  min-height: var(--size-target-dense);
+}
+
+.scalar-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* -----------------------------------------------------------------------------
+ * Type ramp. One class per role/step; weight is a separate, orthogonal class
+ * (contract rule R7). Never set letter-spacing on top of these (rule R10).
+ * -------------------------------------------------------------------------- */
+[class*='scalar-type-'] {
+  font-family: var(--font-family-default);
+  margin: 0;
+}
+
+.scalar-type-display-s  { font-size: var(--font-size-display-s);  line-height: var(--line-height-display-s);  letter-spacing: var(--letter-spacing-display-s); }
+.scalar-type-display-m  { font-size: var(--font-size-display-m);  line-height: var(--line-height-display-m);  letter-spacing: var(--letter-spacing-display-m); }
+.scalar-type-display-l  { font-size: var(--font-size-display-l);  line-height: var(--line-height-display-l);  letter-spacing: var(--letter-spacing-display-l); }
+
+.scalar-type-heading-s   { font-size: var(--font-size-heading-s);   line-height: var(--line-height-heading-s);   letter-spacing: var(--letter-spacing-heading-s); }
+.scalar-type-heading-m   { font-size: var(--font-size-heading-m);   line-height: var(--line-height-heading-m);   letter-spacing: var(--letter-spacing-heading-m); }
+.scalar-type-heading-l   { font-size: var(--font-size-heading-l);   line-height: var(--line-height-heading-l);   letter-spacing: var(--letter-spacing-heading-l); }
+.scalar-type-heading-xl  { font-size: var(--font-size-heading-xl);  line-height: var(--line-height-heading-xl);  letter-spacing: var(--letter-spacing-heading-xl); }
+.scalar-type-heading-2xl { font-size: var(--font-size-heading-2xl); line-height: var(--line-height-heading-2xl); letter-spacing: var(--letter-spacing-heading-2xl); }
+.scalar-type-heading-3xl { font-size: var(--font-size-heading-3xl); line-height: var(--line-height-heading-3xl); letter-spacing: var(--letter-spacing-heading-3xl); }
+.scalar-type-heading-4xl { font-size: var(--font-size-heading-4xl); line-height: var(--line-height-heading-4xl); letter-spacing: var(--letter-spacing-heading-4xl); }
+.scalar-type-heading-5xl { font-size: var(--font-size-heading-5xl); line-height: var(--line-height-heading-5xl); letter-spacing: var(--letter-spacing-heading-5xl); }
+
+.scalar-type-text-s   { font-size: var(--font-size-text-s);   line-height: var(--line-height-text-s);   letter-spacing: var(--letter-spacing-text-s); }
+.scalar-type-text-m   { font-size: var(--font-size-text-m);   line-height: var(--line-height-text-m);   letter-spacing: var(--letter-spacing-text-m); }
+.scalar-type-text-l   { font-size: var(--font-size-text-l);   line-height: var(--line-height-text-l);   letter-spacing: var(--letter-spacing-text-l); }
+.scalar-type-text-xl  { font-size: var(--font-size-text-xl);  line-height: var(--line-height-text-xl);  letter-spacing: var(--letter-spacing-text-xl); }
+.scalar-type-text-2xl { font-size: var(--font-size-text-2xl); line-height: var(--line-height-text-2xl); letter-spacing: var(--letter-spacing-text-2xl); }
+
+.scalar-type-label-s { font-size: var(--font-size-label-s); line-height: var(--line-height-label-s); letter-spacing: var(--letter-spacing-label-s); }
+.scalar-type-label-m { font-size: var(--font-size-label-m); line-height: var(--line-height-label-m); letter-spacing: var(--letter-spacing-label-m); }
+.scalar-type-label-l { font-size: var(--font-size-label-l); line-height: var(--line-height-label-l); letter-spacing: var(--letter-spacing-label-l); }
+
+.scalar-type-link-s { font-size: var(--font-size-link-s); line-height: var(--line-height-link-s); letter-spacing: var(--letter-spacing-link-s); }
+.scalar-type-link-m { font-size: var(--font-size-link-m); line-height: var(--line-height-link-m); letter-spacing: var(--letter-spacing-link-m); }
+.scalar-type-link-l { font-size: var(--font-size-link-l); line-height: var(--line-height-link-l); letter-spacing: var(--letter-spacing-link-l); }
+
+/* Overline is the uppercase role and owns the +0.8px tracking. */
+.scalar-type-overline-s { font-size: var(--font-size-overline-s); line-height: var(--line-height-overline-s); letter-spacing: var(--letter-spacing-overline-s); text-transform: uppercase; }
+.scalar-type-overline-m { font-size: var(--font-size-overline-m); line-height: var(--line-height-overline-m); letter-spacing: var(--letter-spacing-overline-m); text-transform: uppercase; }
+
+.scalar-weight-light     { font-weight: var(--font-weight-light); }
+.scalar-weight-regular   { font-weight: var(--font-weight-regular); }
+.scalar-weight-semi-bold { font-weight: var(--font-weight-semi-bold); }
+.scalar-weight-bold      { font-weight: var(--font-weight-bold); }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

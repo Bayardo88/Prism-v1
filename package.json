@@ -1,0 +1,45 @@
+{
+  "name": "@scalar/design-system",
+  "version": "1.1.0",
+  "description": "Scalar Design System \u2014 React component and design-token layer, generated from the Scalar_Design_System v1.1 Figma libraries.",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./tokens": {
+      "types": "./dist/tokens/index.d.ts",
+      "default": "./dist/tokens/index.js"
+    },
+    "./styles.css": "./dist/styles/scalar.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && npm run build:css",
+    "build:css": "node scripts/build-css.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint:tokens": "node scripts/lint-tokens.mjs",
+    "gen:tokens": "node scripts/gen-tokens.mjs",
+    "verify": "npm run typecheck && npm run lint:tokens"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.6.3"
+  }
+}

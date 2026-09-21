@@ -1,0 +1,860 @@
+/* =============================================================================
+ * SCALAR DESIGN SYSTEM — DESIGN TOKENS v1.1
+ * Generated from the live Figma libraries:
+ *   Tokens     — Scalar_Design_System-v1.1  (anrnTIJKgu27zV224h7vON)
+ *   Components — Scalar_Design_System-Components (Z4MtKOfkNEzhMYJzN1q3kR)
+ *
+ * DO NOT hand-edit values. Re-extract from Figma and regenerate.
+ *
+ * Contract rule R1: never consume a Primitive token in product code. The
+ * primitives below are published for documentation and tooling only — they
+ * have no mode and will not respond to the theme.
+ * ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+ * PRIMITIVE: COLOR — 142 steps. Reference only. Never bind product UI to these.
+ * -------------------------------------------------------------------------- */
+:root {
+  --primitive-neutral-white: #ffffff;
+  --primitive-neutral-black: #000000;
+  --primitive-neutral-50: #f8fafc;
+  --primitive-neutral-100: #f1f5f9;
+  --primitive-neutral-200: #e3e8f0;
+  --primitive-neutral-300: #cbd5e1;
+  --primitive-neutral-400: #94a3b8;
+  --primitive-neutral-500: #64748b;
+  --primitive-neutral-600: #475569;
+  --primitive-neutral-700: #334155;
+  --primitive-neutral-800: #1e293b;
+  --primitive-neutral-900: #0f172a;
+  --primitive-neutral-alpha-white-30: #ffffff4d;
+  --primitive-neutral-alpha-white-50: #ffffff80;
+  --primitive-neutral-alpha-white-70: #ffffffb2;
+  --primitive-neutral-alpha-black-08: #00000014;
+  --primitive-neutral-alpha-black-16: #00000029;
+  --primitive-neutral-alpha-black-30: #0000004d;
+  --primitive-neutral-alpha-black-40: #00000066;
+  --primitive-neutral-alpha-black-50: #00000080;
+  --primitive-neutral-alpha-black-60: #00000099;
+  --primitive-neutral-alpha-black-70: #000000b2;
+
+  --primitive-brand-50: #e9f3fd;
+  --primitive-brand-100: #cde5fa;
+  --primitive-brand-200: #9acbf6;
+  --primitive-brand-300: #68b1f1;
+  --primitive-brand-400: #3597ed;
+  --primitive-brand-500: #037de8;
+  --primitive-brand-600: #0268c1;
+  --primitive-brand-700: #02539a;
+  --primitive-brand-800: #013e73;
+  --primitive-brand-900: #01294c;
+
+  --primitive-blue-50: #e9ebfe;
+  --primitive-blue-100: #ced3fd;
+  --primitive-blue-200: #9ea7fa;
+  --primitive-blue-300: #6d7bf8;
+  --primitive-blue-400: #3d4ff5;
+  --primitive-blue-500: #2a3ef4;
+  --primitive-blue-600: #0a1cc2;
+  --primitive-blue-700: #071592;
+  --primitive-blue-800: #050e61;
+  --primitive-blue-900: #020731;
+
+  --primitive-green-50: #e0f5e9;
+  --primitive-green-100: #bbe8ce;
+  --primitive-green-200: #7ed6a5;
+  --primitive-green-300: #31c37b;
+  --primitive-green-400: #00b04f;
+  --primitive-green-500: #009c1c;
+  --primitive-green-600: #007e17;
+  --primitive-green-700: #006012;
+  --primitive-green-800: #00420f;
+  --primitive-green-900: #002409;
+
+  --primitive-red-50: #ffe6e7;
+  --primitive-red-100: #ffc8c9;
+  --primitive-red-200: #ff999c;
+  --primitive-red-300: #ff686e;
+  --primitive-red-400: #ff2f3d;
+  --primitive-red-500: #fb0000;
+  --primitive-red-600: #cb0000;
+  --primitive-red-700: #9c0000;
+  --primitive-red-800: #6c0003;
+  --primitive-red-900: #3b0104;
+
+  --primitive-yellow-50: #fff7e8;
+  --primitive-yellow-100: #ffeecc;
+  --primitive-yellow-200: #ffdd99;
+  --primitive-yellow-300: #ffcc66;
+  --primitive-yellow-400: #ffbb33;
+  --primitive-yellow-500: #ffaa00;
+  --primitive-yellow-600: #cc8800;
+  --primitive-yellow-700: #996600;
+  --primitive-yellow-800: #664400;
+  --primitive-yellow-900: #332200;
+
+  --primitive-orange-50: #fff1e4;
+  --primitive-orange-100: #ffe0c4;
+  --primitive-orange-200: #ffc790;
+  --primitive-orange-300: #ffac5c;
+  --primitive-orange-400: #ff9211;
+  --primitive-orange-500: #ff7700;
+  --primitive-orange-600: #d26000;
+  --primitive-orange-700: #a04900;
+  --primitive-orange-800: #6f3300;
+  --primitive-orange-900: #3c1b00;
+
+  --primitive-teal-50: #e9faf4;
+  --primitive-teal-100: #cef3e6;
+  --primitive-teal-200: #9ce8cd;
+  --primitive-teal-300: #6bdcb3;
+  --primitive-teal-400: #39d19a;
+  --primitive-teal-500: #08c581;
+  --primitive-teal-600: #07a46b;
+  --primitive-teal-700: #058355;
+  --primitive-teal-800: #046140;
+  --primitive-teal-900: #03402a;
+
+  --primitive-cyan-50: #e9fdff;
+  --primitive-cyan-100: #cffafe;
+  --primitive-cyan-200: #a5f3fc;
+  --primitive-cyan-300: #67e8f9;
+  --primitive-cyan-400: #22d3ee;
+  --primitive-cyan-500: #06b6d4;
+  --primitive-cyan-600: #0891b2;
+  --primitive-cyan-700: #0e7490;
+  --primitive-cyan-800: #155e75;
+  --primitive-cyan-900: #164e63;
+
+  --primitive-purple-50: #f1e9ff;
+  --primitive-purple-100: #dfcfff;
+  --primitive-purple-200: #c2a8ff;
+  --primitive-purple-300: #a77fff;
+  --primitive-purple-400: #8a58ff;
+  --primitive-purple-500: #6e2fff;
+  --primitive-purple-600: #5826d6;
+  --primitive-purple-700: #441da3;
+  --primitive-purple-800: #2e1571;
+  --primitive-purple-900: #1a0b3e;
+
+  --primitive-pink-50: #fef4fa;
+  --primitive-pink-100: #fce7f3;
+  --primitive-pink-200: #f6b7d9;
+  --primitive-pink-300: #f088bd;
+  --primitive-pink-400: #ea589e;
+  --primitive-pink-500: #e4287c;
+  --primitive-pink-600: #be185d;
+  --primitive-pink-700: #8e1242;
+  --primitive-pink-800: #5f0c29;
+  --primitive-pink-900: #2f0613;
+
+  --primitive-olive-50: #fafaf0;
+  --primitive-olive-100: #f3f3dd;
+  --primitive-olive-200: #e4e4b9;
+  --primitive-olive-300: #d3d392;
+  --primitive-olive-400: #c2c26b;
+  --primitive-olive-500: #aaaa46;
+  --primitive-olive-600: #808135;
+  --primitive-olive-700: #666629;
+  --primitive-olive-800: #49491d;
+  --primitive-olive-900: #303012;
+
+  --primitive-ai-50: #fbf4ff;
+  --primitive-ai-100: #f5e6ff;
+  --primitive-ai-200: #e6bcff;
+  --primitive-ai-300: #d692ff;
+  --primitive-ai-400: #c668ff;
+  --primitive-ai-500: #b63eff;
+  --primitive-ai-600: #a614ff;
+  --primitive-ai-700: #9100e9;
+  --primitive-ai-800: #7700bf;
+  --primitive-ai-900: #5d0095;
+}
+
+/* -----------------------------------------------------------------------------
+ * SEMANTIC: COLOR — LIGHT MODE (the default)
+ * -------------------------------------------------------------------------- */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  /* --- Text ------------------------------------------------------------- */
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #1e293b;
+  --color-text-tertiary: #475569;
+  --color-text-disabled: #94a3b8;
+  --color-text-inverse: #f8fafc;
+  --color-text-brand: #0268c1;
+  --color-text-brand-hover: #02539a;
+  --color-text-brand-pressed: #013e73;
+  --color-text-link: #2a3ef4;
+  --color-text-link-hover: #0a1cc2;
+  --color-text-link-pressed: #071592;
+  --color-text-positive: #007e17;
+  --color-text-positive-hover: #006012;
+  --color-text-positive-pressed: #00420f;
+  --color-text-warning: #996600;
+  --color-text-warning-hover: #664400;
+  --color-text-warning-pressed: #332200;
+  --color-text-negative: #cb0000;
+  --color-text-negative-hover: #9c0000;
+  --color-text-negative-pressed: #6c0003;
+  --color-text-ai: #a614ff;
+  --color-text-sourced: #007e17;
+  --color-text-editable: #0268c1;
+  --color-text-on-brand: #ffffff;
+  --color-text-on-positive: #ffffff;
+  --color-text-on-negative: #ffffff;
+  --color-text-on-warning: #0f172a;
+  --color-text-on-ai: #ffffff;
+  --color-text-on-disabled: #475569;
+
+  /* --- Background ------------------------------------------------------- */
+  --color-bg-page: #f8fafc;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-raised: #ffffff;
+  --color-bg-subtle: #f1f5f9;
+  --color-bg-inverse: #0f172a;
+  --color-bg-disabled: #e3e8f0;
+  --color-bg-brand: #0268c1;
+  --color-bg-brand-hover: #02539a;
+  --color-bg-brand-pressed: #013e73;
+  --color-bg-brand-subtle: #e9f3fd;
+  --color-bg-positive: #007e17;
+  --color-bg-positive-hover: #006012;
+  --color-bg-positive-pressed: #00420f;
+  --color-bg-positive-subtle: #e0f5e9;
+  --color-bg-warning: #ffbb33;
+  --color-bg-warning-hover: #ffaa00;
+  --color-bg-warning-pressed: #cc8800;
+  --color-bg-warning-subtle: #fff7e8;
+  --color-bg-negative: #cb0000;
+  --color-bg-negative-hover: #9c0000;
+  --color-bg-negative-pressed: #6c0003;
+  --color-bg-negative-subtle: #ffe6e7;
+  --color-bg-ai: #a614ff;
+  --color-bg-ai-subtle: #fbf4ff;
+
+  /* --- Stroke ----------------------------------------------------------- */
+  --color-stroke-default: #cbd5e1;
+  --color-stroke-subtle: #e3e8f0;
+  --color-stroke-divider: #e3e8f0;
+  --color-stroke-strong: #475569;
+  --color-stroke-control: #64748b;
+  --color-stroke-focus: #037de8;
+  --color-stroke-disabled: #e3e8f0;
+  --color-stroke-brand: #0268c1;
+  --color-stroke-brand-hover: #02539a;
+  --color-stroke-brand-pressed: #013e73;
+  --color-stroke-positive: #007e17;
+  --color-stroke-positive-hover: #006012;
+  --color-stroke-positive-pressed: #00420f;
+  --color-stroke-warning: #996600;
+  --color-stroke-warning-hover: #664400;
+  --color-stroke-warning-pressed: #332200;
+  --color-stroke-negative: #cb0000;
+  --color-stroke-negative-hover: #9c0000;
+  --color-stroke-negative-pressed: #6c0003;
+  --color-stroke-ai: #a614ff;
+
+  /* --- Icon ------------------------------------------------------------- */
+  --color-icon-primary: #0f172a;
+  --color-icon-secondary: #475569;
+  --color-icon-inverse: #f8fafc;
+  --color-icon-disabled: #94a3b8;
+  --color-icon-brand: #0268c1;
+  --color-icon-brand-hover: #02539a;
+  --color-icon-brand-pressed: #013e73;
+  --color-icon-positive: #007e17;
+  --color-icon-positive-hover: #006012;
+  --color-icon-positive-pressed: #00420f;
+  --color-icon-warning: #996600;
+  --color-icon-warning-hover: #664400;
+  --color-icon-warning-pressed: #332200;
+  --color-icon-negative: #cb0000;
+  --color-icon-negative-hover: #9c0000;
+  --color-icon-negative-pressed: #6c0003;
+  --color-icon-ai: #a614ff;
+  --color-icon-on-brand: #ffffff;
+
+  /* --- Overlay & shadow ------------------------------------------------- */
+  --color-overlay-subtle: #0000004d;
+  --color-overlay-medium: #00000080;
+  --color-overlay-strong: #000000b2;
+  --color-overlay-scrim: #00000080;
+  --color-shadow-ambient: #00000014;
+  --color-shadow-key: #00000029;
+
+  /* --- Chart ------------------------------------------------------------ */
+  --color-chart-series-1: #8e1242;
+  --color-chart-series-2: #808135;
+  --color-chart-series-3: #cb0000;
+  --color-chart-series-4: #046140;
+  --color-chart-series-5: #013e73;
+  --color-chart-series-6: #d26000;
+  --color-chart-series-7: #5826d6;
+  --color-chart-series-8: #0e7490;
+  --color-chart-series-1-subtle: #fce7f3;
+  --color-chart-series-2-subtle: #f3f3dd;
+  --color-chart-series-3-subtle: #ffc8c9;
+  --color-chart-series-4-subtle: #cef3e6;
+  --color-chart-series-5-subtle: #cde5fa;
+  --color-chart-series-6-subtle: #ffe0c4;
+  --color-chart-series-7-subtle: #dfcfff;
+  --color-chart-series-8-subtle: #cffafe;
+  --color-chart-positive: #007e17;
+  --color-chart-negative: #cb0000;
+  --color-chart-total: #0f172a;
+  --color-chart-grid: #e3e8f0;
+  --color-chart-axis: #64748b;
+
+  /* --- PRISM · Entity --------------------------------------------------- */
+  --color-entity-firm-primary: #cc8800;
+  --color-entity-firm-background: #ffeecc;
+  --color-entity-firm-text: #664400;
+  --color-entity-company-primary: #0268c1;
+  --color-entity-company-background: #cde5fa;
+  --color-entity-company-text: #02539a;
+
+  /* --- PRISM · Data ----------------------------------------------------- */
+  --color-data-document-primary: #0a1cc2;
+  --color-data-document-background: #ced3fd;
+  --color-data-document-text: #0a1cc2;
+  --color-data-version-primary: #007e17;
+  --color-data-version-background: #bbe8ce;
+  --color-data-version-text: #006012;
+  --color-data-measurement-date-primary: #0891b2;
+  --color-data-measurement-date-background: #cffafe;
+  --color-data-measurement-date-text: #0e7490;
+
+  /* --- PRISM · Destination ---------------------------------------------- */
+  --color-destination-page-primary: #be185d;
+  --color-destination-page-background: #fce7f3;
+  --color-destination-page-text: #be185d;
+
+  /* --- PRISM · Command -------------------------------------------------- */
+  --color-command-firm-action-primary: #a614ff;
+  --color-command-firm-action-background: #f5e6ff;
+  --color-command-firm-action-text: #9100e9;
+  --color-command-company-action-primary: #808135;
+  --color-command-company-action-background: #f3f3dd;
+  --color-command-company-action-text: #666629;
+
+  /* --- PRISM · Utility -------------------------------------------------- */
+  --color-utility-neutral-primary: #475569;
+  --color-utility-neutral-background: #f1f5f9;
+  --color-utility-neutral-text: #475569;
+}
+
+/* -----------------------------------------------------------------------------
+ * SEMANTIC: COLOR — DARK MODE
+ * Opt in explicitly with data-theme="dark", or follow the OS when the author
+ * has not pinned a theme. data-theme="light" always wins.
+ * -------------------------------------------------------------------------- */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* --- Text ------------------------------------------------------------- */
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #e3e8f0;
+  --color-text-tertiary: #cbd5e1;
+  --color-text-disabled: #475569;
+  --color-text-inverse: #0f172a;
+  --color-text-brand: #68b1f1;
+  --color-text-brand-hover: #9acbf6;
+  --color-text-brand-pressed: #cde5fa;
+  --color-text-link: #9ea7fa;
+  --color-text-link-hover: #ced3fd;
+  --color-text-link-pressed: #e9ebfe;
+  --color-text-positive: #31c37b;
+  --color-text-positive-hover: #7ed6a5;
+  --color-text-positive-pressed: #bbe8ce;
+  --color-text-warning: #ffcc66;
+  --color-text-warning-hover: #ffdd99;
+  --color-text-warning-pressed: #ffeecc;
+  --color-text-negative: #ff999c;
+  --color-text-negative-hover: #ffc8c9;
+  --color-text-negative-pressed: #ffe6e7;
+  --color-text-ai: #d692ff;
+  --color-text-sourced: #31c37b;
+  --color-text-editable: #68b1f1;
+  --color-text-on-brand: #0f172a;
+  --color-text-on-positive: #0f172a;
+  --color-text-on-negative: #0f172a;
+  --color-text-on-warning: #0f172a;
+  --color-text-on-ai: #0f172a;
+  --color-text-on-disabled: #cbd5e1;
+
+  /* --- Background ------------------------------------------------------- */
+  --color-bg-page: #0f172a;
+  --color-bg-surface: #1e293b;
+  --color-bg-surface-raised: #334155;
+  --color-bg-subtle: #1e293b;
+  --color-bg-inverse: #f8fafc;
+  --color-bg-disabled: #334155;
+  --color-bg-brand: #3597ed;
+  --color-bg-brand-hover: #68b1f1;
+  --color-bg-brand-pressed: #9acbf6;
+  --color-bg-brand-subtle: #01294c;
+  --color-bg-positive: #00b04f;
+  --color-bg-positive-hover: #31c37b;
+  --color-bg-positive-pressed: #7ed6a5;
+  --color-bg-positive-subtle: #002409;
+  --color-bg-warning: #ffbb33;
+  --color-bg-warning-hover: #ffcc66;
+  --color-bg-warning-pressed: #ffdd99;
+  --color-bg-warning-subtle: #332200;
+  --color-bg-negative: #ff2f3d;
+  --color-bg-negative-hover: #ff686e;
+  --color-bg-negative-pressed: #ff999c;
+  --color-bg-negative-subtle: #3b0104;
+  --color-bg-ai: #c668ff;
+  --color-bg-ai-subtle: #5d0095;
+
+  /* --- Stroke ----------------------------------------------------------- */
+  --color-stroke-default: #334155;
+  --color-stroke-subtle: #1e293b;
+  --color-stroke-divider: #334155;
+  --color-stroke-strong: #cbd5e1;
+  --color-stroke-control: #94a3b8;
+  --color-stroke-focus: #68b1f1;
+  --color-stroke-disabled: #334155;
+  --color-stroke-brand: #3597ed;
+  --color-stroke-brand-hover: #68b1f1;
+  --color-stroke-brand-pressed: #9acbf6;
+  --color-stroke-positive: #00b04f;
+  --color-stroke-positive-hover: #31c37b;
+  --color-stroke-positive-pressed: #7ed6a5;
+  --color-stroke-warning: #ffcc66;
+  --color-stroke-warning-hover: #ffdd99;
+  --color-stroke-warning-pressed: #ffeecc;
+  --color-stroke-negative: #ff2f3d;
+  --color-stroke-negative-hover: #ff686e;
+  --color-stroke-negative-pressed: #ff999c;
+  --color-stroke-ai: #d692ff;
+
+  /* --- Icon ------------------------------------------------------------- */
+  --color-icon-primary: #f8fafc;
+  --color-icon-secondary: #94a3b8;
+  --color-icon-inverse: #0f172a;
+  --color-icon-disabled: #475569;
+  --color-icon-brand: #3597ed;
+  --color-icon-brand-hover: #68b1f1;
+  --color-icon-brand-pressed: #9acbf6;
+  --color-icon-positive: #00b04f;
+  --color-icon-positive-hover: #31c37b;
+  --color-icon-positive-pressed: #7ed6a5;
+  --color-icon-warning: #ffcc66;
+  --color-icon-warning-hover: #ffdd99;
+  --color-icon-warning-pressed: #ffeecc;
+  --color-icon-negative: #ff2f3d;
+  --color-icon-negative-hover: #ff686e;
+  --color-icon-negative-pressed: #ff999c;
+  --color-icon-ai: #d692ff;
+  --color-icon-on-brand: #0f172a;
+
+  /* --- Overlay & shadow ------------------------------------------------- */
+  --color-overlay-subtle: #ffffff4d;
+  --color-overlay-medium: #ffffff80;
+  --color-overlay-strong: #ffffffb2;
+  --color-overlay-scrim: #00000099;
+  --color-shadow-ambient: #00000066;
+  --color-shadow-key: #00000099;
+
+  /* --- Chart ------------------------------------------------------------ */
+  --color-chart-series-1: #f088bd;
+  --color-chart-series-2: #d3d392;
+  --color-chart-series-3: #ff686e;
+  --color-chart-series-4: #9ce8cd;
+  --color-chart-series-5: #3597ed;
+  --color-chart-series-6: #ffc790;
+  --color-chart-series-7: #a77fff;
+  --color-chart-series-8: #67e8f9;
+  --color-chart-series-1-subtle: #5f0c29;
+  --color-chart-series-2-subtle: #49491d;
+  --color-chart-series-3-subtle: #6c0003;
+  --color-chart-series-4-subtle: #046140;
+  --color-chart-series-5-subtle: #013e73;
+  --color-chart-series-6-subtle: #6f3300;
+  --color-chart-series-7-subtle: #2e1571;
+  --color-chart-series-8-subtle: #155e75;
+  --color-chart-positive: #00b04f;
+  --color-chart-negative: #ff2f3d;
+  --color-chart-total: #f8fafc;
+  --color-chart-grid: #1e293b;
+  --color-chart-axis: #64748b;
+
+  /* --- PRISM · Entity --------------------------------------------------- */
+  --color-entity-firm-primary: #ffbb33;
+  --color-entity-firm-background: #332200;
+  --color-entity-firm-text: #ffcc66;
+  --color-entity-company-primary: #3597ed;
+  --color-entity-company-background: #01294c;
+  --color-entity-company-text: #68b1f1;
+
+  /* --- PRISM · Data ----------------------------------------------------- */
+  --color-data-document-primary: #3d4ff5;
+  --color-data-document-background: #020731;
+  --color-data-document-text: #9ea7fa;
+  --color-data-version-primary: #00b04f;
+  --color-data-version-background: #002409;
+  --color-data-version-text: #31c37b;
+  --color-data-measurement-date-primary: #22d3ee;
+  --color-data-measurement-date-background: #164e63;
+  --color-data-measurement-date-text: #67e8f9;
+
+  /* --- PRISM · Destination ---------------------------------------------- */
+  --color-destination-page-primary: #ea589e;
+  --color-destination-page-background: #2f0613;
+  --color-destination-page-text: #f6b7d9;
+
+  /* --- PRISM · Command -------------------------------------------------- */
+  --color-command-firm-action-primary: #c668ff;
+  --color-command-firm-action-background: #5d0095;
+  --color-command-firm-action-text: #d692ff;
+  --color-command-company-action-primary: #c2c26b;
+  --color-command-company-action-background: #303012;
+  --color-command-company-action-text: #d3d392;
+
+  /* --- PRISM · Utility -------------------------------------------------- */
+  --color-utility-neutral-primary: #94a3b8;
+  --color-utility-neutral-background: #0f172a;
+  --color-utility-neutral-text: #cbd5e1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+  
+    /* --- Text ------------------------------------------------------------- */
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #e3e8f0;
+    --color-text-tertiary: #cbd5e1;
+    --color-text-disabled: #475569;
+    --color-text-inverse: #0f172a;
+    --color-text-brand: #68b1f1;
+    --color-text-brand-hover: #9acbf6;
+    --color-text-brand-pressed: #cde5fa;
+    --color-text-link: #9ea7fa;
+    --color-text-link-hover: #ced3fd;
+    --color-text-link-pressed: #e9ebfe;
+    --color-text-positive: #31c37b;
+    --color-text-positive-hover: #7ed6a5;
+    --color-text-positive-pressed: #bbe8ce;
+    --color-text-warning: #ffcc66;
+    --color-text-warning-hover: #ffdd99;
+    --color-text-warning-pressed: #ffeecc;
+    --color-text-negative: #ff999c;
+    --color-text-negative-hover: #ffc8c9;
+    --color-text-negative-pressed: #ffe6e7;
+    --color-text-ai: #d692ff;
+    --color-text-sourced: #31c37b;
+    --color-text-editable: #68b1f1;
+    --color-text-on-brand: #0f172a;
+    --color-text-on-positive: #0f172a;
+    --color-text-on-negative: #0f172a;
+    --color-text-on-warning: #0f172a;
+    --color-text-on-ai: #0f172a;
+    --color-text-on-disabled: #cbd5e1;
+  
+    /* --- Background ------------------------------------------------------- */
+    --color-bg-page: #0f172a;
+    --color-bg-surface: #1e293b;
+    --color-bg-surface-raised: #334155;
+    --color-bg-subtle: #1e293b;
+    --color-bg-inverse: #f8fafc;
+    --color-bg-disabled: #334155;
+    --color-bg-brand: #3597ed;
+    --color-bg-brand-hover: #68b1f1;
+    --color-bg-brand-pressed: #9acbf6;
+    --color-bg-brand-subtle: #01294c;
+    --color-bg-positive: #00b04f;
+    --color-bg-positive-hover: #31c37b;
+    --color-bg-positive-pressed: #7ed6a5;
+    --color-bg-positive-subtle: #002409;
+    --color-bg-warning: #ffbb33;
+    --color-bg-warning-hover: #ffcc66;
+    --color-bg-warning-pressed: #ffdd99;
+    --color-bg-warning-subtle: #332200;
+    --color-bg-negative: #ff2f3d;
+    --color-bg-negative-hover: #ff686e;
+    --color-bg-negative-pressed: #ff999c;
+    --color-bg-negative-subtle: #3b0104;
+    --color-bg-ai: #c668ff;
+    --color-bg-ai-subtle: #5d0095;
+  
+    /* --- Stroke ----------------------------------------------------------- */
+    --color-stroke-default: #334155;
+    --color-stroke-subtle: #1e293b;
+    --color-stroke-divider: #334155;
+    --color-stroke-strong: #cbd5e1;
+    --color-stroke-control: #94a3b8;
+    --color-stroke-focus: #68b1f1;
+    --color-stroke-disabled: #334155;
+    --color-stroke-brand: #3597ed;
+    --color-stroke-brand-hover: #68b1f1;
+    --color-stroke-brand-pressed: #9acbf6;
+    --color-stroke-positive: #00b04f;
+    --color-stroke-positive-hover: #31c37b;
+    --color-stroke-positive-pressed: #7ed6a5;
+    --color-stroke-warning: #ffcc66;
+    --color-stroke-warning-hover: #ffdd99;
+    --color-stroke-warning-pressed: #ffeecc;
+    --color-stroke-negative: #ff2f3d;
+    --color-stroke-negative-hover: #ff686e;
+    --color-stroke-negative-pressed: #ff999c;
+    --color-stroke-ai: #d692ff;
+  
+    /* --- Icon ------------------------------------------------------------- */
+    --color-icon-primary: #f8fafc;
+    --color-icon-secondary: #94a3b8;
+    --color-icon-inverse: #0f172a;
+    --color-icon-disabled: #475569;
+    --color-icon-brand: #3597ed;
+    --color-icon-brand-hover: #68b1f1;
+    --color-icon-brand-pressed: #9acbf6;
+    --color-icon-positive: #00b04f;
+    --color-icon-positive-hover: #31c37b;
+    --color-icon-positive-pressed: #7ed6a5;
+    --color-icon-warning: #ffcc66;
+    --color-icon-warning-hover: #ffdd99;
+    --color-icon-warning-pressed: #ffeecc;
+    --color-icon-negative: #ff2f3d;
+    --color-icon-negative-hover: #ff686e;
+    --color-icon-negative-pressed: #ff999c;
+    --color-icon-ai: #d692ff;
+    --color-icon-on-brand: #0f172a;
+  
+    /* --- Overlay & shadow ------------------------------------------------- */
+    --color-overlay-subtle: #ffffff4d;
+    --color-overlay-medium: #ffffff80;
+    --color-overlay-strong: #ffffffb2;
+    --color-overlay-scrim: #00000099;
+    --color-shadow-ambient: #00000066;
+    --color-shadow-key: #00000099;
+  
+    /* --- Chart ------------------------------------------------------------ */
+    --color-chart-series-1: #f088bd;
+    --color-chart-series-2: #d3d392;
+    --color-chart-series-3: #ff686e;
+    --color-chart-series-4: #9ce8cd;
+    --color-chart-series-5: #3597ed;
+    --color-chart-series-6: #ffc790;
+    --color-chart-series-7: #a77fff;
+    --color-chart-series-8: #67e8f9;
+    --color-chart-series-1-subtle: #5f0c29;
+    --color-chart-series-2-subtle: #49491d;
+    --color-chart-series-3-subtle: #6c0003;
+    --color-chart-series-4-subtle: #046140;
+    --color-chart-series-5-subtle: #013e73;
+    --color-chart-series-6-subtle: #6f3300;
+    --color-chart-series-7-subtle: #2e1571;
+    --color-chart-series-8-subtle: #155e75;
+    --color-chart-positive: #00b04f;
+    --color-chart-negative: #ff2f3d;
+    --color-chart-total: #f8fafc;
+    --color-chart-grid: #1e293b;
+    --color-chart-axis: #64748b;
+  
+    /* --- PRISM · Entity --------------------------------------------------- */
+    --color-entity-firm-primary: #ffbb33;
+    --color-entity-firm-background: #332200;
+    --color-entity-firm-text: #ffcc66;
+    --color-entity-company-primary: #3597ed;
+    --color-entity-company-background: #01294c;
+    --color-entity-company-text: #68b1f1;
+  
+    /* --- PRISM · Data ----------------------------------------------------- */
+    --color-data-document-primary: #3d4ff5;
+    --color-data-document-background: #020731;
+    --color-data-document-text: #9ea7fa;
+    --color-data-version-primary: #00b04f;
+    --color-data-version-background: #002409;
+    --color-data-version-text: #31c37b;
+    --color-data-measurement-date-primary: #22d3ee;
+    --color-data-measurement-date-background: #164e63;
+    --color-data-measurement-date-text: #67e8f9;
+  
+    /* --- PRISM · Destination ---------------------------------------------- */
+    --color-destination-page-primary: #ea589e;
+    --color-destination-page-background: #2f0613;
+    --color-destination-page-text: #f6b7d9;
+  
+    /* --- PRISM · Command -------------------------------------------------- */
+    --color-command-firm-action-primary: #c668ff;
+    --color-command-firm-action-background: #5d0095;
+    --color-command-firm-action-text: #d692ff;
+    --color-command-company-action-primary: #c2c26b;
+    --color-command-company-action-background: #303012;
+    --color-command-company-action-text: #d3d392;
+  
+    /* --- PRISM · Utility -------------------------------------------------- */
+    --color-utility-neutral-primary: #94a3b8;
+    --color-utility-neutral-background: #0f172a;
+    --color-utility-neutral-text: #cbd5e1;
+  }
+}
+
+/* -----------------------------------------------------------------------------
+ * SEMANTIC: SPACING · RADIUS · SIZING · BREAKPOINTS · ELEVATION
+ * Mode-independent. Identical in Light and Dark, and at every viewport.
+ * -------------------------------------------------------------------------- */
+:root {
+  /* --- Spacing (gap and padding only — never width or height) ------------ */
+  --space-none: 0px;
+  --space-2xs: 2px;
+  --space-xs: 4px;
+  --space-s: 8px;
+  --space-m: 12px;
+  --space-l: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+  --space-4xl: 64px;
+
+  /* --- Radius ------------------------------------------------------------ */
+  --radius-none: 0px;
+  --radius-2xs: 2px;
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-m: 16px;
+  --radius-l: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* --- Sizing (width and height only — never gap or padding) ------------- */
+  --size-icon-xs: 12px;
+  --size-icon-s: 16px;
+  --size-icon-m: 20px;
+  --size-icon-l: 24px;
+  --size-icon-xl: 32px;
+  --size-control-s: 32px;
+  --size-control-m: 40px;
+  --size-control-l: 48px;
+  --size-avatar-xs: 24px;
+  --size-avatar-s: 32px;
+  --size-avatar-m: 40px;
+  --size-avatar-l: 56px;
+  --size-avatar-xl: 80px;
+  --size-row-compact: 26px;
+  --size-target-dense: 24px;
+  --size-target-minimum: 44px;
+  --size-target-comfortable: 48px;
+
+  /* --- Breakpoints ------------------------------------------------------- */
+  --breakpoint-mobile: 393px;
+  --breakpoint-tablet-small: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1440px;
+  --breakpoint-desktop-large: 1920px;
+
+  /* --- Border width (no v1.1 collection; the one legacy survivor) --------- */
+  --border-width-s: 1px;
+  --border-width-m: 2px;
+
+  /* --- Elevation (contract rule R9: Raised < Overlay < Modal) ------------ */
+  --elevation-raised: 0 1px 3px 0 var(--color-shadow-ambient), 0 1px 2px 0 var(--color-shadow-key);
+  --elevation-overlay: 0 8px 24px -4px var(--color-shadow-ambient), 0 2px 6px -1px var(--color-shadow-key);
+  --elevation-modal: 0 24px 48px -12px var(--color-shadow-ambient), 0 8px 16px -4px var(--color-shadow-key);
+
+  /* --- Motion (not a Figma collection; the code layer's own contract) ---- */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-moderate: 250ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --easing-decelerate: cubic-bezier(0, 0, 0, 1);
+
+  /* --- Z-index ladder, matching the elevation ladder --------------------- */
+  --z-sticky: 100;
+  --z-drawer: 200;
+  --z-scrim: 300;
+  --z-modal: 400;
+  --z-overlay: 500;
+  --z-toast: 600;
+  --z-tooltip: 700;
+}
+
+/* -----------------------------------------------------------------------------
+ * SEMANTIC: TYPE — Desktop (1440) is the DEFAULT mode (contract rule R6).
+ * Weight is orthogonal to size (R7): switching weight never moves size,
+ * line-height or tracking. Text floor is 12px (R10).
+ * -------------------------------------------------------------------------- */
+:root {
+  --font-family-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-weight-light: 300;
+  --font-weight-regular: 400;
+  --font-weight-semi-bold: 600;
+  --font-weight-bold: 700;
+
+  --font-size-display-s: 40px;   --line-height-display-s: 44px;   --letter-spacing-display-s: -1.5px;
+  --font-size-display-m: 48px;   --line-height-display-m: 52px;   --letter-spacing-display-m: -1.5px;
+  --font-size-display-l: 56px;   --line-height-display-l: 60px;   --letter-spacing-display-l: -1.5px;
+
+  --font-size-heading-s: 12px;   --line-height-heading-s: 16px;   --letter-spacing-heading-s: 0px;
+  --font-size-heading-m: 14px;   --line-height-heading-m: 18px;   --letter-spacing-heading-m: 0px;
+  --font-size-heading-l: 16px;   --line-height-heading-l: 20px;   --letter-spacing-heading-l: -0.2px;
+  --font-size-heading-xl: 18px;  --line-height-heading-xl: 24px;  --letter-spacing-heading-xl: -0.2px;
+  --font-size-heading-2xl: 20px; --line-height-heading-2xl: 26px; --letter-spacing-heading-2xl: -0.5px;
+  --font-size-heading-3xl: 24px; --line-height-heading-3xl: 32px; --letter-spacing-heading-3xl: -0.5px;
+  --font-size-heading-4xl: 28px; --line-height-heading-4xl: 36px; --letter-spacing-heading-4xl: -1px;
+  --font-size-heading-5xl: 32px; --line-height-heading-5xl: 40px; --letter-spacing-heading-5xl: -1px;
+
+  --font-size-text-s: 12px;      --line-height-text-s: 16px;      --letter-spacing-text-s: 0px;
+  --font-size-text-m: 14px;      --line-height-text-m: 20px;      --letter-spacing-text-m: 0px;
+  --font-size-text-l: 16px;      --line-height-text-l: 24px;      --letter-spacing-text-l: 0px;
+  --font-size-text-xl: 18px;     --line-height-text-xl: 26px;     --letter-spacing-text-xl: 0px;
+  --font-size-text-2xl: 20px;    --line-height-text-2xl: 28px;    --letter-spacing-text-2xl: 0px;
+
+  --font-size-label-s: 12px;     --line-height-label-s: 16px;     --letter-spacing-label-s: 0px;
+  --font-size-label-m: 14px;     --line-height-label-m: 18px;     --letter-spacing-label-m: 0px;
+  --font-size-label-l: 16px;     --line-height-label-l: 20px;     --letter-spacing-label-l: 0px;
+
+  --font-size-link-s: 12px;      --line-height-link-s: 16px;      --letter-spacing-link-s: 0px;
+  --font-size-link-m: 14px;      --line-height-link-m: 20px;      --letter-spacing-link-m: 0px;
+  --font-size-link-l: 16px;      --line-height-link-l: 24px;      --letter-spacing-link-l: 0px;
+
+  /* Overline is fixed across all three modes by design (contract rule R12). */
+  --font-size-overline-s: 12px;  --line-height-overline-s: 16px;  --letter-spacing-overline-s: 0.8px;
+  --font-size-overline-m: 14px;  --line-height-overline-m: 18px;  --letter-spacing-overline-m: 0.8px;
+}
+
+/* Desktop Large (1920) — the Desktop ramp shifted one step up. */
+:root[data-viewport='desktop-large'] {
+  --font-size-display-s: 48px;   --line-height-display-s: 52px;
+  --font-size-display-m: 56px;   --line-height-display-m: 60px;
+  --font-size-display-l: 64px;   --line-height-display-l: 68px;
+
+  --font-size-heading-s: 14px;   --line-height-heading-s: 18px;
+  --font-size-heading-m: 16px;   --line-height-heading-m: 20px;
+  --font-size-heading-l: 18px;   --line-height-heading-l: 24px;
+  --font-size-heading-xl: 20px;  --line-height-heading-xl: 26px;
+  --font-size-heading-2xl: 24px; --line-height-heading-2xl: 32px;
+  --font-size-heading-3xl: 28px; --line-height-heading-3xl: 36px;
+  --font-size-heading-4xl: 32px; --line-height-heading-4xl: 40px;
+  --font-size-heading-5xl: 40px; --line-height-heading-5xl: 48px;
+
+  --font-size-text-s: 14px;      --line-height-text-s: 20px;
+  --font-size-text-m: 16px;      --line-height-text-m: 24px;
+  --font-size-text-l: 18px;      --line-height-text-l: 26px;
+  --font-size-text-xl: 20px;     --line-height-text-xl: 28px;
+  --font-size-text-2xl: 24px;    --line-height-text-2xl: 32px;
+
+  --font-size-label-s: 14px;     --line-height-label-s: 18px;
+  --font-size-label-m: 16px;     --line-height-label-m: 20px;
+  --font-size-label-l: 18px;     --line-height-label-l: 24px;
+
+  --font-size-link-s: 14px;      --line-height-link-s: 20px;
+  --font-size-link-m: 16px;      --line-height-link-m: 24px;
+  --font-size-link-l: 18px;      --line-height-link-l: 26px;
+}
+
+/* Mobile (393) — matches Desktop except Display and the top two Headings,
+ * which cap. The small end has nowhere to go and correctly converges. */
+:root[data-viewport='mobile'] {
+  --font-size-display-s: 24px;   --line-height-display-s: 32px;
+  --font-size-display-m: 28px;   --line-height-display-m: 36px;
+  --font-size-display-l: 32px;   --line-height-display-l: 40px;
+
+  --font-size-heading-4xl: 24px; --line-height-heading-4xl: 32px;
+  --font-size-heading-5xl: 28px; --line-height-heading-5xl: 36px;
+}

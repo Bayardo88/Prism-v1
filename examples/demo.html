@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Scalar Design System — smoke test</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../dist/styles/scalar.css" />
+<style>
+  body { margin: 0; }
+  .demo { padding: var(--space-xl); display: flex; flex-direction: column; gap: var(--space-xl); max-width: 1100px; margin: 0 auto; }
+  .panel { background: var(--color-bg-surface); border: 1px solid var(--color-stroke-subtle); border-radius: var(--radius-s); padding: var(--space-l); display: flex; flex-direction: column; gap: var(--space-m); }
+  .row { display: flex; gap: var(--space-s); flex-wrap: wrap; align-items: center; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-l); }
+</style>
+<script type="importmap">
+{ "imports": {
+  "react": "https://esm.sh/react@18.3.1",
+  "react/jsx-runtime": "https://esm.sh/react@18.3.1/jsx-runtime",
+  "react-dom": "https://esm.sh/react-dom@18.3.1",
+  "react-dom/client": "https://esm.sh/react-dom@18.3.1/client"
+} }
+</script>
+</head>
+<body class="scalar-page">
+<div id="root"></div>
+<script type="module">
+import React, { useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import * as S from '../dist/index.js';
+
+const h = React.createElement;
+
+function Demo() {
+  const [mode, setMode] = useState('light');
+  const [tab, setTab] = useState('overview');
+  const [page, setPage] = useState(3);
+  const [checked, setChecked] = useState(true);
+  const [on, setOn] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('acme');
+
+  React.useEffect(() => {
+    document.documentElement.setAttribute('data-theme', mode);
+  }, [mode]);
+
+  const results = [
+    { id: '1', type: 'company', title: 'Acme Inc.', subtitle: 'Portfolio company · Series C' },
+    { id: '2', type: 'company', title: 'Acme Robotics', subtitle: 'Portfolio company · Seed' },
+    { id: '3', type: 'document', title: 'Acme — Articles of Incorporation.pdf', subtitle: 'Uploaded 12 Mar 2026' },
+    { id: '4', type: 'version', title: 'Acme 409A v3', subtitle: 'Final · 31 Dec 2025' },
+    { id: '5', type: 'firm-action', title: 'Create a valuation', subtitle: 'Firm action' },
+  ];
+
+  return h('div', { className: 'demo' },
+    h('div', { className: 'row' },
+      h(S.Heading, { level: 1, step: '3xl' }, 'Scalar Design System'),
+      h('div', { style: { marginLeft: 'auto' } },
+        h(S.Button, { variant: 'secondary', size: 's', onClick: () => setMode(mode === 'light' ? 'dark' : 'light') },
+          mode === 'light' ? 'Dark mode' : 'Light mode')
+      )
+    ),
+
+    h(S.PrimaryMenu, {
+      logo: h('strong', { style: { fontSize: 18 } }, 'Scalar'),
+      end: h(React.Fragment, null,
+        h(S.SearchBar, { onFocus: () => setOpen(true) }),
+        h(S.Notification, { unread: true }),
+        h(S.Avatar, { size: 's', initials: 'BV', alt: 'Bayardo V' })
+      )
+    },
+      h(S.MainMenuItem, { current: true }, 'Companies'),
+      h(S.MainMenuItem, null, 'Valuations'),
+      h(S.MainMenuItem, null, 'Reports')
+    ),
+
+    h(S.CompanyInfo, {
+      avatar: h(S.Avatar, { size: 's', initials: 'AC', alt: 'Acme' }),
+      name: 'Acme Inc.',
+      meta: 'ACME · Software',
+      status: h(S.ValuationStatus, { state: 'in-service' }),
+      end: h(S.InformationLabel, { label: 'Equity Value', value: '$34,560,000' })
+    }),
+
+    h(S.SecondaryMenu, null,
+      h(S.SecondaryMenuItem, { current: true }, 'Overview'),
+      h(S.SecondaryMenuItem, null, 'Cap table'),
+      h(S.SecondaryMenuItem, null, 'Waterfall')
+    ),
+
+    h('div', { className: 'grid2' },
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Buttons'),
+        h('div', { className: 'row' },
+          h(S.Button, null, 'Primary'),
+          h(S.Button, { variant: 'secondary' }, 'Secondary'),
+          h(S.Button, { variant: 'tertiary' }, 'Tertiary'),
+          h(S.Button, { tone: 'negative' }, 'Delete'),
+          h(S.Button, { tone: 'warning' }, 'Warning'),
+          h(S.Button, { tone: 'positive' }, 'Approve'),
+          h(S.Button, { disabled: true }, 'Disabled'),
+          h(S.Button, { loading: true }, 'Saving'),
+          h(S.AIButton, null, 'Ask AI')
+        ),
+        h(S.Divider),
+        h(S.Heading, { level: 2, step: 'l' }, 'Status'),
+        h('div', { className: 'row' },
+          h(S.ModalStatus, { state: 'draft' }),
+          h(S.ModalStatus, { state: 'review' }),
+          h(S.ModalStatus, { state: 'final' }),
+          h(S.ModalStatus, { state: 'complete' }),
+          h(S.Chip, { styleVariant: 'ai', onRemove: () => {} }, 'AI extracted'),
+          h(S.Badge, null, '99+')
+        )
+      ),
+
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Forms'),
+        h(S.FormField, { label: 'Discount rate', helperText: 'Enter a percentage.' },
+          h(S.Input, { placeholder: '12.5' })),
+        h(S.FormField, { label: 'Measurement date', helperText: 'This date is in the future.', state: 'error' },
+          h(S.Input, { defaultValue: '31/12/2027' })),
+        h(S.Checkbox, { checked, onChange: (e) => setChecked(e.target.checked) }, 'Include preferred'),
+        h(S.Switch, { checked: on, onChange: (e) => setOn(e.target.checked) }, 'Auto-recalculate'),
+        h(S.Radio, { name: 'm', defaultChecked: true }, 'Option A'),
+        h(S.Radio, { name: 'm' }, 'Option B')
+      )
+    ),
+
+    h('div', { className: 'panel' },
+      h(S.Tabs, { label: 'Views' },
+        ['overview', 'captable', 'waterfall'].map((t) =>
+          h(S.TabItem, { key: t, active: tab === t, onClick: () => setTab(t) }, t))
+      ),
+      h(S.DataGrid, {
+        label: 'Cap table',
+        head: h(React.Fragment, null,
+          h(S.ColumnHeader, { style: { flex: 2 } }, 'Security'),
+          h(S.ColumnHeader, { numeric: true, style: { flex: 1 }, sort: 'desc', onSortChange: () => {} }, 'Shares'),
+          h(S.ColumnHeader, { numeric: true, style: { flex: 1 } }, 'Value'))
+      },
+        h(S.Row, null,
+          h(S.Cell, { style: { flex: 2 } }, 'Series A Preferred'),
+          h(S.Cell, { numeric: true, type: 'data', style: { flex: 1 } }, '1,000,000'),
+          h(S.Cell, { numeric: true, style: { flex: 1 }, footnote: h(S.Footnote, null, '1') }, '$12,000,000')),
+        h(S.Row, { zebra: true },
+          h(S.Cell, { style: { flex: 2 } }, 'Common Stock'),
+          h(S.Cell, { numeric: true, type: 'input', style: { flex: 1 } }, '4,200,000'),
+          h(S.Cell, { numeric: true, state: 'error', style: { flex: 1 } }, '$8,100,000')),
+        h(S.Row, { type: 'total' },
+          h(S.Cell, { state: 'total', style: { flex: 2 } }, 'Total'),
+          h(S.Cell, { state: 'total', numeric: true, style: { flex: 1 } }, '5,200,000'),
+          h(S.Cell, { state: 'total', numeric: true, style: { flex: 1 } }, '$20,100,000'))
+      ),
+      h(S.Pagination, { page, pageCount: 12, onPageChange: setPage })
+    ),
+
+    h('div', { className: 'grid2' },
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Charts'),
+        h(S.BarChart, {
+          title: 'Revenue by quarter',
+          categories: ['Q1', 'Q2', 'Q3', 'Q4'],
+          series: [
+            { label: 'Product', values: [12, 18, 15, 22] },
+            { label: 'Services', values: [8, 10, 14, 12] }
+          ],
+          format: (v) => '$' + Math.round(v) + 'M'
+        })
+      ),
+      h('div', { className: 'panel' },
+        h(S.Heading, { level: 2, step: 'l' }, 'Waterfall'),
+        h(S.WaterfallChart, {
+          title: 'Equity bridge',
+          format: (v) => '$' + Math.round(v) + 'M',
+          steps: [
+            { label: 'Start', value: 30, total: true },
+            { label: 'New round', value: 12 },
+            { label: 'Buyback', value: -6 },
+            { label: 'End', value: 36, total: true }
+          ]
+        })
+      )
+    ),
+
+    h('div', { className: 'panel' },
+      h(S.Heading, { level: 2, step: 'l' }, 'Feedback'),
+      h(S.Alert, { style: 'warning', title: 'Assumptions out of date' },
+        'The discount rate was last reviewed 14 months ago. Confirm it before signing off.'),
+      h(S.Alert, { style: 'negative', title: 'Import failed' },
+        'Three rows had no measurement date. Add one and re-upload.'),
+      h(S.Toast, { style: 'positive' }, 'Valuation saved.'),
+      h(S.ProgressBar, { value: 62, label: 'Uploading' }),
+      h(S.Stepper, { steps: [
+        { label: 'Upload cap table', state: 'complete' },
+        { label: 'Set assumptions', state: 'current' },
+        { label: 'Review', state: 'upcoming' }
+      ] })
+    ),
+
+    h('div', { className: 'panel' },
+      h(S.Heading, { level: 2, step: 'l' }, 'PRISM'),
+      h('div', { className: 'row' },
+        ['firm','company','document','version','measurement-date'].map((t) =>
+          h(S.SearchScopeChip, { key: t, type: t }, t))),
+      results.map((r) => h(S.SearchResultRow, { key: r.id, ...r, selected: r.id === '2' }))
+    ),
+
+    h('div', { className: 'row' },
+      h(S.Button, { onClick: () => setOpen(true) }, 'Open Global Search')),
+
+    h(S.GlobalSearch, {
+      open, onClose: () => setOpen(false),
+      query: q, onQueryChange: setQ,
+      results,
+      scopes: [{ type: 'firm', label: 'Sequoia Capital' }],
+      footer: h(S.Text, { step: 's', tone: 'tertiary' }, 'Sequoia Capital')
+    })
+  );
+}
+
+createRoot(document.getElementById('root')).render(h(Demo));
+</script>
+</body>
+</html>
