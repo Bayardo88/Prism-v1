@@ -31,6 +31,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json && npm run build:css",
+    "prepare": "npm run build",
     "build:css": "node scripts/build-css.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint:tokens": "node scripts/lint-tokens.mjs",

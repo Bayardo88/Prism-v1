@@ -16,7 +16,33 @@ what it already defines.
 
 ---
 
-## Install and use
+## Install in a product repo
+
+The package builds itself on install, so a git dependency needs no registry:
+
+```bash
+npm install github:Bayardo88/Prism-v1
+```
+
+Pin a tag or commit for anything you ship:
+
+```bash
+npm install github:Bayardo88/Prism-v1#v1.1.0
+```
+
+Then tell your agents about it — paste this into the consuming repo's
+`CLAUDE.md`:
+
+```markdown
+## UI
+
+All product UI is built from `@scalar/design-system`. Before writing any
+component, read `node_modules/@scalar/design-system/AI-GUIDE.md` — it is the
+contract: tokens, decision tables, component API and anti-patterns. Never
+hand-write a colour, spacing value or font size.
+```
+
+## Develop this package
 
 ```bash
 npm install
@@ -51,6 +77,7 @@ import { Button, FormField, Input, Alert, color, space } from '@scalar/design-sy
 | Read this | When |
 |---|---|
 | **[AI-GUIDE.md](AI-GUIDE.md)** | **Start here.** The complete contract: rules, decision tables, component API, anti-patterns. Written to be read by both people and coding agents before building a page. |
+| [CLAUDE.md](CLAUDE.md) | Auto-loaded by agents working *on* this package. Points at AI-GUIDE and lists the non-negotiables. |
 | [docs/tokens.md](docs/tokens.md) | The full token reference — every colour in Light and Dark, every scale, the type ramp in all three modes. Generated. |
 | [docs/components.md](docs/components.md) | Figma → React traceability. Which Figma component set each export came from, and where any two were merged. |
 | [docs/known-gaps.md](docs/known-gaps.md) | Inherited gaps that are deliberate, with the reason and the workaround. Read before "fixing" one. |
