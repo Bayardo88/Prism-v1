@@ -27,8 +27,7 @@ carry identity by stack order — a non-colour channel, stable across categories
 A `Chart/Series N/On` ramp would remove the exception.
 
 **Real fix:** re-step the `Chart/Series` ramp in the v1.1 tokens file. Still
-outstanding as of 2026-09-21 — confirmed unchanged after the libraries were
-published (see gap 7).
+outstanding as of 2026-09-21.
 
 ---
 
@@ -99,27 +98,6 @@ collections. The live library, read directly, has slightly more:
 values. The contract text is stale, not wrong in kind. Notably, `Chart/Total`
 now exists, which resolves the contract's own "there is no neutral chart token"
 gap — `WaterfallChart` uses it for total bars.
-
----
-
-## 7. ~~The v1.1 library has not been published~~ — RESOLVED 2026-09-21
-
-All Scalar Figma libraries are now published.
-
-The code layer was re-checked against the live library after publishing: all
-**145 semantic colour tokens match on both Light and Dark**, and every other
-collection is unchanged (Spacing 10 · Radius 8 · Sizing 17 · Type 78 ·
-Breakpoint 5 · Primitive Color 142). Publishing changed no values, so no
-regeneration was needed.
-
-What this does change: Figma consumers now resolve through the v1.1 semantic
-collections rather than falling back to the old primitives, so newly built
-screens and the code layer are finally on the same tier.
-
-**It does not change the chart ramp.** `Chart/Series 2` is still `#808135`,
-`Chart/Series 3` still `#cb0000`, and `Chart/Negative` still shares that hex in
-Light. Gap 1 remains fully open — publishing distributed the ramp, it did not
-re-step it.
 
 ---
 

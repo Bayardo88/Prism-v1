@@ -1,6 +1,6 @@
 ---
 name: scalar-screen
-description: Build a Scalar product screen or prototype as React, composed entirely from the Scalar Design System layer, then optionally push it back into Figma. Use when asked to create, build, mock up or prototype any Scalar page, screen, view, dashboard, form, detail page or flow — even if Figma is never mentioned. Replaces the v1.0 scalar-page-builder skill, which emits static HTML against tokens that no longer exist.
+description: Build a Scalar product screen or prototype as React, composed entirely from the Scalar Design System layer, then optionally push it back into Figma. Use when asked to create, build, mock up or prototype any Scalar page, screen, view, dashboard, form, detail page or flow — even if Figma is never mentioned.
 ---
 
 # Scalar Screen Builder
@@ -8,12 +8,6 @@ description: Build a Scalar product screen or prototype as React, composed entir
 Build a screen out of the **Scalar Design System** (`@scalar/design-system`,
 v1.1). The layer already encodes every rule — the job here is to *compose* it,
 never to re-specify it.
-
-> **This skill supersedes `scalar-page-builder`.** That skill teaches
-> `--color-primary`, `--unit-8`, `--color-secondary-text`, `#037de8` and 10px
-> text. None of those exist in v1.1: the token names changed, `#037de8` is
-> Brand/500 where the brand fill is now Brand/600 `#0268c1`, and the type ramp
-> has a hard 12px floor. If that skill is loaded, ignore it.
 
 ---
 
@@ -33,7 +27,7 @@ Find it in this order:
 
 If the package is not installed and cannot be, **stop and say so.** Do not
 approximate the design system from memory or from an old mockup — that is how
-the v1.0 drift happened.
+drift starts.
 
 Also skim `docs/known-gaps.md`. Several gaps change what you are allowed to
 build (charts, dense grids, icons).
@@ -108,9 +102,9 @@ writing to.
 
 ## Refuse to
 
-- Build against `--color-primary`, `--unit-*` or any other v1.0 token name.
-- Copy a pre-v1.1 mockup's colours or type sizes. Those screens predate the
-  semantic tier and most are below the 12px floor.
+- Build against any token name that is not in `AI-GUIDE.md`.
+- Copy an existing mockup's colours or type sizes. Take both from the contract,
+  never from a screen.
 - Colour a Global Search result by anything other than its PRISM type — and
   never use PRISM to signal access or permission.
 - Use `text.primary` on a filled surface, or white on `bg.warning`.

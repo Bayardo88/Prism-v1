@@ -89,10 +89,6 @@ system and updates when the system does. To make it available outside this repo:
 ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 ```
 
-> **It replaces `scalar-page-builder`.** That skill targets v1.0: it teaches
-> `--color-primary`, `--unit-8` and 10px text, none of which exist in v1.1, and
-> it emits static HTML. Remove it so the two do not compete.
-
 ## Documentation
 
 | Read this | When |

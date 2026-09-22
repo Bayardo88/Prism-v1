@@ -3,8 +3,8 @@
 **Read this file before writing any Scalar product UI.** It is the complete
 contract: the rules, the decision tables ("railroads"), and the component API.
 If a rule here conflicts with a screenshot, a mockup, or an older page in the
-repo, **this file wins** — most pre-v1.1 screens were built against the old
-primitive tokens and are not a reference.
+repo, **this file wins** — an existing screen is never a reference, only this
+contract is.
 
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
@@ -173,8 +173,8 @@ it happened to be the right size.
 **The floor is 12px (R10)** for everything a user reads. `heading.xs` is the one
 step below it, at 10px — added for the v1.1 data-grid chrome, and scoped to
 column headers and in-cell labels. Do not reach for it to make something fit:
-if a design shows 10px or 11px *prose*, it predates v1.1 — raise it to 12 and
-expect the layout to reflow.
+if a design shows 10px or 11px *prose*, raise it to 12 and expect the layout to
+reflow.
 
 **Never set `letterSpacing`.** The Overline role carries its own tracking, and
 setting it by hand detaches the step.

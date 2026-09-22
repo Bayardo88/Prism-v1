@@ -79,10 +79,6 @@ git clone https://github.com/Bayardo88/Prism-v1
 ln -sfn "$PWD/Prism-v1/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 ```
 
-> **Remove `scalar-page-builder` if you still have it.** It targets v1.0 —
-> `--color-primary`, `--unit-8`, 10px text, and `#037de8` for a brand fill that
-> is now `#0268c1`. Anything it produces fails the current contract.
-
 What you get back: a working React screen, checked in Light and Dark, plus a
 Figma frame assembled from real library components — not a redraw, so it
 re-themes and its variants can be swapped.
