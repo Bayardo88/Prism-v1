@@ -109,7 +109,6 @@ ${scaleTable('--radius-', 'Radius')}
 ${scaleTable('--size-', 'Sizing — width and height only')}
 ${scaleTable('--breakpoint-', 'Breakpoints')}
 ${scaleTable('--elevation-', 'Elevation')}
-${scaleTable('--border-width-', 'Border width')}
 ${scaleTable('--duration-', 'Motion — duration')}
 ${scaleTable('--easing-', 'Motion — easing')}
 ${scaleTable('--z-', 'Z-index ladder')}

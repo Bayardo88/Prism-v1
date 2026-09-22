@@ -9,7 +9,7 @@ primitive tokens and are not a reference.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 432 design tokens · 88 components · Light + Dark · 3 type modes.
+- **Scale:** 431 design tokens · 88 components · Light + Dark · 3 type modes.
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---
@@ -89,6 +89,7 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | Text on a filled **yellow** surface | `color.text.onWarning` (near-black) | white (R4) |
 | A primary action's fill | `color.bg.brand` + `text.onBrand` | `bg.brandSubtle` |
 | A destructive action's fill | `color.bg.negative` + `text.onNegative` | brand recoloured by hand |
+| An **unread** indicator dot | `color.bg.unread` | `bg.negative` — unread is not an error |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
 | A card or panel surface | `color.bg.surface` | `bg.page` |
 | A surface lifted above another surface | `color.bg.surfaceRaised` | a lighter hex |

@@ -2,7 +2,7 @@
  * Source of truth: src/styles/tokens.css (extracted from Figma v1.1).
  */
 
-/** Every semantic colour token in the system. 153 tokens. */
+/** Every semantic colour token in the system. 154 tokens. */
 export type ColorToken =
   | '--color-bg-ai'
   | '--color-bg-ai-subtle'
@@ -25,6 +25,7 @@ export type ColorToken =
   | '--color-bg-subtle'
   | '--color-bg-surface'
   | '--color-bg-surface-raised'
+  | '--color-bg-unread'
   | '--color-bg-warning'
   | '--color-bg-warning-hover'
   | '--color-bg-warning-pressed'
@@ -160,8 +161,6 @@ export type ColorToken =
 
 /** Spacing, radius, sizing, breakpoint, elevation and motion tokens. */
 export type ScaleToken =
-  | '--border-width-m'
-  | '--border-width-s'
   | '--breakpoint-desktop'
   | '--breakpoint-desktop-large'
   | '--breakpoint-mobile'
@@ -671,6 +670,10 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
       "light": "#ffe6e7",
       "dark": "#3b0104"
     },
+    "--color-bg-unread": {
+      "light": "#ff2f3d",
+      "dark": "#cb0000"
+    },
     "--color-bg-ai": {
       "light": "#a614ff",
       "dark": "#c668ff"
@@ -1108,8 +1111,6 @@ export const scaleValues: Record<ScaleToken, string> =
     "--breakpoint-tablet": "1024px",
     "--breakpoint-desktop": "1440px",
     "--breakpoint-desktop-large": "1920px",
-    "--border-width-s": "1px",
-    "--border-width-m": "2px",
     "--z-sticky": "100",
     "--z-drawer": "200",
     "--z-scrim": "300",

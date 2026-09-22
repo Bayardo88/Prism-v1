@@ -46,7 +46,7 @@ const colorLight = Object.fromEntries(
 );
 
 const scales = {};
-for (const p of ['--space-', '--radius-', '--size-', '--breakpoint-', '--border-width-', '--z-', '--duration-', '--easing-', '--elevation-']) {
+for (const p of ['--space-', '--radius-', '--size-', '--breakpoint-', '--z-', '--duration-', '--easing-', '--elevation-']) {
   Object.assign(scales, pick(lightAll, p));
 }
 const type = {};

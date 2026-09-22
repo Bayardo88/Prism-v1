@@ -236,6 +236,7 @@
   --color-bg-negative-hover: #9c0000;
   --color-bg-negative-pressed: #6c0003;
   --color-bg-negative-subtle: #ffe6e7;
+  --color-bg-unread: #ff2f3d;
   --color-bg-ai: #a614ff;
   --color-bg-ai-subtle: #fbf4ff;
 
@@ -420,6 +421,7 @@
   --color-bg-negative-hover: #ff686e;
   --color-bg-negative-pressed: #ff999c;
   --color-bg-negative-subtle: #3b0104;
+  --color-bg-unread: #cb0000;
   --color-bg-ai: #c668ff;
   --color-bg-ai-subtle: #5d0095;
 
@@ -600,6 +602,7 @@
     --color-bg-negative-hover: #ff686e;
     --color-bg-negative-pressed: #ff999c;
     --color-bg-negative-subtle: #3b0104;
+    --color-bg-unread: #cb0000;
     --color-bg-ai: #c668ff;
     --color-bg-ai-subtle: #5d0095;
   
@@ -772,9 +775,6 @@
   --breakpoint-desktop: 1440px;
   --breakpoint-desktop-large: 1920px;
 
-  /* --- Border width (no v1.1 collection; the one legacy survivor) --------- */
-  --border-width-s: 1px;
-  --border-width-m: 2px;
 
   /* --- Elevation (contract rule R9: Raised < Overlay < Modal) ------------ */
   --elevation-raised: 0 1px 3px 0 var(--color-shadow-ambient), 0 1px 2px 0 var(--color-shadow-key);

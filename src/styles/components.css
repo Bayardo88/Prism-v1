@@ -1369,7 +1369,10 @@
   border-radius: var(--radius-full);
   background: var(--color-bg-on-brand);
 }
-/* The dot means unread, not urgent, and carries no count. */
+/* The dot means unread, not urgent, and carries no count — hence bg.unread and
+ * not bg.negative, which reads as an error. It inverts with its ground: darker
+ * in Dark, where bg.onBrand lightens. Colour alone carries no meaning (R8), so
+ * unread must also reach the control's accessible name. */
 .scalar-notification__dot {
   position: absolute;
   top: 4px;
@@ -1377,7 +1380,7 @@
   width: 10px;
   height: 10px;
   border-radius: var(--radius-full);
-  background: var(--color-bg-negative);
+  background: var(--color-bg-unread);
 }
 
 .scalar-badge {

@@ -85,6 +85,7 @@ export const bg = {
   negativeHover: v('--color-bg-negative-hover'),
   negativePressed: v('--color-bg-negative-pressed'),
   negativeSubtle: v('--color-bg-negative-subtle'),
+  unread: v('--color-bg-unread'),
   ai: v('--color-bg-ai'),
   aiSubtle: v('--color-bg-ai-subtle'),
 } as const;

@@ -5,9 +5,9 @@
 > `anrnTIJKgu27zV224h7vON (Scalar_Design_System-v1.1)`.
 > **Do not hand-edit.** Run `npm run gen:tokens && node scripts/gen-docs.mjs`.
 
-- **153** semantic colour tokens (Light + Dark)
+- **154** semantic colour tokens (Light + Dark)
 - **142** primitive colour steps (reference only)
-- **57** scale, elevation and motion tokens
+- **55** scale, elevation and motion tokens
 - **80** typography tokens × 3 viewport modes
 
 ---
@@ -80,6 +80,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-bg-subtle` | `#f1f5f9` | `#1e293b` |
 | `--color-bg-surface` | `#ffffff` | `#1e293b` |
 | `--color-bg-surface-raised` | `#ffffff` | `#334155` |
+| `--color-bg-unread` | `#ff2f3d` | `#cb0000` |
 | `--color-bg-warning` | `#ffbb33` | `#ffbb33` |
 | `--color-bg-warning-hover` | `#ffaa00` | `#ffcc66` |
 | `--color-bg-warning-pressed` | `#cc8800` | `#ffdd99` |
@@ -291,13 +292,6 @@ permission (rule R11). `primary` is graphic only, `background` is the tint,
 | `--elevation-raised` | `0 1px 3px 0 var(--color-shadow-ambient), 0 1px 2px 0 var(--color-shadow-key)` |
 | `--elevation-overlay` | `0 8px 24px -4px var(--color-shadow-ambient), 0 2px 6px -1px var(--color-shadow-key)` |
 | `--elevation-modal` | `0 24px 48px -12px var(--color-shadow-ambient), 0 8px 16px -4px var(--color-shadow-key)` |
-
-### Border width
-
-| Token | Value |
-|---|---|
-| `--border-width-s` | `1px` |
-| `--border-width-m` | `2px` |
 
 ### Motion — duration
 
