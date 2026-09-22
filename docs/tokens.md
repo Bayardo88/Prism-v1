@@ -5,10 +5,10 @@
 > `anrnTIJKgu27zV224h7vON (Scalar_Design_System-v1.1)`.
 > **Do not hand-edit.** Run `npm run gen:tokens && node scripts/gen-docs.mjs`.
 
-- **145** semantic colour tokens (Light + Dark)
+- **153** semantic colour tokens (Light + Dark)
 - **142** primitive colour steps (reference only)
 - **57** scale, elevation and motion tokens
-- **77** typography tokens × 3 viewport modes
+- **80** typography tokens × 3 viewport modes
 
 ---
 
@@ -37,6 +37,9 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-text-negative-pressed` | `#6c0003` | `#ffe6e7` |
 | `--color-text-on-ai` | `#ffffff` | `#0f172a` |
 | `--color-text-on-brand` | `#ffffff` | `#0f172a` |
+| `--color-text-on-brand-inactive` | `#9acbf6` | `#013e73` |
+| `--color-text-on-brand-muted` | `#94a3b8` | `#475569` |
+| `--color-text-on-brand-subtle` | `#f1f5f9` | `#1e293b` |
 | `--color-text-on-disabled` | `#475569` | `#cbd5e1` |
 | `--color-text-on-negative` | `#ffffff` | `#0f172a` |
 | `--color-text-on-positive` | `#ffffff` | `#0f172a` |
@@ -68,6 +71,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-bg-negative-hover` | `#9c0000` | `#ff686e` |
 | `--color-bg-negative-pressed` | `#6c0003` | `#ff999c` |
 | `--color-bg-negative-subtle` | `#ffe6e7` | `#3b0104` |
+| `--color-bg-on-brand` | `#01294c` | `#cde5fa` |
 | `--color-bg-page` | `#f8fafc` | `#0f172a` |
 | `--color-bg-positive` | `#007e17` | `#00b04f` |
 | `--color-bg-positive-hover` | `#006012` | `#31c37b` |
@@ -99,6 +103,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-stroke-negative` | `#cb0000` | `#ff2f3d` |
 | `--color-stroke-negative-hover` | `#9c0000` | `#ff686e` |
 | `--color-stroke-negative-pressed` | `#6c0003` | `#ff999c` |
+| `--color-stroke-on-brand` | `#ffffff` | `#0f172a` |
 | `--color-stroke-positive` | `#007e17` | `#00b04f` |
 | `--color-stroke-positive-hover` | `#006012` | `#31c37b` |
 | `--color-stroke-positive-pressed` | `#00420f` | `#7ed6a5` |
@@ -122,6 +127,9 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-icon-negative-hover` | `#9c0000` | `#ff686e` |
 | `--color-icon-negative-pressed` | `#6c0003` | `#ff999c` |
 | `--color-icon-on-brand` | `#ffffff` | `#0f172a` |
+| `--color-icon-on-brand-inactive` | `#cbd5e1` | `#334155` |
+| `--color-icon-on-brand-muted` | `#94a3b8` | `#475569` |
+| `--color-icon-on-brand-subtle` | `#f1f5f9` | `#1e293b` |
 | `--color-icon-positive` | `#007e17` | `#00b04f` |
 | `--color-icon-positive-hover` | `#006012` | `#31c37b` |
 | `--color-icon-positive-pressed` | `#00420f` | `#7ed6a5` |
@@ -340,6 +348,7 @@ Values are `size/line-height` in px.
 
 | Step | Desktop (1440) | Desktop Large (1920) | Mobile (393) | Tracking |
 |---|---|---|---|---|
+| `xs` | 10px/14px | 12px/16px | 10px/14px | 0px |
 | `s` | 12px/16px | 14px/18px | 12px/16px | 0px |
 | `m` | 14px/18px | 16px/20px | 14px/18px | 0px |
 | `l` | 16px/20px | 18px/24px | 16px/20px | -0.2px |

@@ -50,6 +50,9 @@ export const text = {
   sourced: v('--color-text-sourced'),
   editable: v('--color-text-editable'),
   onBrand: v('--color-text-on-brand'),
+  onBrandSubtle: v('--color-text-on-brand-subtle'),
+  onBrandMuted: v('--color-text-on-brand-muted'),
+  onBrandInactive: v('--color-text-on-brand-inactive'),
   onPositive: v('--color-text-on-positive'),
   onNegative: v('--color-text-on-negative'),
   onWarning: v('--color-text-on-warning'),
@@ -69,6 +72,7 @@ export const bg = {
   brandHover: v('--color-bg-brand-hover'),
   brandPressed: v('--color-bg-brand-pressed'),
   brandSubtle: v('--color-bg-brand-subtle'),
+  onBrand: v('--color-bg-on-brand'),
   positive: v('--color-bg-positive'),
   positiveHover: v('--color-bg-positive-hover'),
   positivePressed: v('--color-bg-positive-pressed'),
@@ -98,6 +102,7 @@ export const stroke = {
   strong: v('--color-stroke-strong'),
   control: v('--color-stroke-control'),
   focus: v('--color-stroke-focus'),
+  onBrand: v('--color-stroke-on-brand'),
   disabled: v('--color-stroke-disabled'),
   brand: v('--color-stroke-brand'),
   brandHover: v('--color-stroke-brand-hover'),
@@ -134,6 +139,9 @@ export const icon = {
   negativePressed: v('--color-icon-negative-pressed'),
   ai: v('--color-icon-ai'),
   onBrand: v('--color-icon-on-brand'),
+  onBrandSubtle: v('--color-icon-on-brand-subtle'),
+  onBrandMuted: v('--color-icon-on-brand-muted'),
+  onBrandInactive: v('--color-icon-on-brand-inactive'),
 } as const;
 
 /** Scrims and translucent washes. */
@@ -340,10 +348,14 @@ export function typeStyle(
   };
 }
 
-/** The legal steps for each role. The ramp has no step below 12px (rule R10). */
+/**
+ * The legal steps for each role. The floor is 12px (rule R10) for everything a
+ * user reads; `heading.xs` (10px) is the single sanctioned exception, for
+ * data-grid chrome only — column headers and in-cell labels, never prose.
+ */
 export const typeSteps = {
   display: ['s', 'm', 'l'],
-  heading: ['s', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'],
+  heading: ['xs', 's', 'm', 'l', 'xl', '2xl', '3xl', '4xl', '5xl'],
   text: ['s', 'm', 'l', 'xl', '2xl'],
   label: ['s', 'm', 'l'],
   link: ['s', 'm', 'l'],

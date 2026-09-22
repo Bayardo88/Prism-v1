@@ -203,6 +203,9 @@
   --color-text-sourced: #007e17;
   --color-text-editable: #0268c1;
   --color-text-on-brand: #ffffff;
+  --color-text-on-brand-subtle: #f1f5f9;
+  --color-text-on-brand-muted: #94a3b8;
+  --color-text-on-brand-inactive: #9acbf6;
   --color-text-on-positive: #ffffff;
   --color-text-on-negative: #ffffff;
   --color-text-on-warning: #0f172a;
@@ -219,6 +222,7 @@
   --color-bg-brand: #0268c1;
   --color-bg-brand-hover: #02539a;
   --color-bg-brand-pressed: #013e73;
+  --color-bg-on-brand: #01294c;
   --color-bg-brand-subtle: #e9f3fd;
   --color-bg-positive: #007e17;
   --color-bg-positive-hover: #006012;
@@ -246,6 +250,7 @@
   --color-stroke-brand: #0268c1;
   --color-stroke-brand-hover: #02539a;
   --color-stroke-brand-pressed: #013e73;
+  --color-stroke-on-brand: #ffffff;
   --color-stroke-positive: #007e17;
   --color-stroke-positive-hover: #006012;
   --color-stroke-positive-pressed: #00420f;
@@ -276,6 +281,9 @@
   --color-icon-negative-pressed: #6c0003;
   --color-icon-ai: #a614ff;
   --color-icon-on-brand: #ffffff;
+  --color-icon-on-brand-subtle: #f1f5f9;
+  --color-icon-on-brand-muted: #94a3b8;
+  --color-icon-on-brand-inactive: #cbd5e1;
 
   /* --- Overlay & shadow ------------------------------------------------- */
   --color-overlay-subtle: #0000004d;
@@ -379,6 +387,9 @@
   --color-text-sourced: #31c37b;
   --color-text-editable: #68b1f1;
   --color-text-on-brand: #0f172a;
+  --color-text-on-brand-subtle: #1e293b;
+  --color-text-on-brand-muted: #475569;
+  --color-text-on-brand-inactive: #013e73;
   --color-text-on-positive: #0f172a;
   --color-text-on-negative: #0f172a;
   --color-text-on-warning: #0f172a;
@@ -395,6 +406,7 @@
   --color-bg-brand: #3597ed;
   --color-bg-brand-hover: #68b1f1;
   --color-bg-brand-pressed: #9acbf6;
+  --color-bg-on-brand: #cde5fa;
   --color-bg-brand-subtle: #01294c;
   --color-bg-positive: #00b04f;
   --color-bg-positive-hover: #31c37b;
@@ -422,6 +434,7 @@
   --color-stroke-brand: #3597ed;
   --color-stroke-brand-hover: #68b1f1;
   --color-stroke-brand-pressed: #9acbf6;
+  --color-stroke-on-brand: #0f172a;
   --color-stroke-positive: #00b04f;
   --color-stroke-positive-hover: #31c37b;
   --color-stroke-positive-pressed: #7ed6a5;
@@ -452,6 +465,9 @@
   --color-icon-negative-pressed: #ff999c;
   --color-icon-ai: #d692ff;
   --color-icon-on-brand: #0f172a;
+  --color-icon-on-brand-subtle: #1e293b;
+  --color-icon-on-brand-muted: #475569;
+  --color-icon-on-brand-inactive: #334155;
 
   /* --- Overlay & shadow ------------------------------------------------- */
   --color-overlay-subtle: #ffffff4d;
@@ -551,6 +567,9 @@
     --color-text-sourced: #31c37b;
     --color-text-editable: #68b1f1;
     --color-text-on-brand: #0f172a;
+    --color-text-on-brand-subtle: #1e293b;
+    --color-text-on-brand-muted: #475569;
+    --color-text-on-brand-inactive: #013e73;
     --color-text-on-positive: #0f172a;
     --color-text-on-negative: #0f172a;
     --color-text-on-warning: #0f172a;
@@ -567,6 +586,7 @@
     --color-bg-brand: #3597ed;
     --color-bg-brand-hover: #68b1f1;
     --color-bg-brand-pressed: #9acbf6;
+    --color-bg-on-brand: #cde5fa;
     --color-bg-brand-subtle: #01294c;
     --color-bg-positive: #00b04f;
     --color-bg-positive-hover: #31c37b;
@@ -594,6 +614,7 @@
     --color-stroke-brand: #3597ed;
     --color-stroke-brand-hover: #68b1f1;
     --color-stroke-brand-pressed: #9acbf6;
+    --color-stroke-on-brand: #0f172a;
     --color-stroke-positive: #00b04f;
     --color-stroke-positive-hover: #31c37b;
     --color-stroke-positive-pressed: #7ed6a5;
@@ -624,6 +645,9 @@
     --color-icon-negative-pressed: #ff999c;
     --color-icon-ai: #d692ff;
     --color-icon-on-brand: #0f172a;
+    --color-icon-on-brand-subtle: #1e293b;
+    --color-icon-on-brand-muted: #475569;
+    --color-icon-on-brand-inactive: #334155;
   
     /* --- Overlay & shadow ------------------------------------------------- */
     --color-overlay-subtle: #ffffff4d;
@@ -777,7 +801,10 @@
 /* -----------------------------------------------------------------------------
  * SEMANTIC: TYPE — Desktop (1440) is the DEFAULT mode (contract rule R6).
  * Weight is orthogonal to size (R7): switching weight never moves size,
- * line-height or tracking. Text floor is 12px (R10).
+ * line-height or tracking. Text floor is 12px (R10) for everything a user
+ * reads. Heading/XS (10px) is the single sanctioned exception, added for the
+ * v1.1 data-grid chrome — column headers and in-cell labels only. Never use it
+ * for prose, form labels or helper text.
  * -------------------------------------------------------------------------- */
 :root {
   --font-family-default: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -790,6 +817,7 @@
   --font-size-display-m: 48px;   --line-height-display-m: 52px;   --letter-spacing-display-m: -1.5px;
   --font-size-display-l: 56px;   --line-height-display-l: 60px;   --letter-spacing-display-l: -1.5px;
 
+  --font-size-heading-xs: 10px;  --line-height-heading-xs: 14px;  --letter-spacing-heading-xs: 0px;
   --font-size-heading-s: 12px;   --line-height-heading-s: 16px;   --letter-spacing-heading-s: 0px;
   --font-size-heading-m: 14px;   --line-height-heading-m: 18px;   --letter-spacing-heading-m: 0px;
   --font-size-heading-l: 16px;   --line-height-heading-l: 20px;   --letter-spacing-heading-l: -0.2px;
@@ -824,6 +852,7 @@
   --font-size-display-m: 56px;   --line-height-display-m: 60px;
   --font-size-display-l: 64px;   --line-height-display-l: 68px;
 
+  --font-size-heading-xs: 12px;  --line-height-heading-xs: 16px;
   --font-size-heading-s: 14px;   --line-height-heading-s: 18px;
   --font-size-heading-m: 16px;   --line-height-heading-m: 20px;
   --font-size-heading-l: 18px;   --line-height-heading-l: 24px;

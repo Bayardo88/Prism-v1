@@ -9,7 +9,7 @@ primitive tokens and are not a reference.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 421 design tokens · 88 components · Light + Dark · 3 type modes.
+- **Scale:** 432 design tokens · 88 components · Light + Dark · 3 type modes.
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---
@@ -63,7 +63,7 @@ bug, not a style preference.
 | **R7** | Weight is orthogonal to size. Changing weight never moves size, line-height or tracking. |
 | **R8** | **Colour alone never carries meaning.** Status needs an icon or words. Chart series need direct labels. Links need a permanent underline. |
 | **R9** | Elevation is a ladder: `raised` < `overlay` < `modal`. Shadow colours are token-bound and deepen automatically in Dark. |
-| **R10** | **Text floor is 12px.** Display is marketing-only. Uppercase labels use the Overline role, which owns the +0.8px tracking — never set `letterSpacing` yourself. |
+| **R10** | **Text floor is 12px** for everything a user reads. `heading.xs` (10px) is the single sanctioned exception, for data-grid chrome only — column headers and in-cell labels, never prose, form labels or helper text. Display is marketing-only. Uppercase labels use the Overline role, which owns the +0.8px tracking — never set `letterSpacing` yourself. |
 | **R11** | PRISM says what an item **represents** — never access, availability or permission. |
 | **R12** | 33 of the 78 type tokens are identical across all three modes. That is intentional. Do not "fix" them. |
 | **R13** | If you add a `bg.*` or a PRISM concept, re-run the contrast matrix against Page, Surface, Surface Raised and Subtle before shipping. |
@@ -80,6 +80,12 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | Supporting / secondary text | `color.text.secondary` | opacity on primary |
 | Labels, captions, metadata | `color.text.tertiary` | a lighter grey you picked |
 | Text on a **filled** brand surface | `color.text.onBrand` | `color.text.primary` (R3) |
+| A control sitting **on the brand bar** (chip, search, notification) | `color.bg.onBrand` | `bg.brandSubtle` — a light chip on navy |
+| The value inside such a control | `color.text.onBrandSubtle` | `text.tertiary` |
+| Its placeholder or field-label prefix | `color.text.onBrandMuted` | `text.disabled` |
+| An **inactive** top-level nav label on the bar | `color.text.onBrandInactive` | `text.onBrand` for every item alike |
+| The active nav item's underline | `color.stroke.onBrand` | a `bg.brandSubtle` chip (R3) |
+| Icons inside bar controls | `color.icon.onBrandSubtle` / `.onBrandMuted` / `.onBrandInactive` | `icon.primary` |
 | Text on a filled **yellow** surface | `color.text.onWarning` (near-black) | white (R4) |
 | A primary action's fill | `color.bg.brand` + `text.onBrand` | `bg.brandSubtle` |
 | A destructive action's fill | `color.bg.negative` + `text.onNegative` | brand recoloured by hand |
@@ -147,7 +153,7 @@ it happened to be the right size.
 | Role | What it is for | Steps |
 |------|----------------|-------|
 | `display` | **Marketing only.** Never in product UI. | s · m · l |
-| `heading` | Section and page titles, table column headers | s · m · l · xl · 2xl · 3xl · 4xl · 5xl |
+| `heading` | Section and page titles, table column headers | **xs** · s · m · l · xl · 2xl · 3xl · 4xl · 5xl |
 | `text` | Body copy, table cell content | s · m · l · xl · 2xl |
 | `label` | Form labels, button labels, compact UI furniture | s · m · l |
 | `link` | Inline links — tracks body text without a heading's tracking | s · m · l |
@@ -163,8 +169,11 @@ it happened to be the right size.
 <div style={type.style('heading', '2xl', 'semiBold')} />
 ```
 
-**The floor is 12px (R10).** There is no step below it. If a design shows 10px
-or 11px text, it predates v1.1 — raise it to 12 and expect the layout to reflow.
+**The floor is 12px (R10)** for everything a user reads. `heading.xs` is the one
+step below it, at 10px — added for the v1.1 data-grid chrome, and scoped to
+column headers and in-cell labels. Do not reach for it to make something fit:
+if a design shows 10px or 11px *prose*, it predates v1.1 — raise it to 12 and
+expect the layout to reflow.
 
 **Never set `letterSpacing`.** The Overline role carries its own tracking, and
 setting it by hand detaches the step.

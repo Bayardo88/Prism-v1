@@ -2,7 +2,7 @@
  * Source of truth: src/styles/tokens.css (extracted from Figma v1.1).
  */
 
-/** Every semantic colour token in the system. 145 tokens. */
+/** Every semantic colour token in the system. 153 tokens. */
 export type ColorToken =
   | '--color-bg-ai'
   | '--color-bg-ai-subtle'
@@ -16,6 +16,7 @@ export type ColorToken =
   | '--color-bg-negative-hover'
   | '--color-bg-negative-pressed'
   | '--color-bg-negative-subtle'
+  | '--color-bg-on-brand'
   | '--color-bg-page'
   | '--color-bg-positive'
   | '--color-bg-positive-hover'
@@ -83,6 +84,9 @@ export type ColorToken =
   | '--color-icon-negative-hover'
   | '--color-icon-negative-pressed'
   | '--color-icon-on-brand'
+  | '--color-icon-on-brand-inactive'
+  | '--color-icon-on-brand-muted'
+  | '--color-icon-on-brand-subtle'
   | '--color-icon-positive'
   | '--color-icon-positive-hover'
   | '--color-icon-positive-pressed'
@@ -109,6 +113,7 @@ export type ColorToken =
   | '--color-stroke-negative'
   | '--color-stroke-negative-hover'
   | '--color-stroke-negative-pressed'
+  | '--color-stroke-on-brand'
   | '--color-stroke-positive'
   | '--color-stroke-positive-hover'
   | '--color-stroke-positive-pressed'
@@ -132,6 +137,9 @@ export type ColorToken =
   | '--color-text-negative-pressed'
   | '--color-text-on-ai'
   | '--color-text-on-brand'
+  | '--color-text-on-brand-inactive'
+  | '--color-text-on-brand-muted'
+  | '--color-text-on-brand-subtle'
   | '--color-text-on-disabled'
   | '--color-text-on-negative'
   | '--color-text-on-positive'
@@ -224,6 +232,7 @@ export type TypeToken =
   | '--font-size-heading-m'
   | '--font-size-heading-s'
   | '--font-size-heading-xl'
+  | '--font-size-heading-xs'
   | '--font-size-label-l'
   | '--font-size-label-m'
   | '--font-size-label-s'
@@ -252,6 +261,7 @@ export type TypeToken =
   | '--letter-spacing-heading-m'
   | '--letter-spacing-heading-s'
   | '--letter-spacing-heading-xl'
+  | '--letter-spacing-heading-xs'
   | '--letter-spacing-label-l'
   | '--letter-spacing-label-m'
   | '--letter-spacing-label-s'
@@ -276,6 +286,7 @@ export type TypeToken =
   | '--line-height-heading-m'
   | '--line-height-heading-s'
   | '--line-height-heading-xl'
+  | '--line-height-heading-xs'
   | '--line-height-label-l'
   | '--line-height-label-m'
   | '--line-height-label-s'
@@ -536,6 +547,18 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
       "light": "#ffffff",
       "dark": "#0f172a"
     },
+    "--color-text-on-brand-subtle": {
+      "light": "#f1f5f9",
+      "dark": "#1e293b"
+    },
+    "--color-text-on-brand-muted": {
+      "light": "#94a3b8",
+      "dark": "#475569"
+    },
+    "--color-text-on-brand-inactive": {
+      "light": "#9acbf6",
+      "dark": "#013e73"
+    },
     "--color-text-on-positive": {
       "light": "#ffffff",
       "dark": "#0f172a"
@@ -591,6 +614,10 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-bg-brand-pressed": {
       "light": "#013e73",
       "dark": "#9acbf6"
+    },
+    "--color-bg-on-brand": {
+      "light": "#01294c",
+      "dark": "#cde5fa"
     },
     "--color-bg-brand-subtle": {
       "light": "#e9f3fd",
@@ -691,6 +718,10 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-stroke-brand-pressed": {
       "light": "#013e73",
       "dark": "#9acbf6"
+    },
+    "--color-stroke-on-brand": {
+      "light": "#ffffff",
+      "dark": "#0f172a"
     },
     "--color-stroke-positive": {
       "light": "#007e17",
@@ -803,6 +834,18 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-icon-on-brand": {
       "light": "#ffffff",
       "dark": "#0f172a"
+    },
+    "--color-icon-on-brand-subtle": {
+      "light": "#f1f5f9",
+      "dark": "#1e293b"
+    },
+    "--color-icon-on-brand-muted": {
+      "light": "#94a3b8",
+      "dark": "#475569"
+    },
+    "--color-icon-on-brand-inactive": {
+      "light": "#cbd5e1",
+      "dark": "#334155"
     },
     "--color-overlay-subtle": {
       "light": "#0000004d",
@@ -1096,6 +1139,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--font-size-display-s": "40px",
       "--font-size-display-m": "48px",
       "--font-size-display-l": "56px",
+      "--font-size-heading-xs": "10px",
       "--font-size-heading-s": "12px",
       "--font-size-heading-m": "14px",
       "--font-size-heading-l": "16px",
@@ -1120,6 +1164,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--line-height-display-s": "44px",
       "--line-height-display-m": "52px",
       "--line-height-display-l": "60px",
+      "--line-height-heading-xs": "14px",
       "--line-height-heading-s": "16px",
       "--line-height-heading-m": "18px",
       "--line-height-heading-l": "20px",
@@ -1144,6 +1189,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--letter-spacing-display-s": "-1.5px",
       "--letter-spacing-display-m": "-1.5px",
       "--letter-spacing-display-l": "-1.5px",
+      "--letter-spacing-heading-xs": "0px",
       "--letter-spacing-heading-s": "0px",
       "--letter-spacing-heading-m": "0px",
       "--letter-spacing-heading-l": "-0.2px",
@@ -1175,6 +1221,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--font-size-display-s": "48px",
       "--font-size-display-m": "56px",
       "--font-size-display-l": "64px",
+      "--font-size-heading-xs": "12px",
       "--font-size-heading-s": "14px",
       "--font-size-heading-m": "16px",
       "--font-size-heading-l": "18px",
@@ -1199,6 +1246,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--line-height-display-s": "52px",
       "--line-height-display-m": "60px",
       "--line-height-display-l": "68px",
+      "--line-height-heading-xs": "16px",
       "--line-height-heading-s": "18px",
       "--line-height-heading-m": "20px",
       "--line-height-heading-l": "24px",
@@ -1223,6 +1271,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--letter-spacing-display-s": "-1.5px",
       "--letter-spacing-display-m": "-1.5px",
       "--letter-spacing-display-l": "-1.5px",
+      "--letter-spacing-heading-xs": "0px",
       "--letter-spacing-heading-s": "0px",
       "--letter-spacing-heading-m": "0px",
       "--letter-spacing-heading-l": "-0.2px",
@@ -1254,6 +1303,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--font-size-display-s": "24px",
       "--font-size-display-m": "28px",
       "--font-size-display-l": "32px",
+      "--font-size-heading-xs": "10px",
       "--font-size-heading-s": "12px",
       "--font-size-heading-m": "14px",
       "--font-size-heading-l": "16px",
@@ -1278,6 +1328,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--line-height-display-s": "32px",
       "--line-height-display-m": "36px",
       "--line-height-display-l": "40px",
+      "--line-height-heading-xs": "14px",
       "--line-height-heading-s": "16px",
       "--line-height-heading-m": "18px",
       "--line-height-heading-l": "20px",
@@ -1302,6 +1353,7 @@ export const typeValues: Record<'desktop' | 'desktop-large' | 'mobile', Record<T
       "--letter-spacing-display-s": "-1.5px",
       "--letter-spacing-display-m": "-1.5px",
       "--letter-spacing-display-l": "-1.5px",
+      "--letter-spacing-heading-xs": "0px",
       "--letter-spacing-heading-s": "0px",
       "--letter-spacing-heading-m": "0px",
       "--letter-spacing-heading-l": "-0.2px",
