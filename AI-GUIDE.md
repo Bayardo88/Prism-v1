@@ -90,6 +90,9 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | A primary action's fill | `color.bg.brand` + `text.onBrand` | `bg.brandSubtle` |
 | A destructive action's fill | `color.bg.negative` + `text.onNegative` | brand recoloured by hand |
 | An **unread** indicator dot | `color.bg.unread` | `bg.negative` — unread is not an error |
+| A **group band** row in a data grid (VIP Fund, Holding Co.) | `color.bg.groupHeader` + `text.onGroupHeader` | `bg.onBrand` — it inverts to pale blue in Dark |
+| A **file type** badge (PDF, DOCX, XLSX…) | `color.file.<kind>.background` + `.text` | `bg.negative` for a PDF — a format is not a status |
+| A **product** tile or mark (Intelligence, Valuations, Waterfalls, Documents) | `color.product.<key>.background` + `.icon` | status tints, or the AI family for Waterfalls |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
 | A card or panel surface | `color.bg.surface` | `bg.page` |
 | A surface lifted above another surface | `color.bg.surfaceRaised` | a lighter hex |
@@ -133,6 +136,8 @@ Two scales that must never be crossed (R2).
 | `size.icon.xs … xl` | 12 · 16 · 20 · 24 · 32 | every icon. Never hand-size one. |
 | `size.control.s / m / l` | 32 · 40 · 48 | button and field heights |
 | `size.avatar.xs … xl` | 24 · 32 · 40 · 56 · 80 | every avatar |
+| `size.iconWell.m / l` | 40 · 56 | a container holding one glyph (Product Tile mark, Dropzone well) — not `size.avatar` |
+| `size.progressRing.m` | 48 | Progress Ring diameter |
 | `size.row.compact` | 26px | data-grid row min-height |
 | `size.target.minimum` | **44px** | the tap target floor |
 | `size.target.dense` | 24px | documented exception: dense grid only |

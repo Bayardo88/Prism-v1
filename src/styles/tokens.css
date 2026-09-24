@@ -204,6 +204,7 @@
   --color-text-editable: #0268c1;
   --color-text-on-brand: #ffffff;
   --color-text-on-brand-subtle: #f1f5f9;
+  --color-text-on-group-header: #ffffff;
   --color-text-on-brand-muted: #94a3b8;
   --color-text-on-brand-inactive: #9acbf6;
   --color-text-on-positive: #ffffff;
@@ -237,6 +238,7 @@
   --color-bg-negative-pressed: #6c0003;
   --color-bg-negative-subtle: #ffe6e7;
   --color-bg-unread: #ff2f3d;
+  --color-bg-group-header: #01294c;
   --color-bg-ai: #a614ff;
   --color-bg-ai-subtle: #fbf4ff;
 
@@ -353,6 +355,30 @@
   --color-utility-neutral-primary: #475569;
   --color-utility-neutral-background: #f1f5f9;
   --color-utility-neutral-text: #475569;
+
+  /* --- File type (format identity, never status) ---------------------- */
+  --color-file-pdf-background: #ffc8c9;
+  --color-file-pdf-text: #9c0000;
+  --color-file-word-background: #ced3fd;
+  --color-file-word-text: #071592;
+  --color-file-sheet-background: #bbe8ce;
+  --color-file-sheet-text: #006012;
+  --color-file-image-background: #ffe0c4;
+  --color-file-image-text: #a04900;
+  --color-file-text-background: #e3e8f0;
+  --color-file-text-text: #1e293b;
+  --color-file-generic-background: #f1f5f9;
+  --color-file-generic-text: #475569;
+
+  /* --- Product identity (never status, never AI) ----------------------- */
+  --color-product-intelligence-background: #e9ebfe;
+  --color-product-intelligence-icon: #0a1cc2;
+  --color-product-valuations-background: #e0f5e9;
+  --color-product-valuations-icon: #007e17;
+  --color-product-waterfalls-background: #e9faf4;
+  --color-product-waterfalls-icon: #058355;
+  --color-product-documents-background: #fff1e4;
+  --color-product-documents-icon: #d26000;
 }
 
 /* -----------------------------------------------------------------------------
@@ -389,6 +415,7 @@
   --color-text-editable: #68b1f1;
   --color-text-on-brand: #0f172a;
   --color-text-on-brand-subtle: #1e293b;
+  --color-text-on-group-header: #ffffff;
   --color-text-on-brand-muted: #475569;
   --color-text-on-brand-inactive: #013e73;
   --color-text-on-positive: #0f172a;
@@ -422,6 +449,7 @@
   --color-bg-negative-pressed: #ff999c;
   --color-bg-negative-subtle: #3b0104;
   --color-bg-unread: #cb0000;
+  --color-bg-group-header: #013e73;
   --color-bg-ai: #c668ff;
   --color-bg-ai-subtle: #5d0095;
 
@@ -538,6 +566,30 @@
   --color-utility-neutral-primary: #94a3b8;
   --color-utility-neutral-background: #0f172a;
   --color-utility-neutral-text: #cbd5e1;
+
+  /* --- File type (format identity, never status) ---------------------- */
+  --color-file-pdf-background: #3b0104;
+  --color-file-pdf-text: #ff686e;
+  --color-file-word-background: #020731;
+  --color-file-word-text: #6d7bf8;
+  --color-file-sheet-background: #002409;
+  --color-file-sheet-text: #31c37b;
+  --color-file-image-background: #3c1b00;
+  --color-file-image-text: #ffac5c;
+  --color-file-text-background: #1e293b;
+  --color-file-text-text: #e3e8f0;
+  --color-file-generic-background: #0f172a;
+  --color-file-generic-text: #cbd5e1;
+
+  /* --- Product identity (never status, never AI) ----------------------- */
+  --color-product-intelligence-background: #020731;
+  --color-product-intelligence-icon: #6d7bf8;
+  --color-product-valuations-background: #002409;
+  --color-product-valuations-icon: #31c37b;
+  --color-product-waterfalls-background: #03402a;
+  --color-product-waterfalls-icon: #6bdcb3;
+  --color-product-documents-background: #3c1b00;
+  --color-product-documents-icon: #ffac5c;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -570,6 +622,7 @@
     --color-text-editable: #68b1f1;
     --color-text-on-brand: #0f172a;
     --color-text-on-brand-subtle: #1e293b;
+    --color-text-on-group-header: #ffffff;
     --color-text-on-brand-muted: #475569;
     --color-text-on-brand-inactive: #013e73;
     --color-text-on-positive: #0f172a;
@@ -603,6 +656,7 @@
     --color-bg-negative-pressed: #ff999c;
     --color-bg-negative-subtle: #3b0104;
     --color-bg-unread: #cb0000;
+    --color-bg-group-header: #013e73;
     --color-bg-ai: #c668ff;
     --color-bg-ai-subtle: #5d0095;
   
@@ -719,6 +773,30 @@
     --color-utility-neutral-primary: #94a3b8;
     --color-utility-neutral-background: #0f172a;
     --color-utility-neutral-text: #cbd5e1;
+
+    /* --- File type (format identity, never status) ---------------------- */
+    --color-file-pdf-background: #3b0104;
+    --color-file-pdf-text: #ff686e;
+    --color-file-word-background: #020731;
+    --color-file-word-text: #6d7bf8;
+    --color-file-sheet-background: #002409;
+    --color-file-sheet-text: #31c37b;
+    --color-file-image-background: #3c1b00;
+    --color-file-image-text: #ffac5c;
+    --color-file-text-background: #1e293b;
+    --color-file-text-text: #e3e8f0;
+    --color-file-generic-background: #0f172a;
+    --color-file-generic-text: #cbd5e1;
+
+    /* --- Product identity (never status, never AI) ----------------------- */
+    --color-product-intelligence-background: #020731;
+    --color-product-intelligence-icon: #6d7bf8;
+    --color-product-valuations-background: #002409;
+    --color-product-valuations-icon: #31c37b;
+    --color-product-waterfalls-background: #03402a;
+    --color-product-waterfalls-icon: #6bdcb3;
+    --color-product-documents-background: #3c1b00;
+    --color-product-documents-icon: #ffac5c;
   }
 }
 
@@ -764,6 +842,9 @@
   --size-avatar-l: 56px;
   --size-avatar-xl: 80px;
   --size-row-compact: 26px;
+  --size-icon-well-m: 40px;
+  --size-icon-well-l: 56px;
+  --size-progress-ring-m: 48px;
   --size-target-dense: 24px;
   --size-target-minimum: 44px;
   --size-target-comfortable: 48px;

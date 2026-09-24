@@ -100,6 +100,8 @@ ${Object.entries(t.color)
   .map(([k, v]) => `| \`${k}\` | ${swatch(v.light)} | ${swatch(v.dark)} |`)
   .join('\n')}
 
+${section('File type', '--color-file-', 'Format identity for the File Type Badge — **never status**. A PDF is red because it is a PDF; never use `bg.negative` for it. `text` is the extension label on its own `background`.')}
+${section('Product identity', '--color-product-', 'One tint + icon colour per Scalar product (Product Tile). Identity, not status; Waterfalls does not borrow the AI family. `icon` is graphic only — titles on the tint use `text-primary`.')}
 ---
 
 ## 2. Scales

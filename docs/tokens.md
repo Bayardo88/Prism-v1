@@ -5,9 +5,9 @@
 > `anrnTIJKgu27zV224h7vON (Scalar_Design_System-v1.1)`.
 > **Do not hand-edit.** Run `npm run gen:tokens && node scripts/gen-docs.mjs`.
 
-- **154** semantic colour tokens (Light + Dark)
+- **176** semantic colour tokens (Light + Dark)
 - **142** primitive colour steps (reference only)
-- **55** scale, elevation and motion tokens
+- **58** scale, elevation and motion tokens
 - **80** typography tokens × 3 viewport modes
 
 ---
@@ -41,6 +41,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-text-on-brand-muted` | `#94a3b8` | `#475569` |
 | `--color-text-on-brand-subtle` | `#f1f5f9` | `#1e293b` |
 | `--color-text-on-disabled` | `#475569` | `#cbd5e1` |
+| `--color-text-on-group-header` | `#ffffff` | `#ffffff` |
 | `--color-text-on-negative` | `#ffffff` | `#0f172a` |
 | `--color-text-on-positive` | `#ffffff` | `#0f172a` |
 | `--color-text-on-warning` | `#0f172a` | `#0f172a` |
@@ -66,6 +67,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-bg-brand-pressed` | `#013e73` | `#9acbf6` |
 | `--color-bg-brand-subtle` | `#e9f3fd` | `#01294c` |
 | `--color-bg-disabled` | `#e3e8f0` | `#334155` |
+| `--color-bg-group-header` | `#01294c` | `#013e73` |
 | `--color-bg-inverse` | `#0f172a` | `#f8fafc` |
 | `--color-bg-negative` | `#cb0000` | `#ff2f3d` |
 | `--color-bg-negative-hover` | `#9c0000` | `#ff686e` |
@@ -221,6 +223,40 @@ permission (rule R11). `primary` is graphic only, `background` is the tint,
 | `--color-utility-neutral-background` | `#f1f5f9` | `#0f172a` |
 | `--color-utility-neutral-text` | `#475569` | `#cbd5e1` |
 
+### File type
+
+Format identity for the File Type Badge — **never status**. A PDF is red because it is a PDF; never use `bg.negative` for it. `text` is the extension label on its own `background`.
+
+| Token | Light | Dark |
+|---|---|---|
+| `--color-file-generic-background` | `#f1f5f9` | `#0f172a` |
+| `--color-file-generic-text` | `#475569` | `#cbd5e1` |
+| `--color-file-image-background` | `#ffe0c4` | `#3c1b00` |
+| `--color-file-image-text` | `#a04900` | `#ffac5c` |
+| `--color-file-pdf-background` | `#ffc8c9` | `#3b0104` |
+| `--color-file-pdf-text` | `#9c0000` | `#ff686e` |
+| `--color-file-sheet-background` | `#bbe8ce` | `#002409` |
+| `--color-file-sheet-text` | `#006012` | `#31c37b` |
+| `--color-file-text-background` | `#e3e8f0` | `#1e293b` |
+| `--color-file-text-text` | `#1e293b` | `#e3e8f0` |
+| `--color-file-word-background` | `#ced3fd` | `#020731` |
+| `--color-file-word-text` | `#071592` | `#6d7bf8` |
+
+### Product identity
+
+One tint + icon colour per Scalar product (Product Tile). Identity, not status; Waterfalls does not borrow the AI family. `icon` is graphic only — titles on the tint use `text-primary`.
+
+| Token | Light | Dark |
+|---|---|---|
+| `--color-product-documents-background` | `#fff1e4` | `#3c1b00` |
+| `--color-product-documents-icon` | `#d26000` | `#ffac5c` |
+| `--color-product-intelligence-background` | `#e9ebfe` | `#020731` |
+| `--color-product-intelligence-icon` | `#0a1cc2` | `#6d7bf8` |
+| `--color-product-valuations-background` | `#e0f5e9` | `#002409` |
+| `--color-product-valuations-icon` | `#007e17` | `#31c37b` |
+| `--color-product-waterfalls-background` | `#e9faf4` | `#03402a` |
+| `--color-product-waterfalls-icon` | `#058355` | `#6bdcb3` |
+
 ---
 
 ## 2. Scales
@@ -271,6 +307,9 @@ permission (rule R11). `primary` is graphic only, `background` is the tint,
 | `--size-avatar-l` | `56px` |
 | `--size-avatar-xl` | `80px` |
 | `--size-row-compact` | `26px` |
+| `--size-icon-well-m` | `40px` |
+| `--size-icon-well-l` | `56px` |
+| `--size-progress-ring-m` | `48px` |
 | `--size-target-dense` | `24px` |
 | `--size-target-minimum` | `44px` |
 | `--size-target-comfortable` | `48px` |
