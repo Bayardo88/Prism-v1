@@ -144,3 +144,11 @@ this onto `Row`'s `group` prop and `Cell`'s `groupStart` / `groupEnd`, and
 merges `Row-reading` and `Row-input` into a single `Row` whose cells carry the
 read/edit distinction via `Cell type`. That is a deliberate simplification of
 the Figma model, not a mismatch.
+
+**Since 2026-09-24 there is a fourth model.** The financial-statement grids on
+Figma page 22 use `RowLabelCell` (`type="group-header" | "subtotal" | "total"`)
+and `GridValueCell` (`kind="total"`), which carry the hierarchy on the cell
+rather than the row. They are deliberately not wired into `Row type="group"`:
+that one is still a `bg.subtle` band, while `RowLabelCell type="group-header"`
+is the navy `bg.groupHeader` band the live app draws. Pick one model per grid;
+never mix them in the same grid. Converging the two is open work.

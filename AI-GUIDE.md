@@ -228,6 +228,26 @@ Find the **intent**, not the shape.
 | Show composition **and** a meaningful total | `BarChart type="stacked"` | a donut over time |
 | Show one composition's split | `DonutChart` (≤8 slices) | a pie |
 | Show how a figure becomes another figure | `WaterfallChart` | a bar chart |
+| Page / row / column actions behind a ⋮ | `ContextMenu` + `MenuItem` | a row of icon buttons |
+| A main action with alternatives | `SplitButton` | two adjacent Buttons |
+| The page's one floating "add" action | `Fab` (+ `SpeedDial` for a choice) | a fixed primary Button |
+| Switch between 2–4 views of the same content | `SegmentedControl` | `Tabs`, or `ToolSwitch` (product switch only) |
+| Saved views / scenarios / notes as tabs | `ViewTabBar` + `ViewTab` | `Tabs` with a hand-rolled kebab |
+| A page-level or modal form field | `FloatingLabelInput` / `FloatingLabelSelect` | `FormField` (keep that for dense forms) |
+| Pick from a list that can exceed ~8 items | `ComboboxPanel` | `Select` |
+| A number with a unit, or an integer count | `NumberField` | `Input type="number"` |
+| Several short values (domains, names) | `TagInput` | a comma-separated `Input` |
+| A value the user must copy elsewhere | `CopyField` | a read-only `Input` |
+| A list of like rows the user adds/removes | `RepeatableRow` + tertiary "+ Add" | a grid |
+| Upload a file | `Dropzone` | a bare file input |
+| Confirm a consequential action | `ConfirmationDialog` | `window.confirm` or an `Alert` |
+| A page-level message spanning the page | `Banner` | `Alert` (boxed, in-section) |
+| Work with no known duration | `Spinner` | `ProgressBar` indeterminate |
+| A count-based goal (3/5 answered) | `ProgressRing` | a `Badge` |
+| A preference that applies at once | `SettingRow` | `CheckboxItem` |
+| Row hierarchy in a financial statement | `RowLabelCell` + `GridValueCell` | bold text in a `Cell` |
+| A file in a list | `FileRow` + `FileTypeBadge` | a `Link` with an icon |
+| A label/value pair in a description list | `KeyValueRow` | a two-column `DataGrid` |
 
 ---
 
@@ -453,6 +473,42 @@ Rules:
 > there is no per-series on-colour token to switch to. Stacked bars label the
 > **column total** instead and carry identity by stack order, which is a
 > non-colour channel and is stable across categories.
+
+### Gap-analysis patterns (Figma pages 20–26)
+
+`MenuItem` · `MenuDivider` · `ContextMenu` · `UserMenu` · `MenuSubItems` ·
+`SplitButton` · `Fab` · `SpeedDial` + `SpeedDialItem` · `SegmentedControl` ·
+`ViewTabBar` + `ViewTab` ·
+`FloatingLabelInput` · `FloatingLabelSelect` · `NumberField` · `TimeField` ·
+`TagInput` · `CopyField` · `ComboboxPanel` + `ComboboxOption` · `ShowMoreRow` ·
+`RepeatableRow` · `Dropzone` · `Slider` · `InlineEdit` · `InlinePicker` ·
+`RowLabelCell` · `GridValueCell` · `InCellControl` · `ColumnGroupHeader` ·
+`GridColumnHeader` · `AddColumnHeader` · `CollapsedColumnRail` · `GridColumnDivider` ·
+`ChartHoverCard` · `CellHistoryPopover` ·
+`FileTypeBadge` (+ `fileKindOf`) · `FileRow` · `TreeItem` · `PageStepper` · `ZoomControl` ·
+`DocumentViewerHeader` · `ScrollHintPill` ·
+`Banner` · `Spinner` · `ProgressRing` · `DataFreshness` · `SaveState` ·
+`ConfirmationDialog` · `SettingRow` · `NotificationCenter` · `RowActionToolbar` ·
+`KeyValueRow` · `VersionHistoryItem` · `PermissionMatrixRow` · `RoleSelector` ·
+`ProfileHeader` · `FilterBar` · `DirectoryGroup` · `ProductTile` · `FirmSwitcherTile` ·
+`PageTaskHeader` · `CodeGrid` · `RichTextToolbar` · `AppFooter`
+
+- Every icon-only control takes a **required text label** (`menuLabel`,
+  `label`, `removeLabel`…) — the glyph is not the name.
+- `ContextMenu`, `ComboboxPanel`, `NotificationCenter` and `CellHistoryPopover`
+  are **surfaces only**: the trigger owns open state, positioning and outside-click
+  dismissal.
+- `ComboboxPanel` does not filter — pass the already-filtered `items`.
+- `GridValueCell state="error"` **requires** `errorMessage` (R8).
+- `SegmentedControl` always has exactly one selected option.
+- `MenuItem tone="destructive"` goes last, after a `MenuDivider`. A
+  `ConfirmationDialog`'s confirm label repeats the verb — never "OK".
+- `FileTypeBadge` colour is format identity (`color.file.*`), `ProductTile`
+  colour is product identity (`color.product.*`) — neither is status.
+- `RowLabelCell` / `GridValueCell` are a separate grouping model from
+  `Row type="group"`; do not mix them in one grid (known gap 8).
+- Built-in glyphs are structural. Pass SDS_Main icons through the icon props
+  in product UI.
 
 ### Feedback, containers, search
 

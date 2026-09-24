@@ -76,3 +76,69 @@ export const Document = (): ReactElement => (
 export const Spinner = (): ReactElement => (
   <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeDasharray="44" strokeDashoffset="14" />
 );
+
+/* --- Structural glyphs for the gap-analysis components (pages 20–26) ------
+ * Same rule as above: these let the components render on their own. Every
+ * component that shows one also accepts an `icon` / `*Icon` prop — pass the
+ * real SDS_Main glyph in product UI.
+ * ------------------------------------------------------------------------ */
+export const Plus = (): ReactElement => <path d="M12 5v14M5 12h14" {...s} />;
+export const MoreVertical = (): ReactElement => (
+  <>
+    <circle cx="12" cy="5" r="1.5" fill="currentColor" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+    <circle cx="12" cy="19" r="1.5" fill="currentColor" />
+  </>
+);
+export const DragHandle = (): ReactElement => <path d="M5 9h14M5 15h14" {...s} />;
+export const Sort = (): ReactElement => <path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4" {...s} />;
+export const Filter = (): ReactElement => <path d="M4 5h16l-6 8v5l-4 2v-7z" {...s} />;
+export const Trash = (): ReactElement => <path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" {...s} />;
+export const Copy = (): ReactElement => (
+  <>
+    <rect x="9" y="9" width="11" height="11" rx="2" {...s} />
+    <path d="M5 15V6a2 2 0 0 1 2-2h8" {...s} />
+  </>
+);
+export const Eye = (): ReactElement => (
+  <>
+    <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" {...s} />
+    <circle cx="12" cy="12" r="3" {...s} />
+  </>
+);
+export const Clock = (): ReactElement => (
+  <>
+    <circle cx="12" cy="12" r="9" {...s} />
+    <path d="M12 7v5l3 2" {...s} />
+  </>
+);
+export const Upload = (): ReactElement => <path d="M12 16V4M7 9l5-5 5 5M4 20h16" {...s} />;
+export const Download = (): ReactElement => <path d="M12 4v12M7 11l5 5 5-5M4 20h16" {...s} />;
+export const Folder = (): ReactElement => <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" {...s} />;
+export const Edit = (): ReactElement => <path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4" {...s} />;
+export const Expand = (): ReactElement => <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" {...s} />;
+export const Refresh = (): ReactElement => <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" {...s} />;
+export const ArrowLeft = (): ReactElement => <path d="M19 12H5M12 19l-7-7 7-7" {...s} />;
+export const ArrowRight = (): ReactElement => <path d="M5 12h14M12 5l7 7-7 7" {...s} />;
+export const Settings = (): ReactElement => (
+  <>
+    <circle cx="12" cy="12" r="3" {...s} />
+    <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" {...s} />
+  </>
+);
+export const Link = (): ReactElement => <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" {...s} />;
+export const List = (): ReactElement => <path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" {...s} />;
+export const Mail = (): ReactElement => (
+  <>
+    <rect x="3" y="5" width="18" height="14" rx="2" {...s} />
+    <path d="M3 7l9 6 9-6" {...s} />
+  </>
+);
+export const User = (): ReactElement => (
+  <>
+    <circle cx="12" cy="8" r="4" {...s} />
+    <path d="M4 20a8 8 0 0 1 16 0" {...s} />
+  </>
+);
+export const Trend = (): ReactElement => <path d="M3 17l6-6 4 4 8-8M15 7h6v6" {...s} />;
+export const ZoomOut = (): ReactElement => <path d="M5 12h14" {...s} />;
