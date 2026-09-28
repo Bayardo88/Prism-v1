@@ -1,11 +1,12 @@
 /**
  * Valuations (firm): every company's latest valuation in one configurable
  * grid — date, open process tasks, status, approaches and the headline values
- * — with saved views and an Add Columns picker at the end of the grid.
+ * — for all 200 companies in the database a page at a time, with saved views
+ * and an Add Columns picker at the end of the grid.
  */
 import { useMemo, useState } from 'react';
 import {
-  Button, ButtonIcon, Checkbox, Icon, ModalStatus, Modal, ModalSearch, Overline, Text, glyphs, space,
+  Button, Checkbox, Modal, ModalSearch, Overline, Pagination, TaskPill, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
@@ -13,28 +14,37 @@ import { navigate } from '../../router.js';
 import { routes } from '../../routes.js';
 import { PortfolioGrid, type GridRow } from '../p02-intelligence/PortfolioGrid.js';
 import { ExportMenuItems, PortfolioHeader, PublishedNote, SavedViewsBar } from '../p02-intelligence/chrome.js';
-import { CompanyName } from '../p02-intelligence/Summaries.js';
-import { columnCatalogue, fixtureId, slug } from '../p02-intelligence/data.js';
-import { valuationColumns, valuationRows, type ValStatus } from './data.js';
+import { CompanyLink, StatusCell } from '../p02-intelligence/cells.js';
+import { PAGE_SIZE, columnCatalogue, inFrameOrder } from '../p02-intelligence/data.js';
+import type { Company } from '../../data/fixtures.js';
+import { VALUATIONS_FRAME, tasksOf, valuationColumns, valuationValues } from './data.js';
 
-const statusCell = (s: ValStatus) =>
-  s === 'final' ? <ModalStatus state="final" /> : s === 'published' ? <ModalStatus state="complete">Published</ModalStatus> : <ModalStatus state="draft" />;
+const ORDER = inFrameOrder(VALUATIONS_FRAME);
+/** Total columns the catalogue offers (the modal's "N of 140 available"). */
+const AVAILABLE = 140;
 
-/** Open process-management tasks: document requests and questions, each a jump to the company. */
-function Tasks({ company }: { company: string }) {
-  const id = fixtureId(company) ?? 'abc-co';
+/** Open process-management tasks: document requests and questions, each a jump into the company. */
+function Tasks({ company }: { company: Company }) {
+  const t = tasksOf(company);
+  if (!t) return <Text step="s" tone="tertiary">No tasks required</Text>;
   return (
     <span style={{ display: 'inline-flex', gap: space.xs }}>
-      <ButtonIcon
-        size="s" variant="primary" tone="negative" label={`${company}: documents requested`}
-        onClick={() => navigate(routes.company.informationRequest(id))}
-        icon={<Icon size="s" tone="inherit"><glyphs.Document /></Icon>}
+      <TaskPill
+        tone="negative"
+        label={`${company.name}: ${t.documents} document request${t.documents === 1 ? '' : 's'} open`}
+        count={t.documents}
+        icon={<icons.Description />}
+        onClick={() => navigate(routes.company.informationRequest(company.id))}
       />
-      <ButtonIcon
-        size="s" variant="primary" tone="negative" label={`${company}: open questions`}
-        onClick={() => navigate(routes.company.questions(id))}
-        icon={<Icon size="s" tone="inherit"><glyphs.Info /></Icon>}
-      />
+      {t.questions > 0 && (
+        <TaskPill
+          tone="negative"
+          label={`${company.name}: ${t.questions} open question${t.questions === 1 ? '' : 's'}`}
+          count={t.questions}
+          icon={<icons.QuestionMark />}
+          onClick={() => navigate(routes.company.questions(company.id))}
+        />
+      )}
     </span>
   );
 }
@@ -50,9 +60,10 @@ function AddColumnsModal({ open, onClose }: { open: boolean; onClose: () => void
       open={open}
       onClose={onClose}
       title="Add Columns"
+      size="m"
       footer={
         <>
-          <Text step="s" tone="secondary">{picked.length} of 140 available selected</Text>
+          <Text step="s" tone="secondary">{picked.length} of {AVAILABLE} available selected</Text>
           <div style={{ marginLeft: 'auto', display: 'flex', gap: space.s }}>
             <Button variant="tertiary" onClick={onClose}>Cancel</Button>
             <Button variant="primary" disabled={!picked.length} onClick={onClose}>Add Columns</Button>
@@ -85,17 +96,19 @@ export function FirmValuations({ state }: ScreenProps) {
   const [viewMenu, setViewMenu] = useState<string | undefined>();
   const [actions, setActions] = useState(false);
   const [adding, setAdding] = useState(state === 'add-columns');
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(PAGE_SIZE);
 
-  const rows: GridRow[] = useMemo(() => valuationRows.map((r) => ({
-    id: slug(r.name),
-    label: <CompanyName name={r.name} to={routes.company.valuationSummary} />,
-    sortText: r.name,
+  const rows: GridRow[] = useMemo(() => ORDER.slice((page - 1) * perPage, page * perPage).map((c) => ({
+    id: c.id,
+    label: <CompanyLink company={c} to={routes.company.valuationSummary} />,
+    sortText: c.name,
     values: {
-      ...r.v,
-      process: r.tasks ? <Tasks company={r.name} /> : <Text step="s" tone="tertiary">No tasks required</Text>,
-      status: statusCell(r.status),
+      ...valuationValues(c),
+      process: <Tasks company={c} />,
+      status: <StatusCell company={c} />,
     },
-  })), []);
+  })), [page, perPage]);
 
   return (
     <AppFrame area="valuations" overlay={<AddColumnsModal open={adding} onClose={() => setAdding(false)} />}>
@@ -121,12 +134,21 @@ export function FirmValuations({ state }: ScreenProps) {
           columns={valuationColumns}
           rows={rows}
           total={{}}
-          colPct={10}
           scrollTo={atEnd ? 'end' : undefined}
           onAddColumn={() => setAdding(true)}
           addColumnLabel="Add Column"
+          addColumnSelected={adding}
         />
-        <PublishedNote />
+        <div style={{ display: 'flex', alignItems: 'center', gap: space.l }}>
+          <Pagination
+            page={page}
+            pageCount={Math.ceil(ORDER.length / perPage)}
+            onPageChange={setPage}
+            rowsPerPage={perPage}
+            onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
+          />
+          <div style={{ marginLeft: 'auto' }}><PublishedNote /></div>
+        </div>
       </PageBody>
     </AppFrame>
   );

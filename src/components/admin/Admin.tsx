@@ -41,20 +41,22 @@ export interface VersionHistoryItemProps {
   /** Who and why ("Changed by Analyst · Firm template change"). */
   meta?: ReactNode;
   current?: boolean;
+  /** Text of the current-entry chip. Default "Current" ("Current · In use by 3 companies"). */
+  currentLabel?: ReactNode;
   /** e.g. a tertiary "Restore" Button on past entries. */
   action?: ReactNode;
   className?: string;
 }
 
 /** Version History Item — one entry of a settings/version timeline, newest first. */
-export function VersionHistoryItem({ range, meta, current, action, className }: VersionHistoryItemProps) {
+export function VersionHistoryItem({ range, meta, current, currentLabel = 'Current', action, className }: VersionHistoryItemProps) {
   return (
     <li className={cx('scalar-version-item', current && 'scalar-version-item--current', className)}>
       <span className="scalar-version-item__rail" aria-hidden><span className="scalar-version-item__dot" /></span>
       <div className="scalar-version-item__body">
         <div className="scalar-version-item__top">
           <span className="scalar-version-item__range">{range}</span>
-          {current && <Chip size="s" styleVariant="positive">Current</Chip>}
+          {current && <Chip size="s" styleVariant="positive">{currentLabel}</Chip>}
         </div>
         {meta && <div className="scalar-version-item__meta">{meta}</div>}
         {action}

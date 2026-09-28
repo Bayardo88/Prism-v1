@@ -1,4 +1,4 @@
-import { companies, user } from '../../data/fixtures.js';
+import { db, user } from '../../data/fixtures.js';
 
 export type Role = 'Firm Admin' | 'Analyst' | 'Auditor' | 'Company User';
 export const ROLES: Role[] = ['Firm Admin', 'Analyst', 'Auditor', 'Company User'];
@@ -24,5 +24,6 @@ export const users: FirmUser[] = [
   { email: user.email, name: user.name, initials: user.initials, role: 'Firm Admin', lastLogin: '09/22/2026', lastLoginLong: 'Tuesday, September 22, 2026' },
 ];
 
-export const funds = ['Low Class', 'VIP FUND'];
-export const permissionCompanies = companies.map((c) => c.name);
+/** Permission matrix rows: every fund and every portfolio company, from the db. */
+export const funds = db.funds.all().map((f) => f.name);
+export const permissionCompanies = db.companies.all().map((c) => c.name);

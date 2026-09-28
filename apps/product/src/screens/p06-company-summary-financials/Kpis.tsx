@@ -1,29 +1,30 @@
 import { useState } from 'react';
 import {
-  Button, ButtonIcon, ContextMenu, EmptyState, Heading, Icon, MenuDivider, MenuItem, Text, color, glyphs, space,
+  Button, ButtonIcon, ContextMenu, EmptyState, Heading, Icon, MenuDivider, MenuItem, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { FinancialsPage } from './FinancialsPage.js';
-import { FinancialGrid, fy, type GridColumn, type GridRow } from './FinancialGrid.js';
-
-const YEARS = { hist: [2021, 2022, 2023, 2024], proj: [2025, 2026, 2027, 2028] };
+import { FinancialGrid, fy, range, type GridColumn, type GridRow } from './FinancialGrid.js';
+import { periods } from './data.js';
 
 export function Kpis({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
+  const { year } = periods(company);
   const [rowCount, setRowCount] = useState(state === 'default' ? 0 : 1);
   const [menuOpen, setMenuOpen] = useState(state === 'column-menu');
   const addRow = () => setRowCount((n) => n + 1);
 
-  const selectedKey = 'fy2023';
+  // Four actual years and four projection years; the frame's active column is the second-latest actual.
+  const selected = fy(year - 1, 'hist');
   const columns: GridColumn[] = [
-    ...YEARS.hist.map((y) => fy(y, 'hist')),
-    ...YEARS.proj.map((y) => fy(y, 'proj')),
-  ].map((c) => (c.key !== selectedKey ? c : {
+    ...range(year - 3, year).map((y) => fy(y, 'hist')),
+    ...range(year + 1, year + 4).map((y) => fy(y, 'proj')),
+  ].map((c) => (c.key !== selected.key ? c : {
     ...c,
     selected: true,
     groupSlot: (
-      <div style={{ display: 'flex', justifyContent: 'center', background: color.bg.surface }}>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
         <ButtonIcon
           variant="tertiary"
           size="s"
@@ -31,28 +32,32 @@ export function Kpis({ state, params }: ScreenProps) {
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((o) => !o)}
-          icon={<Icon size="xs" tone="brand"><glyphs.ChevronDown /></Icon>}
+          icon={<Icon size="xs" tone="brand"><icons.KeyboardArrowDown /></Icon>}
         />
       </div>
     ),
-    headerMenu: menuOpen && (
-      <ContextMenu label={`${c.label} column actions`}>
-        <MenuItem icon={<Icon tone="inherit"><glyphs.Copy /></Icon>} onClick={() => setMenuOpen(false)}>Copy</MenuItem>
+  }));
+
+  const menu = menuOpen ? {
+    columnKey: selected.key,
+    content: (
+      <ContextMenu label={`${selected.label} column actions`}>
+        <MenuItem icon={<Icon tone="inherit"><icons.ContentCopy /></Icon>} onClick={() => setMenuOpen(false)}>Copy</MenuItem>
         <MenuDivider />
-        <MenuItem tone="destructive" icon={<Icon tone="inherit"><glyphs.Trash /></Icon>} onClick={() => setMenuOpen(false)}>Delete</MenuItem>
+        <MenuItem tone="destructive" icon={<Icon tone="inherit"><icons.Delete /></Icon>} onClick={() => setMenuOpen(false)}>Delete</MenuItem>
       </ContextMenu>
     ),
-  }));
+  } : undefined;
 
   const rows: GridRow[] = Array.from({ length: rowCount }, (_, i) => ({
     key: `kpi-${i}`,
     label: 'New KPI',
     labelContent: <Text as="span" step="m" weight="semiBold" tone="tertiary">ENTER DATA</Text>,
-    values: i === 0 ? [, , { kind: 'editable' as const, focused: true }] : [],
+    values: i === 0 ? [undefined, undefined, { kind: 'editable' as const, focused: true }] : [],
   }));
 
   const addButton = (
-    <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>} onClick={addRow}>
+    <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>} onClick={addRow}>
       Add KPI Row
     </Button>
   );
@@ -72,7 +77,7 @@ export function Kpis({ state, params }: ScreenProps) {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: space.l, alignItems: 'flex-start' }}>
           <div style={{ alignSelf: 'stretch' }}>
-            <FinancialGrid title="KPI Table" columns={columns} rows={rows} />
+            <FinancialGrid title="KPI Table" columns={columns} rows={rows} menu={menu} />
           </div>
           {addButton}
         </div>

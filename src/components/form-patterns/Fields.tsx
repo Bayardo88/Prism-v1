@@ -108,24 +108,36 @@ export interface NumberFieldProps extends Omit<InputHTMLAttributes<HTMLInputElem
   state?: FieldState;
   /** Name for the increment / decrement buttons ("trading days"). */
   unitLabel?: string;
+  /**
+   * Floating label on the top border, matching a filled FloatingLabelInput.
+   * A number field always shows its value slot, so the label is always
+   * floated. Wired to the input with `htmlFor`.
+   */
+  label?: ReactNode;
 }
 
 /**
  * Number Field — numeric entry. With `suffix`: a unit adornment (thresholds %,
  * multiples). Without: an up/down stepper for integer counts (window days,
- * SFTP port). Pair with a label via FormField or a Floating Label Field.
+ * SFTP port). Give it `label` for a floating label that sits with
+ * FloatingLabelInputs in a page or modal form, or wrap it in a FormField in a
+ * dense form.
  */
 export const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(function NumberField(
-  { value, onChange, suffix, step = 1, min, max, state = 'default', unitLabel = 'value', className, disabled, ...rest },
+  { value, onChange, suffix, step = 1, min, max, state = 'default', unitLabel = 'value', label, className, disabled, id, ...rest },
   ref,
 ) {
+  const auto = useId();
+  const fid = id ?? auto;
   const off = disabled || state === 'disabled';
   const clamp = (n: number) => Math.min(max != null ? +max : Infinity, Math.max(min != null ? +min : -Infinity, n));
   const bump = (d: number) => onChange?.(clamp((value === '' || value == null ? 0 : value) + d * step));
   return (
-    <div className={cx('scalar-number-field', `scalar-number-field--${state}`, className)}>
+    <div className={cx('scalar-number-field', `scalar-number-field--${state}`, label != null && 'scalar-number-field--labelled', className)}>
+      {label != null && <label htmlFor={fid} className="scalar-number-field__label">{label}</label>}
       <input
         ref={ref}
+        id={fid}
         type="number"
         inputMode="decimal"
         value={value}

@@ -8,8 +8,8 @@
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import {
-  Avatar, ButtonIcon, CompanyDropdown, Icon, MainMenuItem, glyphs,
-  Notification, PrimaryMenu, ScalarProvider, SearchBar, Selector, Text,
+  Avatar, ButtonIcon, CompanyDropdown, Icon, MainMenuItem,
+  Notification, PrimaryMenu, ScalarProvider, SearchBar, Selector, Text, icons,
   ToolSwitch, color, space, type ToolSwitchValue,
 } from '@scalar/design-system';
 import { href } from '../router.js';
@@ -73,7 +73,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
                 variant="tertiary"
                 size="s"
                 label="More"
-                icon={<Icon tone="onBrand"><glyphs.MoreVertical /></Icon>}
+                icon={<Icon tone="onBrand"><icons.MoreVert /></Icon>}
               />
             </>
           }
@@ -88,6 +88,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
           <Selector
             label="Date"
             value={date ?? (company ? `Most Recent (${company.asOf})` : portfolioDate)}
+            expanded={open === 'date'}
             onClick={toggle('date')}
           />
         </PrimaryMenu>

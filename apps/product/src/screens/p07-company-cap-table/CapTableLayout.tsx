@@ -4,10 +4,10 @@
  * (Cap Table · Fund Ownership · Breakpoint Analysis · Cash Flow Ledger) and the
  * Workspace dock.
  */
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import {
-  ButtonIcon, CurrencySelector, Icon, InformationLabel, ModalStatus, SplitButton,
-  TertiaryMenuItem, glyphs,
+  ButtonIcon, CurrencySelector, Icon, ModalStatus, SelectMenu, SelectMenuOption, Selector, SplitButton,
+  TertiaryMenuItem, icons, zIndex,
 } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import { href } from '../../router.js';
@@ -43,7 +43,11 @@ export interface CapTableLayoutProps {
   children?: ReactNode;
 }
 
+const VERSIONS = ['Primary Captable'] as const;
+
 export function CapTableLayout({ company, page, currency, save = true, onSave, footer, overlay, children }: CapTableLayoutProps) {
+  const [versionOpen, setVersionOpen] = useState(false);
+  const [version, setVersion] = useState<string>(VERSIONS[0]);
   return (
     <CompanyLayout
       company={company}
@@ -53,13 +57,30 @@ export function CapTableLayout({ company, page, currency, save = true, onSave, f
       footer={footer}
       headerEnd={
         <>
-          <InformationLabel label="Cap Table Version" value="Primary Captable" />
+          <div style={{ position: 'relative' }}>
+            <Selector
+              surface="surface"
+              label="Cap Table Version"
+              value={version}
+              expanded={versionOpen}
+              onClick={() => setVersionOpen((o) => !o)}
+            />
+            {versionOpen && (
+              <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay }}>
+                <SelectMenu label="Cap table version">
+                  {VERSIONS.map((v) => (
+                    <SelectMenuOption key={v} selected={v === version} onSelect={() => { setVersion(v); setVersionOpen(false); }}>{v}</SelectMenuOption>
+                  ))}
+                </SelectMenu>
+              </div>
+            )}
+          </div>
           <ModalStatus state="draft" />
           <ButtonIcon
             variant="tertiary"
             size="s"
             label="Cap table actions"
-            icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>}
+            icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>}
           />
         </>
       }

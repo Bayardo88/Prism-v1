@@ -9,16 +9,16 @@
  */
 import { useMemo, useState } from 'react';
 import {
-  DirectoryGroup, FirmSwitcherTile, Heading, Icon, Input, ProductTile, Text, EmptyState,
-  glyphs, space,
+  DirectoryGroup, FirmSwitcherTile, FormField, Heading, Icon, Input, ProductTile, Text, EmptyState,
+  icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
 import type { GlobalMenu } from '../../shell/overlays/index.js';
-import { directory, directoryByLetter } from '../../shell/overlays/data.js';
+import { directoryByLetter } from '../../shell/overlays/data.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
-import { firm, firms } from '../../data/fixtures.js';
+import { db, firm, firms } from '../../data/fixtures.js';
 import { AddCompanyModal } from './AddCompanyModal.js';
 
 const MENU_FOR_STATE: Record<string, GlobalMenu | undefined> = {
@@ -33,19 +33,19 @@ const MENU_FOR_STATE: Record<string, GlobalMenu | undefined> = {
 const PRODUCTS = [
   {
     product: 'intelligence' as const, title: 'Intelligence', to: routes.intelligence.summaries,
-    description: 'Customizable summaries of the entire portfolio.', glyph: <glyphs.Trend />,
+    description: 'Customizable summaries of the entire portfolio.', glyph: <icons.QueryStats />,
   },
   {
     product: 'valuations' as const, title: 'Valuations', to: routes.valuations,
-    description: 'Find the details and bulk actions on all of the latest valuations.', glyph: <glyphs.List />,
+    description: 'Find the details and bulk actions on all of the latest valuations.', glyph: <icons.Paid />,
   },
   {
     product: 'waterfalls' as const, title: 'Waterfalls', to: routes.waterfalls,
-    description: "Run a waterfall on any company's cap table to quickly find the distributions.", glyph: <glyphs.Sort />,
+    description: "Run a waterfall on any company's cap table to quickly find the distributions.", glyph: <icons.WaterfallChart />,
   },
   {
     product: 'documents' as const, title: 'Documents', to: routes.documents,
-    description: 'Quickly find the documents that were used for each valuation.', glyph: <glyphs.Document />,
+    description: 'Quickly find the documents that were used for each valuation.', glyph: <icons.Description />,
   },
 ];
 
@@ -56,7 +56,9 @@ export function Home({ state }: ScreenProps) {
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return directoryByLetter(q ? directory.filter((c) => c.name.toLowerCase().includes(q)) : directory);
+    return directoryByLetter((q ? db.companies.search(q, db.companies.count) : db.companies.all())
+      .map((c) => ({ id: c.id, name: c.name }))
+      .sort((a, b) => a.name.localeCompare(b.name)));
   }, [query]);
 
   return (
@@ -91,15 +93,15 @@ export function Home({ state }: ScreenProps) {
           ))}
         </nav>
 
-        <div role="search" style={{ display: 'flex' }}>
+        <FormField>
           <Input
             aria-label="Search companies"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search companies…"
-            leadingIcon={<Icon size="s"><glyphs.Search /></Icon>}
+            leadingIcon={<Icon size="s"><icons.Search /></Icon>}
           />
-        </div>
+        </FormField>
 
         <section aria-labelledby="directory-title" style={{ display: 'flex', flexDirection: 'column', gap: space.l }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: space.s }}>

@@ -8,7 +8,7 @@
  * closes the menu (the value in force is owned by AppFrame's `date` prop).
  */
 import { useMemo, useState } from 'react';
-import { Button, ComboboxPanel, Icon, glyphs } from '@scalar/design-system';
+import { Button, ComboboxPanel, Icon, icons } from '@scalar/design-system';
 import { measurementDates, MENU_PAGE } from './data.js';
 import { Popover } from './Popover.js';
 import type { OverlayProps } from './index.js';
@@ -37,7 +37,7 @@ export function DateMenu({ company, onClose }: OverlayProps) {
         footer={
           <Button
             variant="secondary"
-            leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
+            leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
             onClick={onClose}
             style={{ width: '100%' }}
           >

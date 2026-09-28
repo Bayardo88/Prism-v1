@@ -8,14 +8,13 @@
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import {
-  AddColumnHeader, Button, Card, ColumnGroupHeader, EmptyState, GridColumnDivider, GridColumnHeader,
-  GridValueCell, Icon, RowLabelCell, glyphs, space, type RowLabelType, type ValueKind,
+  AddColumnHeader, Button, Card, ColumnGroupHeader, DataGrid, EmptyState, GridColumnDivider, GridColumnHeader,
+  GridValueCell, Icon, Row, RowLabelCell, icons, space, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
-import { Sheet, SheetRow } from '../p07-company-cap-table/Sheet.js';
 import { ValuationsLayout } from './ValuationsLayout.js';
-import { ALLOCATION_ROWS, APPROACH_ROWS } from './data.js';
+import { allocationRowsFor, approachRowsFor } from './data.js';
 
 function Empty({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
   return (
@@ -23,7 +22,7 @@ function Empty({ title, body, action, onAction }: { title: string; body: string;
       <Card>
         <EmptyState
           type="no-data"
-          icon={<Icon size="xl" tone="brand"><glyphs.Info /></Icon>}
+          icon={<Icon size="xl" tone="brand"><icons.Error /></Icon>}
           title={title}
           body={body}
           actions={<Button variant="secondary" onClick={onAction}>{action}</Button>}
@@ -42,13 +41,14 @@ export function Summary({ state, params }: ScreenProps) {
   const openMenu = () => setMenuOpen(true);
   const populated = state === 'populated';
 
-  const row = (key: string, label: string, type: RowLabelType, cells: ReactNode[], dividerAt: number) => (
-    <SheetRow key={key} label={label}>
+  const V = 'minmax(max-content, 1fr)';
+  const row = (key: string, label: string, type: RowLabelType, cells: ReactNode[], dividerAt: number, zebra: boolean) => (
+    <Row key={key} aria-label={label} zebra={zebra && type !== 'total'} type={type === 'total' ? 'total' : undefined}>
       <RowLabelCell type={type}>{label}</RowLabelCell>
       {cells.slice(0, dividerAt)}
       <GridColumnDivider type="pinned" />
       {cells.slice(dividerAt)}
-    </SheetRow>
+    </Row>
   );
 
   return (
@@ -62,56 +62,64 @@ export function Summary({ state, params }: ScreenProps) {
 
       {populated && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: space.xl }}>
-          <Sheet
+          <DataGrid
             label="Valuation summary"
-            columns="minmax(0, 2.2fr) minmax(0, 1fr) minmax(0, 1fr) auto minmax(0, 1fr) minmax(0, 1fr) auto"
-            width="78%"
+            columns={['minmax(max-content, 2fr)', V, V, 'auto', V, V, 'max-content']}
+            style={{ width: '80%' }}
+            groupHead={
+              <>
+                <GridColumnHeader>Valuation Summary</GridColumnHeader>
+                <ColumnGroupHeader span={2}>Approaches</ColumnGroupHeader>
+                <GridColumnDivider type="pinned" />
+                <ColumnGroupHeader span={2} styleVariant="emphasis">Allocation Scenarios</ColumnGroupHeader>
+                <AddColumnHeader onClick={openMenu} selected={menuOpen}>Add Allocation Scenario</AddColumnHeader>
+              </>
+            }
+            head={
+              <>
+                <GridColumnHeader>{''}</GridColumnHeader>
+                <GridColumnHeader numeric>Enterprise Value</GridColumnHeader>
+                <GridColumnHeader numeric>Equity Value</GridColumnHeader>
+                <GridColumnDivider type="pinned" />
+                <GridColumnHeader numeric>Waterfall</GridColumnHeader>
+                <GridColumnHeader numeric>OPM</GridColumnHeader>
+                <GridColumnHeader>{''}</GridColumnHeader>
+              </>
+            }
           >
-            <SheetRow label="Column groups">
-              <GridColumnHeader>Valuation Summary</GridColumnHeader>
-              <ColumnGroupHeader span={2}>Approaches</ColumnGroupHeader>
-              <GridColumnDivider type="pinned" />
-              <ColumnGroupHeader span={2} styleVariant="emphasis">Allocation Scenarios</ColumnGroupHeader>
-              <AddColumnHeader onClick={openMenu}>Add Allocation Scenario</AddColumnHeader>
-            </SheetRow>
-            <SheetRow label="Columns">
-              <GridColumnHeader>{''}</GridColumnHeader>
-              <GridColumnHeader numeric>Enterprise Value</GridColumnHeader>
-              <GridColumnHeader numeric>Equity Value</GridColumnHeader>
-              <GridColumnDivider type="pinned" />
-              <GridColumnHeader numeric>Waterfall</GridColumnHeader>
-              <GridColumnHeader numeric>OPM</GridColumnHeader>
-              <GridColumnHeader>{''}</GridColumnHeader>
-            </SheetRow>
-            {APPROACH_ROWS.map((r) => row(r.label, r.label, r.type,
+            {approachRowsFor(company).map((r, i) => row(r.label, r.label, r.type,
               [cell(r.type === 'total' ? 'total' : 'calculated', r.ev, 'ev'), cell(r.type === 'total' ? 'total' : 'calculated', r.equity, 'eq'),
                 cell(r.kind, r.waterfall, 'w'), cell(r.kind, r.opm, 'o'),
-                <GridValueCell key="add" />], 2))}
-          </Sheet>
+                <GridValueCell key="add" />], 2, i % 2 === 1))}
+          </DataGrid>
 
-          <Sheet
+          <DataGrid
             label="Equity allocation"
-            columns="minmax(0, 2.2fr) auto minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)"
-            width="56%"
+            columns={['minmax(max-content, 2fr)', 'auto', V, V, V]}
+            style={{ width: '60%' }}
+            groupHead={
+              <>
+                <GridColumnHeader>Equity Allocation</GridColumnHeader>
+                <GridColumnDivider type="pinned" />
+                <ColumnGroupHeader span={2} styleVariant="emphasis">Allocation Scenarios</ColumnGroupHeader>
+                <ColumnGroupHeader span={1}>Weighted</ColumnGroupHeader>
+              </>
+            }
+            head={
+              <>
+                <GridColumnHeader>{''}</GridColumnHeader>
+                <GridColumnDivider type="pinned" />
+                <GridColumnHeader numeric>Waterfall</GridColumnHeader>
+                <GridColumnHeader numeric>OPM</GridColumnHeader>
+                <GridColumnHeader numeric>Weighted Value</GridColumnHeader>
+              </>
+            }
           >
-            <SheetRow label="Column groups">
-              <GridColumnHeader>Equity Allocation</GridColumnHeader>
-              <GridColumnDivider type="pinned" />
-              <ColumnGroupHeader span={2} styleVariant="emphasis">Allocation Scenarios</ColumnGroupHeader>
-              <ColumnGroupHeader span={1}>Weighted</ColumnGroupHeader>
-            </SheetRow>
-            <SheetRow label="Columns">
-              <GridColumnHeader>{''}</GridColumnHeader>
-              <GridColumnDivider type="pinned" />
-              <GridColumnHeader numeric>Waterfall</GridColumnHeader>
-              <GridColumnHeader numeric>OPM</GridColumnHeader>
-              <GridColumnHeader numeric>Weighted Value</GridColumnHeader>
-            </SheetRow>
-            {ALLOCATION_ROWS.map((r, i) => row(`${i}-${r.label}`, r.label, r.type,
+            {allocationRowsFor(company).map((r, i) => row(`${i}-${r.label}`, r.label, r.type,
               [cell(r.kind, r.values[0], 'w'),
                 cell(r.kind, r.values[1], 'o'),
-                cell(r.type === 'total' ? 'total' : 'calculated', r.values[2], 'x')], 0))}
-          </Sheet>
+                cell(r.type === 'total' ? 'total' : 'calculated', r.values[2], 'x')], 0, i % 2 === 1))}
+          </DataGrid>
         </div>
       )}
     </ValuationsLayout>

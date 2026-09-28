@@ -1,22 +1,20 @@
 import { useState } from 'react';
 import {
   Button, ButtonIcon, Cell, ColumnHeader, DataGrid, FilterBar, FloatingLabelInput, FloatingLabelSelect, Icon,
-  Modal, Row, Select, Text, glyphs, space,
+  Link, Modal, Row, Select, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame } from '../../shell/AppFrame.js';
+import { href } from '../../router.js';
+import { routes } from '../../routes.js';
 import { firm } from '../../data/fixtures.js';
 import { auditLog, TOTAL_LOGS, type LogEntry } from './data.js';
 
-const col = {
-  time: { flex: 1.5 },
-  user: { flex: 1.5 },
-  feature: { flex: 0.9 },
-  company: { flex: 0.9 },
-  object: { flex: 1.6 },
-  action: { flex: 0.9 },
-  details: { flex: 3 },
-};
+/**
+ * Column tracks: every column is its content's width except Details, which takes
+ * the rest and truncates (its payload would otherwise size the track).
+ */
+const columns = [...Array.from({ length: 6 }, () => 'max-content'), 'minmax(0, 1fr)'];
 
 const PAGE = 9;
 
@@ -48,7 +46,7 @@ export function AuditLogs(_: ScreenProps) {
         <FilterBar
           label="Filter By"
           action={
-            <Button variant="primary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Refresh /></Icon>} onClick={() => setShown(PAGE)}>
+            <Button variant="primary" leadingIcon={<Icon size="s" tone="inherit"><icons.Refresh /></Icon>} onClick={() => setShown(PAGE)}>
               Refresh
             </Button>
           }
@@ -71,33 +69,34 @@ export function AuditLogs(_: ScreenProps) {
 
         <DataGrid
           label="Audit log"
+          columns={columns}
           head={
             <>
-              <ColumnHeader style={col.time} sort={sort} onSortChange={setSort}>Timestamp</ColumnHeader>
-              <ColumnHeader style={col.user}>User</ColumnHeader>
-              <ColumnHeader style={col.feature}>Feature</ColumnHeader>
-              <ColumnHeader style={col.company}>Company</ColumnHeader>
-              <ColumnHeader style={col.object}>Object Modified</ColumnHeader>
-              <ColumnHeader style={col.action}>Action</ColumnHeader>
-              <ColumnHeader style={col.details}>Details</ColumnHeader>
+              <ColumnHeader sort={sort} onSortChange={setSort}>Timestamp</ColumnHeader>
+              <ColumnHeader>User</ColumnHeader>
+              <ColumnHeader>Feature</ColumnHeader>
+              <ColumnHeader>Company</ColumnHeader>
+              <ColumnHeader>Object Modified</ColumnHeader>
+              <ColumnHeader>Action</ColumnHeader>
+              <ColumnHeader>Details</ColumnHeader>
             </>
           }
         >
           {ordered.map((r, i) => (
             <Row key={r.id} zebra={i % 2 === 1}>
-              <Cell style={col.time}>{r.time}</Cell>
-              <Cell style={col.user}>{r.user}</Cell>
-              <Cell style={col.feature}>{r.feature}</Cell>
-              <Cell style={col.company}>{r.company}</Cell>
-              <Cell style={col.object}>{r.object}</Cell>
-              <Cell style={col.action}>{r.action}</Cell>
-              <Cell style={{ ...col.details, minWidth: 0 }}>
+              <Cell>{r.time}</Cell>
+              <Cell>{r.user}</Cell>
+              <Cell>{r.feature}</Cell>
+              <Cell><Link size="s" href={href(routes.company.summary(r.companyId))}>{r.company}</Link></Cell>
+              <Cell>{r.object}</Cell>
+              <Cell>{r.action}</Cell>
+              <Cell style={{ minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: space.xs, minWidth: 0 }}>
                   <ButtonIcon
                     variant="tertiary"
                     size="s"
                     label={`View details of ${r.object}`}
-                    icon={<Icon size="s" tone="inherit"><glyphs.Search /></Icon>}
+                    icon={<Icon size="s" tone="inherit"><icons.Search /></Icon>}
                     onClick={() => setOpen(r)}
                   />
                   <Text step="s" tone="secondary" truncate>{r.details}</Text>

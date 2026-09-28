@@ -1,17 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { FinancialsPage } from './FinancialsPage.js';
-import { FinancialGrid, fy, type GridColumn } from './FinancialGrid.js';
-import { incomeStatementRows, performanceMetricRows } from './data.js';
+import { FinancialGrid, fy, range, type GridColumn } from './FinancialGrid.js';
+import { incomeStatementRows, performanceMetricRows, periods } from './data.js';
 
-/** Historical FY 2022–24 (actuals, FY 2024 footnoted), Projections, then LTM / NTM. */
-function columns(projYears: number[], editableTrail: boolean): GridColumn[] {
+type Periods = ReturnType<typeof periods>;
+
+/** Three actual years (the latest footnoted), the projection years, then LTM / NTM. */
+function columns(p: Periods, projYears: number[], editableTrail: boolean): GridColumn[] {
   return [
-    fy(2022, 'hist'), fy(2023, 'hist'), { ...fy(2024, 'hist'), footnote: editableTrail ? '1' : undefined },
+    fy(p.year - 2, 'hist'), fy(p.year - 1, 'hist'), { ...fy(p.year, 'hist'), footnote: editableTrail ? '1' : undefined },
     ...projYears.map((y) => fy(y, 'proj')),
-    { key: 'ltm', label: '12/31/2024', zone: 'trail', group: 'LTM', editableDate: editableTrail },
-    { key: 'ntm', label: '12/31/2025', zone: 'trail', group: 'NTM', editableDate: editableTrail },
+    { key: 'ltm', label: p.ltm, zone: 'trail', group: 'LTM', editableDate: editableTrail },
+    { key: 'ntm', label: p.ntm, zone: 'trail', group: 'NTM', editableDate: editableTrail },
   ];
 }
 
@@ -28,15 +30,9 @@ function widen<T extends { values?: unknown[] }>(rows: T[], extra: number): T[] 
 
 export function IncomeStatement({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [projYears, setProjYears] = useState([2025, 2026, 2027]);
+  const p = periods(company);
+  const [projYears, setProjYears] = useState(() => range(p.year + 1, p.year + 3));
   const extra = projYears.length - 3;
-
-  // The Workspace drawer docks under the page; bring it into view for the Notes frame.
-  useEffect(() => {
-    if (state !== 'notes-drawer') return;
-    const t = window.setTimeout(() => window.scrollTo(0, document.documentElement.scrollHeight), 0);
-    return () => window.clearTimeout(t);
-  }, [state]);
 
   return (
     <FinancialsPage
@@ -47,8 +43,8 @@ export function IncomeStatement({ state, params }: ScreenProps) {
       notesOpen={state === 'notes-drawer'}
       onAddProjectionYear={() => setProjYears((ys) => [...ys, ys[ys.length - 1]! + 1])}
     >
-      <FinancialGrid title="Income Statement" columns={columns(projYears, true)} rows={widen(incomeStatementRows, extra)} />
-      <FinancialGrid title="Performance Metrics" columns={columns(projYears, false)} rows={widen(performanceMetricRows, extra)} />
+      <FinancialGrid title="Income Statement" columns={columns(p, projYears, true)} rows={widen(incomeStatementRows(company), extra)} />
+      <FinancialGrid title="Performance Metrics" columns={columns(p, projYears, false)} rows={widen(performanceMetricRows, extra)} />
     </FinancialsPage>
   );
 }

@@ -7,13 +7,13 @@
 import { useState, type ReactNode } from 'react';
 import {
   Button, ButtonIcon, ComboboxPanel, ContextMenu, CurrencySelector, Icon, MenuItem, RichTextToolbar,
-  InformationLabel, SegmentedControl, TertiaryMenuItem, Textarea, ViewTab, ViewTabBar, glyphs, space, zIndex,
+  SegmentedControl, Selector, TertiaryMenuItem, Textarea, ViewTab, ViewTabBar, icons, space, zIndex,
   type RichTextFormat,
 } from '@scalar/design-system';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
-import { financialsDate, financialsVersion, versions } from './data.js';
+import { periods, versions } from './data.js';
 
 /** A trigger with an anchored popover. The trigger owns open state (AI-GUIDE §7). */
 function Anchored({ children, popover, open }: { children: ReactNode; popover: ReactNode; open: boolean }) {
@@ -35,10 +35,10 @@ export function CompanyActions({ company, initialOpen = false }: { company: Comp
       open={open}
       popover={
         <ContextMenu label={`${company.name} actions`}>
-          <MenuItem icon={<Icon tone="inherit"><glyphs.Edit /></Icon>} href={href(routes.company.overview(company.id))}>Edit Company</MenuItem>
-          <MenuItem icon={<Icon tone="inherit"><glyphs.Download /></Icon>} onClick={() => setOpen(false)}>Excel Export</MenuItem>
-          <MenuItem icon={<Icon tone="inherit"><glyphs.Document /></Icon>} onClick={() => setOpen(false)}>PDF Export</MenuItem>
-          <MenuItem icon={<Icon tone="inherit"><glyphs.User /></Icon>} href={href(routes.company.dailyNavSettings(company.id))}>Edit Common Profile</MenuItem>
+          <MenuItem icon={<Icon tone="inherit"><icons.Edit /></Icon>} href={href(routes.company.overview(company.id))}>Edit Company</MenuItem>
+          <MenuItem icon={<Icon tone="inherit"><icons.TableView /></Icon>} onClick={() => setOpen(false)}>Excel Export</MenuItem>
+          <MenuItem icon={<Icon tone="inherit"><icons.PictureAsPdf /></Icon>} onClick={() => setOpen(false)}>PDF Export</MenuItem>
+          <MenuItem icon={<Icon tone="inherit"><icons.Person /></Icon>} href={href(routes.company.dailyNavSettings(company.id))}>Edit Common Profile</MenuItem>
         </ContextMenu>
       }
     >
@@ -48,20 +48,21 @@ export function CompanyActions({ company, initialOpen = false }: { company: Comp
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        icon={<Icon tone="inherit"><glyphs.MoreVertical /></Icon>}
+        icon={<Icon tone="inherit"><icons.MoreVert /></Icon>}
       />
     </Anchored>
   );
 }
 
 /** Financials Date + Financials Version selectors; the version selector opens a searchable panel. */
-export function FinancialsSelectors({ initialVersionOpen = false }: { initialVersionOpen?: boolean }) {
+export function FinancialsSelectors({ company, initialVersionOpen = false }: { company: Company; initialVersionOpen?: boolean }) {
+  const p = periods(company);
   const [open, setOpen] = useState(initialVersionOpen);
   const [query, setQuery] = useState('');
   const items = versions.filter((v) => v.label.toLowerCase().includes(query.toLowerCase()));
   return (
     <>
-      <InformationLabel label="Financials Date" value={financialsDate} />
+      <Selector surface="surface" label="Financials Date" value={p.financialsDate} />
       <Anchored
         open={open}
         popover={
@@ -74,22 +75,20 @@ export function FinancialsSelectors({ initialVersionOpen = false }: { initialVer
             searchPlaceholder="Find a Version"
             onSelect={() => setOpen(false)}
             footer={
-              <Button variant="secondary" leadingIcon={<Icon size="xs" tone="inherit"><glyphs.Plus /></Icon>} onClick={() => setOpen(false)}>
+              <Button variant="secondary" leadingIcon={<Icon size="xs" tone="inherit"><icons.Add /></Icon>} onClick={() => setOpen(false)}>
                 Save as New Version
               </Button>
             }
           />
         }
       >
-        <Button
-          variant="tertiary"
-          aria-haspopup="listbox"
-          aria-expanded={open}
+        <Selector
+          surface="surface"
+          label="Financials Version"
+          value={p.financialsVersion}
+          expanded={open}
           onClick={() => setOpen((o) => !o)}
-          trailingIcon={<Icon size="xs" tone="inherit"><glyphs.ChevronDown /></Icon>}
-        >
-          <InformationLabel label="Financials Version" value={financialsVersion} />
-        </Button>
+        />
       </Anchored>
     </>
   );

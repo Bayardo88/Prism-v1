@@ -5,11 +5,11 @@
  * (Edit, Resend invite, Delete user). Reached from the avatar → user menu →
  * Firm Settings → User Management, or Global Search → "User Management".
  */
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Button, ButtonIcon, Cell, ColumnHeader, ConfirmationDialog, DataGrid, FloatingLabelInput, Heading, Icon,
   MenuPanel, PermissionMatrixRow, ProfileHeader, RoleSelector, Row, RowActionToolbar, SubmenuItem, Text,
-  color, glyphs, space, zIndex,
+  color, icons, size, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
@@ -23,8 +23,6 @@ type Perms = Record<string, Access>;
 const allAccess = (): Perms =>
   Object.fromEntries([...funds, ...permissionCompanies].map((k) => [k, { edit: true, view: true }]));
 
-const COLS = { email: { flex: 3 }, login: { flex: 2 }, actions: { flex: 1 } } as const;
-
 export function UserManagement({ state }: ScreenProps) {
   const analyst = state === 'analyst-row-actions';
   const [users, setUsers] = useState<FirmUser[]>(seedUsers);
@@ -35,6 +33,14 @@ export function UserManagement({ state }: ScreenProps) {
   const [perms, setPerms] = useState<Record<string, Perms>>({});
   const [dirty, setDirty] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+
+  const gridWrap = useRef<HTMLDivElement>(null);
+  const [toolbarTop, setToolbarTop] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const wrap = gridWrap.current;
+    const row = actionsFor ? wrap?.querySelector(`[data-email="${actionsFor}"]`) : null;
+    setToolbarTop(wrap && row ? row.getBoundingClientRect().top - wrap.getBoundingClientRect().top : null);
+  }, [actionsFor, filter, users]);
 
   const current = users.find((u) => u.email === selected) ?? users[0]!;
   const currentPerms = perms[current.email] ?? allAccess();
@@ -105,11 +111,11 @@ export function UserManagement({ state }: ScreenProps) {
               </div>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: space.s }}>
-              <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}>Bulk add</Button>
-              <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.User /></Icon>}>Invite user</Button>
+              <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.AddBox /></Icon>}>Bulk add</Button>
+              <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.PersonAdd /></Icon>}>Invite user</Button>
               <Button
                 variant="secondary"
-                leadingIcon={<Icon size="s" tone="inherit"><glyphs.User /></Icon>}
+                leadingIcon={<Icon size="s" tone="inherit"><icons.Group /></Icon>}
                 onClick={() => navigate(routes.company.overview('abc-co'))}
               >
                 Manage company users
@@ -119,54 +125,61 @@ export function UserManagement({ state }: ScreenProps) {
               <div style={{ flex: 1 }}>
                 <FloatingLabelInput label="Filter users by email" type="search" value={filter} onChange={(e) => setFilter(e.target.value)} />
               </div>
-              <ButtonIcon variant="tertiary" label="More filters" icon={<Icon size="s" tone="inherit"><glyphs.Filter /></Icon>} />
+              <ButtonIcon variant="tertiary" label="More filters" icon={<Icon size="s" tone="inherit"><icons.FilterList /></Icon>} />
             </div>
 
-            <DataGrid
-              label="Firm users"
-              head={
-                <>
-                  <ColumnHeader style={COLS.email}>Email</ColumnHeader>
-                  <ColumnHeader style={COLS.login}>Last Login</ColumnHeader>
-                  <ColumnHeader style={COLS.actions}><span className="scalar-visually-hidden">Actions</span></ColumnHeader>
-                </>
-              }
-            >
-              {visible.map((u) => {
-                const sel = u.email === current.email;
-                const cellState = sel ? 'selected' : 'default';
-                return (
-                  <Row key={u.email} onClick={() => setSelected(u.email)} style={{ cursor: 'pointer' }}>
-                    <Cell state={cellState} style={COLS.email}>{u.email}</Cell>
-                    <Cell state={cellState} style={COLS.login}>{u.lastLogin}</Cell>
-                    <Cell state={cellState} style={{ ...COLS.actions, justifyContent: 'flex-end' }}>
-                      <div style={{ position: 'relative' }} onClick={(e) => e.stopPropagation()}>
+            {/* The toolbar floats outside the grid, which clips its cells; it is anchored to the row's top edge. */}
+            <div ref={gridWrap} style={{ position: 'relative' }}>
+              <DataGrid
+                label="Firm users"
+                head={
+                  <>
+                    <ColumnHeader grow={3}>Email</ColumnHeader>
+                    <ColumnHeader grow={2}>Last Login</ColumnHeader>
+                    <ColumnHeader width={size.target.minimum}><span className="scalar-visually-hidden">Actions</span></ColumnHeader>
+                  </>
+                }
+              >
+                {visible.map((u) => {
+                  const sel = u.email === current.email;
+                  return (
+                    <Row
+                      key={u.email}
+                      data-email={u.email}
+                      selected={sel}
+                      onClick={() => setSelected(u.email)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <Cell>{u.email}</Cell>
+                      <Cell>{u.lastLogin}</Cell>
+                      <Cell style={{ justifyContent: 'flex-end' }}>
                         <ButtonIcon
                           variant="tertiary"
                           size="s"
                           label={`More actions for ${u.email}`}
-                          onClick={() => { setSelected(u.email); setActionsFor((a) => (a === u.email ? null : u.email)); }}
-                          icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>}
+                          aria-expanded={actionsFor === u.email}
+                          onClick={(e) => { e.stopPropagation(); setSelected(u.email); setActionsFor((a) => (a === u.email ? null : u.email)); }}
+                          icon={<Icon size="s" tone="inherit"><icons.MoreHoriz /></Icon>}
                         />
-                        {actionsFor === u.email && (
-                          <div style={{ position: 'absolute', right: 0, bottom: '100%', zIndex: zIndex.overlay }}>
-                            <RowActionToolbar
-                              label={`Row actions for ${u.email}`}
-                              onClose={() => setActionsFor(null)}
-                              actions={[
-                                { label: 'Edit user', icon: <Icon size="s" tone="inherit"><glyphs.Edit /></Icon>, onClick: () => setActionsFor(null) },
-                                { label: 'Resend invite', icon: <Icon size="s" tone="inherit"><glyphs.Mail /></Icon>, onClick: () => setActionsFor(null) },
-                                { label: 'Delete user', destructive: true, icon: <Icon size="s" tone="inherit"><glyphs.Trash /></Icon>, onClick: () => { setDeleting(u.email); setActionsFor(null); } },
-                              ]}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </Cell>
-                  </Row>
-                );
-              })}
-            </DataGrid>
+                      </Cell>
+                    </Row>
+                  );
+                })}
+              </DataGrid>
+              {actionsFor && toolbarTop !== null && (
+                <div style={{ position: 'absolute', right: 0, top: toolbarTop, transform: 'translateY(-100%)', zIndex: zIndex.overlay }}>
+                  <RowActionToolbar
+                    label={`Row actions for ${actionsFor}`}
+                    onClose={() => setActionsFor(null)}
+                    actions={[
+                      { label: 'Edit user', icon: <Icon size="s" tone="inherit"><icons.Edit /></Icon>, onClick: () => setActionsFor(null) },
+                      { label: 'Resend invite', icon: <Icon size="s" tone="inherit"><icons.Mail /></Icon>, onClick: () => setActionsFor(null) },
+                      { label: 'Delete user', destructive: true, icon: <Icon size="s" tone="inherit"><icons.Delete /></Icon>, onClick: () => { setDeleting(actionsFor); setActionsFor(null); } },
+                    ]}
+                  />
+                </div>
+              )}
+            </div>
             {visible.length === 0 && <Text step="s" tone="secondary">No users match “{filter}”.</Text>}
           </section>
         </div>

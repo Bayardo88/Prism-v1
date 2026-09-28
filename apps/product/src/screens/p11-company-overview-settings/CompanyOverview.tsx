@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import {
-  Banner, Button, Card, Chip, EmptyState, Icon, KeyValueRow, Link, SegmentedControl, TabItem, Tabs, Text, glyphs, space,
+  Banner, Button, Card, Chip, EmptyState, Icon, KeyValueRow, Link, SegmentedControl, TabItem, Tabs, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { companyById } from '../../data/fixtures.js';
+import { companyById, type Company } from '../../data/fixtures.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import { CompanyActions, CurrencyUnit, SummarySubNav } from '../p06-company-summary-financials/CompanyChrome.js';
+
+/** Record status → the chip the frame shows ("Operating" for an active company). Words carry it, not colour. */
+const STATUS: Record<Company['status'], { label: string; tone: 'positive' | 'default' | 'negative' }> = {
+  active: { label: 'Operating', tone: 'positive' },
+  exited: { label: 'Exited', tone: 'default' },
+  'written-off': { label: 'Written off', tone: 'negative' },
+};
 
 export function CompanyOverview({ params }: ScreenProps) {
   const company = companyById(params.companyId);
@@ -40,14 +47,14 @@ export function CompanyOverview({ params }: ScreenProps) {
           label="Data as of"
           value={asOf}
           onChange={setAsOf}
-          options={[{ value: 'date', label: '2024-12-31' }, { value: 'latest', label: 'Latest' }]}
+          options={[{ value: 'date', label: company.asOfIso }, { value: 'latest', label: 'Latest' }]}
         />
       </div>
 
       <Card title="Company Information">
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr', gap: space.l, alignItems: 'start' }}>
           <dl style={{ margin: 0 }}>
-            <KeyValueRow label="Status" layout="stacked"><Chip size="s" styleVariant="positive">Operating</Chip></KeyValueRow>
+            <KeyValueRow label="Status" layout="stacked"><Chip size="s" styleVariant={STATUS[company.status].tone}>{STATUS[company.status].label}</Chip></KeyValueRow>
           </dl>
           <Text step="m" tone="secondary"><em>No business description available.</em></Text>
           <Text step="m" tone="secondary"><em>No Capital IQ data available.</em></Text>
@@ -67,7 +74,7 @@ export function CompanyOverview({ params }: ScreenProps) {
               onChange={setView}
               options={[{ value: 'chart', label: 'Chart' }, { value: 'table', label: 'Table' }]}
             />
-            <Button variant="secondary" tone="warning" trailingIcon={<Icon size="s" tone="inherit"><glyphs.Link /></Icon>}>SEC Filing</Button>
+            <Button variant="secondary" tone="warning" trailingIcon={<Icon size="s" tone="inherit"><icons.OpenInNew /></Icon>}>SEC Filing</Button>
           </div>
           <EmptyState
             type="no-data"

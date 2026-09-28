@@ -5,7 +5,7 @@
  * footer and the Workspace dock (Notes opens the drawer).
  */
 import { useState, type ReactNode } from 'react';
-import { Button, ContextMenu, Icon, MenuItem, SplitButton, glyphs, space, zIndex } from '@scalar/design-system';
+import { Button, ContextMenu, Icon, MenuItem, SplitButton, icons } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import type { Company } from '../../data/fixtures.js';
 import {
@@ -32,30 +32,24 @@ function AddYearButton({ initialOpen, onProjection, onHistorical }: {
 }) {
   const [open, setOpen] = useState(initialOpen);
   return (
-    <span style={{ position: 'relative', display: 'inline-flex' }}>
-      <SplitButton
-        variant="secondary"
-        leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
-        onClick={onProjection}
-        menuOpen={open}
-        onMenuToggle={() => setOpen((o) => !o)}
-        menuLabel="More ways to add a year"
-      >
-        Add Projection Year
-      </SplitButton>
-      {open && (
-        <span style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: space.xs, zIndex: zIndex.overlay }}>
-          <ContextMenu label="Add year">
-            <MenuItem
-              icon={<Icon tone="inherit"><glyphs.Plus /></Icon>}
-              onClick={() => { onHistorical?.(); setOpen(false); }}
-            >
-              Add Historical Year
-            </MenuItem>
-          </ContextMenu>
-        </span>
-      )}
-    </span>
+    <SplitButton
+      variant="secondary"
+      leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
+      onClick={onProjection}
+      menuOpen={open}
+      onMenuToggle={() => setOpen((o) => !o)}
+      menuLabel="More ways to add a year"
+      menuPlacement="top"
+      menu={
+        <ContextMenu label="Add year">
+          <MenuItem icon={<Icon tone="inherit"><icons.Add /></Icon>} onClick={() => { onHistorical?.(); setOpen(false); }}>
+            Add Historical Year
+          </MenuItem>
+        </ContextMenu>
+      }
+    >
+      Add Projection Year
+    </SplitButton>
   );
 }
 
@@ -69,7 +63,7 @@ export function FinancialsPage({
       section="financials"
       headerEnd={
         <>
-          <FinancialsSelectors initialVersionOpen={versionMenuOpen} />
+          <FinancialsSelectors company={company} initialVersionOpen={versionMenuOpen} />
           <CompanyActions company={company} initialOpen={actionsMenuOpen} />
         </>
       }
@@ -84,7 +78,7 @@ export function FinancialsPage({
         <AddYearButton initialOpen={addYearMenuOpen} onProjection={onAddProjectionYear} onHistorical={onAddHistoricalYear} />
       }
       dockOpen={notesOpen ? 'notes' : undefined}
-      dockContent={<NotesPanel />}
+      dockPanels={{ notes: <NotesPanel /> }}
     >
       {children}
     </CompanyLayout>

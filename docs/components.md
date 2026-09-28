@@ -21,7 +21,7 @@ Legend: **=** direct mapping · **⊕** several Figma sets merged into one expor
 |---|---|---|---|
 | Divider | Orientation | = `Divider` | `core/Divider.tsx` |
 | Link | Size × State | = `Link` | `core/Link.tsx` |
-| Tooltip | Position | = `Tooltip` | `core/Tooltip.tsx` |
+| Tooltip | Position | = `Tooltip` (＋ `open` / `onOpenChange` for a controlled or forced-open tooltip) | `core/Tooltip.tsx` |
 | Scrim | — | = `Scrim` | `core/Scrim.tsx` |
 | Empty State | Type | = `EmptyState` | `core/EmptyState.tsx` |
 
@@ -116,7 +116,7 @@ control in three pieces; exactly one side is always selected, so a single
 | Breadcrumb Item | State | ⊕ `Breadcrumb` (`items[]`) | `navigation/Breadcrumb.tsx` |
 | Breadcrumb | — | = `Breadcrumb` | `navigation/Breadcrumb.tsx` |
 | Page Item | State | = `PageItem` | `navigation/Pagination.tsx` |
-| Pagination | — | = `Pagination` | `navigation/Pagination.tsx` |
+| Pagination | — | = `Pagination` (＋ `rowsPerPage` / `rowsPerPageOptions` / `onRowsPerPageChange` — a labelled rows-per-page Select) | `navigation/Pagination.tsx` |
 | Step | State | = `Step` | `navigation/Stepper.tsx` |
 | Stepper | — | = `Stepper` | `navigation/Stepper.tsx` |
 
@@ -125,12 +125,12 @@ control in three pieces; exactly one side is always selected, so a single
 | Figma | Variants | React | File |
 |---|---|---|---|
 | cell | State × Type + 5 booleans (145) | = `Cell` | `table/Cell.tsx` |
-| Header | Style + 6 booleans (11) | = `ColumnHeader` | `table/ColumnHeader.tsx` |
+| Header | Style + 6 booleans (11) | = `ColumnHeader` (＋ `grow` / `width` / `span` column sizing; ＋ `tone="subtle"` light header band) | `table/ColumnHeader.tsx` |
 | Row-reading | 27 | ⊕ `Row` | `table/Row.tsx` |
 | Row-input | 37 | ⊕ `Row` | `table/Row.tsx` |
 | Content_Cell | Content | = `ContentCell` | `table/ContentCell.tsx` |
 | Ledger | — | = `Ledger` | `table/ContentCell.tsx` |
-| Modal_Status | State | = `ModalStatus` | `table/Status.tsx` |
+| Modal_Status | State | = `ModalStatus` (＋ `published` state) | `table/Status.tsx` |
 | Valuation Status | State | = `ValuationStatus` | `table/Status.tsx` |
 | Footnote | Content | = `Footnote` | `table/Footnote.tsx` |
 | — | — | ＋ `DataGrid` | `table/DataGrid.tsx` |
@@ -194,7 +194,7 @@ direct labels, waterfall connectors, and the donut's centre total.
 | Accordion Item | State | = `AccordionItem` | `disclosure/Accordion.tsx` |
 | Accordion | — | = `Accordion` | `disclosure/Accordion.tsx` |
 | Drawer | Side | = `Drawer` | `disclosure/Drawer.tsx` |
-| Workspace Drawer | State | = `WorkspaceDrawer` | `disclosure/WorkspaceDrawer.tsx` |
+| Workspace Drawer | State | = `WorkspaceDrawer` (sticky to the viewport bottom) | `disclosure/WorkspaceDrawer.tsx` |
 | Workspace Drawer Tab | State | = `WorkspaceDrawerTab` | `disclosure/WorkspaceDrawer.tsx` |
 | Data Review Card | State | = `DataReviewCard` | `disclosure/DataReviewCard.tsx` |
 
@@ -206,7 +206,7 @@ direct labels, waterfall connectors, and the donut's centre total.
 | Column Title | State | = `ColumnTitle` | `modals/ColumnPicker.tsx` |
 | Search | State | = `ModalSearch` | `modals/ColumnPicker.tsx` |
 | Add_Column_Modal | State | ⊕ `Modal` + the three above | `modals/Modal.tsx` |
-| — | — | ＋ `Modal` (the reusable shell) | `modals/Modal.tsx` |
+| — | — | ＋ `Modal` (the reusable shell; `size` s · m · l · xl) | `modals/Modal.tsx` |
 
 **Note.** `Add_Column_Modal` is an assembled screen in Figma, composed from
 Column Title, Column Item, Search and Button. In code it is that same
@@ -236,7 +236,7 @@ from `PrimaryMenu`, `CompanyInfo`, `SecondaryMenu`, `TertiaryMenu` and
 | Menu Item | State × Tone (7) | = `MenuItem` (+ ＋`MenuDivider`, ＋`MenuSubItems`) | `actions-menus/Menu.tsx` |
 | Context Menu | Header (2) | = `ContextMenu` (`heading` prop) | `actions-menus/Menu.tsx` |
 | User Menu | Firm Settings Expanded (2) | = `UserMenu` (expansion lives on `MenuItem expanded`) | `actions-menus/Menu.tsx` |
-| Split Button | Style × Tone × State (16) | = `SplitButton` | `actions-menus/Actions.tsx` |
+| Split Button | Style × Tone × State (16) | = `SplitButton` (＋ `menuPlacement` bottom · top) | `actions-menus/Actions.tsx` |
 | FAB | State (4) | = `Fab` | `actions-menus/Actions.tsx` |
 | Speed Dial Item | State (3) | = `SpeedDialItem` | `actions-menus/Actions.tsx` |
 | Speed Dial | — | = `SpeedDial` | `actions-menus/Actions.tsx` |
@@ -250,7 +250,7 @@ from `PrimaryMenu`, `CompanyInfo`, `SecondaryMenu`, `TertiaryMenu` and
 | Figma | Variants | React | File |
 |---|---|---|---|
 | Floating Label Field | Type × State (12) | ⊕ `FloatingLabelInput` + `FloatingLabelSelect` | `form-patterns/Fields.tsx` |
-| Number Field | Adornment × State (8) | = `NumberField` (`suffix` switches the adornment) | `form-patterns/Fields.tsx` |
+| Number Field | Adornment × State (8) | = `NumberField` (`suffix` switches the adornment; ＋ `label` floating label) | `form-patterns/Fields.tsx` |
 | Time Field | State (3) | = `TimeField` | `form-patterns/Fields.tsx` |
 | Tag Input | State (3) | = `TagInput` | `form-patterns/Fields.tsx` |
 | Copy Field | Type × State (4) | = `CopyField` (`secret`) | `form-patterns/Fields.tsx` |
@@ -258,10 +258,12 @@ from `PrimaryMenu`, `CompanyInfo`, `SecondaryMenu`, `TertiaryMenu` and
 | Show More Row | — | = `ShowMoreRow` | `form-patterns/Pickers.tsx` |
 | Combobox Panel | Footer (2) | = `ComboboxPanel` | `form-patterns/Pickers.tsx` |
 | Repeatable Row | Layout (2) | = `RepeatableRow` (the fields are children) | `form-patterns/Pickers.tsx` |
-| Dropzone | State (4) | = `Dropzone` (Hover = drag-over, CSS) | `form-patterns/Pickers.tsx` |
+| Dropzone | State (4) | = `Dropzone` (Hover = drag-over, CSS; ＋ `prompt` override) | `form-patterns/Pickers.tsx` |
 | Slider | State (3) | = `Slider` | `form-patterns/Pickers.tsx` |
 | Inline Edit | State (4) | = `InlineEdit` | `form-patterns/Pickers.tsx` |
 | Inline Picker | State (3) | = `InlinePicker` | `form-patterns/Pickers.tsx` |
+| — | — | ＋ `SelectMenu` + `SelectMenuOption` — the open listbox surface of a select | `form-patterns/Pickers.tsx` |
+| — | — | ＋ `ImageCropField` — logo / avatar preview, zoom Slider, delete | `form-patterns/Pickers.tsx` |
 
 **Merge.** The two Floating Label types are separate exports because an
 `<input>` and a `<select>` take different props; the label float is CSS
@@ -275,12 +277,13 @@ from `PrimaryMenu`, `CompanyInfo`, `SecondaryMenu`, `TertiaryMenu` and
 | Grid Value Cell | Kind × State (12) | = `GridValueCell` | `grid-patterns/Grid.tsx` |
 | In-cell Control | Type × State (9) | = `InCellControl` | `grid-patterns/Grid.tsx` |
 | Column Group Header | Style × Divider (4) | = `ColumnGroupHeader` | `grid-patterns/Grid.tsx` |
-| Grid Column Header | Sort × State (9) | = `GridColumnHeader` | `grid-patterns/Grid.tsx` |
+| Grid Column Header | Sort × State (9) | = `GridColumnHeader` (＋ `grow` / `width` / `span`, `trailing`, `editable` date column) | `grid-patterns/Grid.tsx` |
 | Collapsed Column Rail | State (2) | = `CollapsedColumnRail` | `grid-patterns/Grid.tsx` |
 | Add Column Header | State (2) | = `AddColumnHeader` | `grid-patterns/Grid.tsx` |
 | Grid Column Divider | Type (2) | = `GridColumnDivider` | `grid-patterns/Grid.tsx` |
 | Chart Hover Card | — | = `ChartHoverCard` | `grid-patterns/Grid.tsx` |
 | Cell History Popover | — | = `CellHistoryPopover` (chart is a child) | `grid-patterns/Grid.tsx` |
+| — | — | ＋ `TaskPill` — pending-task pill in a grid row | `grid-patterns/Grid.tsx` |
 
 These sit **alongside** `Cell`, `Row` and `ColumnHeader`, not in place of them:
 use them for the financial-statement grids that need row hierarchy, value
@@ -294,7 +297,7 @@ provenance and in-cell editing. See known gap 8.
 | File Row | State (3) | = `FileRow` | `files/Files.tsx` |
 | Tree Item | Type × Level × State (12) | = `TreeItem` | `files/Files.tsx` |
 | Page Stepper | — | = `PageStepper` | `files/Files.tsx` |
-| Zoom Control | — | = `ZoomControl` | `files/Files.tsx` |
+| Zoom Control | — | = `ZoomControl` (Material `zoom_in` / `fit_screen`) | `files/Files.tsx` |
 | Document Viewer Header | — | = `DocumentViewerHeader` | `files/Files.tsx` |
 | Scroll Hint Pill | Direction (2) | = `ScrollHintPill` | `files/Files.tsx` |
 
@@ -322,7 +325,7 @@ provenance and in-cell editing. See known gap 8.
 | Figma | Variants | React | File |
 |---|---|---|---|
 | Key-Value Row | Layout (2) | = `KeyValueRow` | `admin/Admin.tsx` |
-| Version History Item | State (2) | = `VersionHistoryItem` | `admin/Admin.tsx` |
+| Version History Item | State (2) | = `VersionHistoryItem` (＋ `currentLabel`) | `admin/Admin.tsx` |
 | Permission Matrix Row | Type (2) | = `PermissionMatrixRow` | `admin/Admin.tsx` |
 | Role Selector | State (2) | = `RoleSelector` | `admin/Admin.tsx` |
 | Profile Header | — | = `ProfileHeader` | `admin/Admin.tsx` |
@@ -335,10 +338,11 @@ provenance and in-cell editing. See known gap 8.
 | Rich Text Toolbar | — | = `RichTextToolbar` | `admin/Admin.tsx` |
 | App Footer | — | = `AppFooter` | `admin/Admin.tsx` |
 
-**Glyphs.** These components render structural glyphs added to
-`icon/glyphs.tsx` (Plus, MoreVertical, Trash, Copy, Folder…) so they work on
-their own. Every one that shows an icon also takes an icon prop — pass the real
-SDS_Main glyph in product UI.
+**Glyphs.** These components render glyphs from `icon/glyphs.tsx` (Plus,
+MoreVertical, Trash, Copy, Folder…), which are now aliases onto the Material
+Symbols set (`icons`). Every one that shows an icon also takes an icon prop —
+pass any `icons.*` glyph to change it. Figma still draws these from SDS_Main,
+so a glyph can differ between the two (known gap 4).
 
 ---
 
@@ -351,12 +355,16 @@ repeating them per page would guarantee drift.
 |---|---|
 | `ScalarProvider` | Carries the colour mode and the type-ramp mode. In Figma these are variable modes set on a frame. |
 | `Icon` | Sizing and tint wrapper. Enforces the re-tint that SDS_Main glyphs require. |
+| `icons` | The product icon set — Google Material Symbols (Outlined), generated from `icon/material-icons.json` by `npm run gen:icons`. Figma uses SDS_Main instead. |
 | `Typography` / `Heading` / `Text` / `Label` / `Overline` | The type ramp as components. Figma expresses this as 68 text styles. |
-| `DataGrid` | The grid shell — sticky header and scroll container. |
+| `DataGrid` | The grid shell — a CSS grid whose column tracks come from the header cells, with a sticky header under `maxHeight`. |
 | `ChartCanvas` | Chart.js lifecycle, token re-resolution on theme change, and the screen-reader data table. |
 | `chartScaffold` / `baseChartOptions` | The Figma Chart Frame spec as Chart.js options. |
 | `useChartTokens` / `resolveChartTokens` | The CSS-variable → canvas bridge. |
 | `Modal` | The reusable dialog shell behind `Add_Column_Modal`. |
 | `ToastViewport` | The fixed stack toasts render into. |
 | `MenuPanel` / `MenuGroupLabel` | The floating surface shared by every dropdown. |
+| `SelectMenu` / `SelectMenuOption` | The open listbox of a select (check, disabled, description, search slot) — composed by hand on several screens. |
+| `TaskPill` | Pending-task marker in a grid row. |
+| `ImageCropField` | Logo / avatar upload preview with zoom. |
 | `cx`, `useControllableState` | Utilities every component needs. |

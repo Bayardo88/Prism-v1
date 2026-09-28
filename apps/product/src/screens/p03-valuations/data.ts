@@ -1,8 +1,17 @@
 /**
- * Firm Valuations demo data, copied from the Figma frames on page 03. Values
- * are withheld (Not Applicable) until a valuation is published.
+ * Firm Valuations data, derived from the company database. Headline values
+ * are withheld (Not Applicable) until a valuation is published (final or
+ * published in the record).
  */
 import type { GridCol } from '../p02-intelligence/PortfolioGrid.js';
+import { num, pct, usd, type Company } from '../../data/fixtures.js';
+import { allocationOf, approachesOf, isPublished } from '../p02-intelligence/data.js';
+
+/** The companies drawn in the Valuations frames, in frame order (SpaceX and Perplexity are not in the database). */
+export const VALUATIONS_FRAME = [
+  'PC Laptops', 'PIK', 'Euros Financials', 'Future 4 Liq Pref', 'ABC Co', 'Fund Owns Preferred Notes', 'jan23',
+  'SpaceX', 'Backside Blocks', 'Debt Only', 'Rarestep', 'Cohesity', 'DataBricks', 'Notes Only', 'Perplexity',
+];
 
 export const valuationColumns: GridCol[] = [
   { key: 'valDate', label: 'Valuation Date', numeric: true },
@@ -17,40 +26,28 @@ export const valuationColumns: GridCol[] = [
   { key: 'chg', label: '% Change from Previous', numeric: true },
 ];
 
-export type ValStatus = 'draft' | 'final' | 'published';
-
-export interface ValuationRow {
-  name: string;
-  status: ValStatus;
-  /** Open process-management tasks (document requests, questions). */
-  tasks?: boolean;
-  v: Record<string, string>;
+/**
+ * Open process-management tasks. A valuation still in progress has document
+ * requests and questions outstanding; DataBricks carries the pair drawn in the
+ * frame.
+ */
+export function tasksOf(c: Company): { documents: number; questions: number } | undefined {
+  if (c.id === 'databricks') return { documents: 2, questions: 1 };
+  if (c.valuationStatus !== 'in-progress') return undefined;
+  return { documents: 1 + (c.securities % 3), questions: c.founded % 3 };
 }
 
-/** An unpublished valuation: only the date (and an empty approaches / allocation cell) shows. */
-const draft = (name: string, valDate: string, tasks?: boolean): ValuationRow =>
-  ({ name, status: 'draft', tasks, v: { valDate, approaches: '', alloc: '' } });
-
-export const valuationRows: ValuationRow[] = [
-  draft('PC Laptops', '12/31/2020'),
-  draft('PIK', '12/31/2023'),
-  draft('Euros Financials (EUR)', '09/30/2024'),
-  draft('Future 4 Liq Pref (EUR)', '12/31/2024'),
-  draft('ABC Co', '12/31/2024'),
-  draft('Fund Owns Preferred Notes', '12/31/2024'),
-  draft('jan23', '03/31/2025'),
-  draft('SpaceX', '09/30/2025'),
-  {
-    name: 'Backside Blocks (NIO)', status: 'final',
-    v: { valDate: '03/31/2025', approaches: 'BV, PC', ev: '$4,778,382,719', eqv: '$4,778,382,719', breakeven: '357,522', alloc: 'OPM, Waterfall', cfv: '$1,533', chg: '84.73%' },
-  },
-  {
-    name: 'Debt Only', status: 'published',
-    v: { valDate: '09/30/2025', approaches: '', ev: '$0', eqv: '$0', breakeven: '0', alloc: '', cfv: '$122,344', chg: '0.00%' },
-  },
-  draft('Rarestep', '03/31/2025'),
-  draft('Cohesity', '05/01/2026'),
-  draft('DataBricks', '06/30/2026', true),
-  draft('Notes Only', '06/30/2026'),
-  draft('Perplexity', '05/01/2026'),
-];
+/** One Valuations row (process and status cells are rendered by the screen). */
+export function valuationValues(c: Company): Record<string, string | undefined> {
+  if (!isPublished(c)) return { valDate: c.asOf, approaches: '', alloc: '' };
+  return {
+    valDate: c.asOf,
+    approaches: approachesOf(c),
+    ev: usd.format(Math.round(c.equityValue * 1.08)),
+    eqv: usd.format(c.equityValue),
+    breakeven: num.format(Math.round(c.equityValue * 0.6)),
+    alloc: allocationOf(c),
+    cfv: usd.format(c.fairValue),
+    chg: pct((c.moic - 1) * 12, 2),
+  };
+}

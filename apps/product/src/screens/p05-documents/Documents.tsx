@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Badge, Button, ButtonIcon, Checkbox, CheckboxItem, Chip, ComboboxPanel, DocumentViewerHeader, EmptyState,
   FileRow, FilterDropdown, FormField, Heading, Icon, Input, Link, Modal, PageStepper, ScrollHintPill, Spinner,
-  TertiaryMenu, Text, TreeItem, ViewTab, ViewTabBar, ZoomControl, color, elevation, glyphs, radius, space, zIndex,
+  TertiaryMenu, Text, TreeItem, ViewTab, ViewTabBar, ZoomControl, color, elevation, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href, navigate } from '../../router.js';
@@ -19,19 +19,21 @@ import { AppFrame } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
 import {
-  allFiles, companyDates, docCompanies, measurementDates, rootFiles, subfolders,
+  VISIBLE_COMPANIES, allFilesFor, companyDates, docCompanies, measurementDates, rootFiles, subfoldersFor,
   type DocFile, type DocFolder,
 } from './data.js';
 
 const PREVIEW_MS = 1200;
+/** The company drawn open in the frames (All Documents → 03/31/2025, and the company-selected states). */
+const FRAME_COMPANY = 'backside-blocks';
 
 /* --- small composed pieces (no DS equivalent) ------------------------------ */
 
 function metaChips(file: DocFile, withLink = true) {
   return [
-    { icon: <Icon size="xs" tone="inherit"><glyphs.User /></Icon>, label: file.uploader },
-    { icon: <Icon size="xs" tone="inherit"><glyphs.Calendar /></Icon>, label: file.date },
-    ...(withLink && file.link ? [{ icon: <Icon size="xs" tone="inherit"><glyphs.Link /></Icon>, label: file.link }] : []),
+    { icon: <Icon size="xs" tone="inherit"><icons.Person /></Icon>, label: file.uploader },
+    { icon: <Icon size="xs" tone="inherit"><icons.CalendarToday /></Icon>, label: file.date },
+    ...(withLink && file.link ? [{ icon: <Icon size="xs" tone="inherit"><icons.Link /></Icon>, label: file.link }] : []),
   ];
 }
 
@@ -71,24 +73,24 @@ function DateBand({ date, meta, expanded, onToggle, compact, onAddFolder, onUplo
       }}
     >
       <CheckboxItem size="s" aria-label={`Select ${date}`} />
-      <Icon size="s" tone="secondary"><glyphs.Folder /></Icon>
+      <Icon size="s" tone="secondary"><icons.Folder /></Icon>
       <Text step="m" weight="semiBold">{date}</Text>
       {meta && <Text step="s" tone="tertiary" truncate style={{ flex: 1 }}>{meta}</Text>}
       <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: space.xs }}>
         {compact ? (
           <>
-            <ButtonIcon variant="tertiary" size="s" label={`Add subfolder to ${date}`} onClick={onAddFolder} icon={<Icon size="s" tone="inherit"><glyphs.Folder /></Icon>} />
-            <ButtonIcon variant="tertiary" size="s" label={`Upload document to ${date}`} onClick={onUpload} icon={<Icon size="s" tone="inherit"><glyphs.Upload /></Icon>} />
+            <ButtonIcon variant="tertiary" size="s" label={`Add subfolder to ${date}`} onClick={onAddFolder} icon={<Icon size="s" tone="inherit"><icons.CreateNewFolder /></Icon>} />
+            <ButtonIcon variant="tertiary" size="s" label={`Upload document to ${date}`} onClick={onUpload} icon={<Icon size="s" tone="inherit"><icons.UploadFile /></Icon>} />
           </>
         ) : (
           <>
-            <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Folder /></Icon>} onClick={onAddFolder}>Add Subfolder</Button>
-            <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Upload /></Icon>} onClick={onUpload}>Upload Document</Button>
+            <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.CreateNewFolder /></Icon>} onClick={onAddFolder}>Add Subfolder</Button>
+            <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.UploadFile /></Icon>} onClick={onUpload}>Upload Document</Button>
           </>
         )}
         <ButtonIcon
           variant="tertiary" size="s" label={expanded ? `Collapse ${date}` : `Expand ${date}`} onClick={onToggle}
-          icon={<Icon size="s" tone="inherit">{expanded ? <glyphs.ChevronUp /> : <glyphs.ChevronDown />}</Icon>}
+          icon={<Icon size="s" tone="inherit">{expanded ? <icons.KeyboardArrowUp /> : <icons.KeyboardArrowDown />}</Icon>}
         />
       </span>
     </div>
@@ -138,11 +140,12 @@ function AddFolderModal({ open, target, folders, pickerInitiallyOpen, onClose, o
               aria-haspopup="listbox"
               aria-expanded={pickerOpen}
               onClick={() => setPickerOpen((o) => !o)}
-              trailingIcon={<Icon size="s" tone="secondary"><glyphs.ChevronDown /></Icon>}
+              trailingIcon={<Icon size="s" tone="secondary"><icons.KeyboardArrowDown /></Icon>}
             />
           </FormField>
+          {/* In flow, not absolute: the modal body clips overflow, so the panel pushes the form down instead. */}
           {pickerOpen && (
-            <div ref={panelRef} style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: zIndex.overlay }}>
+            <div ref={panelRef} style={{ paddingTop: space.xs }}>
               <ComboboxPanel
                 label="Parent folder"
                 searchPlaceholder="Find a Folder"
@@ -225,7 +228,7 @@ function Viewer({ file, loading, onClose }: { file: DocFile; loading: boolean; o
                 through the document and the zoom control to fit it to the pane.
               </Text>
               <Text step="m" tone="secondary">
-                The document stays linked to Backside Blocks · 03/31/2025, so it also appears in the company’s
+                The document stays linked to its company and measurement date, so it also appears in the company’s
                 Documents tab and in the Workspace drawer on its Waterfall and Valuations pages.
               </Text>
             </article>
@@ -240,26 +243,30 @@ function Viewer({ file, loading, onClose }: { file: DocFile; loading: boolean; o
 
 export function Documents({ state }: ScreenProps) {
   const companyMode = state !== 'default';
-  const [companyId, setCompanyId] = useState<string | undefined>(companyMode ? 'backside-blocks' : undefined);
+  const [companyId, setCompanyId] = useState<string | undefined>(companyMode ? FRAME_COMPANY : undefined);
   const [fileId, setFileId] = useState<string | undefined>(companyMode ? 'd2' : undefined);
   const [loading, setLoading] = useState(state === 'pdf-loading');
   const [modalOpen, setModalOpen] = useState(state === 'add-folder' || state === 'parent-folder-picker');
-  const [modalTarget, setModalTarget] = useState('Backside Blocks');
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set(['03/31/2025']));
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const [folders, setFolders] = useState<DocFolder[]>(subfolders);
+  const [modalTarget, setModalTarget] = useState('');
+  const [extraFolders, setExtraFolders] = useState<DocFolder[]>([]);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState('');
   const timer = useRef<number>();
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
-  const company = docCompanies.find((c) => c.id === companyId);
+  const listed = docCompanies();
+  const company = listed.find((c) => c.id === companyId);
+  const treeCompany = company ?? listed.find((c) => c.id === FRAME_COMPANY)!;
+  const folders = [...subfoldersFor(treeCompany.name), ...extraFolders];
+  const allFiles = allFilesFor(treeCompany.name);
   const file = allFiles.find((f) => f.id === fileId);
-  const shownCompanies = docCompanies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()));
+  const shownCompanies = query ? docCompanies(query) : listed;
 
   const openFile = (id: string) => {
-    if (!companyId) setCompanyId('backside-blocks');
+    if (!companyId) setCompanyId(FRAME_COMPANY);
     setFileId(id);
     setLoading(true);
     window.clearTimeout(timer.current);
@@ -268,11 +275,11 @@ export function Documents({ state }: ScreenProps) {
   const toggle = (set: Set<string>, key: string) => { const n = new Set(set); if (n.has(key)) n.delete(key); else n.add(key); return n; };
   const check = (id: string) => (v: boolean) => setChecked((s) => { const n = new Set(s); if (v) n.add(id); else n.delete(id); return n; });
   const addFolder = (target: string) => { setModalTarget(target); setModalOpen(true); };
-  const upload = () => navigate(routes.company.documents(companyId ?? 'backside-blocks'), 'upload');
+  const upload = () => navigate(routes.company.documents(companyId ?? FRAME_COMPANY), 'upload');
 
   /** Company → root files → subfolders, as a tree of rows. */
   const tree = (compact: boolean): ReactNode => (
-    <div role="tree" aria-label={`${company?.name ?? 'Backside Blocks'} documents`} style={{ display: 'flex', flexDirection: 'column' }}>
+    <div role="tree" aria-label={`${treeCompany.name} documents`} style={{ display: 'flex', flexDirection: 'column' }}>
       {rootFiles.map((f) => (
         <FileRow
           key={f.id}
@@ -328,12 +335,12 @@ export function Documents({ state }: ScreenProps) {
         modalOpen && (
           <AddFolderModal
             open
-            target={modalTarget}
+            target={modalTarget || treeCompany.name}
             folders={folders}
             pickerInitiallyOpen={state === 'parent-folder-picker'}
             onClose={() => setModalOpen(false)}
             onCreate={(name) => {
-              setFolders((fs) => [...fs, { id: `new-${fs.length}`, name, files: [] }]);
+              setExtraFolders((fs) => [...fs, { id: `new-${fs.length}`, name, files: [] }]);
               setModalOpen(false);
             }}
           />
@@ -357,9 +364,9 @@ export function Documents({ state }: ScreenProps) {
           >
             Select all documents
           </Checkbox>
-          <ButtonIcon variant="tertiary" size="s" label="Search documents" icon={<Icon size="s" tone="inherit"><glyphs.Search /></Icon>} />
-          <ButtonIcon variant="tertiary" size="s" label="Filter documents" icon={<Icon size="s" tone="inherit"><glyphs.Filter /></Icon>} />
-          <ButtonIcon variant="tertiary" size="s" label="Full screen" icon={<Icon size="s" tone="inherit"><glyphs.Expand /></Icon>} />
+          <ButtonIcon variant="tertiary" size="s" label="Search documents" icon={<Icon size="s" tone="inherit"><icons.Search /></Icon>} />
+          <ButtonIcon variant="tertiary" size="s" label="Filter documents" icon={<Icon size="s" tone="inherit"><icons.FilterList /></Icon>} />
+          <ButtonIcon variant="tertiary" size="s" label="Full screen" icon={<Icon size="s" tone="inherit"><icons.Fullscreen /></Icon>} />
         </div>
       </TertiaryMenu>
 
@@ -375,7 +382,7 @@ export function Documents({ state }: ScreenProps) {
             placeholder="Find Company"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            leadingIcon={<Icon size="s" tone="secondary"><glyphs.Search /></Icon>}
+            leadingIcon={<Icon size="s" tone="secondary"><icons.Search /></Icon>}
           />
           <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs, maxHeight: '70vh', overflow: 'auto', position: 'relative' }}>
             {shownCompanies.map((c) => (
@@ -388,9 +395,9 @@ export function Documents({ state }: ScreenProps) {
                 onClick={() => { setCompanyId(c.id); setFileId(undefined); setLoading(false); }}
               />
             ))}
-            {shownCompanies.length > 16 && (
+            {shownCompanies.length > VISIBLE_COMPANIES && (
               <div style={{ position: 'sticky', bottom: 0, display: 'flex', justifyContent: 'center', padding: space.xs }}>
-                <ScrollHintPill>{shownCompanies.length - 16} companies</ScrollHintPill>
+                <ScrollHintPill>{shownCompanies.length - VISIBLE_COMPANIES} companies</ScrollHintPill>
               </div>
             )}
             {!shownCompanies.length && <EmptyState type="no-results" title="No companies match" body="Clear the search to see every company." />}
@@ -415,8 +422,8 @@ export function Documents({ state }: ScreenProps) {
                   />
                   {open && (
                     <div style={{ paddingLeft: space.l }}>
-                      <TreeItem type="folder" expanded onToggle={() => setExpandedDates((s) => toggle(s, m.date))} onSelect={() => setCompanyId('backside-blocks')} count={28}>
-                        Backside Blocks
+                      <TreeItem type="folder" icon={<icons.Domain />} expanded onToggle={() => setExpandedDates((s) => toggle(s, m.date))} onSelect={() => setCompanyId(treeCompany.id)} count={treeCompany.count}>
+                        {treeCompany.name}
                       </TreeItem>
                       <div style={{ paddingLeft: space.l }}>{tree(false)}</div>
                     </div>
@@ -460,7 +467,7 @@ export function Documents({ state }: ScreenProps) {
                 <EmptyState
                   title="Select a document to preview"
                   body={`Pick a file from ${company.name}’s folders to open it here.`}
-                  icon={<Icon size="xl" tone="secondary"><glyphs.Document /></Icon>}
+                  icon={<Icon size="xl" tone="secondary"><icons.Description /></Icon>}
                   actions={<Link href={href(routes.company.documents(company.id))}>Open {company.name} documents</Link>}
                 />
               </section>

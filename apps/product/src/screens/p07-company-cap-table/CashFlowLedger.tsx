@@ -1,41 +1,40 @@
 /**
  * Cash Flow Ledger — every investment, distribution and sale for the
  * company's positions, and the per-fund summary (investments, proceeds, net
- * cost basis, gross IRR) it rolls up to.
+ * cost basis, gross IRR) it rolls up to. Rows come from the company record
+ * (`transactionsFor` / `cashFlowSummaryFor`).
  *
  * States: default · new-row ("Add Transaction" appends an editable row).
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import {
-  Button, ButtonIcon, ContextMenu, GridColumnHeader, GridValueCell, Heading, Icon, InCellControl,
-  MenuItem, RowLabelCell, Tooltip, color, glyphs,
+  Button, ButtonIcon, DataGrid, GridColumnHeader, GridValueCell, Heading, Icon, InCellControl,
+  Row, RowLabelCell, SelectMenu, SelectMenuOption, Tooltip, icons,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { companyById, usd } from '../../data/fixtures.js';
+import { companyById, usd, type Company } from '../../data/fixtures.js';
 import { CapTableLayout } from './CapTableLayout.js';
-import { Anchor, Sheet, SheetRow } from './Sheet.js';
+import { Anchor } from './Anchor.js';
 import {
-  CASH_FLOW_SUMMARY, ENTITIES, FUNDS, POSITION_SECURITIES, TRANSACTIONS, TRANSACTION_TYPES, type Transaction,
+  TRANSACTION_TYPES, cashFlowSummaryFor, entitiesFor, fundsFor, positionSecuritiesFor, transactionsFor, type Transaction,
 } from './data.js';
 
 const money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 const draft = (): Transaction => ({ id: `new-${Math.random().toString(36).slice(2, 7)}`, amount: 0, type: 'Investment', draft: true });
-const initial = (state: string) => (state === 'new-row' ? [...TRANSACTIONS, draft()] : TRANSACTIONS);
+const initial = (state: string, company: Company) =>
+  (state === 'new-row' ? [...transactionsFor(company), draft()] : transactionsFor(company));
 
 type Field = 'type' | 'owner' | 'entity' | 'security';
-const OPTIONS: Record<Field, readonly string[]> = {
-  type: TRANSACTION_TYPES, owner: FUNDS, entity: ENTITIES, security: POSITION_SECURITIES,
-};
-
-const TX_COLUMNS = 'minmax(0, 1.1fr) auto repeat(6, minmax(0, 1fr))';
-const SUMMARY_COLUMNS = 'repeat(5, minmax(0, 1fr))';
 
 export function CashFlowLedger({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [rows, setRows] = useState<Transaction[]>(() => initial(state));
+  const [rows, setRows] = useState<Transaction[]>(() => initial(state, company));
   const [menu, setMenu] = useState<{ id: string; field: Field } | null>(null);
-  useEffect(() => setRows(initial(state)), [state]);
+  useEffect(() => setRows(initial(state, company)), [state, company.id]);
 
+  const options: Record<Field, readonly string[]> = {
+    type: TRANSACTION_TYPES, owner: fundsFor(company), entity: entitiesFor(company), security: positionSecuritiesFor(company),
+  };
   const set = (id: string, field: Field, value: string) => {
     setRows((cur) => cur.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
     setMenu(null);
@@ -49,20 +48,22 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
     return (
       <Anchor
         menu={open && (
-          <ContextMenu label={label}>
-            {OPTIONS[field].map((o) => <MenuItem key={o} selected={o === r[field]} onClick={() => set(r.id, field, o)}>{o}</MenuItem>)}
-          </ContextMenu>
+          <SelectMenu label={label}>
+            {options[field].map((o) => (
+              <SelectMenuOption key={o} selected={o === r[field]} onSelect={() => set(r.id, field, o)}>{o}</SelectMenuOption>
+            ))}
+          </SelectMenu>
         )}
       >
-        <InCellControl type="select" label={label} open={open}
-          onClick={() => setMenu(open ? null : { id: r.id, field })}>
+        <InCellControl type="select" label={label} open={open} onClick={() => setMenu(open ? null : { id: r.id, field })}>
           {r[field]}
         </InCellControl>
       </Anchor>
     );
   };
 
-  const totals = CASH_FLOW_SUMMARY.reduce(
+  const summary = cashFlowSummaryFor(company);
+  const totals = summary.reduce(
     (a, s) => ({ investments: a.investments + s.investments, proceeds: a.proceeds + s.proceeds, net: a.net + s.netCostBasis }),
     { investments: 0, proceeds: 0, net: 0 },
   );
@@ -70,24 +71,33 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
 
   return (
     <CapTableLayout company={company} page="cash-flow-ledger">
-      <Sheet label="Transactions" columns={TX_COLUMNS} width="72%">
-        <SheetRow label="Columns">
-          <GridColumnHeader numeric>Date of Transaction</GridColumnHeader>
-          <GridColumnHeader>{''}</GridColumnHeader>
-          <GridColumnHeader numeric>Amount</GridColumnHeader>
-          <GridColumnHeader numeric>Description</GridColumnHeader>
-          <div style={{ display: 'flex', alignItems: 'center', background: color.bg.surface, borderBottom: `1px solid ${color.stroke.default}` }}>
-            <div style={{ flex: 1, minWidth: 0 }}><GridColumnHeader numeric>Type</GridColumnHeader></div>
-            <Tooltip content="Investment, distribution or sale of shares — it sets how the amount enters the IRR.">
-              <ButtonIcon variant="tertiary" size="s" label="About transaction types" icon={<Icon size="s" tone="inherit"><glyphs.Info /></Icon>} />
-            </Tooltip>
-          </div>
-          <GridColumnHeader numeric>Owner</GridColumnHeader>
-          <GridColumnHeader numeric>Entity</GridColumnHeader>
-          <GridColumnHeader numeric>Security</GridColumnHeader>
-        </SheetRow>
-        {rows.map((r) => (
-          <SheetRow key={r.id} label={r.draft ? 'New transaction' : `Transaction ${r.date} ${r.security}`}>
+      <DataGrid
+        label="Transactions"
+        style={{ width: '72%', overflow: 'visible' }}
+        head={
+          <>
+            <GridColumnHeader numeric grow={1.4}>Date of Transaction</GridColumnHeader>
+            <GridColumnHeader grow={0.4}>{''}</GridColumnHeader>
+            <GridColumnHeader numeric>Amount</GridColumnHeader>
+            <GridColumnHeader numeric>Description</GridColumnHeader>
+            <GridColumnHeader
+              numeric
+              trailing={
+                <Tooltip content="Investment, distribution or sale of shares — it sets how the amount enters the IRR.">
+                  <ButtonIcon variant="tertiary" size="s" label="About transaction types" icon={<Icon size="s" tone="inherit"><icons.Help /></Icon>} />
+                </Tooltip>
+              }
+            >
+              Type
+            </GridColumnHeader>
+            <GridColumnHeader numeric>Owner</GridColumnHeader>
+            <GridColumnHeader numeric>Entity</GridColumnHeader>
+            <GridColumnHeader numeric>Security</GridColumnHeader>
+          </>
+        }
+      >
+        {rows.map((r, i) => (
+          <Row key={r.id} zebra={i % 2 === 1} aria-label={r.draft ? 'New transaction' : `Transaction ${r.date} ${r.security}`}>
             {r.draft
               ? <InCellControl type="date" label="Date of transaction">{r.date}</InCellControl>
               : <GridValueCell kind="sourced">{r.date}</GridValueCell>}
@@ -98,38 +108,39 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
             {pick(r, 'owner', 'Owner')}
             {pick(r, 'entity', 'Entity')}
             {pick(r, 'security', 'Security')}
-          </SheetRow>
+          </Row>
         ))}
-      </Sheet>
+      </DataGrid>
 
       <div>
         <Button onClick={addRow}>Add Transaction</Button>
       </div>
 
       <Heading level={2} step="m">Cash Flow Summary</Heading>
-      <Sheet label="Cash flow summary" columns={SUMMARY_COLUMNS} width="50%">
-        <SheetRow label="Columns">
-          {['Fund', 'Total Investments', 'Total Proceeds', 'Net Cost Basis', 'Gross IRR'].map((h) => (
-            <GridColumnHeader key={h} numeric>{h}</GridColumnHeader>
-          ))}
-        </SheetRow>
-        {CASH_FLOW_SUMMARY.map((s) => (
-          <SheetRow key={s.fund} label={s.fund}>
+      <DataGrid
+        label="Cash flow summary"
+        style={{ width: '50%' }}
+        head={['Fund', 'Total Investments', 'Total Proceeds', 'Net Cost Basis', 'Gross IRR'].map((h) => (
+          <GridColumnHeader key={h} numeric>{h}</GridColumnHeader>
+        ))}
+      >
+        {summary.map((s, i) => (
+          <Row key={s.fund} zebra={i % 2 === 1} aria-label={s.fund}>
             <GridValueCell>{s.fund}</GridValueCell>
             <GridValueCell>{usd.format(s.investments)}</GridValueCell>
             <GridValueCell>{usd.format(s.proceeds)}</GridValueCell>
             <GridValueCell>{signed(s.netCostBasis)}</GridValueCell>
             <GridValueCell>{s.irr}</GridValueCell>
-          </SheetRow>
+          </Row>
         ))}
-        <SheetRow label={`${company.name} total`}>
+        <Row type="total" aria-label={`${company.name} total`}>
           <RowLabelCell type="total">{company.name}</RowLabelCell>
           <GridValueCell kind="total">{usd.format(totals.investments)}</GridValueCell>
           <GridValueCell kind="total">{usd.format(totals.proceeds)}</GridValueCell>
           <GridValueCell kind="total">{signed(totals.net)}</GridValueCell>
           <GridValueCell kind="total">N/A</GridValueCell>
-        </SheetRow>
-      </Sheet>
+        </Row>
+      </DataGrid>
     </CapTableLayout>
   );
 }

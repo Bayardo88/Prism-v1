@@ -8,16 +8,18 @@
  * (a company, say), Backspace pops it. Selecting a result navigates.
  *
  * With an empty query the palette shows the Quick Access set drawn in Figma.
+ * Companies come from `db.companies.search`; each matched company brings its
+ * own documents, valuation version and waterfall action.
  */
 import { useMemo, useState, type ReactNode } from 'react';
 import {
-  GlobalSearch, Icon, Link, glyphs,
+  GlobalSearch, Icon, Link, icons,
   type SearchResult, type SearchScope, type PrismType,
 } from '@scalar/design-system';
 import { href, navigate } from '../../router.js';
 import { routes } from '../../routes.js';
-import { companies, firm } from '../../data/fixtures.js';
-import { directory } from './data.js';
+import { firm } from '../../data/fixtures.js';
+import { db, usDate, type CompanyRecord } from '../../data/db.js';
 import type { OverlayProps } from './index.js';
 
 interface Entry extends SearchResult {
@@ -30,15 +32,15 @@ interface Entry extends SearchResult {
 }
 
 const glyph: Record<PrismType, () => ReactNode> = {
-  firm: () => <glyphs.Folder />,
-  company: () => <glyphs.Folder />,
-  document: () => <glyphs.Document />,
-  version: () => <glyphs.Refresh />,
-  'measurement-date': () => <glyphs.Calendar />,
-  page: () => <glyphs.List />,
-  'firm-action': () => <glyphs.Plus />,
-  'company-action': () => <glyphs.Trend />,
-  neutral: () => <glyphs.Search />,
+  firm: () => <icons.AccountBalance />,
+  company: () => <icons.Storefront />,
+  document: () => <icons.Description />,
+  version: () => <icons.History />,
+  'measurement-date': () => <icons.CalendarToday />,
+  page: () => <icons.Article />,
+  'firm-action': () => <icons.Add />,
+  'company-action': () => <icons.WaterfallChart />,
+  neutral: () => <icons.Search />,
 };
 
 function entry(id: string, type: PrismType, title: string, subtitle: string, to: [string, string?], companyId?: string): Entry {
@@ -50,9 +52,9 @@ function entry(id: string, type: PrismType, title: string, subtitle: string, to:
   };
 }
 
-function buildIndex(companyId: string, scoped: boolean): Entry[] {
-  const pick = scoped ? directory.find((c) => c.id === companyId)?.name ?? 'Choose a company' : 'Choose a company';
-  const firmPages: Entry[] = [
+/** Firm-level entries that do not depend on a company. */
+function staticEntries(companyId: string, pick: string): Entry[] {
+  return [
     entry('p-intelligence', 'page', 'Intelligence', firm.name, [routes.intelligence.summaries]),
     entry('p-valuations', 'page', 'Valuations', firm.name, [routes.valuations]),
     entry('p-waterfalls', 'page', 'Waterfalls', firm.name, [routes.waterfalls]),
@@ -64,36 +66,30 @@ function buildIndex(companyId: string, scoped: boolean): Entry[] {
     entry('p-audit', 'page', 'Audit Logs', firm.name, [routes.admin.auditLogs]),
     entry('p-firm-settings', 'page', 'Firm Settings', firm.name, [routes.firmSettings.profile]),
     entry('p-account', 'page', 'Account Settings', 'Your account', [routes.account.settings]),
-  ];
-  const companyPages: Entry[] = [
     entry('cp-summary', 'page', 'Summary', pick, [routes.company.summary(companyId)]),
     entry('cp-financials', 'page', 'Financials', pick, [routes.company.incomeStatement(companyId)]),
     entry('cp-cap-table', 'page', 'Cap Table', pick, [routes.company.capTable(companyId)]),
     entry('cp-valuations', 'page', 'Valuation Summary', pick, [routes.company.valuationSummary(companyId)]),
     entry('cp-waterfall', 'page', 'Waterfall', pick, [routes.company.waterfall(companyId)]),
-  ];
-  const dates: Entry[] = [
     entry('md-2026-06-30', 'measurement-date', 'Q2 2026 — 06/30/2026', firm.name, [routes.valuations]),
     entry('md-2026-05-01', 'measurement-date', 'Q2 2026 — 05/01/2026', firm.name, [routes.valuations]),
     entry('md-2025-12-31', 'measurement-date', 'Q4 2025 — 12/31/2025', firm.name, [routes.valuations]),
     entry('md-2025-09-30', 'measurement-date', 'Q3 2025 — 09/30/2025', firm.name, [routes.valuations]),
-  ];
-  const cos: Entry[] = directory.map((c) =>
-    entry(`co-${c.id}`, 'company', c.name, 'Portfolio company', [routes.company.summary(c.id)], c.id));
-  const docs: Entry[] = companies.slice(0, 4).flatMap((c) => [
-    entry(`doc-${c.id}-fin`, 'document', `${c.name} — Q2 2026 Financials.xlsx`, c.name, [routes.company.documents(c.id)], c.id),
-    entry(`doc-${c.id}-cert`, 'document', `${c.name} — Certificate of Incorporation.pdf`, c.name, [routes.company.documents(c.id)], c.id),
-  ]);
-  const versions: Entry[] = companies.slice(0, 4).map((c) =>
-    entry(`ver-${c.id}`, 'version', `${c.name} — Valuation v3`, `As of ${c.asOf}`, [routes.company.valuationSummary(c.id)], c.id));
-  const actions: Entry[] = [
     entry('fa-add-company', 'firm-action', 'Add New Company', firm.name, [routes.portfolioHome, 'add-company']),
     entry('fa-invite', 'firm-action', 'Invite user', firm.name, [routes.admin.users]),
-    ...companies.slice(0, 4).map((c) =>
-      entry(`ca-waterfall-${c.id}`, 'company-action', `Run waterfall — ${c.name}`, c.name, [routes.company.waterfall(c.id)], c.id)),
   ];
-  return [...firmPages, ...companyPages, ...cos, ...docs, ...versions, ...dates, ...actions];
 }
+
+const companyEntry = (c: CompanyRecord): Entry =>
+  entry(`co-${c.id}`, 'company', c.name, `${c.sector} · ${c.stage}`, [routes.company.summary(c.id)], c.id);
+
+/** What a company brings into the results: its documents, latest version and a waterfall action. */
+const companyDetail = (c: CompanyRecord): Entry[] => [
+  entry(`doc-${c.id}-fin`, 'document', `${c.name} — Q2 2026 Financials.xlsx`, c.name, [routes.company.documents(c.id)], c.id),
+  entry(`doc-${c.id}-cert`, 'document', `${c.name} — Certificate of Incorporation.pdf`, c.name, [routes.company.documents(c.id)], c.id),
+  entry(`ver-${c.id}`, 'version', `${c.name} — ${c.valuationMethod} valuation`, `As of ${usDate(c.asOf)}`, [routes.company.valuationSummary(c.id)], c.id),
+  entry(`ca-waterfall-${c.id}`, 'company-action', `Run waterfall — ${c.name}`, c.name, [routes.company.waterfall(c.id)], c.id),
+];
 
 const QUICK_ACCESS = ['p-intelligence', 'p-valuations', 'cp-summary', 'cp-financials', 'md-2026-06-30', 'md-2026-05-01'];
 
@@ -101,16 +97,26 @@ export function SearchOverlay({ company, onClose }: OverlayProps) {
   const [query, setQuery] = useState('');
   const [scopes, setScopes] = useState<SearchScope[]>([{ type: 'firm', label: firm.name, id: firm.id }]);
 
-  const scopedCompany = [...scopes].reverse().find((s) => s.type === 'company')?.id?.replace(/^co-/, '');
-  const index = useMemo(() => buildIndex(scopedCompany ?? company?.id ?? companies[0]!.id, !!(scopedCompany ?? company)), [scopedCompany, company]);
+  const scopedId = [...scopes].reverse().find((s) => s.type === 'company')?.id?.replace(/^co-/, '');
+  const scoped = db.companies.byId(scopedId);
+  const target = scoped ?? db.companies.byId(company?.id);
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    let pool = index;
-    if (scopedCompany) pool = pool.filter((e) => e.companyId === scopedCompany || e.id.startsWith('cp-'));
-    if (!q) return scopedCompany ? pool.slice(0, 8) : QUICK_ACCESS.map((id) => pool.find((e) => e.id === id)!).filter(Boolean);
-    return pool.filter((e) => e.text.includes(q)).slice(0, 12);
-  }, [index, query, scopedCompany]);
+    const fixed = staticEntries(target?.id ?? db.companies.all()[0]!.id, target?.name ?? 'Choose a company');
+    if (scoped) {
+      // Inside a company: its pages and its own documents, version and actions.
+      const pool = [...fixed.filter((e) => e.id.startsWith('cp-')), ...companyDetail(scoped)];
+      return q ? pool.filter((e) => e.text.includes(q)) : pool;
+    }
+    if (!q) return QUICK_ACCESS.map((id) => fixed.find((e) => e.id === id)!).filter(Boolean);
+    const hits = db.companies.search(q, 6);
+    return [
+      ...fixed.filter((e) => e.text.includes(q)),
+      ...hits.map(companyEntry),
+      ...hits.slice(0, 2).flatMap(companyDetail),
+    ].slice(0, 14);
+  }, [query, scoped, target]);
 
   return (
     <GlobalSearch

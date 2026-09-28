@@ -1,9 +1,10 @@
 import {
-  useId, useRef, useState, type ChangeEvent, type DragEvent, type InputHTMLAttributes, type ReactNode, type KeyboardEvent,
+  useId, useRef, useState, type ChangeEvent, type DragEvent, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type KeyboardEvent,
 } from 'react';
 import { cx } from '../../utils/cx.js';
 import { Icon } from '../icon/Icon.js';
-import { ArrowDown, Check, ChevronDown, Edit, Error as ErrorGlyph, Search, Trash, Upload } from '../icon/glyphs.js';
+import { ArrowDown, Check, ChevronDown, Edit, Error as ErrorGlyph, Search, Trash, Upload, ZoomOut } from '../icon/glyphs.js';
+import * as m from '../icon/material.js';
 import { CheckboxItem } from '../checkbox/CheckboxItem.js';
 import { ButtonIcon } from '../button/ButtonIcon.js';
 
@@ -150,6 +151,93 @@ export function ComboboxPanel({
 }
 
 /* ---------------------------------------------------------------------------
+ * Select Menu
+ * ------------------------------------------------------------------------ */
+
+export interface SelectMenuOptionProps {
+  children: ReactNode;
+  /** Optional second line explaining the choice ("Visible to every analyst"). */
+  description?: ReactNode;
+  /** Leading glyph, passed through `Icon`. */
+  icon?: ReactNode;
+  selected?: boolean;
+  disabled?: boolean;
+  /** Keyboard-highlighted option — the listbox's `aria-activedescendant` target. */
+  active?: boolean;
+  onSelect?: () => void;
+  id?: string;
+  className?: string;
+}
+
+/**
+ * Select Menu Option — one choice in a Select Menu. The selected option
+ * carries a trailing check as well as the tint, so selection is never colour
+ * alone (R8). A disabled option stays visible and is skipped.
+ */
+export function SelectMenuOption({
+  children, description, icon, selected, disabled, active, onSelect, id, className,
+}: SelectMenuOptionProps) {
+  return (
+    <div
+      id={id}
+      role="option"
+      aria-selected={!!selected}
+      aria-disabled={disabled || undefined}
+      data-active={active || undefined}
+      onClick={disabled ? undefined : onSelect}
+      className={cx('scalar-select-menu-option', className)}
+    >
+      {icon && <span className="scalar-select-menu-option__icon">{icon}</span>}
+      <span className="scalar-select-menu-option__text">
+        <span className="scalar-select-menu-option__label">{children}</span>
+        {description && <span className="scalar-select-menu-option__description">{description}</span>}
+      </span>
+      <span className="scalar-select-menu-option__check" aria-hidden>
+        {selected && <Icon size="s" tone="brand"><Check /></Icon>}
+      </span>
+    </div>
+  );
+}
+
+export interface SelectMenuProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'className'> {
+  /** SelectMenuOption instances (MenuGroupLabel / MenuDivider between groups are fine). */
+  children: ReactNode;
+  /** Accessible name of the listbox ("Currency"). */
+  label: string;
+  /** Optional slot above the list — a search input for a long list. The caller filters. */
+  search?: ReactNode;
+  /** Optional slot below the list — a create action ("+ Add role"). */
+  footer?: ReactNode;
+  /** Several options can be selected at once. */
+  multiselectable?: boolean;
+  className?: string;
+}
+
+/**
+ * Select Menu — the open listbox surface of a select: a raised panel of
+ * options with a selected check, disabled options and optional descriptions,
+ * plus optional search and footer slots.
+ *
+ * A surface only (same rule as ComboboxPanel): the trigger — a `Selector`,
+ * `InlinePicker`, `InCellControl` or `FilterDropdown` — owns open state,
+ * positioning and outside-click dismissal. Extra HTML attributes
+ * (`id`, `onKeyDown`, `tabIndex`, `aria-activedescendant`) land on the
+ * `role="listbox"` element. For a searchable list that can exceed ~8 items,
+ * prefer `ComboboxPanel`, which also owns arrow-key movement.
+ */
+export function SelectMenu({ children, label, search, footer, multiselectable, className, ...rest }: SelectMenuProps) {
+  return (
+    <div className={cx('scalar-select-menu', className)}>
+      {search && <div className="scalar-select-menu__search">{search}</div>}
+      <div role="listbox" aria-label={label} aria-multiselectable={multiselectable || undefined} className="scalar-select-menu__list" {...rest}>
+        {children}
+      </div>
+      {footer && <div className="scalar-select-menu__footer">{footer}</div>}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------------------
  * Repeatable Row
  * ------------------------------------------------------------------------ */
 
@@ -195,6 +283,12 @@ export interface DropzoneProps {
   progress?: number;
   /** Uploading label or error reason. */
   message?: ReactNode;
+  /**
+   * Replaces the default prompt ("Drag & drop a file or select a file") in
+   * the default state. Pass a render function to keep the browse link:
+   * `prompt={(browse) => <>Drop a logo or {browse('choose an image')}</>}`.
+   */
+  prompt?: ReactNode | ((browse: (label: ReactNode) => ReactNode) => ReactNode);
   className?: string;
 }
 
@@ -202,11 +296,14 @@ export interface DropzoneProps {
  * Dropzone — drag & drop or browse. Report templates, documents, logos.
  * Hover is set while a file is dragged over.
  */
-export function Dropzone({ onFiles, accept, multiple, hint, state = 'default', progress, message, className }: DropzoneProps) {
+export function Dropzone({ onFiles, accept, multiple, hint, state = 'default', progress, message, prompt, className }: DropzoneProps) {
   const [over, setOver] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const take = (list: FileList | null) => { if (list?.length) onFiles(Array.from(list)); };
   const onDrop = (e: DragEvent) => { e.preventDefault(); setOver(false); take(e.dataTransfer.files); };
+  const browse = (label: ReactNode) => (
+    <button type="button" className="scalar-dropzone__browse" onClick={() => input.current?.click()}>{label}</button>
+  );
   return (
     <div
       className={cx('scalar-dropzone', `scalar-dropzone--${state}`, over && 'scalar-dropzone--over', className)}
@@ -219,8 +316,9 @@ export function Dropzone({ onFiles, accept, multiple, hint, state = 'default', p
       </span>
       {state === 'default' ? (
         <span className="scalar-dropzone__prompt">
-          Drag &amp; drop a file or{' '}
-          <button type="button" className="scalar-dropzone__browse" onClick={() => input.current?.click()}>select a file</button>
+          {prompt === undefined
+            ? <>Drag &amp; drop a file or {browse('select a file')}</>
+            : typeof prompt === 'function' ? prompt(browse) : prompt}
         </span>
       ) : (
         <span className="scalar-dropzone__prompt" role={state === 'error' ? 'alert' : 'status'}>{message}</span>
@@ -350,5 +448,73 @@ export function InlinePicker({ children, secondary, open = false, onClick, label
       {secondary && <><span className="scalar-inline-picker__sep" aria-hidden>|</span><span>{secondary}</span></>}
       <Icon size="xs" tone="inherit" className={cx(open && 'scalar-rotate-180')}><ChevronDown /></Icon>
     </button>
+  );
+}
+
+/* ---------------------------------------------------------------------------
+ * Image Crop Field
+ * ------------------------------------------------------------------------ */
+
+export interface ImageCropFieldProps {
+  /** Visible label and the group's accessible name ("Firm logo"). */
+  label: string;
+  /** The uploaded image. Omit to show the placeholder well. */
+  src?: string;
+  /** Alternative text for the preview. Default: the label. */
+  alt?: string;
+  /** Scale applied to the preview, 1 = fit. */
+  zoom: number;
+  onZoomChange: (zoom: number) => void;
+  zoomMin?: number;
+  zoomMax?: number;
+  zoomStep?: number;
+  /** Removes the image. Omit to hide the delete button. */
+  onRemove?: () => void;
+  removeLabel?: string;
+  /** `square` for an avatar or mark, `wide` for a wordmark logo. Default `square`. */
+  shape?: 'square' | 'wide';
+  /** Glyph for the empty well. Default Material `image`. */
+  placeholderIcon?: ReactNode;
+  className?: string;
+}
+
+/**
+ * Image Crop Field — preview and framing for an uploaded logo or avatar: a
+ * framed preview well, a zoom Slider between zoom-out / zoom-in glyphs, and a
+ * delete ButtonIcon. Pair it with a Dropzone for the upload itself; zoom and
+ * disabled-while-empty are the only behaviour it owns.
+ */
+export function ImageCropField({
+  label, src, alt, zoom, onZoomChange, zoomMin = 1, zoomMax = 3, zoomStep = 0.1, onRemove, removeLabel = 'Remove image',
+  shape = 'square', placeholderIcon, className,
+}: ImageCropFieldProps) {
+  return (
+    <div role="group" aria-label={label} className={cx('scalar-image-crop', `scalar-image-crop--${shape}`, className)}>
+      <span className="scalar-image-crop__label" aria-hidden>{label}</span>
+      <div className="scalar-image-crop__well">
+        {src ? (
+          <img src={src} alt={alt ?? label} className="scalar-image-crop__image" style={{ transform: `scale(${zoom})` }} />
+        ) : (
+          <Icon size="xl" tone="secondary">{placeholderIcon ?? <m.Image />}</Icon>
+        )}
+      </div>
+      <div className="scalar-image-crop__controls">
+        <Slider
+          label={`${label} zoom`}
+          min={zoomMin}
+          max={zoomMax}
+          step={zoomStep}
+          value={zoom}
+          disabled={!src}
+          onChange={(e) => onZoomChange(Number(e.target.value))}
+          minIcon={<Icon size="s" tone="inherit"><ZoomOut /></Icon>}
+          maxIcon={<Icon size="s" tone="inherit"><m.ZoomIn /></Icon>}
+          className="scalar-image-crop__slider"
+        />
+        {onRemove && (
+          <ButtonIcon variant="tertiary" tone="negative" label={removeLabel} disabled={!src} onClick={onRemove} icon={<Icon size="s" tone="inherit"><Trash /></Icon>} />
+        )}
+      </div>
+    </div>
   );
 }

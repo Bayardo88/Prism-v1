@@ -9,7 +9,7 @@
 import { useCallback, useRef, useState } from 'react';
 import {
   Button, ComboboxPanel, FormField, Heading, Icon, Input, PageTaskHeader, RepeatableRow, ScalarProvider, Text,
-  color, glyphs, space, zIndex,
+  color, icons, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { navigate } from '../../router.js';
@@ -62,7 +62,7 @@ export function InformationRequest({ state, params }: ScreenProps) {
           subtitle={`${company.name} · ${company.asOf}`}
           onBack={back}
           actions={
-            <Button variant="primary" disabled={!canSend} trailingIcon={<Icon size="s" tone="inherit"><glyphs.ArrowRight /></Icon>} onClick={back}>
+            <Button variant="primary" disabled={!canSend} trailingIcon={<Icon size="s" tone="inherit"><icons.Send /></Icon>} onClick={back}>
               Send
             </Button>
           }
@@ -87,7 +87,7 @@ export function InformationRequest({ state, params }: ScreenProps) {
               </FormField>
               <RequestList items={docs} noun="document request" onRemove={(i) => setDocs((d) => d.filter((_, j) => j !== i))} />
               <div>
-                <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>} onClick={() => (docDraft.trim() ? addDoc() : docInput.current?.focus())}>
+                <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>} onClick={() => (docDraft.trim() ? addDoc() : docInput.current?.focus())}>
                   Add document request
                 </Button>
               </div>
@@ -111,7 +111,7 @@ export function InformationRequest({ state, params }: ScreenProps) {
                 </FormField>
               )}
               <div>
-                <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>} onClick={() => setQuestionDraft('')}>
+                <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>} onClick={() => setQuestionDraft('')}>
                   Add question
                 </Button>
               </div>
@@ -128,8 +128,8 @@ export function InformationRequest({ state, params }: ScreenProps) {
                   aria-haspopup="listbox"
                   aria-expanded={pickerOpen}
                   onClick={() => setPickerOpen((o) => !o)}
-                  leadingIcon={<Icon size="s" tone="secondary"><glyphs.User /></Icon>}
-                  trailingIcon={<Icon size="s" tone="secondary">{pickerOpen ? <glyphs.ChevronUp /> : <glyphs.ChevronDown />}</Icon>}
+                  leadingIcon={<Icon size="s" tone="secondary"><icons.Person /></Icon>}
+                  trailingIcon={<Icon size="s" tone="secondary">{pickerOpen ? <icons.KeyboardArrowUp /> : <icons.KeyboardArrowDown />}</Icon>}
                 />
               </FormField>
               {pickerOpen && (
@@ -145,7 +145,7 @@ export function InformationRequest({ state, params }: ScreenProps) {
                     onQueryChange={setQuery}
                     onSelect={(id) => { setResponsible(id); setPickerOpen(false); setQuery(''); }}
                     footer={
-                      <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}>
+                      <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}>
                         Add a new responsible
                       </Button>
                     }

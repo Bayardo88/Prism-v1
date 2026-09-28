@@ -1,18 +1,22 @@
 /**
  * The financial-statement grid shared by Income Statement, Performance
- * Metrics, Balance Sheet and KPIs: a sticky row-label column, historical
- * periods, the brand period rule, a run of Projections columns and a trailing
- * group (LTM / NTM, or As Of) set apart by a gutter.
+ * Metrics, Balance Sheet and KPIs: the row-label column, historical periods,
+ * the brand period rule, a run of Projections columns and a trailing group
+ * (LTM / NTM, or As Of) set apart by a gutter.
  *
- * Composed from the Grid Patterns layer (RowLabelCell, GridValueCell,
- * ColumnGroupHeader, GridColumnHeader, GridColumnDivider). Those cells take no
- * width, so each one sits in a flex box that owns the column width; the box is
- * `display: grid` so the cell stretches to fill it.
+ * Built on `DataGrid` + `Row` with the grid-pattern cells directly inside;
+ * `groupHead` carries the Projections / LTM / NTM tier. The tracks are passed
+ * explicitly (`columns`) only because the period rule and the gutter are
+ * tracks of their own — derived from the header they would each get a `1fr`
+ * share. Value columns keep the header-sized `minmax(max-content, 1fr)` track.
+ *
+ * A column menu (KPI Copy / Delete) is drawn outside the grid, anchored to its
+ * header, because the grid scrolls sideways inside itself and would clip it.
  */
-import type { CSSProperties, ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  ColumnGroupHeader, GridColumnDivider, GridColumnHeader, GridValueCell, Icon, RowLabelCell, Text,
-  color, glyphs, space, zIndex, type RowLabelType, type ValueKind,
+  ColumnGroupHeader, DataGrid, Footnote, GridColumnDivider, GridColumnHeader, GridValueCell, Row, RowLabelCell,
+  color, size, zIndex, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { GridRowDef, GridValue } from './data.js';
 
@@ -23,14 +27,12 @@ export interface GridColumn {
   zone: 'hist' | 'proj' | 'trail';
   /** Group header above the column: "Projections", "LTM", "NTM", "As Of". */
   group?: string;
-  /** The header is an editable date (LTM / NTM / As Of) — blue with a calendar glyph. */
+  /** The header is an editable date (LTM / NTM / As Of). */
   editableDate?: boolean;
   /** Footnote reference drawn beside the label. */
   footnote?: string;
   /** Active column (blue top tab) — used by the KPI column menu. */
   selected?: boolean;
-  /** Content anchored under the header (a column Context Menu). */
-  headerMenu?: ReactNode;
   /** Replaces the group-header slot above this column (e.g. a column-actions trigger). */
   groupSlot?: ReactNode;
 }
@@ -44,112 +46,121 @@ export interface GridRow extends GridRowDef {
   labelContent?: ReactNode;
 }
 
-const labelBox: CSSProperties = { flex: '2.4 1 0', minWidth: 0, display: 'grid' };
-const valueBox: CSSProperties = { flex: '1 1 0', minWidth: 0, display: 'grid', position: 'relative' };
-const blank: CSSProperties = { ...valueBox, background: color.bg.surface };
+type Slot = { kind: 'label' } | { kind: 'rule' } | { kind: 'gutter' } | { kind: 'col'; col: GridColumn; i: number };
 
-function boxFor(cols: GridColumn[], i: number, base: CSSProperties = valueBox): CSSProperties {
-  const c = cols[i]!;
-  const firstTrail = c.zone === 'trail' && cols[i - 1]?.zone !== 'trail';
-  return firstTrail ? { ...base, marginLeft: space.l } : base;
+function slotsFor(cols: GridColumn[]): Slot[] {
+  const out: Slot[] = [{ kind: 'label' }];
+  cols.forEach((col, i) => {
+    const prev = cols[i - 1];
+    if (col.zone === 'proj' && prev?.zone !== 'proj') out.push({ kind: 'rule' });
+    if (col.zone === 'trail' && prev?.zone !== 'trail') out.push({ kind: 'gutter' });
+    out.push({ kind: 'col', col, i });
+  });
+  return out;
 }
 
-function cellValue(v: GridValue, emptyKind: ValueKind) {
-  if (v === undefined) return <GridValueCell kind={emptyKind} />;
-  if (typeof v === 'string') return <GridValueCell kind={emptyKind === 'total' ? 'total' : 'calculated'}>{v}</GridValueCell>;
-  return <GridValueCell kind={v.kind} state={v.focused ? 'focused' : 'default'}>{v.v}</GridValueCell>;
+const TRACK: Record<Slot['kind'], string> = {
+  label: 'minmax(max-content, 2.4fr)',
+  rule: 'max-content',
+  gutter: size.icon.m,
+  col: 'minmax(max-content, 1fr)',
+};
+
+function cellValue(v: GridValue, emptyKind: ValueKind, key: string) {
+  if (v === undefined) return <GridValueCell key={key} kind={emptyKind} />;
+  if (typeof v === 'string') return <GridValueCell key={key} kind={emptyKind === 'total' ? 'total' : 'calculated'}>{v}</GridValueCell>;
+  return <GridValueCell key={key} kind={v.kind} state={v.focused ? 'focused' : 'default'}>{v.v}</GridValueCell>;
 }
 
-/** Splits a row into hist | rule | proj | trail, calling `render` per column. */
-function Cells({ cols, render }: { cols: GridColumn[]; render: (c: GridColumn, i: number) => ReactNode }) {
-  const hasProj = cols.some((c) => c.zone === 'proj');
-  const firstProj = cols.findIndex((c) => c.zone === 'proj');
-  return (
-    <>
-      {cols.map((c, i) => (
-        <FragmentWithRule key={c.key} rule={hasProj && i === firstProj}>{render(c, i)}</FragmentWithRule>
-      ))}
-    </>
-  );
-}
+/** An empty track (group-head blanks, the LTM gutter): page-white, never zebra. */
+const blank = (key: string) => <div key={key} aria-hidden style={{ background: color.bg.surface }} />;
 
-function FragmentWithRule({ rule, children }: { rule: boolean; children: ReactNode }) {
-  return <>{rule && <GridColumnDivider type="period" />}{children}</>;
-}
-
-export function FinancialGrid({ title, columns, rows, label }: {
+export function FinancialGrid({ title, columns, rows, label, menu }: {
   title: string;
   columns: GridColumn[];
   rows: GridRow[];
   /** Accessible name of the grid; defaults to the title. */
   label?: string;
+  /** A column menu anchored under the header of `columnKey`. */
+  menu?: { columnKey: string; content: ReactNode };
 }) {
+  const slots = slotsFor(columns);
   const hasGroups = columns.some((c) => c.group || c.groupSlot);
+  const wrap = useRef<HTMLDivElement>(null);
+  const [anchor, setAnchor] = useState<{ left: number; top: number } | null>(null);
+  const menuKey = menu?.columnKey;
+
+  useLayoutEffect(() => {
+    const head = menuKey && wrap.current?.querySelector<HTMLElement>(`[data-col="${menuKey}"]`);
+    if (!head || !wrap.current) { setAnchor(null); return; }
+    const box = wrap.current.getBoundingClientRect();
+    const r = head.getBoundingClientRect();
+    setAnchor({ left: r.left - box.left, top: r.bottom - box.top });
+  }, [menuKey, columns.length]);
+
+  const groupHead = hasGroups ? slots.map((s, n) => {
+    const k = `g${n}`;
+    if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
+    if (s.kind !== 'col') return blank(k);
+    if (s.col.groupSlot) return <div key={k} style={{ background: color.bg.surface }}>{s.col.groupSlot}</div>;
+    if (!s.col.group) return blank(k);
+    return <ColumnGroupHeader key={k} span={1} styleVariant={s.col.zone === 'proj' ? 'emphasis' : 'default'}>{s.col.group}</ColumnGroupHeader>;
+  }) : undefined;
+
+  const head = slots.map((s, n) => {
+    const k = `h${n}`;
+    if (s.kind === 'label') return <GridColumnHeader key={k} grow={2.4}>{title}</GridColumnHeader>;
+    if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
+    if (s.kind === 'gutter') return blank(k);
+    const c = s.col;
+    return (
+      <GridColumnHeader key={k} numeric editable={c.editableDate} selected={c.selected} data-col={c.key}>
+        {c.label}
+        {c.footnote && <Footnote>[{c.footnote}]</Footnote>}
+      </GridColumnHeader>
+    );
+  });
+
   return (
-    <div role="grid" aria-label={label ?? title} style={{ display: 'flex', flexDirection: 'column', background: color.bg.surface }}>
-      {hasGroups && (
-        <div role="row" style={{ display: 'flex' }}>
-          <div style={{ ...labelBox, background: color.bg.surface }} />
-          <Cells
-            cols={columns}
-            render={(c, i) => (
-              <div style={boxFor(columns, i, c.group || c.groupSlot ? valueBox : blank)}>
-                {c.groupSlot}
-                {!c.groupSlot && c.group && (
-                  <ColumnGroupHeader span={1} styleVariant={c.zone === 'proj' ? 'emphasis' : 'default'}>{c.group}</ColumnGroupHeader>
-                )}
-              </div>
-            )}
-          />
-        </div>
+    <div ref={wrap} style={{ position: 'relative' }}>
+      <DataGrid label={label ?? title} columns={slots.map((s) => TRACK[s.kind])} groupHead={groupHead} head={<>{head}</>}>
+        {rows.map((r, ri) => {
+          const emptyKind: ValueKind = r.emptyKind ?? 'editable';
+          return (
+            <Row key={r.key ?? `${r.label}-${ri}`} zebra={ri % 2 === 1}>
+              {slots.map((s, n) => {
+                const k = `c${n}`;
+                if (s.kind === 'label') {
+                  return (
+                    <RowLabelCell key={k} type={(r.type ?? 'line-item') as RowLabelType} expanded={r.expanded} onToggle={r.onToggle}>
+                      {r.labelContent ?? r.label}
+                    </RowLabelCell>
+                  );
+                }
+                if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
+                if (s.kind === 'gutter') return blank(k);
+                return cellValue(r.values?.[s.i], emptyKind, k);
+              })}
+            </Row>
+          );
+        })}
+      </DataGrid>
+      {menu && anchor && (
+        <div style={{ position: 'absolute', left: anchor.left, top: anchor.top, zIndex: zIndex.overlay }}>{menu.content}</div>
       )}
-
-      <div role="row" style={{ display: 'flex', position: 'sticky', top: 0, zIndex: zIndex.sticky }}>
-        <div style={labelBox}><GridColumnHeader>{title}</GridColumnHeader></div>
-        <Cells
-          cols={columns}
-          render={(c, i) => (
-            <div style={boxFor(columns, i)}>
-              <GridColumnHeader numeric selected={c.selected}>
-                {c.editableDate ? (
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: space['2xs'] }}>
-                    <Text as="span" step="s" weight="semiBold" tone="editable">{c.label}</Text>
-                    <Icon size="xs" tone="brand"><glyphs.Calendar /></Icon>
-                  </span>
-                ) : c.label}
-                {c.footnote && <Text as="span" step="s" tone="link"> [{c.footnote}]</Text>}
-              </GridColumnHeader>
-              {c.headerMenu && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay }}>{c.headerMenu}</div>
-              )}
-            </div>
-          )}
-        />
-      </div>
-
-      {rows.map((r, ri) => {
-        const emptyKind: ValueKind = r.emptyKind ?? 'editable';
-        return (
-          <div role="row" key={r.key ?? `${r.label}-${ri}`} style={{ display: 'flex' }}>
-            <div style={labelBox}>
-              <RowLabelCell type={(r.type ?? 'line-item') as RowLabelType} expanded={r.expanded} onToggle={r.onToggle}>
-                {r.labelContent ?? r.label}
-              </RowLabelCell>
-            </div>
-            <Cells cols={columns} render={(_c, i) => <div style={boxFor(columns, i)}>{cellValue(r.values?.[i], emptyKind)}</div>} />
-          </div>
-        );
-      })}
     </div>
   );
 }
 
 /* --- Column builders ------------------------------------------------------ */
 
+export const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+
 export const fy = (y: number, zone: GridColumn['zone']): GridColumn => ({
   key: `fy${y}`, label: `FY ${y}`, zone, group: zone === 'proj' ? 'Projections' : undefined,
 });
 
-export const yearEnd = (y: number, zone: GridColumn['zone']): GridColumn => ({
-  key: `ye${y}`, label: `12/31/${y}`, zone, group: zone === 'proj' ? 'Projections' : undefined,
+/** A period column dated at the fiscal year end (`MM/DD`), as the Balance Sheet shows it. */
+export const yearEnd = (y: number, zone: GridColumn['zone'], monthDay: string): GridColumn => ({
+  key: `ye${y}`, label: `${monthDay}/${y}`, zone, group: zone === 'proj' ? 'Projections' : undefined,
 });

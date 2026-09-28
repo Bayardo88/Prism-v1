@@ -12,7 +12,8 @@ import {
   Checkbox, FloatingLabelSelect, NotificationCenter, Overline, Select, SettingRow, Text, color, space,
 } from '@scalar/design-system';
 import { firms } from '../../data/fixtures.js';
-import { directory, firmName, notificationTypes } from './data.js';
+import { db } from '../../data/db.js';
+import { firmName, notificationTypes } from './data.js';
 import { Popover } from './Popover.js';
 import type { OverlayProps } from './index.js';
 
@@ -57,7 +58,7 @@ export function NotificationsMenu({ menu, onClose }: OverlayProps) {
               </FloatingLabelSelect>
               <Select aria-label="Companies" state={allCompanies ? 'disabled' : 'default'} defaultValue="all">
                 <option value="all">All companies (all firms)</option>
-                {directory.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {db.companies.all().map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </Select>
             </div>
             <div style={{ paddingTop: space.m, borderTop: `1px solid ${color.stroke.divider}`, marginTop: space.m }}>

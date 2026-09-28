@@ -28,6 +28,8 @@ export interface SplitButtonProps {
   disabled?: boolean;
   /** Render the Context Menu here; it is positioned under the caret. */
   menu?: ReactNode;
+  /** Where the menu opens. `top` for a button at the foot of a page or drawer. Default `bottom`. */
+  menuPlacement?: 'bottom' | 'top';
   className?: string;
 }
 
@@ -41,7 +43,7 @@ export interface SplitButtonProps {
  */
 export function SplitButton({
   children, variant = 'primary', tone = 'main', leadingIcon, onClick, onMenuToggle, menuOpen = false,
-  menuLabel, disabled, menu, className,
+  menuLabel, disabled, menu, menuPlacement = 'bottom', className,
 }: SplitButtonProps) {
   return (
     <span className={cx('scalar-split-button', `scalar-split-button--${variant}`, `scalar-split-button--${tone}`, className)}>
@@ -63,7 +65,7 @@ export function SplitButton({
           <ChevronDown />
         </Icon>
       </button>
-      {menuOpen && menu && <span className="scalar-split-button__popover">{menu}</span>}
+      {menuOpen && menu && <span className={cx('scalar-split-button__popover', menuPlacement === 'top' && 'scalar-split-button__popover--top')}>{menu}</span>}
     </span>
   );
 }

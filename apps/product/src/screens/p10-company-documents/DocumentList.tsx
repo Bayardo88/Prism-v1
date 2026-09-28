@@ -7,7 +7,7 @@
 import { useCallback, useRef, useState } from 'react';
 import {
   Button, ButtonIcon, Cell, CheckboxItem, ColumnHeader, ContextMenu, DataGrid, Dropzone, FileRow, FileTypeBadge,
-  Icon, Input, Link, MenuDivider, MenuItem, Modal, Row, Text, glyphs, size, space, zIndex,
+  Icon, Input, Link, MenuDivider, MenuItem, Modal, Row, Text, icons, size, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
@@ -16,18 +16,8 @@ import { companyById, user } from '../../data/fixtures.js';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
 import { CompanyActionsButton, DocumentsSubNav, RequestsHeading } from './shared.js';
-import { companyDocs, exportDocs, type CompanyDoc } from './data.js';
+import { companyDocsFor, exportDocsFor, type CompanyDoc } from './data.js';
 
-const COL = {
-  select: { flex: '0 0 auto', width: size.control.s },
-  format: { flex: '0.6 1 0', minWidth: 0 },
-  name: { flex: '4 1 0', minWidth: 0 },
-  source: { flex: '1.4 1 0', minWidth: 0 },
-  date: { flex: '1.3 1 0', minWidth: 0 },
-  refs: { flex: '1.4 1 0', minWidth: 0 },
-  requests: { flex: '1.2 1 0', minWidth: 0 },
-  actions: { flex: '1 1 0', minWidth: 0, justifyContent: 'flex-end' },
-} as const;
 
 const toTime = (d: string) => { const [m, day, y] = d.split('/').map(Number); return new Date(y!, m! - 1, day).getTime(); };
 const today = '09/28/2026';
@@ -39,6 +29,7 @@ function UploadModal({ open, onClose, onDone }: { open: boolean; onClose: () => 
       open={open}
       onClose={onClose}
       title="Add New Document"
+      size="l"
       dismissOnScrimClick={!files.length}
       footer={
         <>
@@ -52,6 +43,7 @@ function UploadModal({ open, onClose, onDone }: { open: boolean; onClose: () => 
           multiple
           accept=".csv,.docx,.jpg,.pdf,.xlsx,.zip"
           hint="250 MB max file size. CSV, DOCX, JPG, PDF, XLSX, ZIP format file."
+          prompt={(browse) => <>Drag &amp; Drop Supporting Documents or {browse('Select a file')}</>}
           onFiles={(list) => setFiles((f) => [...f, ...list])}
         />
         {files.map((f, i) => (
@@ -66,13 +58,23 @@ function UploadModal({ open, onClose, onDone }: { open: boolean; onClose: () => 
 
 export function DocumentList({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [docs, setDocs] = useState<CompanyDoc[]>(companyDocs);
+  const exportDocs = exportDocsFor(company.name, company.asOfIso);
+  const [docs, setDocs] = useState<CompanyDoc[]>(() => companyDocsFor(company.name));
   const [uploading, setUploading] = useState(state === 'upload');
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [sort, setSort] = useState<'asc' | 'desc'>('desc');
   const [query, setQuery] = useState('');
   const [exportsOpen, setExportsOpen] = useState(false);
   const [rowMenu, setRowMenu] = useState<string | undefined>();
+  // The DataGrid clips overflow, so the row menu is drawn outside it at the kebab's position.
+  const [menuAt, setMenuAt] = useState<{ top: number; right: number }>({ top: 0, right: 0 });
+  const gridWrap = useRef<HTMLDivElement>(null);
+  const openRowMenu = (id: string, el: HTMLElement) => {
+    const w = gridWrap.current!.getBoundingClientRect();
+    const b = el.getBoundingClientRect();
+    setMenuAt({ top: b.bottom - w.top, right: w.right - b.right });
+    setRowMenu((m) => (m === id ? undefined : id));
+  };
   const menuRef = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setRowMenu(undefined), []);
   useDismiss(menuRef, !!rowMenu, closeMenu);
@@ -80,60 +82,48 @@ export function DocumentList({ state, params }: ScreenProps) {
   const visible = docs
     .filter((d) => d.name.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => (sort === 'desc' ? toTime(b.uploaded) - toTime(a.uploaded) : toTime(a.uploaded) - toTime(b.uploaded)));
+  const rowDoc = docs.find((d) => d.id === rowMenu);
   const allChecked = docs.length > 0 && docs.every((d) => checked.has(d.id));
   const setOne = (id: string, v: boolean) => setChecked((s) => { const n = new Set(s); if (v) n.add(id); else n.delete(id); return n; });
 
   const docRow = (d: CompanyDoc) => (
     <Row key={d.id}>
-      <Cell style={COL.select}><CheckboxItem size="s" checked={checked.has(d.id)} onChange={(e) => setOne(d.id, e.target.checked)} aria-label={`Select ${d.name}`} /></Cell>
-      <Cell style={COL.format}><FileTypeBadge file={d.ext} /></Cell>
-      <Cell style={COL.name}>{d.name}</Cell>
-      <Cell style={COL.source}>{d.source}</Cell>
-      <Cell style={COL.date} numeric>{d.uploaded}</Cell>
-      <Cell style={COL.refs}>
+      <Cell><CheckboxItem size="s" checked={checked.has(d.id)} onChange={(e) => setOne(d.id, e.target.checked)} aria-label={`Select ${d.name}`} /></Cell>
+      <Cell><FileTypeBadge file={d.ext} /></Cell>
+      <Cell>{d.name}</Cell>
+      <Cell>{d.source}</Cell>
+      <Cell numeric>{d.uploaded}</Cell>
+      <Cell>
         <Link size="s" href={href(d.reference.startsWith('Cap') ? routes.company.capTable(company.id) : routes.company.incomeStatement(company.id))}>{d.reference}</Link>
       </Cell>
-      <Cell style={COL.requests}>—</Cell>
-      <Cell style={{ ...COL.actions, position: 'relative' }}>
-        <ButtonIcon variant="tertiary" size="s" label={`Download ${d.name}`} icon={<Icon size="s" tone="inherit"><glyphs.Download /></Icon>} />
+      <Cell>—</Cell>
+      <Cell style={{ justifyContent: 'flex-end' }}>
+        <ButtonIcon variant="tertiary" size="s" label={`Download ${d.name}`} icon={<Icon size="s" tone="inherit"><icons.CloudDownload /></Icon>} />
         <span data-popover-trigger="">
           <ButtonIcon
             variant="tertiary" size="s" label={`${d.name} options`} aria-expanded={rowMenu === d.id}
-            onClick={() => setRowMenu((m) => (m === d.id ? undefined : d.id))}
-            icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>}
+            onClick={(e) => openRowMenu(d.id, e.currentTarget)}
+            icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>}
           />
         </span>
-        {rowMenu === d.id && (
-          <div ref={menuRef} style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay }}>
-            <ContextMenu label={`${d.name} actions`}>
-              <MenuItem icon={<Icon size="s" tone="inherit"><glyphs.Eye /></Icon>} href={href(routes.documents, 'pdf-viewer')}>Open in viewer</MenuItem>
-              <MenuItem icon={<Icon size="s" tone="inherit"><glyphs.Edit /></Icon>}>Rename</MenuItem>
-              <MenuItem icon={<Icon size="s" tone="inherit"><glyphs.Folder /></Icon>}>Move to folder</MenuItem>
-              <MenuDivider />
-              <MenuItem tone="destructive" icon={<Icon size="s" tone="inherit"><glyphs.Trash /></Icon>} onClick={() => { setDocs((all) => all.filter((x) => x.id !== d.id)); setRowMenu(undefined); }}>
-                Delete document
-              </MenuItem>
-            </ContextMenu>
-          </div>
-        )}
       </Cell>
     </Row>
   );
 
   const folderRow = (name: string, open?: boolean, onToggle?: () => void) => (
     <Row key={name}>
-      <Cell style={COL.select} />
-      <Cell style={{ flex: '11.3 1 0', minWidth: 0 }} icon={<Icon size="s" tone="brand"><glyphs.Folder /></Icon>}>
+      <Cell />
+      <Cell span={6} icon={<Icon size="s" tone="brand"><icons.Folder /></Icon>}>
         <Text step="m" weight="semiBold" tone="brand">{name}</Text>
       </Cell>
-      <Cell style={COL.actions}>
+      <Cell style={{ justifyContent: 'flex-end' }}>
         {onToggle && (
           <ButtonIcon
             variant="tertiary" size="s" label={open ? `Collapse ${name}` : `Expand ${name}`} onClick={onToggle}
-            icon={<Icon size="s" tone="inherit">{open ? <glyphs.ChevronUp /> : <glyphs.ChevronDown />}</Icon>}
+            icon={<Icon size="s" tone="inherit">{open ? <icons.KeyboardArrowUp /> : <icons.KeyboardArrowDown />}</Icon>}
           />
         )}
-        <ButtonIcon variant="tertiary" size="s" label={`${name} folder options`} icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>} />
+        <ButtonIcon variant="tertiary" size="s" label={`${name} folder options`} icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>} />
       </Cell>
     </Row>
   );
@@ -171,8 +161,8 @@ export function DocumentList({ state, params }: ScreenProps) {
       />
 
       <div style={{ display: 'flex', alignItems: 'center', gap: space.m }}>
-        <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Folder /></Icon>}>Add Subfolder</Button>
-        <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Upload /></Icon>} onClick={() => setUploading(true)}>Upload Document</Button>
+        <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><icons.CreateNewFolder /></Icon>}>Add Subfolder</Button>
+        <Button variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><icons.CloudUpload /></Icon>} onClick={() => setUploading(true)}>Upload Document</Button>
         <Text step="s" tone="tertiary">{docs.length + exportDocs.length} Document(s) | 1 Subfolder(s)</Text>
         <div style={{ marginLeft: 'auto', width: '22%' }}>
           <Input
@@ -180,16 +170,17 @@ export function DocumentList({ state, params }: ScreenProps) {
             placeholder="Search documents…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            leadingIcon={<Icon size="s" tone="secondary"><glyphs.Search /></Icon>}
+            leadingIcon={<Icon size="s" tone="secondary"><icons.Search /></Icon>}
           />
         </div>
       </div>
 
+      <div ref={gridWrap} style={{ position: 'relative' }}>
       <DataGrid
         label={`${company.name} documents`}
         head={
           <>
-            <ColumnHeader style={COL.select}>
+            <ColumnHeader tone="subtle" width={size.control.m}>
               <CheckboxItem
                 size="s"
                 aria-label="Select all documents"
@@ -198,13 +189,13 @@ export function DocumentList({ state, params }: ScreenProps) {
                 onChange={(e) => setChecked(e.target.checked ? new Set(docs.map((d) => d.id)) : new Set())}
               />
             </ColumnHeader>
-            <ColumnHeader style={COL.format}>Format</ColumnHeader>
-            <ColumnHeader style={COL.name}>Name</ColumnHeader>
-            <ColumnHeader style={COL.source}>Source</ColumnHeader>
-            <ColumnHeader style={COL.date} numeric sort={sort} onSortChange={setSort}>Upload Date</ColumnHeader>
-            <ColumnHeader style={COL.refs}>References</ColumnHeader>
-            <ColumnHeader style={COL.requests}>File Requests</ColumnHeader>
-            <ColumnHeader style={COL.actions}>Actions</ColumnHeader>
+            <ColumnHeader tone="subtle">Format</ColumnHeader>
+            <ColumnHeader tone="subtle" grow={4}>Name</ColumnHeader>
+            <ColumnHeader tone="subtle">Source</ColumnHeader>
+            <ColumnHeader tone="subtle" numeric sort={sort} onSortChange={setSort}>Upload Date</ColumnHeader>
+            <ColumnHeader tone="subtle">References</ColumnHeader>
+            <ColumnHeader tone="subtle">File Requests</ColumnHeader>
+            <ColumnHeader tone="subtle" numeric>Actions</ColumnHeader>
           </>
         }
       >
@@ -213,6 +204,20 @@ export function DocumentList({ state, params }: ScreenProps) {
         {folderRow('Exports', exportsOpen, () => setExportsOpen((o) => !o))}
         {exportsOpen && exportDocs.map(docRow)}
       </DataGrid>
+      {rowDoc && (
+          <div ref={menuRef} style={{ position: 'absolute', top: menuAt.top, right: menuAt.right, zIndex: zIndex.overlay }}>
+            <ContextMenu label={`${rowDoc.name} actions`}>
+              <MenuItem icon={<Icon size="s" tone="inherit"><icons.Visibility /></Icon>} href={href(routes.documents, 'pdf-viewer')}>Open in viewer</MenuItem>
+              <MenuItem icon={<Icon size="s" tone="inherit"><icons.Edit /></Icon>}>Rename</MenuItem>
+              <MenuItem icon={<Icon size="s" tone="inherit"><icons.Folder /></Icon>}>Move to folder</MenuItem>
+              <MenuDivider />
+              <MenuItem tone="destructive" icon={<Icon size="s" tone="inherit"><icons.Delete /></Icon>} onClick={() => { setDocs((all) => all.filter((x) => x.id !== rowDoc.id)); setRowMenu(undefined); }}>
+                Delete document
+              </MenuItem>
+            </ContextMenu>
+          </div>
+        )}
+      </div>
     </CompanyLayout>
   );
 }

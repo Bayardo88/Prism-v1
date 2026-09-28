@@ -1,39 +1,34 @@
 /**
  * Breakpoint Analysis — the equity values at which each security starts to
- * participate. Calculated from the cap table by default; switching on custom
- * breakpoints turns the per-security amounts into inputs and lets the analyst
- * add breakpoints.
+ * participate. Calculated from the company's cap table by default
+ * (`breakpointsFor`); switching on custom breakpoints turns the per-security
+ * amounts into inputs and lets the analyst add breakpoints.
  *
  * States: calculated (default) · custom-3 · custom-4 (one breakpoint added).
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Fab, GridColumnHeader, GridValueCell, RowLabelCell, Switch, type ValueKind,
+  DataGrid, Fab, GridColumnHeader, GridValueCell, Row, RowLabelCell, Switch, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { CapTableLayout } from './CapTableLayout.js';
-import { Sheet, SheetRow, columnsFor, widthFor } from './Sheet.js';
-
-const CALCULATED = {
-  range: ['$0 to $1,112,233', '$1,112,233 to $90,001,121', '$90,001,121 to Infinity'],
-  price: ['$0.000', '$1.000', 'Infinity'],
-  common: ['$0', '$88,888,888', 'Pro Rata'],
-  seriesA: ['$1,112,233', '$1,112,233', 'Pro Rata'],
-  total: ['$1,112,233', '$90,001,121', 'Infinity'],
-};
+import { breakpointsFor } from './data.js';
 
 const LETTERS = 'ABCDEFGHIJ';
+
+interface Table { range: string[]; price: string[]; bySecurity: string[][]; total: string[] }
+
 /** Custom breakpoints are symbolic ($A, $B…) until the analyst fills them in. */
-function custom(n: number) {
+function custom(n: number, securities: number): Table {
   const last = (i: number) => i === n - 1;
+  const amounts = Array.from({ length: n }, (_, i) => (last(i) ? '0.00%' : '$0'));
   return {
     range: Array.from({ length: n }, (_, i) =>
       `${i === 0 ? '$0' : `$${LETTERS[i - 1]}`} to ${last(i) ? 'Infinity' : `$${LETTERS[i]}`}`),
     price: Array.from({ length: n }, (_, i) => (last(i) ? '∞%' : '$0.000')),
-    common: Array.from({ length: n }, (_, i) => (last(i) ? '0.00%' : '$0')),
-    seriesA: Array.from({ length: n }, (_, i) => (last(i) ? '0.00%' : '$0')),
-    total: Array.from({ length: n }, (_, i) => (last(i) ? '0.00%' : '$0')),
+    bySecurity: Array.from({ length: securities }, () => amounts),
+    total: amounts,
   };
 }
 
@@ -45,23 +40,27 @@ export function Breakpoints({ state, params }: ScreenProps) {
   const [count, setCount] = useState(countFor(state));
   useEffect(() => { setUseCustom(state !== 'calculated'); setCount(countFor(state)); }, [state]);
 
-  const data = useCustom ? custom(count) : CALCULATED;
-  const n = data.range.length;
+  const calc = breakpointsFor(company);
+  const data: Table = useCustom
+    ? custom(count, calc.securities.length)
+    : {
+      range: calc.points.map((p) => p.range),
+      price: calc.points.map((p) => p.price),
+      bySecurity: calc.securities.map((_, si) => calc.points.map((p) => p.bySecurity[si]!)),
+      total: calc.points.map((p) => p.total),
+    };
   const input: ValueKind = useCustom ? 'editable' : 'calculated';
 
-  const row = (label: string, labelType: 'line-item' | 'subtotal' | 'total', kind: ValueKind, values: string[]) => (
-    <SheetRow key={label} label={label}>
-      <RowLabelCell type={labelType}>{label}</RowLabelCell>
-      {values.map((val, i) => <GridValueCell key={i} kind={kind}>{val}</GridValueCell>)}
-    </SheetRow>
-  );
-
-  const header: ReactNode = (
-    <SheetRow label="Breakpoints">
-      <GridColumnHeader>{useCustom ? 'Custom Breakpoints' : 'Calculated Breakpoints'}</GridColumnHeader>
-      {data.range.map((_, i) => <GridColumnHeader key={i} numeric>{`Breakpoint ${i + 1}`}</GridColumnHeader>)}
-    </SheetRow>
-  );
+  let stripe = 0;
+  const row = (label: string, labelType: RowLabelType, kind: ValueKind, values: string[]) => {
+    stripe += 1;
+    return (
+      <Row key={label} zebra={labelType === 'line-item' && stripe % 2 === 0} type={labelType === 'total' ? 'total' : undefined} aria-label={label}>
+        <RowLabelCell type={labelType}>{label}</RowLabelCell>
+        {values.map((val, i) => <GridValueCell key={i} kind={kind}>{val}</GridValueCell>)}
+      </Row>
+    );
+  };
 
   return (
     <CapTableLayout company={company} page="breakpoints" save={useCustom}>
@@ -69,14 +68,21 @@ export function Breakpoints({ state, params }: ScreenProps) {
         Use custom breakpoints?
       </Switch>
 
-      <Sheet label={useCustom ? 'Custom breakpoints' : 'Calculated breakpoints'} columns={columnsFor(n)} width={widthFor(n, 20, 12)}>
-        {header}
+      <DataGrid
+        label={useCustom ? 'Custom breakpoints' : 'Calculated breakpoints'}
+        style={{ width: `${Math.min(100, 22 + 13 * data.range.length)}%` }}
+        head={
+          <>
+            <GridColumnHeader grow={2}>{useCustom ? 'Custom Breakpoints' : 'Calculated Breakpoints'}</GridColumnHeader>
+            {data.range.map((_, i) => <GridColumnHeader key={i} numeric>{`Breakpoint ${i + 1}`}</GridColumnHeader>)}
+          </>
+        }
+      >
         {row('Breakpoint Range', 'line-item', 'calculated', data.range)}
         {row('Breakpoint Price per Common Share', 'subtotal', 'total', data.price)}
-        {row('Common', 'line-item', input, data.common)}
-        {row('Series A', 'line-item', input, data.seriesA)}
+        {calc.securities.map((s, si) => row(s, 'line-item', input, data.bySecurity[si]!))}
         {row('Total', 'total', 'total', data.total)}
-      </Sheet>
+      </DataGrid>
 
       {useCustom && <Fab onClick={() => setCount((c) => Math.min(c + 1, LETTERS.length))}>Add Breakpoint</Fab>}
     </CapTableLayout>

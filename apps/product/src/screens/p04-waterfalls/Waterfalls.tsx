@@ -12,37 +12,16 @@ import {
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
-import { companies, companyById } from '../../data/fixtures.js';
+import { companyById, db } from '../../data/fixtures.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
 import { WorkspaceDock } from '../../shell/WorkspaceDock.js';
-import { ScenarioGrid, type ScenarioColumn } from './ScenarioGrid.js';
-import { CreateViewModal, WATERFALL_DOCK, WorkspaceDocuments } from './shared.js';
+import { ScenarioGrid } from './ScenarioGrid.js';
+import { CreateViewModal, WATERFALL_DOCK, scenarioFor, waterfallDockPanels } from './shared.js';
 import { useDismiss } from './useDismiss.js';
 
-const PICKER_PAGE = 8;
-const EXIT_DATE = '09/22/2026';
-
-/** The demo scenario: Backside Blocks reports in NIO, displayed in EUR. */
-function scenarioFor(companyId: string | undefined): { columns: ScenarioColumn[]; band?: { rate: string; unit: string } } {
-  if (!companyId) {
-    return {
-      columns: [{
-        key: 'input', currency: 'USD', symbol: '$', editable: true, exitDate: EXIT_DATE,
-        fxRate: 0, exitEnterpriseValue: 0, cash: 0, debt: 0,
-      }],
-    };
-  }
-  const c = companyById(companyId);
-  const base = { company: c.name, capTableDate: '03/31/2025', capTable: 'Primary Captable', exitDate: EXIT_DATE, exitEnterpriseValue: 0, cash: 0, debt: 0 };
-  return {
-    band: { rate: '1 NIO → 0.02 EUR', unit: '(€) Millions' },
-    columns: [
-      { key: 'input', currency: 'NIO', symbol: 'NIO ', editable: true, fxRate: 1, ...base },
-      { key: 'display', currency: 'EUR', symbol: '€', editable: false, fxRate: 0.02, ...base },
-    ],
-  };
-}
+/** The picker's first page, as drawn in the frame; "Show N more" reveals the rest of the database. */
+const FRAME_PICKER = ['abc-co', 'backside-blocks', 'captable', 'cohesity', 'company-31', 'comps', 'databricks', 'debt-only'];
 
 export function Waterfalls({ state }: ScreenProps) {
   const [companyId, setCompanyId] = useState<string | undefined>(state === 'default' ? undefined : 'backside-blocks');
@@ -58,11 +37,12 @@ export function Waterfalls({ state }: ScreenProps) {
   useDismiss(pickerRef, pickerOpen, closePicker);
 
   const company = companyId ? companyById(companyId) : undefined;
-  const { columns, band } = scenarioFor(companyId);
+  const { columns, band, rateLabel } = scenarioFor(company);
 
-  const filtered = companies.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()));
-  const shown = showAll || query ? filtered : filtered.slice(0, PICKER_PAGE);
-  const hidden = filtered.length - shown.length;
+  const shown = query
+    ? db.companies.search(query, 20)
+    : showAll ? db.companies.all() : FRAME_PICKER.map((id) => db.companies.byId(id)!).filter(Boolean);
+  const hidden = query ? 0 : db.companies.count - shown.length;
 
   const picker = (
     <div ref={pickerRef}>
@@ -82,7 +62,7 @@ export function Waterfalls({ state }: ScreenProps) {
   return (
     <AppFrame
       area="waterfalls"
-      date={company ? '03/31/2025' : undefined}
+      date={company?.asOf}
       overlay={
         <CreateViewModal
           open={creating}
@@ -102,7 +82,7 @@ export function Waterfalls({ state }: ScreenProps) {
           ))}
         </ViewTabBar>
         <div style={{ marginLeft: 'auto', display: 'flex', gap: space.s, alignItems: 'center' }}>
-          <CurrencySelector>{company ? '1 NIO → 0.02 EUR · (€) Millions' : 'USD · ($) Millions'}</CurrencySelector>
+          <CurrencySelector>{rateLabel}</CurrencySelector>
         </div>
       </TertiaryMenu>
 
@@ -126,9 +106,11 @@ export function Waterfalls({ state }: ScreenProps) {
       </PageBody>
 
       {company && (
-        <WorkspaceDock tabs={WATERFALL_DOCK} open={state === 'workspace-documents' ? 'documents' : undefined}>
-          <WorkspaceDocuments companyId={company.id} />
-        </WorkspaceDock>
+        <WorkspaceDock
+          tabs={WATERFALL_DOCK}
+          open={state === 'workspace-documents' ? 'documents' : undefined}
+          panels={waterfallDockPanels(company.id)}
+        />
       )}
     </AppFrame>
   );

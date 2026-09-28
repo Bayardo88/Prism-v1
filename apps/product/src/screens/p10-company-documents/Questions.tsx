@@ -4,7 +4,7 @@
  *
  * Figma: 10 · Company · Documents & Requests → Questions (1 frame).
  */
-import { Button, EmptyState, Icon, glyphs } from '@scalar/design-system';
+import { Button, EmptyState, Icon, icons } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { navigate } from '../../router.js';
 import { routes } from '../../routes.js';
@@ -32,7 +32,7 @@ export function Questions({ params }: ScreenProps) {
         type="no-data"
         title="No questions sent yet"
         body={`Questions you send to ${company.name} in an information request appear here, with their answers as they come in.`}
-        icon={<Icon size="xl" tone="secondary"><glyphs.Mail /></Icon>}
+        icon={<Icon size="xl" tone="secondary"><icons.QuestionMark /></Icon>}
         actions={
           <Button variant="primary" onClick={() => navigate(routes.company.informationRequest(company.id))}>
             New Info Request

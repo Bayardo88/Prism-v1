@@ -25,6 +25,8 @@ export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content
   groupStart?: boolean;
   /** Draws the bottom bracket edge of a grouped run. */
   groupEnd?: boolean;
+  /** Columns this cell spans inside a DataGrid. Default 1. */
+  span?: number;
 }
 
 /**
@@ -38,11 +40,11 @@ export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content
  * published contract text. See docs/known-gaps.md.
  */
 export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
-  { children, type = 'readable', state = 'default', numeric, footnote, icon, groupStart, groupEnd, className, ...rest },
+  { children, type = 'readable', state = 'default', numeric, footnote, icon, groupStart, groupEnd, span, className, style, ...rest },
   ref,
 ) {
   if (type === 'divider') {
-    return <div ref={ref} className={cx('scalar-cell', 'scalar-cell--divider', className)} aria-hidden {...rest} />;
+    return <div ref={ref} className={cx('scalar-cell', 'scalar-cell--divider', className)} aria-hidden style={style} {...rest} />;
   }
 
   return (
@@ -60,6 +62,7 @@ export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
         groupEnd && 'scalar-cell--group-end',
         className,
       )}
+      style={span && span > 1 ? { gridColumn: `span ${span}`, ...style } : style}
       {...rest}
     >
       {icon}

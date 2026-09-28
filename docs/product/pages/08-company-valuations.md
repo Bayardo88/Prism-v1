@@ -1,13 +1,19 @@
 # 08 · Company · Valuations
 
 Company Valuations is where a valuation analyst builds one valuation version of a portfolio company ("Version 1 - 2024-12-31", market date 12/31/2024). The analyst adds approaches (GPC, M&A comps, Backsolve, DCF…), weights them into an enterprise and equity value, allocates the equity across scenarios (Waterfall, OPM) and concludes a value per share and per fund position. Reviewers and auditors read the same pages. The header status shows **Final** and **Ready for Audit**. The screens use the Prism Navigation V4 chrome:
-- **Company header:** a `$` toggle reveals Equity Value / Unrealized Firm Total, and a clock toggle reveals Market Date / Version. These are followed by the status badges and ⋮.
+- **Company header:** an `attach_money` toggle reveals Equity Value / Unrealized Firm Total (Information Labels), and an `hourglass_empty` toggle reveals Market Date / Version (light-surface `Selector`s). These are followed by the status badges and ⋮.
 - **Tertiary Menu:** one tab per approach (Summary · Conclusions · External Valuation · Specified Share Value · Backsolve) and **+** (Add approach).
 - **Actions:** Ask AI, USD ($) Thousands, fit to screen, filter, the green Save split button and ⋮.
 
 Open it from the company's Secondary Menu → **Valuations**.
 
-Source code: `apps/product/src/screens/p08-company-valuations/`. The shared chrome is `ValuationsLayout.tsx`, and the grid shell is imported from `p07-company-cap-table/Sheet.tsx`.
+Source code: `apps/product/src/screens/p08-company-valuations/`. The shared chrome is `ValuationsLayout.tsx`. Every grid is a `DataGrid` + `Row` (the Summary tables use `groupHead` for the column groups). Menus are anchored with `p07-company-cap-table/Anchor.tsx`.
+
+**Data.** `data.ts` keys every figure off the company record. ABC Co gets the frame figures verbatim. For any other company:
+- Summary money is scaled by `equityValue ÷ $56.9M`.
+- The per-share rows and backsolve targets are its own cap-table securities (p07 `securitiesFor`).
+- Conclusions value its fund position at `fairValue`, so MOIC matches the record.
+- The header's Equity Value and Unrealized Firm Total come from `equityValue` and `fairValue`, in $ thousands. ABC Co reads $0 because its frame version has no approaches yet.
 
 ## Screens
 
@@ -23,7 +29,7 @@ A new version has neither part yet, so the default state shows two empty states.
 | default | [Valuations — Summary (empty states)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-24301) | 11:24301 | `#/companies/abc-co/valuations/summary?state=default` |
 | populated | [Valuations — Summary](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10558) (1247 px tall) | 16:10558 | `#/companies/abc-co/valuations/summary?state=populated` |
 
-Components used: ValuationsLayout (CompanyLayout, TertiaryMenuItem, ButtonIcon, InformationLabel, ModalStatus, AITool, CurrencySelector, SplitButton, ContextMenu, MenuItem), Card, EmptyState, Button, ColumnGroupHeader, AddColumnHeader, GridColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell.
+Components used: ValuationsLayout (CompanyLayout, TertiaryMenuItem, ButtonIcon with `icons.AttachMoney` / `HourglassEmpty` / `FitScreen` / `FilterList` / `MoreVert` / `Add`, InformationLabel, Selector, ModalStatus, AITool, CurrencySelector, SplitButton, ContextMenu, MenuItem), Card, EmptyState (`icons.Error`), Button, DataGrid (`groupHead`), Row, ColumnGroupHeader, AddColumnHeader (`selected`), GridColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell.
 
 Behaviour & rules:
 - Approach weights (50.0% / 50.0%) and scenario weighting (75.0% / 25.0%) are inputs (blue). OPM inputs (maturity 5, risk-free rate 4.38%, volatility source Specified, volatility 50.0%) are inputs too. Everything else is calculated. Weighted Enterprise Value and Total are total rows.
@@ -37,7 +43,7 @@ The concluded value of every fund position, with one table per entity (ABC Co, H
 |---|---|---|---|
 | default | [Valuations — Conclusions](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10794) | 16:10794 | `#/companies/abc-co/valuations/conclusions?state=default` |
 
-Components used: ValuationsLayout, GridColumnHeader, RowLabelCell (`group-header`, `child`, `total`), GridValueCell.
+Components used: ValuationsLayout, DataGrid, Row (zebra / total), GridColumnHeader, RowLabelCell (`group-header`, `child`, `total`), GridValueCell.
 
 Behaviour & rules: read-only. The positions and invested capital are the Cap Table → Fund Ownership figures. MOIC = value ÷ invested capital. The values are $0 until an approach concludes.
 
@@ -55,11 +61,11 @@ Solves for the equity value that a transaction in one security implies. The anal
 | unsaved-confirm | [Valuations — Backsolve · Unsaved changes confirmation](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-37640) | 19:37640 | `#/companies/abc-co/valuations/backsolve?state=unsaved-confirm` |
 | validation-banner | [Valuations — Backsolve · Validation errors banner](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-36020) | 19:36020 | `#/companies/abc-co/valuations/backsolve?state=validation-banner` |
 
-Components used: ValuationsLayout, Banner (`negative`, with `issues`), ConfirmationDialog (destructive), GridColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell (editable / error / placeholder / total), InCellControl, InlineEdit, ContextMenu, MenuItem, Button, Icon, Text.
+Components used: ValuationsLayout, Banner (`negative`, with `issues`), ConfirmationDialog (destructive), DataGrid, Row, GridColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell (editable / error / total), InCellControl (`state="error"`), Tooltip (`open`), InlineEdit, SelectMenu, SelectMenuOption, Button, Icon.
 
 Behaviour & rules (the validation is real, not drawn):
-- **Unique allocation methods.** Every column whose method is shared with another column is shown as an error cell with the message "The allocation method must be unique" (the message is carried as the cell's title and accessible description, per R8). **Add allocation method** appends a Waterfall column, so adding a second one without changing it immediately trips the rule. The button disables at three methods. The method menu (Waterfall · CSE · OPM) repeats the message above its options while the column is a duplicate.
-- **Target securities.** Choosing the security in the last row (Common · Series A) opens a fresh "Select security" row below it. **Add row** disables while a blank row is waiting. Shares are typed in place (InlineEdit, "Enter data"), and Target Value sums them.
+- **Unique allocation methods.** Every column whose method is shared with another column is an `InCellControl state="error"` with the message "The allocation method must be unique" (`errorMessage`, per R8). **Add allocation method** appends a Waterfall column, so adding a second one without changing it immediately trips the rule. The button disables at three methods. Opening a duplicate's menu (Waterfall · CSE · OPM) forces the Tooltip open over the cell.
+- **Target securities.** Choosing the security in the last row (the company's cap-table securities, e.g. Common · Series A for ABC Co) opens a fresh "Select security" row below it. **Add row** disables while a blank row is waiting. Shares are typed in place (InlineEdit, "Enter data"), and Target Value sums them.
 - **Save.** If any method is duplicated or any target row has no shares, Save raises the negative Banner "To proceed, please correct the highlighted errors…". The banner lists the approach (Backsolve_416, a link back to the top), flags every missing Shares cell and adds an error icon to the Backsolve tab. With no errors, Save clears the unsaved state.
 - **Unsaved changes.** Any edit marks the page dirty. While it is dirty, clicking any in-app link (tabs, Secondary or Primary Menu) opens the ConfirmationDialog. **Leave anyway** discards the changes and follows the link, and **Stay on page** keeps them. A browser reload is guarded with `beforeunload`.
 - Weightings are inputs (100.0% on the first column, 0.0% on added ones), and Backsolve Total sums them. Present share values, per-share and total values are calculated ($0.00 in the demo). **Add market adjustment** is disabled, as in every frame.
@@ -70,11 +76,9 @@ Behaviour & rules (the validation is real, not drawn):
 - Out: tabs link Summary ⇄ Conclusions ⇄ Backsolve. The Secondary Menu leads to Cap Table, which supplies the securities, positions and "Primary Captable" used here, and to Waterfall and Documents.
 
 ## Gaps & open questions
-- **Routes missing:** External Valuation and Specified Share Value tabs have no Figma frame and no route in `routes.ts`, so they render as inert tabs. Add approach menu items do not navigate (only Backsolve has a screen).
-- **Tooltip can't be forced open.** The DS `Tooltip` is hover/focus-only, so the "must be unique" state shows the message as an inline alert row at the top of the method menu instead of a floating tooltip.
-- **Error in-cell select.** `InCellControl` has no error state, so a duplicated method is a `GridValueCell state="error"` wrapped in a button that opens the menu.
+- **Routes missing:** the External Valuation and Specified Share Value tabs have no Figma frame and no route in `routes.ts`, so they render as inert tabs. The Add approach menu items don't navigate (only Backsolve has a screen).
+- **Forced tooltip placement.** `Tooltip open` wraps its trigger in an inline span, which shrinks a full-width `InCellControl`. So the forced tooltip hangs off a zero-size marker above the cell instead of wrapping the control. A Tooltip `anchor`/block mode would remove this.
+- **Menus unclipped by hand and pinned divider track:** the same two workarounds as page 07 (`overflow: 'visible'` on grids with pickers, and explicit `columns` with an `auto` track for `GridColumnDivider`).
 - **Confirmation copy follows the DS contract, not the frame.** The frame has title "Confirmation" and confirm "Leave anyways". The contract requires a question title and a repeated verb, so the dialog uses "Leave without saving?" / "Leave anyway" / "Stay on page".
 - The live app shows the error marker on the Valuation Summary tab. Here it goes on the Backsolve tab, which holds the errors.
-- The `$` and hourglass glyphs (SDS_Main `attach_money`, `hourglass_empty`) are not in the package. They are a "$" text glyph and `glyphs.Clock`. Fit to screen uses `glyphs.Expand`.
-- Guessed: the empty-state action labels ("Add approach", "Add allocation scenario") and the shares error message ("Enter the shares for this security").
-- No zebra striping (see page 07 gaps). The V4 table restyle's `Text/Brand Pressed` 10px header labels are approximated by `GridColumnHeader`.
+- Guessed: the empty-state action labels ("Add approach", "Add allocation scenario") and the shares error message. The summaries, per-share values and conclusions of non-frame companies are synthetic, scaled from their records.

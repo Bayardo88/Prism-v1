@@ -5,8 +5,8 @@
  */
 import { useState } from 'react';
 import {
-  AppFooter, Button, ButtonIcon, Checkbox, Dropzone, FloatingLabelInput, Heading, Icon, Label, Select, Text,
-  color, glyphs, radius, space,
+  AppFooter, Button, ButtonIcon, Checkbox, Dropzone, FloatingLabelInput, Heading, Icon, ImageCropField, Label, Select, Text,
+  color, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
@@ -23,7 +23,8 @@ export function AccountSettings(_props: ScreenProps) {
   const [features, setFeatures] = useState(true);
   const [uploads, setUploads] = useState(true);
   const [zoom, setZoom] = useState('85%');
-  const [picture, setPicture] = useState<string | null>(null);
+  const [picture, setPicture] = useState<string | undefined>(undefined);
+  const [pictureZoom, setPictureZoom] = useState(1);
   const touch = () => setDirty(true);
 
   return (
@@ -48,14 +49,14 @@ export function AccountSettings(_props: ScreenProps) {
             <div style={{ display: 'flex', alignItems: 'center', gap: space.m }}>
               <Button
                 variant="secondary"
-                leadingIcon={<Icon size="s" tone="inherit"><glyphs.Mail /></Icon>}
+                leadingIcon={<Icon size="s" tone="inherit"><icons.Mail /></Icon>}
                 onClick={() => setResetSent(true)}
               >
                 Send password reset email
               </Button>
               {resetSent && (
                 <Text step="s" tone="positive" role="status">
-                  <Icon size="xs" tone="positive"><glyphs.Success /></Icon> Reset link sent to {user.email}
+                  <Icon size="xs" tone="positive"><icons.CheckCircle /></Icon> Reset link sent to {user.email}
                 </Text>
               )}
             </div>
@@ -82,7 +83,7 @@ export function AccountSettings(_props: ScreenProps) {
                 variant="tertiary"
                 label="Fit to screen"
                 onClick={() => setZoom('100%')}
-                icon={<Icon size="s" tone="inherit"><glyphs.Expand /></Icon>}
+                icon={<Icon size="s" tone="inherit"><icons.FitScreen /></Icon>}
               />
             </div>
             <section aria-labelledby="connected-apps" style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
@@ -97,9 +98,25 @@ export function AccountSettings(_props: ScreenProps) {
             <Dropzone
               accept=".jpg,.jpeg"
               hint="15 MB max file size. JPG format file."
-              onFiles={(files) => { setPicture(files[0]?.name ?? null); touch(); }}
+              prompt={(browse) => <>Drag &amp; Drop Profile Picture or {browse('Select a file')}</>}
+              onFiles={(files) => {
+                const f = files[0];
+                if (!f) return;
+                if (picture) URL.revokeObjectURL(picture);
+                setPicture(URL.createObjectURL(f));
+                setPictureZoom(1);
+                touch();
+              }}
             />
-            {picture && <Text step="s" tone="secondary">Selected: {picture}</Text>}
+            {picture && (
+              <ImageCropField
+                label="Profile picture"
+                src={picture}
+                zoom={pictureZoom}
+                onZoomChange={(z) => { setPictureZoom(z); touch(); }}
+                onRemove={() => { URL.revokeObjectURL(picture); setPicture(undefined); touch(); }}
+              />
+            )}
           </section>
         </div>
       </PageBody>

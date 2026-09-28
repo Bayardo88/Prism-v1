@@ -1,48 +1,39 @@
 import { useState } from 'react';
 import {
-  Avatar, ButtonIcon, FloatingLabelInput, FloatingLabelSelect, Heading, Icon, Slider, Text,
-  color, glyphs, radius, size, space,
+  Dropzone, FloatingLabelInput, FloatingLabelSelect, Heading, Icon, ImageCropField, icons, size, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { firm } from '../../data/fixtures.js';
 import { FirmSettingsFrame, TwoColumn } from './FirmSettingsFrame.js';
 import { countries, firmProfile } from './data.js';
 
-/** A logo slot: preview well, zoom slider, remove. */
-function LogoSlot({ title, kind }: { title: string; kind: 'icon' | 'full' }) {
-  const [zoom, setZoom] = useState(35);
+/** A logo slot: ImageCropField preview + zoom + remove, with a Dropzone to upload when empty. */
+function LogoSlot({ title, shape }: { title: string; shape: 'square' | 'wide' }) {
+  const [src, setSrc] = useState<string | undefined>();
+  const [zoom, setZoom] = useState(1.2);
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
-      <Heading level={2} step="l">{title}</Heading>
-      <div
-        style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'center', aspectRatio: '16 / 9',
-          background: color.bg.subtle, border: `1px solid ${color.stroke.default}`, borderRadius: radius.s,
-        }}
-      >
-        {kind === 'icon' ? (
-          <Avatar size="xl" initials={firm.initials} alt={`${firm.name} icon`} />
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: space.m, padding: space.l, background: color.bg.surface, borderRadius: radius.xs }}>
-            <Avatar size="m" initials={firm.initials} alt="" />
-            <Text step="xl" weight="semiBold" as="span">{firm.name}</Text>
-          </div>
-        )}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: space.s }}>
-        <div style={{ flex: 1 }}>
-          <Slider
-            label={`${title} zoom`}
-            min={0}
-            max={100}
-            value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))}
-            minIcon={<Icon size="s" tone="brand"><glyphs.ZoomOut /></Icon>}
-            maxIcon={<Icon size="s" tone="brand"><glyphs.Expand /></Icon>}
-          />
-        </div>
-        <ButtonIcon variant="tertiary" tone="negative" label={`Remove ${title.toLowerCase()}`} icon={<Icon size="s" tone="inherit"><glyphs.Trash /></Icon>} />
-      </div>
+      <ImageCropField
+        label={title}
+        shape={shape}
+        src={src}
+        alt={`${firm.name} ${title.toLowerCase()}`}
+        zoom={zoom}
+        onZoomChange={setZoom}
+        zoomMin={1}
+        zoomMax={3}
+        zoomStep={0.1}
+        onRemove={src ? () => setSrc(undefined) : undefined}
+        removeLabel={`Remove ${title.toLowerCase()}`}
+        placeholderIcon={<Icon size="l" tone="secondary"><icons.AccountBalance /></Icon>}
+      />
+      {!src && (
+        <Dropzone
+          accept=".png,.jpg,.jpeg,.svg"
+          hint="PNG, JPG or SVG · 5 MB max"
+          onFiles={(files) => { const f = files[0]; if (f) setSrc(URL.createObjectURL(f)); }}
+        />
+      )}
     </section>
   );
 }
@@ -72,8 +63,8 @@ export function FirmProfile(_: ScreenProps) {
         }
         right={
           <>
-            <LogoSlot title="Firm icon" kind="icon" />
-            <LogoSlot title="Firm full logo" kind="full" />
+            <LogoSlot title="Firm icon" shape="square" />
+            <LogoSlot title="Firm full logo" shape="wide" />
           </>
         }
       />

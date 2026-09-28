@@ -10,17 +10,18 @@ export interface CompanyDoc {
   reference: string;
 }
 
-export const companyDocs: CompanyDoc[] = [
+/** The frame's document list, keyed to the company (its financials export carries its name). */
+export const companyDocsFor = (companyName: string): CompanyDoc[] => [
   { id: '1', name: 'Scalar - SOC 1 Type 1 Report (Draft) (2)', ext: 'docx', source: 'Steven Hansen', uploaded: '01/06/2026', reference: 'Financials' },
-  { id: '2', name: 'Backside Blocks_Financials_5388_2025-03-31', ext: 'xlsx', source: 'Steven Hansen', uploaded: '01/06/2026', reference: 'Financials' },
+  { id: '2', name: `${companyName}_Financials_5388_2025-03-31`, ext: 'xlsx', source: 'Steven Hansen', uploaded: '01/06/2026', reference: 'Financials' },
   { id: '3', name: 'IT Process and Components - Client questionnaire', ext: 'xlsx', source: 'Steven Hansen', uploaded: '01/06/2026', reference: 'Financials' },
   { id: '4', name: 'Scalar - SOC 1 Type 1 Report (Draft) (1)', ext: 'docx', source: 'Steven Hansen', uploaded: '01/06/2026', reference: 'Financials' },
   { id: '5', name: 'Screenshot 2025-12-19 at 4.44.59 PM', ext: 'png', source: 'Steven Hansen', uploaded: '01/06/2026', reference: 'Financials' },
   { id: '6', name: 'GPC Rights issue and acquistion of Manglier workings v12', ext: 'xlsx', source: 'Steven Hansen', uploaded: '11/24/2025', reference: 'Cap Table (…)' },
 ];
 
-export const exportDocs: CompanyDoc[] = [
-  { id: 'x1', name: 'ABC Co_Financials_2024-12-31', ext: 'xlsx', source: 'Scalar', uploaded: '01/06/2026', reference: 'Financials' },
+export const exportDocsFor = (companyName: string, asOfIso: string): CompanyDoc[] => [
+  { id: 'x1', name: `${companyName}_Financials_${asOfIso}`, ext: 'xlsx', source: 'Scalar', uploaded: '01/06/2026', reference: 'Financials' },
 ];
 
 export const defaultDocumentRequests = [

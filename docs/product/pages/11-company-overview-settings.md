@@ -13,12 +13,12 @@ Company profile, status and external data. Users get here from **Company Overvie
 |---|---|---|---|
 | default | [Company Overview — Overview](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-27294) | 19:27294 | `#/companies/abc-co/overview?state=default` |
 
-Components used: CompanyLayout, TertiaryMenuItem, CurrencySelector, ButtonIcon, ContextMenu, Banner, Link, SegmentedControl, Card, KeyValueRow, Chip, Tabs, TabItem, Button, EmptyState, Text.
+Components used: CompanyLayout, TertiaryMenuItem, CurrencySelector, ButtonIcon, ContextMenu, Banner, Link, SegmentedControl, Card, KeyValueRow, Chip, Tabs, TabItem, Button, EmptyState, Text, Material icons (OpenInNew).
 
 Behaviour & rules:
 - A warning Banner flags that the common profile match is pending. Its **Edit Common Profile** link goes to Daily NAV Settings, which holds the External Company Profile.
-- "Data as of" switches between 2024-12-31 and Latest.
-- Company Information shows the status chip (Operating), with a positive tint plus the word itself. The business description and Capital IQ data are empty in the frame.
+- "Data as of" switches between the company's as-of date (from the database) and Latest.
+- Company Information shows the status chip from the record's `status`: active reads "Operating" (positive tint), exited reads "Exited", written-off reads "Written off" — the word carries the meaning, not the tint. The business description and Capital IQ data are empty in the frame.
 - Mutual Fund Marks: the EDGAR / Zanbato tabs, a Chart / Table view switch and an **SEC Filing** action. The empty state is "No mutual fund marks".
 
 ### Daily NAV Settings — `/companies/:companyId/daily-nav-settings`
@@ -29,10 +29,10 @@ Per-company Daily NAV alert thresholds, the external profile link and the comps 
 | default | [Daily NAV Settings — Top](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-37229) | 19:37229 | `#/companies/abc-co/daily-nav-settings?state=default` |
 | scrolled | [Daily NAV Settings — Scrolled to bottom](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-41641) | 19:41641 | `#/companies/abc-co/daily-nav-settings?state=scrolled` |
 
-Components used: CompanyLayout, TertiaryMenuItem, CurrencySelector, Button, Checkbox, SaveState, Overline, FormField, NumberField, Chip, Divider, Input, Banner, Select, Card, VersionHistoryItem, Heading, Text.
+Components used: CompanyLayout, TertiaryMenuItem, CurrencySelector, Button, Checkbox, SaveState, Overline, NumberField (`label`), Chip, Divider, FormField + Input, Banner, Select, Card, VersionHistoryItem (`currentLabel`), Heading, Text, Material icons (Search, Add).
 
 Behaviour & rules:
-- "Include this company in Daily NAV generation" is a Checkbox, because the change needs **Save**.
+- "Include this company in Daily NAV generation" is a Checkbox, because the change needs **Save**. It starts from the record's `dailyNav` flag; ABC Co, the frame's company, starts ticked as drawn.
 - Thresholds: Capital IQ has 1 Trading Day Δ, 5 Trading Days Δ and Since Last Valuation Δ. Secondary Transaction has the same three plus % Change from Mark. Each is a `%` NumberField.
 - An empty field inherits the firm default, which shows as the placeholder and as an "Inherited (1%)" chip. Any value, including 0, overrides the default, and the chip then reads "Company override".
 - SaveState reads "No changes to save" until something changes. **Save** stays disabled until then.
@@ -47,6 +47,5 @@ Behaviour & rules:
 
 ## Gaps & open questions
 - The lead brief said `section="overview"`. The frames and the live app show these pages under **Summary** (Summary is highlighted in the Secondary Menu), so `section="summary"` was used. `overview` would leave no Secondary item current.
-- VersionHistoryItem's current chip is fixed to "Current". The frame's "Current — today's NAV and the next" text is moved into `meta`.
-- Figma uses floating-label Number Fields. NumberField has no label of its own, so each one is wrapped in a `FormField` label.
+- ABC Co's record has `dailyNav: false`, but the frame shows the company included. The screen special-cases ABC Co so the frame holds; the record (or the frame) should be reconciled.
 - "SEC Filing" has no destination in the frame, so it does nothing.

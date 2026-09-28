@@ -1,35 +1,18 @@
 /**
  * Demo data for the global overlays (Companies menu, Date menu, Global Search,
- * Notifications) and the Home directory, so the menu and the A–Z directory
- * list the same companies.
- *
- * The fixture companies come first-class (they have screens behind them); the
- * extra names are the ones drawn in the Home frames of the Scalar-full-product
- * file (Empty Company, Etrade, …). Their summary links fall back to the demo
- * company because they have no fixture of their own.
+ * Notifications) and the Home directory. Companies come from the 200-company
+ * database (`data/db.ts`), so the menu, search and A–Z directory agree.
  */
-import { companies, firm } from '../../data/fixtures.js';
+import { db } from '../../data/db.js';
+import { firm } from '../../data/fixtures.js';
 
 export interface DirectoryCompany {
   id: string;
   name: string;
 }
 
-const extra: DirectoryCompany[] = [
-  { id: 'empty-company', name: 'Empty Company' },
-  { id: 'etrade', name: 'Etrade' },
-  { id: 'euros-financials', name: 'Euros Financials' },
-  { id: 'fund-owns-preferred-notes', name: 'Fund Owns Preferred Notes' },
-  { id: 'future-4-liq-pref', name: 'Future 4 Liq Pref' },
-  { id: 'future-exit-liq-pref', name: 'Future Exit Liq Pref' },
-  { id: 'gpc', name: 'GPC' },
-];
-
 /** Every portfolio company of the current firm, A–Z. */
-export const directory: DirectoryCompany[] = [
-  ...companies.map((c) => ({ id: c.id, name: c.name })),
-  ...extra,
-].sort((a, b) => a.name.localeCompare(b.name));
+export const directory: DirectoryCompany[] = db.companies.all().map((c) => ({ id: c.id, name: c.name }));
 
 /** Directory grouped by first letter, for the Home A–Z list. */
 export function directoryByLetter(list: DirectoryCompany[] = directory): Array<{ letter: string; items: DirectoryCompany[] }> {

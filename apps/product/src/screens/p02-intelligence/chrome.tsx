@@ -7,7 +7,7 @@
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
 import {
   ButtonIcon, ContextMenu, MenuDivider, CurrencySelector, FilterDropdown, Heading, Icon, MenuItem,
-  SecondaryMenu, SecondaryMenuItem, Text, ViewTab, ViewTabBar, color, glyphs, space, zIndex,
+  SecondaryMenu, SecondaryMenuItem, Text, ViewTab, ViewTabBar, color, icons, space, zIndex,
 } from '@scalar/design-system';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
@@ -54,7 +54,7 @@ export function PageActions({ open, onOpenChange, label, children }: {
         label={label}
         aria-expanded={open}
         onClick={() => onOpenChange(!open)}
-        icon={<Icon><glyphs.MoreVertical /></Icon>}
+        icon={<Icon><icons.MoreVert /></Icon>}
       />
       {open && (
         <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay }}>
@@ -106,9 +106,9 @@ export function PortfolioHeader({ title, tab, actionsOpen, onActionsOpen, action
 export function ExportMenuItems() {
   return (
     <>
-      <MenuItem icon={<Icon size="s"><glyphs.Download /></Icon>}>Excel Export</MenuItem>
-      <MenuItem icon={<Icon size="s"><glyphs.List /></Icon>}>Bulk Actions</MenuItem>
-      <MenuItem icon={<Icon size="s"><glyphs.Document /></Icon>}>PDF Export</MenuItem>
+      <MenuItem icon={<Icon size="s"><icons.TableView /></Icon>}>Excel Export</MenuItem>
+      <MenuItem icon={<Icon size="s"><icons.FactCheck /></Icon>}>Bulk Actions</MenuItem>
+      <MenuItem icon={<Icon size="s"><icons.PictureAsPdf /></Icon>}>PDF Export</MenuItem>
     </>
   );
 }
@@ -142,16 +142,16 @@ export function SavedViewsBar({ views, current, onSelect, menuFor, onMenuFor, on
         {menuFor && (
           <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay }}>
             <ContextMenu label={`${menuFor} actions`}>
-              <MenuItem icon={<Icon size="s"><glyphs.Edit /></Icon>} onClick={() => { onMenuFor(undefined); onEdit(); }}>Edit Summary</MenuItem>
-              <MenuItem icon={<Icon size="s"><glyphs.Copy /></Icon>} onClick={() => { onMenuFor(undefined); onAdd(); }}>Clone</MenuItem>
+              <MenuItem icon={<Icon size="s"><icons.Edit /></Icon>} onClick={() => { onMenuFor(undefined); onEdit(); }}>Edit Summary</MenuItem>
+              <MenuItem icon={<Icon size="s"><icons.ContentCopy /></Icon>} onClick={() => { onMenuFor(undefined); onAdd(); }}>Clone</MenuItem>
               <MenuDivider />
-              <MenuItem tone="destructive" icon={<Icon size="s" tone="inherit"><glyphs.Trash /></Icon>}>Delete</MenuItem>
+              <MenuItem tone="destructive" icon={<Icon size="s" tone="inherit"><icons.Delete /></Icon>}>Delete</MenuItem>
             </ContextMenu>
           </div>
         )}
       </div>
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: space.s }}>
-        <ButtonIcon variant="tertiary" size="s" label="Ask Scalar AI" icon={<Icon tone="ai"><glyphs.Sparkle /></Icon>} />
+        <ButtonIcon variant="tertiary" size="s" label="Ask Scalar AI" icon={<Icon tone="ai"><icons.StarShine /></Icon>} />
         <CurrencySelector>USD ($) Thousands</CurrencySelector>
       </div>
     </div>
@@ -162,7 +162,7 @@ export function SavedViewsBar({ views, current, onSelect, menuFor, onMenuFor, on
 export function PublishedNote() {
   return (
     <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: space.xs }}>
-      <Icon size="s" tone="secondary"><glyphs.Info /></Icon>
+      <Icon size="s" tone="secondary"><icons.Info /></Icon>
       <Text step="s" tone="secondary">Summary values shown for published valuations</Text>
     </div>
   );

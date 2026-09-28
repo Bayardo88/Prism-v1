@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   AccordionItem, Button, Cell, Checkbox, ColumnHeader, CopyField, DataGrid, Heading, Icon, Input, Label,
-  Overline, Pagination, RepeatableRow, Row, Select, Text, Tooltip, color, glyphs, radius, space,
+  Overline, Pagination, RepeatableRow, Row, Select, Text, Tooltip, color, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { FirmSettingsFrame, SectionRule, SidePanel, TwoColumn } from './FirmSettingsFrame.js';
@@ -21,7 +21,9 @@ export function Scim({ state }: ScreenProps) {
 
   const update = (id: number, patch: Partial<Mapping>) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
 
-  const cols = { prefix: { flex: 1 }, created: { flex: 1 }, revoked: { flex: 1 } };
+  const [perPage, setPerPage] = useState(5);
+  const [page, setPage] = useState(1);
+  const revokedPages = Math.max(1, Math.ceil(scim.revoked.length / perPage));
 
   return (
     <FirmSettingsFrame tab="scim">
@@ -47,7 +49,7 @@ export function Scim({ state }: ScreenProps) {
                 <Label step="l" weight="semiBold" as="span">Group Mapping</Label>
                 <Tooltip content="Each Identity Provider group is provisioned with the Scalar role it maps to.">
                   <button type="button" aria-label="About group mapping" style={{ display: 'inline-flex', background: 'none', border: 0, padding: 0, cursor: 'help' }}>
-                    <Icon size="s" tone="secondary"><glyphs.Info /></Icon>
+                    <Icon size="s" tone="secondary"><icons.Help /></Icon>
                   </button>
                 </Tooltip>
               </div>
@@ -62,7 +64,7 @@ export function Scim({ state }: ScreenProps) {
                 <RepeatableRow key={r.id} removeLabel={`Remove ${r.group || 'new'} mapping`} onRemove={() => setRows((rs) => rs.filter((x) => x.id !== r.id))}>
                   <Input aria-label="Group name" placeholder="e.g. Admins" value={r.group} onChange={(e) => update(r.id, { group: e.target.value })} />
                   <span style={{ flex: '0 0 auto', display: 'inline-flex' }} aria-hidden>
-                    <Icon size="s" tone="secondary"><glyphs.ArrowRight /></Icon>
+                    <Icon size="s" tone="secondary"><icons.ArrowForward /></Icon>
                   </span>
                   <Select aria-label={`Internal role for ${r.group || 'new group'}`} value={r.role} onChange={(e) => update(r.id, { role: e.target.value })}>
                     {firmRoles.map((x) => <option key={x}>{x}</option>)}
@@ -73,7 +75,7 @@ export function Scim({ state }: ScreenProps) {
               <div>
                 <Button
                   variant="tertiary"
-                  leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
+                  leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
                   onClick={() => setRows((rs) => [...rs, { id: Date.now(), group: '', role: 'Analyst' }])}
                 >
                   Add mapping
@@ -100,26 +102,29 @@ export function Scim({ state }: ScreenProps) {
                   label="Revoked tokens"
                   head={
                     <>
-                      <ColumnHeader style={cols.prefix}>Token Prefix</ColumnHeader>
-                      <ColumnHeader numeric style={cols.created}>Created At</ColumnHeader>
-                      <ColumnHeader numeric style={cols.revoked}>Revoked At</ColumnHeader>
+                      <ColumnHeader tone="subtle" grow={2}>Token Prefix</ColumnHeader>
+                      <ColumnHeader tone="subtle" numeric>Created At</ColumnHeader>
+                      <ColumnHeader tone="subtle" numeric>Revoked At</ColumnHeader>
                     </>
                   }
                 >
-                  {scim.revoked.map((t) => (
+                  {scim.revoked.slice((page - 1) * perPage, page * perPage).map((t) => (
                     <Row key={t.prefix}>
-                      <Cell style={cols.prefix}>{t.prefix}</Cell>
-                      <Cell numeric style={cols.created}>{t.created}</Cell>
-                      <Cell numeric style={cols.revoked}>{t.revoked}</Cell>
+                      <Cell>{t.prefix}</Cell>
+                      <Cell numeric>{t.created}</Cell>
+                      <Cell numeric>{t.revoked}</Cell>
                     </Row>
                   ))}
                 </DataGrid>
-                <div style={{ display: 'flex', alignItems: 'center', gap: space.l, paddingTop: space.s }}>
-                  <Text step="s" tone="secondary">Rows per page: 5</Text>
-                  <Text step="s" tone="secondary">1–1 of 1</Text>
-                  <div style={{ marginLeft: 'auto' }}>
-                    <Pagination page={1} pageCount={1} onPageChange={() => undefined} />
-                  </div>
+                <div style={{ paddingTop: space.s }}>
+                  <Pagination
+                    page={page}
+                    pageCount={revokedPages}
+                    onPageChange={setPage}
+                    rowsPerPage={perPage}
+                    rowsPerPageOptions={[5, 10, 25]}
+                    onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
+                  />
                 </div>
               </AccordionItem>
             </div>

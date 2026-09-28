@@ -3,8 +3,9 @@ import { cx } from '../../utils/cx.js';
 import { Icon } from '../icon/Icon.js';
 import {
   ArrowDown, ArrowUp, ChevronDown, ChevronLeft, ChevronRight, Close, Copy, Download, DragHandle, Edit, Expand, Folder,
-  MoreVertical, Plus, Trash, ZoomOut,
+  MoreVertical, Trash, ZoomOut,
 } from '../icon/glyphs.js';
+import * as m from '../icon/material.js';
 import { ButtonIcon } from '../button/ButtonIcon.js';
 import { Button } from '../button/Button.js';
 import { CheckboxItem } from '../checkbox/CheckboxItem.js';
@@ -60,11 +61,13 @@ export interface FileRowProps {
   onDownload?: () => void;
   /** Opens a Context Menu (Rename, Move, Link to…, Delete). */
   onMenu?: () => void;
+  /** Glyph for the download action (default `download`), e.g. `icons.CloudDownload`. */
+  downloadIcon?: ReactNode;
   className?: string;
 }
 
 /** File Row — one document in a file list or folder. */
-export function FileRow({ name, meta, selected, checked, onCheckedChange, draggable, onOpen, onDownload, onMenu, className }: FileRowProps) {
+export function FileRow({ name, meta, selected, checked, onCheckedChange, draggable, onOpen, onDownload, onMenu, downloadIcon, className }: FileRowProps) {
   return (
     <div role="row" aria-selected={selected || undefined} className={cx('scalar-file-row', selected && 'scalar-file-row--selected', className)}>
       {onCheckedChange && <CheckboxItem size="s" checked={!!checked} onChange={(e) => onCheckedChange(e.target.checked)} aria-label={`Select ${name}`} />}
@@ -78,7 +81,7 @@ export function FileRow({ name, meta, selected, checked, onCheckedChange, dragga
           </span>
         )}
       </button>
-      {onDownload && <ButtonIcon variant="tertiary" size="s" label={`Download ${name}`} onClick={onDownload} icon={<Icon size="s" tone="inherit"><Download /></Icon>} />}
+      {onDownload && <ButtonIcon variant="tertiary" size="s" label={`Download ${name}`} onClick={onDownload} icon={<Icon size="s" tone="inherit">{downloadIcon ?? <Download />}</Icon>} />}
       {onMenu && <ButtonIcon variant="tertiary" size="s" label={`${name} options`} onClick={onMenu} icon={<Icon size="s" tone="inherit"><MoreVertical /></Icon>} />}
     </div>
   );
@@ -102,6 +105,8 @@ export interface TreeItemProps {
   fileName?: string;
   selected?: boolean;
   onSelect?: () => void;
+  /** Folders only — replaces the folder glyph, e.g. `icons.Domain` for a company node. */
+  icon?: ReactNode;
   className?: string;
 }
 
@@ -109,7 +114,7 @@ export interface TreeItemProps {
  * Tree Item — row of a folder/file tree (Documents: measurement date →
  * company → subfolder → file). Render inside an element with `role="tree"`.
  */
-export function TreeItem({ children, type, level = 0, expanded, onToggle, count, fileName, selected, onSelect, className }: TreeItemProps) {
+export function TreeItem({ children, type, level = 0, expanded, onToggle, count, fileName, selected, onSelect, icon, className }: TreeItemProps) {
   return (
     <div
       role="treeitem"
@@ -125,7 +130,7 @@ export function TreeItem({ children, type, level = 0, expanded, onToggle, count,
       ) : (
         <span className="scalar-tree-item__spacer" aria-hidden />
       )}
-      {type === 'folder' ? <Icon size="s" tone="brand"><Folder /></Icon> : <FileTypeBadge file={fileName ?? String(children)} />}
+      {type === 'folder' ? <Icon size="s" tone="brand">{icon ?? <Folder />}</Icon> : <FileTypeBadge file={fileName ?? String(children)} />}
       <button type="button" className="scalar-tree-item__label" onClick={type === 'folder' ? onToggle : onSelect}>{children}</button>
       {type === 'folder' && count != null && <span className="scalar-tree-item__count">{count}</span>}
     </div>
@@ -172,7 +177,7 @@ export interface ZoomControlProps {
   className?: string;
 }
 
-/** Zoom Control — zoom out / level / zoom in / Fit. */
+/** Zoom Control — zoom out / level / zoom in / Fit (Material `zoom_in`, `fit_screen`). */
 export function ZoomControl({ value, onChange, onFit, steps = [50, 75, 100, 125, 150, 200], className }: ZoomControlProps) {
   const next = steps.find((s) => s > value);
   const prev = [...steps].reverse().find((s) => s < value);
@@ -180,8 +185,8 @@ export function ZoomControl({ value, onChange, onFit, steps = [50, 75, 100, 125,
     <div className={cx('scalar-zoom', className)}>
       <ButtonIcon variant="tertiary" size="s" label="Zoom out" disabled={prev == null} onClick={() => prev != null && onChange(prev)} icon={<Icon size="s" tone="inherit"><ZoomOut /></Icon>} />
       <span className="scalar-zoom__value" aria-live="polite">{value}%</span>
-      <ButtonIcon variant="tertiary" size="s" label="Zoom in" disabled={next == null} onClick={() => next != null && onChange(next)} icon={<Icon size="s" tone="inherit"><Plus /></Icon>} />
-      {onFit && <><span className="scalar-zoom__sep" aria-hidden /><Button variant="tertiary" size="s" onClick={onFit}>Fit</Button></>}
+      <ButtonIcon variant="tertiary" size="s" label="Zoom in" disabled={next == null} onClick={() => next != null && onChange(next)} icon={<Icon size="s" tone="inherit"><m.ZoomIn /></Icon>} />
+      {onFit && <><span className="scalar-zoom__sep" aria-hidden /><Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><m.FitScreen /></Icon>} onClick={onFit}>Fit</Button></>}
     </div>
   );
 }

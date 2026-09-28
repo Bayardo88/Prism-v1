@@ -6,6 +6,9 @@ import { Close } from '../icon/glyphs.js';
 import { Scrim } from '../core/Scrim.js';
 import { Typography } from '../typography/Typography.js';
 
+/** Modal width: s 400 · m 560 (default) · l 800 · xl 1120. Never wider than the viewport. */
+export type ModalSize = 's' | 'm' | 'l' | 'xl';
+
 export interface ModalProps {
   open: boolean;
   onClose: () => void;
@@ -14,6 +17,12 @@ export interface ModalProps {
   footer?: ReactNode;
   /** Whether clicking the scrim dismisses. Turn it off when state is unsaved. */
   dismissOnScrimClick?: boolean;
+  /**
+   * Width. `s` for a short confirm-style form, `m` (default) for most tasks,
+   * `l` for a two-column form or a small table, `xl` for a grid or a document
+   * preview.
+   */
+  size?: ModalSize;
   className?: string;
 }
 
@@ -28,7 +37,7 @@ export interface ModalProps {
  * behind visible.
  */
 export function Modal({
-  open, onClose, title, children, footer, dismissOnScrimClick = true, className,
+  open, onClose, title, children, footer, dismissOnScrimClick = true, size = 'm', className,
 }: ModalProps) {
   const ref = useRef<HTMLDivElement>(null);
   const trigger = useRef<Element | null>(null);
@@ -80,7 +89,7 @@ export function Modal({
           role="dialog"
           aria-modal="true"
           aria-label={typeof title === 'string' ? title : undefined}
-          className={cx('scalar-modal', className)}
+          className={cx('scalar-modal', `scalar-modal--${size}`, className)}
         >
           {title && (
             <header className="scalar-modal__header">

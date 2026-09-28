@@ -10,6 +10,8 @@ export interface RowProps extends HTMLAttributes<HTMLDivElement> {
   zebra?: boolean;
   /** A grouped run of rows under a group header. */
   group?: boolean;
+  /** The row is the current selection (e.g. its row actions are open). */
+  selected?: boolean;
 }
 
 /**
@@ -23,7 +25,7 @@ export interface RowProps extends HTMLAttributes<HTMLDivElement> {
  * Both sets are composed from Cell — change Cell, not this.
  */
 export const Row = forwardRef<HTMLDivElement, RowProps>(function Row(
-  { children, type = 'readable', zebra, group, className, ...rest },
+  { children, type = 'readable', zebra, group, selected, className, ...rest },
   ref,
 ) {
   if (type === 'divider') {
@@ -33,11 +35,13 @@ export const Row = forwardRef<HTMLDivElement, RowProps>(function Row(
     <div
       ref={ref}
       role="row"
+      aria-selected={selected || undefined}
       className={cx(
         'scalar-row',
         type === 'total' && 'scalar-row--total',
         group && 'scalar-row--group',
         zebra && 'scalar-row--zebra',
+        selected && 'scalar-row--selected',
         className,
       )}
       {...rest}

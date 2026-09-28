@@ -1,22 +1,12 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  AccordionItem, Button, ContextMenu, Fab, GridColumnHeader, GridValueCell, Icon, InlineEdit, InlinePicker, MenuItem,
-  RowLabelCell, Scrim, SpeedDial, SpeedDialItem, Text, color, elevation, glyphs, radius, space,
+  AccordionItem, Button, DataGrid, Fab, GridColumnHeader, GridValueCell, Icon, InlineEdit, InlinePicker, Row,
+  RowLabelCell, Scrim, SelectMenu, SelectMenuOption, SpeedDial, SpeedDialItem, Text, color, elevation, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
 import { initialGroups, versions, type CompGroup } from './data.js';
-
-/** A label/value pair in the group's key-value block. */
-function KeyRow({ label, children }: { label: string; children: ReactNode }) {
-  return (
-    <div role="row" style={{ display: 'contents' }}>
-      <RowLabelCell type="subtotal">{label}</RowLabelCell>
-      <div role="gridcell" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', position: 'relative' }}>{children}</div>
-    </div>
-  );
-}
 
 function VersionPicker() {
   const [open, setOpen] = useState(false);
@@ -28,13 +18,13 @@ function VersionPicker() {
       </InlinePicker>
       {open && (
         <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 20 }}>
-          <ContextMenu label="Previous versions">
+          <SelectMenu label="Previous versions">
             {versions.map((x) => (
-              <MenuItem key={x.version} selected={x.version === v.version} onClick={() => { setV(x); setOpen(false); }}>
+              <SelectMenuOption key={x.version} selected={x.version === v.version} onSelect={() => { setV(x); setOpen(false); }}>
                 {x.date} | {x.version}
-              </MenuItem>
+              </SelectMenuOption>
             ))}
-          </ContextMenu>
+          </SelectMenu>
         </div>
       )}
     </>
@@ -62,37 +52,51 @@ function GroupPanel({ group, onChange, onDelete }: {
           : <Text as="span" step="m" tone="secondary">{kindLabel}</Text>}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: space.xl, padding: `0 ${space.s} ${space.s}` }}>
-          <div role="grid" aria-label={`${kindLabel} details`} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', width: '35%' }}>
-            <KeyRow label="Name">
-              <InlineEdit label="Comp group name" placeholder="Enter name" value={group.name} onCommit={(name) => onChange({ ...group, name })} />
-            </KeyRow>
-            {isPublic && group.name && (
-              <KeyRow label="Previous Versions"><VersionPicker /></KeyRow>
-            )}
+          <div style={{ width: '35%' }}>
+            <DataGrid label={`${kindLabel} details`} columns={['minmax(max-content, 1fr)', 'minmax(max-content, 1fr)']}>
+              <Row>
+                <RowLabelCell type="subtotal">Name</RowLabelCell>
+                <GridValueCell kind="editable">
+                  <InlineEdit label="Comp group name" placeholder="Enter name" value={group.name} onCommit={(name) => onChange({ ...group, name })} />
+                </GridValueCell>
+              </Row>
+              {isPublic && group.name && (
+                <Row>
+                  <RowLabelCell type="subtotal">Previous Versions</RowLabelCell>
+                  <GridValueCell><VersionPicker /></GridValueCell>
+                </Row>
+              )}
+            </DataGrid>
           </div>
 
           {isPublic && group.companies.length > 0 && (
-            <div role="grid" aria-label={`${group.name} comparable companies`} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', width: '35%' }}>
-              <div role="row" style={{ display: 'contents' }}>
-                <GridColumnHeader>Company</GridColumnHeader>
-                <GridColumnHeader numeric>Symbol</GridColumnHeader>
-                <GridColumnHeader numeric>Capital IQ ID</GridColumnHeader>
-              </div>
-              {group.companies.map((c) => (
-                <div role="row" key={c.ciq} style={{ display: 'contents' }}>
-                  <RowLabelCell>{c.name}</RowLabelCell>
-                  <GridValueCell>{c.symbol}</GridValueCell>
-                  <GridValueCell>{c.ciq}</GridValueCell>
-                </div>
-              ))}
+            <div style={{ width: '35%' }}>
+              <DataGrid
+                label={`${group.name} comparable companies`}
+                head={
+                  <>
+                    <GridColumnHeader grow={2}>Company</GridColumnHeader>
+                    <GridColumnHeader numeric>Symbol</GridColumnHeader>
+                    <GridColumnHeader numeric>Capital IQ ID</GridColumnHeader>
+                  </>
+                }
+              >
+                {group.companies.map((c) => (
+                  <Row key={c.ciq}>
+                    <RowLabelCell>{c.name}</RowLabelCell>
+                    <GridValueCell>{c.symbol}</GridValueCell>
+                    <GridValueCell>{c.ciq}</GridValueCell>
+                  </Row>
+                ))}
+              </DataGrid>
             </div>
           )}
 
           <div style={{ display: 'flex', gap: space.l }}>
-            <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}>
+            <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}>
               {isPublic ? 'Add comparable company' : 'Add comparable transaction'}
             </Button>
-            <Button variant="secondary" tone="negative" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Minus /></Icon>} onClick={onDelete}>
+            <Button variant="secondary" tone="negative" leadingIcon={<Icon size="s" tone="inherit"><icons.Remove /></Icon>} onClick={onDelete}>
               Delete group
             </Button>
           </div>

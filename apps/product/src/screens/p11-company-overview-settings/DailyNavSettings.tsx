@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   Banner, Button, Card, Checkbox, Chip, Divider, FormField, Heading, Icon, Input, NumberField, Overline, SaveState,
-  Select, Text, VersionHistoryItem, glyphs, space,
+  Select, Text, VersionHistoryItem, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
@@ -32,16 +32,15 @@ function ThresholdField({ t, value, onChange }: { t: Threshold; value: number | 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs, alignItems: 'flex-start' }}>
       <div style={{ alignSelf: 'stretch' }}>
-        <FormField label={t.label}>
-          <NumberField
-            value={value}
-            onChange={onChange}
-            suffix="%"
-            min={0}
-            unitLabel={t.label}
-            placeholder={t.inherited === null ? '—' : String(t.inherited)}
-          />
-        </FormField>
+        <NumberField
+          label={t.label}
+          value={value}
+          onChange={onChange}
+          suffix="%"
+          min={0}
+          unitLabel={t.label}
+          placeholder={t.inherited === null ? '—' : String(t.inherited)}
+        />
       </div>
       <Chip size="s" styleVariant={inherited ? 'default' : 'info'}>
         {inherited ? `Inherited (${t.inherited ?? '—'}%)` : 'Company override'}
@@ -68,10 +67,12 @@ function ThresholdGroup({ title, fields, values, set }: {
 
 export function DailyNavSettings({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [included, setIncluded] = useState(true);
+  // The record's dailyNav flag; ABC Co is the frame's company and is drawn ticked.
+  const initiallyIncluded = company.dailyNav || company.id === 'abc-co';
+  const [included, setIncluded] = useState(initiallyIncluded);
   const [values, setValues] = useState<Record<string, number | ''>>({});
   const [profileQuery, setProfileQuery] = useState('');
-  const dirty = !included || Object.values(values).some((v) => v !== '');
+  const dirty = included !== initiallyIncluded || Object.values(values).some((v) => v !== '');
   const set = (k: string, v: number | '') => setValues((s) => ({ ...s, [k]: v }));
 
   // "Scrolled to bottom": wait a tick so the app's own scroll-to-top on route change runs first.
@@ -130,7 +131,7 @@ export function DailyNavSettings({ state, params }: ScreenProps) {
                 value={profileQuery}
                 onChange={(e) => setProfileQuery(e.target.value)}
                 placeholder="Search by company name..."
-                leadingIcon={<Icon size="s" tone="secondary"><glyphs.Search /></Icon>}
+                leadingIcon={<Icon size="s" tone="secondary"><icons.Search /></Icon>}
               />
             </FormField>
             <Banner tone="info" title="No match found">
@@ -149,7 +150,7 @@ export function DailyNavSettings({ state, params }: ScreenProps) {
               </Select>
               <Button variant="secondary" disabled>Copy Comps</Button>
             </div>
-            <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}>
+            <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}>
               Add Comparable Company/ETF
             </Button>
             <Text step="m" tone="secondary">No comps added yet.</Text>
@@ -160,8 +161,9 @@ export function DailyNavSettings({ state, params }: ScreenProps) {
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             <VersionHistoryItem
               current
+              currentLabel="Current — today's NAV and the next"
               range="Aug 24, 2026 5:01 PM — Present"
-              meta="Current — today's NAV and the next · Changed by Steven Hansen · Firm template change"
+              meta="Changed by Steven Hansen · Firm template change"
               action={<Button variant="secondary" disabled>Apply to Open NAV Day</Button>}
             />
           </ul>

@@ -1,7 +1,8 @@
-import { forwardRef, type ButtonHTMLAttributes } from 'react';
+import { forwardRef, useId, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 import { Icon } from '../icon/Icon.js';
 import { ChevronLeft, ChevronRight } from '../icon/glyphs.js';
+import { Select } from '../input/Select.js';
 
 export interface PageItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   page: number | string;
@@ -35,6 +36,16 @@ export interface PaginationProps {
   onPageChange: (page: number) => void;
   /** How many pages to show either side of the current one. */
   siblingCount?: number;
+  /**
+   * Rows per page. Set it together with `onRowsPerPageChange` to render the
+   * labelled rows-per-page control beside the pages.
+   */
+  rowsPerPage?: number;
+  /** The choices offered. Default 10 · 25 · 50 · 100. */
+  rowsPerPageOptions?: readonly number[];
+  onRowsPerPageChange?: (rows: number) => void;
+  /** Visible label of that control. Default "Rows per page". */
+  rowsPerPageLabel?: ReactNode;
   className?: string;
 }
 
@@ -66,12 +77,25 @@ function buildRange(page: number, pageCount: number, siblings: number): Array<nu
  *
  * For a long grid people scan rather than navigate, consider infinite scroll;
  * pagination is for sets people cite by page.
+ *
+ * With `rowsPerPage` + `onRowsPerPageChange` it renders a labelled
+ * rows-per-page `Select` at the start of the bar. Changing it is the caller's
+ * cue to reset `page` to 1.
  */
-export function Pagination({ page, pageCount, onPageChange, siblingCount = 1, className }: PaginationProps) {
+export function Pagination({
+  page, pageCount, onPageChange, siblingCount = 1,
+  rowsPerPage, rowsPerPageOptions = [10, 25, 50, 100], onRowsPerPageChange, rowsPerPageLabel = 'Rows per page',
+  className,
+}: PaginationProps) {
   const range = buildRange(page, pageCount, siblingCount);
+  const rowsId = useId();
+  const withRows = rowsPerPage != null && onRowsPerPageChange != null;
+  const options = withRows && !rowsPerPageOptions.includes(rowsPerPage)
+    ? [...rowsPerPageOptions, rowsPerPage].sort((a, b) => a - b)
+    : rowsPerPageOptions;
 
-  return (
-    <nav aria-label="Pagination" className={cx('scalar-pagination', className)}>
+  const nav = (
+    <nav aria-label="Pagination" className={cx('scalar-pagination', !withRows && className)}>
       <button
         type="button"
         className="scalar-page-item"
@@ -100,5 +124,18 @@ export function Pagination({ page, pageCount, onPageChange, siblingCount = 1, cl
         <Icon size="s" tone="inherit"><ChevronRight /></Icon>
       </button>
     </nav>
+  );
+
+  if (!withRows) return nav;
+  return (
+    <div className={cx('scalar-pagination-bar', className)}>
+      <span className="scalar-pagination__rows">
+        <label htmlFor={rowsId}>{rowsPerPageLabel}</label>
+        <Select id={rowsId} value={rowsPerPage} onChange={(e) => onRowsPerPageChange(Number(e.target.value))}>
+          {options.map((n) => <option key={n} value={n}>{n}</option>)}
+        </Select>
+      </span>
+      {nav}
+    </div>
   );
 }

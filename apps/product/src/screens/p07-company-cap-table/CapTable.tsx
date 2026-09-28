@@ -1,41 +1,44 @@
 /**
  * Cap Table — Securities. One column per security (Common, Series A…), a
  * pinned Total, and below it the firm's own holdings in each security.
+ * The securities come from the company record (`securitiesFor`).
  *
  * States: default · new-column (a blank security added by "Add security") ·
  * security-type-menu (the Security Type picker open on that new column).
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import {
-  ContextMenu, Fab, GridColumnDivider, GridColumnHeader, GridValueCell, InCellControl, InlineEdit,
-  MenuItem, RowLabelCell, space, type RowLabelType, type ValueKind,
+  DataGrid, Fab, GridColumnDivider, GridColumnHeader, GridValueCell, InCellControl, InlineEdit,
+  Row, RowLabelCell, SelectMenu, SelectMenuOption, space, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { companyById, firm, num, usd } from '../../data/fixtures.js';
+import { companyById, firm, num, usd, type Company } from '../../data/fixtures.js';
 import { CapTableLayout } from './CapTableLayout.js';
-import { Anchor, Sheet, SheetRow, columnsFor, widthFor } from './Sheet.js';
-import { SECURITIES, SECURITY_TYPES, newSecurity, type Security } from './data.js';
+import { Anchor, pinnedTracks } from './Anchor.js';
+import { SECURITY_TYPES, newSecurity, securitiesFor, type Security } from './data.js';
 
 const pct = (v: number) => `${v.toFixed(1)}%`;
 const money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
-function initial(state: string): Security[] {
-  return state === 'default' ? SECURITIES : [newSecurity(), ...SECURITIES];
+function initial(state: string, company: Company): Security[] {
+  const base = securitiesFor(company);
+  return state === 'default' ? base : [newSecurity(), ...base];
 }
 
 export function CapTable({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [securities, setSecurities] = useState<Security[]>(() => initial(state));
+  const [securities, setSecurities] = useState<Security[]>(() => initial(state, company));
   const [menuFor, setMenuFor] = useState<string | null>(null);
 
   useEffect(() => {
-    const next = initial(state);
+    const next = initial(state, company);
     setSecurities(next);
     setMenuFor(state === 'security-type-menu' ? next[0]!.id : null);
-  }, [state]);
+  }, [state, company.id]);
 
+  const isNew = (s: Security) => s.id.startsWith('new-');
   const addSecurity = () => {
-    if (securities.some((s) => s.id.startsWith('new-') && !s.name && !s.type)) return;
+    if (securities.some((s) => isNew(s) && !s.name && !s.type)) return;
     setSecurities((cur) => [newSecurity(), ...cur]);
   };
   const rename = (id: string, name: string) =>
@@ -52,10 +55,11 @@ export function CapTable({ state, params }: ScreenProps) {
   const totalLp = securities.reduce((a, s) => a + lp(s), 0);
   const firmShares = securities.reduce((a, s) => a + s.firmShares, 0);
   const firmLp = securities.reduce((a, s) => a + s.firmLiquidationPreference, 0);
+  const share = (x: number) => pct(totalFd ? (x / totalFd) * 100 : 0);
 
-  const n = securities.length;
-  const columns = columnsFor(n, { pinnedTotal: true });
-  const width = widthFor(n + 1, 22, 13);
+  const columns = pinnedTracks(securities.length);
+  const width = `${Math.min(100, 24 + 13 * (securities.length + 1))}%`;
+  let stripe = 0;
 
   /** A body row: label, one cell per security, divider, total. */
   const row = (
@@ -64,53 +68,57 @@ export function CapTable({ state, params }: ScreenProps) {
     cell: (s: Security) => ReactNode,
     total: ReactNode,
     opts: { expandable?: boolean } = {},
-  ) => (
-    <SheetRow key={label} label={label}>
-      <RowLabelCell type={labelType} expanded={opts.expandable ? false : undefined}>{label}</RowLabelCell>
-      {securities.map((s) => <Anchor key={s.id}>{cell(s)}</Anchor>)}
-      <GridColumnDivider type="pinned" />
-      {total}
-    </SheetRow>
-  );
+  ) => {
+    stripe += 1;
+    return (
+      <Row key={label} zebra={stripe % 2 === 0} type={labelType === 'total' ? 'total' : undefined} aria-label={label}>
+        <RowLabelCell type={labelType} expanded={opts.expandable ? false : undefined}>{label}</RowLabelCell>
+        {securities.map((s) => <Fragment key={s.id}>{cell(s)}</Fragment>)}
+        <GridColumnDivider type="pinned" />
+        {total}
+      </Row>
+    );
+  };
   const v = (kind: ValueKind, value?: ReactNode) => <GridValueCell kind={kind}>{value}</GridValueCell>;
-  const totalKind: ValueKind = 'total';
+
+  const typeMenu = (s: Security) => menuFor === s.id && (
+    <SelectMenu label="Security type">
+      {SECURITY_TYPES.map((t) => (
+        <SelectMenuOption key={t} selected={t === s.type} onSelect={() => setType(s.id, t)}>{t}</SelectMenuOption>
+      ))}
+    </SelectMenu>
+  );
 
   return (
     <CapTableLayout company={company} page="securities" currency>
       <div style={{ display: 'flex', flexDirection: 'column', gap: space.xl, paddingTop: space.l }}>
-        <Sheet label="Cap table" columns={columns} width={width}>
-          <SheetRow label="Securities">
-            <GridColumnHeader>Security Name</GridColumnHeader>
-            {securities.map((s) => (
-              <GridColumnHeader key={s.id} numeric selected={s.id.startsWith('new-')}>
-                {s.id.startsWith('new-')
-                  ? <InlineEdit label="Security name" placeholder="Enter name" value={s.name} onCommit={(name) => rename(s.id, name)} />
-                  : s.name}
-              </GridColumnHeader>
-            ))}
-            <GridColumnDivider type="pinned" />
-            <GridColumnHeader numeric>Total</GridColumnHeader>
-          </SheetRow>
-
+        <DataGrid
+          label="Cap table"
+          columns={columns}
+          style={{ width, overflow: 'visible' }}
+          head={
+            <>
+              <GridColumnHeader>Security Name</GridColumnHeader>
+              {securities.map((s) => (
+                <GridColumnHeader key={s.id} numeric selected={isNew(s)}>
+                  {isNew(s)
+                    ? <InlineEdit label="Security name" placeholder="Enter name" value={s.name} onCommit={(name) => rename(s.id, name)} />
+                    : s.name}
+                </GridColumnHeader>
+              ))}
+              <GridColumnDivider type="pinned" />
+              <GridColumnHeader numeric>Total</GridColumnHeader>
+            </>
+          }
+        >
           {row('Investment Date', 'line-item',
             (s) => (s.investmentDate
               ? <InCellControl type="date" label={`${s.name} investment date`}>{s.investmentDate}</InCellControl>
               : v('calculated')),
             v('calculated'))}
-
-          <SheetRow label="Security Type">
-            <RowLabelCell>Security Type</RowLabelCell>
-            {securities.map((s) => (
-              <Anchor
-                key={s.id}
-                menu={menuFor === s.id && (
-                  <ContextMenu label="Security type">
-                    {SECURITY_TYPES.map((t) => (
-                      <MenuItem key={t} selected={t === s.type} onClick={() => setType(s.id, t)}>{t}</MenuItem>
-                    ))}
-                  </ContextMenu>
-                )}
-              >
+          {row('Security Type', 'line-item',
+            (s) => (
+              <Anchor menu={typeMenu(s)}>
                 <InCellControl
                   type="select"
                   label={`${s.name || 'New security'} type`}
@@ -120,11 +128,8 @@ export function CapTable({ state, params }: ScreenProps) {
                   {s.type ?? 'Select security'}
                 </InCellControl>
               </Anchor>
-            ))}
-            <GridColumnDivider type="pinned" />
-            {v('calculated')}
-          </SheetRow>
-
+            ),
+            v('calculated'))}
           {row('Original Issue Price', 'line-item',
             (s) => v('editable', s.originalIssuePrice !== undefined ? money2.format(s.originalIssuePrice) : undefined),
             v('calculated'))}
@@ -138,26 +143,25 @@ export function CapTable({ state, params }: ScreenProps) {
           {row('Shares Fully Diluted (as converted)', 'line-item',
             (s) => v('calculated', num.format(fd(s))), v('calculated', num.format(totalFd)))}
           {row('Current Ownership', 'subtotal',
-            (s) => v(totalKind, pct(totalShares ? ((s.sharesOutstanding ?? 0) / totalShares) * 100 : 0)),
-            v(totalKind, pct(100)))}
-          {row('Fully Diluted Ownership', 'line-item',
-            (s) => v('calculated', pct(totalFd ? (fd(s) / totalFd) * 100 : 0)), v('calculated', pct(100)))}
+            (s) => v('total', pct(totalShares ? ((s.sharesOutstanding ?? 0) / totalShares) * 100 : 0)),
+            v('total', pct(100)))}
+          {row('Fully Diluted Ownership', 'line-item', (s) => v('calculated', share(fd(s))), v('calculated', pct(100)))}
           {row('Strike Price', 'line-item', () => v('calculated'), v('calculated'), { expandable: true })}
           {row('Preferred Terms', 'line-item', () => v('calculated'), v('calculated'), { expandable: true })}
           {row(`Accrued Dividends (as of ${company.asOf})`, 'line-item', () => v('calculated'), v('calculated'))}
           {row('Initial Liquidation Preference', 'total',
-            (s) => v(totalKind, lp(s) ? usd.format(lp(s)) : undefined), v(totalKind, usd.format(totalLp)))}
+            (s) => v('total', lp(s) ? usd.format(lp(s)) : undefined), v('total', usd.format(totalLp)))}
           {row('Total Preference (with Dividends)', 'total',
-            (s) => v(totalKind, lp(s) ? usd.format(lp(s)) : undefined), v(totalKind, usd.format(totalLp)))}
-        </Sheet>
+            (s) => v('total', lp(s) ? usd.format(lp(s)) : undefined), v('total', usd.format(totalLp)))}
+        </DataGrid>
 
-        <Sheet label={`${firm.name} holdings`} columns={columns} width={width}>
-          {row(`${firm.name} Ownership %`, 'line-item', () => v('calculated', pct(0)), v('calculated', pct(0)), { expandable: true })}
+        <DataGrid label={`${firm.name} holdings`} columns={columns} style={{ width, overflow: 'visible' }}>
+          {row(`${firm.name} Ownership %`, 'line-item', (s) => v('calculated', share(s.firmShares)), v('calculated', share(firmShares)), { expandable: true })}
           {row(`${firm.name} Shares`, 'line-item',
             (s) => v('calculated', num.format(s.firmShares)), v('calculated', num.format(firmShares)), { expandable: true })}
           {row(`${firm.name} Liquidation Preference`, 'line-item',
             (s) => v('calculated', usd.format(s.firmLiquidationPreference)), v('calculated', usd.format(firmLp)), { expandable: true })}
-        </Sheet>
+        </DataGrid>
       </div>
       <Fab onClick={addSecurity}>Add Security</Fab>
     </CapTableLayout>

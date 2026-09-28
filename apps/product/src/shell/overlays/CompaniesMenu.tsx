@@ -10,10 +10,16 @@
  * Company action; 'companies-add' is the Portfolio Home entry point.
  */
 import { useMemo, useState } from 'react';
-import { Button, ComboboxPanel, Icon, glyphs } from '@scalar/design-system';
+import { Button, ComboboxPanel, Icon, icons } from '@scalar/design-system';
 import { navigate } from '../../router.js';
 import { routes } from '../../routes.js';
-import { directory, MENU_PAGE } from './data.js';
+import { db } from '../../data/db.js';
+import { MENU_PAGE } from './data.js';
+
+const MENU_FIRST_PAGE = [
+  'abc-co', 'backside-blocks', 'captable', 'cohesity', 'company-31',
+  'comps', 'databricks', 'debt-only', 'dec-30-md', 'empty-company',
+].map((id) => db.companies.byId(id)).filter((c) => c !== undefined);
 import { Popover } from './Popover.js';
 import type { OverlayProps } from './index.js';
 
@@ -21,11 +27,11 @@ export function CompaniesMenu({ company, onClose }: OverlayProps) {
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState(false);
 
-  const matches = useMemo(
-    () => directory.filter((c) => c.name.toLowerCase().includes(query.trim().toLowerCase())),
-    [query],
-  );
-  const visible = expanded || query ? matches : matches.slice(0, MENU_PAGE);
+  // Every match, ranked by the db (name-prefix first); the panel shows a page of them.
+  const matches = useMemo(() => db.companies.search(query, db.companies.count), [query]);
+  // With no query the first page is the set drawn in Figma (the frame's companies, in its order).
+  const firstPage = query.trim() ? matches.slice(0, MENU_PAGE) : MENU_FIRST_PAGE;
+  const visible = expanded ? matches : firstPage;
   const hidden = matches.length - visible.length;
 
   const addCompany = () => {
@@ -50,7 +56,7 @@ export function CompaniesMenu({ company, onClose }: OverlayProps) {
         footer={
           <Button
             variant="secondary"
-            leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
+            leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
             onClick={addCompany}
             style={{ width: '100%' }}
           >

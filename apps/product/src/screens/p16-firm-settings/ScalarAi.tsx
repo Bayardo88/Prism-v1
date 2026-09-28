@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Checkbox, FloatingLabelSelect, Heading, space } from '@scalar/design-system';
+import { Checkbox, FloatingLabelSelect, Heading, Icon, SelectMenu, SelectMenuOption, icons, space } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { FirmSettingsFrame } from './FirmSettingsFrame.js';
-import { OptionMenu } from './OptionMenu.js';
+import { FirmSettingsFrame, MenuAnchor } from './FirmSettingsFrame.js';
 import { effortLevels, premiumEfforts, type Effort } from './data.js';
 
 type Open = 'max' | 'default' | undefined;
@@ -15,13 +14,29 @@ export function ScalarAi({ state }: ScreenProps) {
   useEffect(() => setOpen(fromState(state)), [state]);
 
   const rank = (e: Effort) => effortLevels.indexOf(e);
-  const options = (cap?: Effort) => effortLevels.map((e) => ({
-    value: e,
-    label: e,
-    detail: premiumEfforts.includes(e) ? 'Uses extra AI credits' : undefined,
-    // The default effort can never exceed the firm's maximum.
-    disabled: cap ? rank(e) > rank(cap) : false,
-  }));
+  /** The effort list. With a cap, options above it are disabled — the default can never exceed the maximum. */
+  const menu = (label: string, value: Effort, onPick: (e: Effort) => void, cap?: Effort) => (
+    <MenuAnchor>
+      <SelectMenu label={label}>
+        {effortLevels.map((e) => (
+          <SelectMenuOption
+            key={e}
+            selected={e === value}
+            active={e === value}
+            disabled={cap ? rank(e) > rank(cap) : false}
+            onSelect={() => onPick(e)}
+          >
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.xs }}>
+              {e}
+              {premiumEfforts.includes(e) && (
+                <Icon size="s" tone="brand" label="Uses extra AI credits"><icons.Paid /></Icon>
+              )}
+            </span>
+          </SelectMenuOption>
+        ))}
+      </SelectMenu>
+    </MenuAnchor>
+  );
   const toggle = (which: Exclude<Open, undefined>) => (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setOpen((o) => (o === which ? undefined : which));
@@ -41,19 +56,11 @@ export function ScalarAi({ state }: ScreenProps) {
           >
             {effortLevels.map((e) => <option key={e}>{e}</option>)}
           </FloatingLabelSelect>
-          {open === 'max' && (
-            <OptionMenu
-              label="Maximum Allowed Effort"
-              options={options()}
-              value={max}
-              onSelect={(v) => {
-                const next = v as Effort;
-                setMax(next);
-                if (rank(def) > rank(next)) setDef(next);
-                setOpen(undefined);
-              }}
-            />
-          )}
+          {open === 'max' && menu('Maximum Allowed Effort', max, (next) => {
+            setMax(next);
+            if (rank(def) > rank(next)) setDef(next);
+            setOpen(undefined);
+          })}
         </div>
         <div style={{ position: 'relative' }}>
           <FloatingLabelSelect
@@ -66,14 +73,7 @@ export function ScalarAi({ state }: ScreenProps) {
           >
             {effortLevels.map((e) => <option key={e} disabled={rank(e) > rank(max)}>{e}</option>)}
           </FloatingLabelSelect>
-          {open === 'default' && (
-            <OptionMenu
-              label="Default Selected Effort"
-              options={options(max)}
-              value={def}
-              onSelect={(v) => { setDef(v as Effort); setOpen(undefined); }}
-            />
-          )}
+          {open === 'default' && menu('Default Selected Effort', def, (next) => { setDef(next); setOpen(undefined); }, max)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <Checkbox>Enable Document Auto-Classification</Checkbox>

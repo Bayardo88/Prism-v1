@@ -2,20 +2,19 @@
  * The wide, configurable portfolio grid shared by Intelligence (Summaries,
  * Schedule of Investments, Daily NAV) and the firm Valuations page.
  *
- * Composed from the grid-pattern components the Figma frames use — Grid Column
- * Header, Column Group Header, Row Label Cell, Grid Value Cell, Collapsed
- * Column Rail, Add Column Header — laid out on a CSS grid so the pinned first
- * column, the column groups and the header all share one set of tracks.
+ * It is a `DataGrid` + `Row` of grid-pattern cells — Grid Column Header,
+ * Column Group Header, Row Label Cell, Grid Value Cell, Add Column Header —
+ * so column tracks come from the headers and body cells fill them. The local
+ * wrapper exists only for behaviour the DataGrid does not own:
  *
- * - Widths are percentages of the viewport (`colPct`), so a 30-column summary
- *   scrolls horizontally instead of squeezing.
- * - `scrollTo` scrolls a named column to the left edge (the "Scrolled" frames).
- * - The rails count the columns hidden either side and page the grid on click.
- * - `popover` anchors content under one cell (the Cell trend popover).
+ * - a pinned (sticky-left) first column,
+ * - `scrollTo`: scroll a named column to the left edge (the "Scrolled" frames),
+ * - Collapsed Column Rails counting the columns hidden either side,
+ * - `popover`: content anchored under one cell (the Cell trend popover).
  */
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
-  AddColumnHeader, CollapsedColumnRail, ColumnGroupHeader, GridColumnHeader, GridValueCell,
+  AddColumnHeader, CollapsedColumnRail, ColumnGroupHeader, DataGrid, GridColumnHeader, GridValueCell,
   Row, RowLabelCell, color, zIndex, type SortDirection, type ValueKind,
 } from '@scalar/design-system';
 
@@ -49,9 +48,6 @@ export interface PortfolioGridProps {
   rows: GridRow[];
   total?: Record<string, ReactNode>;
   groups?: Array<{ label: string; span: number }>;
-  /** Width of each value column as a % of the visible grid. Omit to fit 100%. */
-  colPct?: number;
-  pinnedPct?: number;
   /** Column scrolled to the left edge on mount; `'end'` scrolls fully right. */
   scrollTo?: string;
   selectedCol?: string;
@@ -59,21 +55,20 @@ export interface PortfolioGridProps {
   onCellClick?: (row: string, col: string) => void;
   onAddColumn?: () => void;
   addColumnLabel?: string;
+  addColumnSelected?: boolean;
   /** Show the Collapsed Column Rails for hidden columns. */
   rails?: boolean;
   popover?: { row: string; col: string; content: ReactNode };
 }
 
-const pinnedStyle = {
-  position: 'sticky' as const,
-  left: 0,
-  zIndex: 1,
-  display: 'grid',
-  background: color.bg.surface,
-};
+/** The pinned first column sticks to the grid's left edge while it scrolls sideways. */
+const pin: CSSProperties = { position: 'sticky', left: 0, zIndex: 1 };
+const pinBody: CSSProperties = { ...pin, background: color.bg.surface };
+/** A pinned body cell is opaque (it covers cells scrolling under it), so it repeats the zebra stripe. */
+const pinRow = (i: number): CSSProperties => ({ ...pin, background: i % 2 === 1 ? color.bg.subtle : color.bg.surface });
 
 /** One-line values: long text truncates instead of growing the row. */
-const clip = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const, minWidth: 0 };
+const clip: CSSProperties = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
 
 const numberOf = (v: ReactNode): number | null => {
   if (typeof v !== 'string') return null;
@@ -82,21 +77,14 @@ const numberOf = (v: ReactNode): number | null => {
 };
 
 export function PortfolioGrid({
-  label, firstColumn, columns, rows, total, groups, colPct, pinnedPct = 16, scrollTo, selectedCol,
-  focused, onCellClick, onAddColumn, addColumnLabel = 'Add column', rails, popover,
+  label, firstColumn, columns, rows, total, groups, scrollTo, selectedCol, focused, onCellClick,
+  onAddColumn, addColumnLabel = 'Add column', addColumnSelected, rails, popover,
 }: PortfolioGridProps) {
-  const scroller = useRef<HTMLDivElement>(null);
   const outer = useRef<HTMLDivElement>(null);
   const [sort, setSort] = useState<{ key: string; dir: SortDirection }>({ key: '', dir: 'none' });
   const [hidden, setHidden] = useState({ left: 0, right: 0, pinnedW: 0 });
   const [anchor, setAnchor] = useState<{ left: number; top: number } | null>(null);
-
-  const n = columns.length + (onAddColumn ? 1 : 0);
-  const fitted = colPct === undefined;
-  const width = fitted ? '100%' : `${pinnedPct + n * colPct}%`;
-  const template = fitted
-    ? `2fr repeat(${n}, 1fr)`
-    : `${pinnedPct}fr repeat(${n}, ${colPct}fr)`;
+  const scroller = () => outer.current?.querySelector<HTMLElement>('[role=grid]') ?? null;
 
   const sorted = useMemo(() => {
     if (sort.dir === 'none') return rows;
@@ -119,140 +107,130 @@ export function PortfolioGrid({
 
   /** Which value columns sit outside the visible band. */
   const measure = useCallback(() => {
-    const el = scroller.current;
+    const el = scroller();
     if (!el) return;
-    const pin = el.querySelector<HTMLElement>('[data-pin="head"]');
-    const pinnedW = pin?.offsetWidth ?? 0;
+    const pinnedW = el.querySelector<HTMLElement>('[data-pin="head"]')?.offsetWidth ?? 0;
     let left = 0, right = 0;
     el.querySelectorAll<HTMLElement>('[data-head]').forEach((h) => {
-      if (h.offsetLeft + h.offsetWidth / 2 < el.scrollLeft + pinnedW) left++;
-      else if (h.offsetLeft + h.offsetWidth / 2 > el.scrollLeft + el.clientWidth) right++;
+      const mid = h.offsetLeft + h.offsetWidth / 2;
+      if (mid < el.scrollLeft + pinnedW) left++;
+      else if (mid > el.scrollLeft + el.clientWidth) right++;
     });
     setHidden({ left, right, pinnedW });
   }, []);
 
+  // Anchor the popover under its cell, and follow it when the grid scrolls.
+  const place = useCallback(() => {
+    const o = outer.current;
+    const cell = popover && o?.querySelector<HTMLElement>(`[data-cell="${popover.row}|${popover.col}"]`);
+    if (!o || !cell) { setAnchor(null); return; }
+    const a = o.getBoundingClientRect();
+    const c = cell.getBoundingClientRect();
+    setAnchor({ left: c.left - a.left, top: c.bottom - a.top });
+  }, [popover?.row, popover?.col]);
+
   useLayoutEffect(() => {
-    const el = scroller.current;
+    const el = scroller();
     if (!el) return;
     if (scrollTo === 'end') el.scrollLeft = el.scrollWidth;
     else if (scrollTo) {
       const h = el.querySelector<HTMLElement>(`[data-head="${scrollTo}"]`);
-      const pin = el.querySelector<HTMLElement>('[data-pin="head"]');
-      if (h) el.scrollLeft = h.offsetLeft - (pin?.offsetWidth ?? 0);
+      const pinnedW = el.querySelector<HTMLElement>('[data-pin="head"]')?.offsetWidth ?? 0;
+      if (h) el.scrollLeft = h.offsetLeft - pinnedW;
     }
     measure();
-  }, [scrollTo, measure]);
+    place();
+  }, [scrollTo, measure, place]);
 
   useEffect(() => {
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [measure]);
-
-  // Anchor the popover under its cell, and follow it when the grid scrolls.
-  const place = useCallback(() => {
-    if (!popover || !outer.current) return setAnchor(null);
-    const cell = outer.current.querySelector<HTMLElement>(`[data-cell="${popover.row}|${popover.col}"]`);
-    if (!cell) return setAnchor(null);
-    const o = outer.current.getBoundingClientRect();
-    const c = cell.getBoundingClientRect();
-    setAnchor({ left: c.left - o.left, top: c.bottom - o.top });
-  }, [popover?.row, popover?.col]);
-  useLayoutEffect(() => { place(); }, [place, scrollTo]);
+    const el = scroller();
+    const on = () => { measure(); place(); };
+    el?.addEventListener('scroll', on);
+    window.addEventListener('resize', on);
+    return () => {
+      el?.removeEventListener('scroll', on);
+      window.removeEventListener('resize', on);
+    };
+  }, [measure, place]);
 
   const page = (dir: 1 | -1) => () => {
-    const el = scroller.current;
+    const el = scroller();
     if (el) el.scrollBy({ left: dir * el.clientWidth * 0.6, behavior: 'smooth' });
   };
 
-  const valueCell = (row: GridRow, col: GridCol, v: ReactNode | undefined) => {
+  const valueCell = (row: GridRow, col: GridCol) => {
+    const v = row.values[col.key];
+    if (v === undefined) return <GridValueCell key={col.key} state="not-applicable" data-cell={`${row.id}|${col.key}`} />;
     const isFocused = focused?.row === row.id && focused.col === col.key;
     return (
-      <div
+      <GridValueCell
         key={col.key}
         data-cell={`${row.id}|${col.key}`}
+        kind={col.kind ?? 'calculated'}
+        state={isFocused ? 'focused' : 'default'}
         onClick={onCellClick ? () => onCellClick(row.id, col.key) : undefined}
-        style={{ display: 'grid', whiteSpace: 'nowrap', overflow: 'hidden', cursor: onCellClick ? 'pointer' : undefined }}
+        style={onCellClick ? { cursor: 'pointer' } : undefined}
       >
-        {v === undefined ? (
-          <GridValueCell state="not-applicable" />
-        ) : (
-          <GridValueCell kind={col.kind ?? 'calculated'} state={isFocused ? 'focused' : 'default'}>
-            {typeof v === 'string' ? <span title={v} style={clip}>{v}</span> : v}
-          </GridValueCell>
-        )}
-      </div>
+        {typeof v === 'string' ? <span title={v} style={clip}>{v}</span> : v}
+      </GridValueCell>
     );
   };
 
   return (
-    <div ref={outer} style={{ position: 'relative' }}>
-      <div
-        ref={scroller}
-        onScroll={() => { measure(); place(); }}
-        style={{ overflowX: 'auto', border: `1px solid ${color.stroke.divider}` }}
-      >
-        <div
-          role="grid"
-          aria-label={label}
-          aria-colcount={columns.length + 1}
-          style={{ display: 'grid', gridTemplateColumns: template, width, background: color.bg.surface }}
-        >
-          {groups && (
-            <Row style={{ display: 'contents' }}>
-              <div style={pinnedStyle}><ColumnGroupHeader span={1}>{' '}</ColumnGroupHeader></div>
-              {groups.map((g) => (
-                <ColumnGroupHeader key={g.label} span={g.span}>{g.label}</ColumnGroupHeader>
-              ))}
-              {onAddColumn && <ColumnGroupHeader span={1}>{' '}</ColumnGroupHeader>}
-            </Row>
-          )}
-
-          <Row style={{ display: 'contents' }}>
-            <div data-pin="head" style={pinnedStyle}>
-              <GridColumnHeader sort={dirOf('__label')} onSort={cycle('__label')}>{firstColumn}</GridColumnHeader>
-            </div>
+    <div ref={outer} style={{ position: 'relative', minWidth: 0 }}>
+      <DataGrid
+        label={label}
+        style={{ border: `1px solid ${color.stroke.divider}` }}
+        groupHead={groups && (
+          <>
+            <ColumnGroupHeader span={1} style={pinBody}>{' '}</ColumnGroupHeader>
+            {groups.map((g) => <ColumnGroupHeader key={g.label} span={g.span}>{g.label}</ColumnGroupHeader>)}
+            {onAddColumn && <ColumnGroupHeader span={1}>{' '}</ColumnGroupHeader>}
+          </>
+        )}
+        head={
+          <>
+            <GridColumnHeader grow={2} data-pin="head" style={pinBody} sort={dirOf('__label')} onSort={cycle('__label')}>
+              {firstColumn}
+            </GridColumnHeader>
             {columns.map((c) => (
-              <div key={c.key} data-head={c.key} style={{ display: 'grid' }}>
-                <GridColumnHeader
-                  draggable
-                  numeric={c.numeric}
-                  selected={selectedCol === c.key}
-                  sort={dirOf(c.key)}
-                  onSort={cycle(c.key)}
-                  onFilter={c.filter ? () => undefined : undefined}
-                >
-                  {c.label}
-                </GridColumnHeader>
-              </div>
+              <GridColumnHeader
+                key={c.key}
+                data-head={c.key}
+                draggable
+                numeric={c.numeric}
+                selected={selectedCol === c.key}
+                sort={dirOf(c.key)}
+                onSort={cycle(c.key)}
+                onFilter={c.filter ? () => undefined : undefined}
+              >
+                {c.label}
+              </GridColumnHeader>
             ))}
-            {onAddColumn && <AddColumnHeader onClick={onAddColumn}>{addColumnLabel}</AddColumnHeader>}
+            {onAddColumn && <AddColumnHeader onClick={onAddColumn} selected={addColumnSelected}>{addColumnLabel}</AddColumnHeader>}
+          </>
+        }
+      >
+        {sorted.map((r, i) => (
+          <Row key={r.id} zebra={i % 2 === 1}>
+            {r.expandable ? (
+              <RowLabelCell expanded={false} style={pinRow(i)}>{r.label}</RowLabelCell>
+            ) : (
+              <RowLabelCell style={pinRow(i)}>{r.label}</RowLabelCell>
+            )}
+            {columns.map((c) => valueCell(r, c))}
+            {onAddColumn && <GridValueCell>{''}</GridValueCell>}
           </Row>
+        ))}
 
-          {sorted.map((r) => (
-            <Row key={r.id} style={{ display: 'contents' }}>
-              <div style={pinnedStyle}>
-                {r.expandable ? (
-                  <RowLabelCell expanded={false}>{r.label}</RowLabelCell>
-                ) : (
-                  <RowLabelCell>{r.label}</RowLabelCell>
-                )}
-              </div>
-              {columns.map((c) => valueCell(r, c, r.values[c.key]))}
-              {onAddColumn && <GridValueCell>{''}</GridValueCell>}
-            </Row>
-          ))}
-
-          {total && (
-            <Row type="total" style={{ display: 'contents' }}>
-              <div style={pinnedStyle}><RowLabelCell type="total">Total</RowLabelCell></div>
-              {columns.map((c) => (
-                <GridValueCell key={c.key} kind="total">{total[c.key] ?? ''}</GridValueCell>
-              ))}
-              {onAddColumn && <GridValueCell kind="total">{''}</GridValueCell>}
-            </Row>
-          )}
-        </div>
-      </div>
+        {total && (
+          <Row type="total">
+            <RowLabelCell type="total" style={pin}>Total</RowLabelCell>
+            {columns.map((c) => <GridValueCell key={c.key} kind="total">{total[c.key] ?? ''}</GridValueCell>)}
+            {onAddColumn && <GridValueCell kind="total">{''}</GridValueCell>}
+          </Row>
+        )}
+      </DataGrid>
 
       {rails && hidden.left > 0 && (
         <div style={{ position: 'absolute', top: '25%', left: hidden.pinnedW, zIndex: zIndex.sticky }}>

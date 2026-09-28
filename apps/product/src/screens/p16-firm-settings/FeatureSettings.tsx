@@ -1,5 +1,5 @@
 import {
-  Checkbox, Heading, Icon, Tooltip, glyphs, space,
+  Checkbox, Heading, Icon, Tooltip, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { FirmSettingsFrame } from './FirmSettingsFrame.js';
@@ -22,7 +22,7 @@ export function FeatureSettings(_: ScreenProps) {
               <Checkbox defaultChecked={f.on}>{f.label}</Checkbox>
               <Tooltip content={f.help} position="right">
                 <button type="button" aria-label={`About: ${f.label}`} style={{ display: 'inline-flex', background: 'none', border: 0, padding: 0, cursor: 'help' }}>
-                  <Icon size="s" tone="secondary"><glyphs.Info /></Icon>
+                  <Icon size="s" tone="secondary"><icons.Help /></Icon>
                 </button>
               </Tooltip>
             </div>

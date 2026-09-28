@@ -1,8 +1,8 @@
 /**
  * Demo content for the firm Documents page, copied from the Figma frames
- * (04 · Documents (Firm) → All Documents / Company Documents).
+ * (05 · Documents (Firm) → All Documents / Company Documents).
  */
-import { companies } from '../../data/fixtures.js';
+import { db } from '../../data/fixtures.js';
 
 export interface DocCompany {
   id: string;
@@ -11,37 +11,34 @@ export interface DocCompany {
   count: number;
 }
 
-const META: Record<string, { fund?: string; count: number }> = {
-  'abc-co': { fund: 'VIP Fund', count: 7 },
-  'backside-blocks': { fund: 'VIP Fund', count: 28 },
-  captable: { count: 0 },
-  cohesity: { fund: 'Low Class', count: 1 },
-  'company-31': { count: 11 },
-  comps: { count: 0 },
-  databricks: { fund: 'VIP Fund', count: 55 },
-  'debt-only': { fund: 'VIP Fund', count: 9 },
-  'dec-30-md': { count: 1 },
-  'eagle-eye': { count: 3 },
-  flexport: { fund: 'VIP Fund', count: 5 },
-  'gamma-labs': { count: 2 },
+/** Document counts drawn in the frame (All Companies list), keyed by company id. */
+const FRAME_COUNTS: Record<string, number> = {
+  'abc-co': 7, 'backside-blocks': 28, captable: 0, cohesity: 1, 'company-31': 11, comps: 0, databricks: 55,
+  'debt-only': 9, 'dec-30-md': 1, 'empty-company': 1, 'euros-financials': 14, 'fund-owns-preferred-notes': 4,
+  'future-4-liq-pref': 6, 'future-exit-liq-pref': 2, gpc: 1, jan23: 7,
 };
 
-/** Companies that only appear in the Documents list (not in the shared fixtures). */
-const EXTRA: DocCompany[] = [
-  { id: 'empty-company', name: 'Empty Company', count: 1 },
-  { id: 'euros-financials', name: 'Euros Financials', fund: 'VIP Fund', count: 14 },
-  { id: 'fund-owns-preferred-notes', name: 'Fund Owns Preferred Notes', fund: 'VIP Fund', count: 4 },
-  { id: 'future-4-liq-pref', name: 'Future 4 Liq Pref', fund: 'VIP Fund', count: 6 },
-  { id: 'future-exit-liq-pref', name: 'Future Exit Liq Pref', count: 2 },
-  { id: 'gpc', name: 'GPC', count: 1 },
-  { id: 'jan23', name: 'jan23', fund: 'VIP Fund', count: 7 },
-  { id: 'jun-3-25', name: 'Jun 3 25', count: 1 },
-];
+const toDocCompany = (c: ReturnType<typeof db.companies.all>[number]): DocCompany => ({
+  id: c.id,
+  name: c.name,
+  fund: db.funds.byId(c.fundId)?.name,
+  // Companies not drawn in the frame get a plausible count from their record.
+  count: FRAME_COUNTS[c.id] ?? (c.securities * 3 + c.name.length) % 40,
+});
 
-export const docCompanies: DocCompany[] = [
-  ...companies.map((c) => ({ id: c.id, name: c.name, ...(META[c.id] ?? { count: 0 }) })),
-  ...EXTRA,
-].sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+/**
+ * The All Companies list: the companies drawn in the frame first, in frame
+ * order, then the rest of the database A–Z. Filtering goes through db.search.
+ */
+export function docCompanies(query = ''): DocCompany[] {
+  if (query.trim()) return db.companies.search(query, db.companies.count).map(toDocCompany);
+  const first = Object.keys(FRAME_COUNTS).map((id) => db.companies.byId(id)).filter((c): c is NonNullable<typeof c> => !!c);
+  const seen = new Set(first.map((c) => c.id));
+  return [...first, ...db.companies.all().filter((c) => !seen.has(c.id))].map(toDocCompany);
+}
+
+/** How many rows of the list fit before the "↓ N companies" scroll hint. */
+export const VISIBLE_COMPANIES = 16;
 
 export interface DocFile {
   id: string;
@@ -73,7 +70,7 @@ export const rootFiles: DocFile[] = [
   f('d10', 'volcano-eruption-2021-08-29-00-10-20-utc.zip', 'Steven Hansen', '02/06/2023'),
 ];
 
-export const subfolders: DocFolder[] = [
+export const subfoldersFor = (companyName: string): DocFolder[] => [
   {
     id: 'company-docs',
     name: 'Company Docs',
@@ -87,10 +84,10 @@ export const subfolders: DocFolder[] = [
     id: 'exports',
     name: 'Exports',
     files: [
-      f('e1', 'Backside Blocks_Financials_281_2025-03-31.xlsx', 'Steven Hansen', '03/31/2025'),
-      f('e2', 'Backside Blocks_Financials_281_2025-03-31 (1).xlsx', 'Steven Hansen', '03/31/2025'),
-      f('e3', 'Backside Blocks_Financials_5388_2025-03-31.xlsx', 'Steven Hansen', '03/31/2025'),
-      f('e4', 'Backside Blocks_Financials_5388_2025-03-31 (1).xlsx', 'Steven Hansen', '03/31/2025'),
+      f('e1', `${companyName}_Financials_281_2025-03-31.xlsx`, 'Steven Hansen', '03/31/2025'),
+      f('e2', `${companyName}_Financials_281_2025-03-31 (1).xlsx`, 'Steven Hansen', '03/31/2025'),
+      f('e3', `${companyName}_Financials_5388_2025-03-31.xlsx`, 'Steven Hansen', '03/31/2025'),
+      f('e4', `${companyName}_Financials_5388_2025-03-31 (1).xlsx`, 'Steven Hansen', '03/31/2025'),
     ],
   },
 ];
@@ -114,4 +111,4 @@ export const measurementDates: MeasurementDate[] = [
 /** A company's own measurement-date folders (company selected). */
 export const companyDates = ['03/31/2025', '06/30/2022', '05/10/2021'];
 
-export const allFiles: DocFile[] = [...rootFiles, ...subfolders.flatMap((s) => s.files)];
+export const allFilesFor = (companyName: string): DocFile[] => [...rootFiles, ...subfoldersFor(companyName).flatMap((s) => s.files)];

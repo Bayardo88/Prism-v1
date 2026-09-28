@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import {
   Button, ButtonIcon, Checkbox, FloatingLabelInput, Icon, Label, Modal, ModalSearch, Overline, Text,
-  color, glyphs, radius, space,
+  color, icons, radius, space,
 } from '@scalar/design-system';
 import { columnCatalogue, defaultSelected } from './data.js';
 
@@ -28,6 +28,7 @@ export function CreateSummaryView({ open, onClose, name = 'New View (Copy 2)', t
       open={open}
       onClose={onClose}
       title={title}
+      size="l"
       dismissOnScrimClick={false}
       footer={
         <>
@@ -76,13 +77,13 @@ export function CreateSummaryView({ open, onClose, name = 'New View (Copy 2)', t
               <Text step="s" tone="tertiary">Drag to reorder. Fixed columns stay in place.</Text>
               {[...FIXED, ...selected].map((c) => (
                 <div key={c} style={{ display: 'flex', alignItems: 'center', gap: space.xs, padding: `${space['2xs']} 0` }}>
-                  <Icon size="s" tone="disabled"><glyphs.DragHandle /></Icon>
+                  <Icon size="s" tone="disabled"><icons.DragIndicator /></Icon>
                   <Text step="s">{c}</Text>
                   <div style={{ marginLeft: 'auto' }}>
                     {FIXED.includes(c) ? (
                       <Overline>Fixed</Overline>
                     ) : (
-                      <ButtonIcon variant="tertiary" size="s" label={`Remove ${c}`} onClick={() => toggle(c)} icon={<Icon size="s" tone="inherit"><glyphs.Close /></Icon>} />
+                      <ButtonIcon variant="tertiary" size="s" label={`Remove ${c}`} onClick={() => toggle(c)} icon={<Icon size="s" tone="inherit"><icons.Close /></Icon>} />
                     )}
                   </div>
                 </div>
@@ -94,7 +95,7 @@ export function CreateSummaryView({ open, onClose, name = 'New View (Copy 2)', t
         <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs, alignItems: 'flex-start' }}>
           <Label step="m" weight="semiBold">Sort order</Label>
           <Text step="s" tone="secondary">Sorting uses the company's total values across all funds, not individual fund-level values.</Text>
-          <Button variant="secondary" size="m" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}>Add Sort Key</Button>
+          <Button variant="secondary" size="m" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}>Add Sort Key</Button>
         </div>
       </div>
     </Modal>

@@ -11,14 +11,14 @@ Edit name and email, send a password reset, choose which emails to receive, set 
 |---|---|---|---|
 | default | [Account — Settings](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-16416) | 11:16416 | `#/account/settings` |
 
-Components used: AppFrame, PageHeader (SecondaryMenuItem tabs), Button, FloatingLabelInput, Checkbox, Label, Select, ButtonIcon, Heading, Text, Icon, AppFooter, Dropzone.
+Components used: AppFrame, PageHeader (SecondaryMenuItem tabs), Button, FloatingLabelInput, Checkbox, Label, Select, ButtonIcon, Heading, Text, Icon (`icons.Mail`, `FitScreen`, `CheckCircle`), AppFooter, Dropzone (`prompt`), ImageCropField.
 
 Behaviour & rules:
 - Name and email default from the signed-in user fixture. Save (primary, positive) is disabled until something changes.
 - "Send password reset email" is immediate and confirms inline ("Reset link sent to …").
 - Email preferences are Checkboxes (they need Save), not Switches.
 - Application body zoom: 75–125 %, default 85 %; the fit-to-screen button resets to 100 %.
-- Profile Picture: Dropzone, JPG only, 15 MB max; the selected file name shows under it.
+- Profile Picture: Dropzone with the frame's prompt ("Drag & Drop Profile Picture or Select a file"), JPG only, 15 MB max. Once a file is chosen an ImageCropField previews it with a zoom slider and a delete button.
 - Connected Apps empty state: "No connected apps. Connect an MCP-compatible application to see it here."
 
 ### Two-Factor Authentication — `/account/two-factor`
@@ -28,7 +28,7 @@ See whether 2FA is on and manage the one-time backup codes.
 |---|---|---|---|
 | default | [Account — Two-Factor Authentication](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-20549) | 11:20549 | `#/account/two-factor` |
 
-Components used: AppFrame, PageHeader, Accordion, AccordionItem, Switch, Text, CodeGrid, Button, Icon, ConfirmationDialog.
+Components used: AppFrame, PageHeader, Accordion, AccordionItem, Switch, Text, CodeGrid, Button, Icon (`icons.CloudDownload`, `Print`, `Refresh`), ConfirmationDialog.
 
 Behaviour & rules:
 - The firm policy requires 2FA, so the switch is on and disabled, with the reason stated above it.
@@ -41,6 +41,5 @@ Behaviour & rules:
 
 ## Gaps & open questions
 - The Figma Save is Button Size=S; the DS reserves size S for dense grid furniture, so the build uses M.
-- Figma's Dropzone copy is "Drag & Drop Profile Picture or Select a file"; the DS Dropzone has fixed prompt copy ("Drag & drop a file or select a file").
-- The fit_screen glyph is an SDS_Main icon; `Expand` used instead.
 - Last name: the fixture user has no surname beyond "V"; Figma showed a real name, not reproduced.
+- The profile picture and email preferences are not persisted (no user store).

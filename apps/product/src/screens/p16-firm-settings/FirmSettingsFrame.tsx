@@ -74,3 +74,16 @@ export function TwoColumn({ left, right, ratio = '1fr 1fr' }: { left: ReactNode;
 export function SectionRule() {
   return <hr style={{ border: 0, borderTop: `1px solid ${color.stroke.divider}`, margin: 0, width: '100%' }} />;
 }
+
+/**
+ * Positions an open SelectMenu under its field. SelectMenu is a surface only;
+ * the trigger owns placement, so each field wraps itself in `position: relative`
+ * and drops this anchor after the control.
+ */
+export function MenuAnchor({ children, width = '100%' }: { children?: ReactNode; width?: string }) {
+  return (
+    <div style={{ position: 'absolute', top: '100%', left: 0, width, zIndex: 20, marginTop: space.xs }}>
+      {children}
+    </div>
+  );
+}

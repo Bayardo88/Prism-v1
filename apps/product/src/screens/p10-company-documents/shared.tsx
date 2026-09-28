@@ -6,7 +6,7 @@
 import { useCallback, useRef, useState } from 'react';
 import {
   Button, ButtonIcon, ContextMenu, Heading, Icon, MenuItem, ProgressRing, TertiaryMenuItem, Text,
-  glyphs, space, zIndex,
+  icons, space, zIndex,
 } from '@scalar/design-system';
 import { href, navigate } from '../../router.js';
 import { routes } from '../../routes.js';
@@ -22,7 +22,7 @@ export function DocumentsSubNav({ companyId, current }: { companyId: string; cur
 }
 
 export function CompanyActionsButton() {
-  return <ButtonIcon variant="tertiary" size="s" label="Company actions" icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>} />;
+  return <ButtonIcon variant="tertiary" size="s" label="Company actions" icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>} />;
 }
 
 export function RequestsHeading({ companyId, title, counts, menuOpen: initialMenu = false }: {
@@ -46,7 +46,7 @@ export function RequestsHeading({ companyId, title, counts, menuOpen: initialMen
         {/* Starts a task (the request editor), so it is an action, not a link. */}
         <Button
           variant="primary"
-          leadingIcon={<Icon size="s" tone="inherit"><glyphs.Mail /></Icon>}
+          leadingIcon={<Icon size="s" tone="inherit"><icons.Mail /></Icon>}
           onClick={() => navigate(routes.company.informationRequest(companyId))}
         >
           New Info Request
@@ -57,14 +57,14 @@ export function RequestsHeading({ companyId, title, counts, menuOpen: initialMen
             label={`${title} page actions`}
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen((o) => !o)}
-            icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>}
+            icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>}
           />
         </span>
         {menuOpen && (
           <div ref={ref} style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay }}>
             <ContextMenu label={`${title} page actions`}>
               <MenuItem
-                icon={<Icon size="s" tone="inherit"><glyphs.Edit /></Icon>}
+                icon={<Icon size="s" tone="inherit"><icons.EditNote /></Icon>}
                 href={href(routes.company.informationRequest(companyId))}
               >
                 Edit Company Questions and Documents

@@ -7,13 +7,13 @@
  */
 import { useCallback, useRef, useState } from 'react';
 import {
-  Button, ContextMenu, CurrencySelector, MenuDivider, MenuItem, ViewTab, ViewTabBar, space, zIndex,
+  Button, ContextMenu, CurrencySelector, Icon, MenuDivider, MenuItem, ViewTab, ViewTabBar, icons, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import { ScenarioGrid } from '../p04-waterfalls/ScenarioGrid.js';
-import { CreateViewModal, WATERFALL_DOCK, WorkspaceDocuments } from '../p04-waterfalls/shared.js';
+import { CreateViewModal, WATERFALL_DOCK, scenarioFor, waterfallDockPanels } from '../p04-waterfalls/shared.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
 
 export function CompanyWaterfall({ state, params }: ScreenProps) {
@@ -22,6 +22,7 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
   const [view, setView] = useState(state === 'saved-view' ? 'test' : 'Current');
   const [creating, setCreating] = useState(state === 'create-view');
   const [menuFor, setMenuFor] = useState<string | undefined>();
+  const { columns, band, rateLabel } = scenarioFor(company);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setMenuFor(undefined), []);
@@ -56,17 +57,17 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
           {menuFor && (
             <div ref={menuRef} style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay }}>
               <ContextMenu label={`${menuFor} view actions`}>
-                <MenuItem onClick={() => { setViews((all) => [...all, `${menuFor} (copy)`]); setMenuFor(undefined); }}>Duplicate</MenuItem>
+                <MenuItem icon={<Icon size="s" tone="inherit"><icons.ContentCopy /></Icon>} onClick={() => { setViews((all) => [...all, `${menuFor} (copy)`]); setMenuFor(undefined); }}>Duplicate</MenuItem>
                 <MenuDivider />
-                <MenuItem tone="destructive" onClick={() => remove(menuFor)}>Delete view</MenuItem>
+                <MenuItem tone="destructive" icon={<Icon size="s" tone="inherit"><icons.Delete /></Icon>} onClick={() => remove(menuFor)}>Delete view</MenuItem>
               </ContextMenu>
             </div>
           )}
         </div>
       }
-      subNavEnd={<CurrencySelector>USD · ($) Millions</CurrencySelector>}
+      subNavEnd={<CurrencySelector>{rateLabel}</CurrencySelector>}
       dock={WATERFALL_DOCK}
-      dockContent={<WorkspaceDocuments companyId={company.id} />}
+      dockPanels={waterfallDockPanels(company.id)}
       overlay={
         <CreateViewModal
           open={creating}
@@ -79,12 +80,8 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
         <ScenarioGrid
           key={view}
           label={`${company.name} waterfall — ${view}`}
-          band={{ rate: 'USD', unit: '($) Millions' }}
-          columns={[{
-            key: 'input', currency: 'USD', symbol: '$', editable: true,
-            capTable: 'Primary Captable', exitDate: '09/22/2026',
-            fxRate: 1, exitEnterpriseValue: 0, cash: 0, debt: 0,
-          }]}
+          band={band}
+          columns={columns.map(({ company: _c, capTableDate: _d, ...c }) => c)}
         />
       </div>
     </CompanyLayout>

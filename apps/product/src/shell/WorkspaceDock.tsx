@@ -18,10 +18,15 @@ export const DEFAULT_DOCK: DockTab[] = [
   { key: 'documents', label: 'Documents' },
 ];
 
-export function WorkspaceDock({ tabs = DEFAULT_DOCK, open, children }: {
+/**
+ * `children` is the body for every tab; `panels` gives a tab its own body
+ * (`{ notes: <NotesPanel/>, documents: <Docs/> }`) and wins over `children`.
+ */
+export function WorkspaceDock({ tabs = DEFAULT_DOCK, open, children, panels }: {
   tabs?: DockTab[];
   open?: string;
   children?: ReactNode;
+  panels?: Partial<Record<string, ReactNode>>;
 }) {
   const [active, setActive] = useState<string | undefined>(open);
   useEffect(() => setActive(open), [open]);
@@ -37,7 +42,7 @@ export function WorkspaceDock({ tabs = DEFAULT_DOCK, open, children }: {
     />
   ));
 
-  if (active) return <WorkspaceDrawer tabs={tabEls}>{children}</WorkspaceDrawer>;
+  if (active) return <WorkspaceDrawer tabs={tabEls}>{panels?.[active] ?? children}</WorkspaceDrawer>;
 
   return (
     <div

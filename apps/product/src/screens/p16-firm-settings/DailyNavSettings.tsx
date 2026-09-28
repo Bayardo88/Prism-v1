@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Button, Dropzone, FloatingLabelInput, FloatingLabelSelect, FormField, Heading, Icon, Input, Label, Link,
-  NumberField, Overline, RepeatableRow, SaveState, Text, TimeField, VersionHistoryItem, glyphs, space,
+  NumberField, Overline, RepeatableRow, SaveState, SelectMenu, SelectMenuOption, Text, TimeField, VersionHistoryItem, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
-import { FirmSettingsFrame, SectionRule, SidePanel } from './FirmSettingsFrame.js';
-import { OptionMenu } from './OptionMenu.js';
+import { FirmSettingsFrame, MenuAnchor, SectionRule, SidePanel } from './FirmSettingsFrame.js';
 import { tradingMarkets } from './data.js';
 
 function Section({ title, children }: { title: string; children?: ReactNode }) {
@@ -24,9 +23,7 @@ const grid3 = { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: space.
 function Threshold({ label, value }: { label: string; value: number | '' }) {
   const [v, setV] = useState<number | ''>(value);
   return (
-    <FormField label={label}>
-      <NumberField value={v} onChange={setV} suffix="%" min={0} max={100} />
-    </FormField>
+    <NumberField label={label} value={v} onChange={setV} suffix="%" min={0} max={100} />
   );
 }
 
@@ -51,7 +48,7 @@ function RecipientList({ initial, placeholder, label }: { initial: Recipient[]; 
       <div>
         <Button
           variant="tertiary"
-          leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
+          leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
           onClick={() => setRows((rs) => [...rs, { id: Date.now(), email: '' }])}
         >
           Add recipient
@@ -115,16 +112,22 @@ export function DailyNavSettings({ state }: ScreenProps) {
               The number of trading days each delta window looks back. The short window must be less than the long window; both must be between 1 and 31 trading days.
             </Text>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: space.m }}>
-              <FormField
-                label="Short Window (trading days)"
-                state={windowError ? 'error' : 'default'}
-                helperText={windowError ? 'Make the short window smaller than the long window.' : undefined}
-              >
-                <NumberField value={short} onChange={setShort} min={1} max={31} unitLabel="trading days" />
-              </FormField>
-              <FormField label="Long Window (trading days)">
-                <NumberField value={long} onChange={setLong} min={1} max={31} unitLabel="trading days" />
-              </FormField>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
+                <NumberField
+                  label="Short Window (trading days)"
+                  value={short}
+                  onChange={setShort}
+                  min={1}
+                  max={31}
+                  unitLabel="trading days"
+                  state={windowError ? 'error' : 'default'}
+                  aria-describedby={windowError ? 'short-window-error' : undefined}
+                />
+                {windowError && (
+                  <Text id="short-window-error" role="alert" step="s" tone="negative">Make the short window smaller than the long window.</Text>
+                )}
+              </div>
+              <NumberField label="Long Window (trading days)" value={long} onChange={setLong} min={1} max={31} unitLabel="trading days" />
             </div>
             <SaveState state={dirty ? 'unsaved' : 'no-changes'}>{dirty ? undefined : 'No changes to save.'}</SaveState>
 
@@ -165,13 +168,15 @@ export function DailyNavSettings({ state }: ScreenProps) {
                 {tradingMarkets.map((m) => <option key={m}>{m}</option>)}
               </FloatingLabelSelect>
               {marketOpen && (
-                <OptionMenu
-                  label="Trading Market"
-                  width="120%"
-                  options={tradingMarkets.map((m) => ({ value: m, label: m }))}
-                  value={market}
-                  onSelect={(v) => { setMarket(v); setMarketOpen(false); setDirty(true); }}
-                />
+                <MenuAnchor width="120%">
+                  <SelectMenu label="Trading Market">
+                    {tradingMarkets.map((m) => (
+                      <SelectMenuOption key={m} selected={m === market} active={m === market} onSelect={() => { setMarket(m); setMarketOpen(false); setDirty(true); }}>
+                        {m}
+                      </SelectMenuOption>
+                    ))}
+                  </SelectMenu>
+                </MenuAnchor>
               )}
             </div>
           </Section>
@@ -181,7 +186,7 @@ export function DailyNavSettings({ state }: ScreenProps) {
             <Text step="s" tone="secondary">
               These recipients receive the daily report at the clock time below, in the trading market's timezone (America/New_York) — not UTC and not your local timezone.
             </Text>
-            <div style={{ maxWidth: '33%' }}>
+            <div style={{ maxWidth: '50%' }}>
               <FormField label="Report send time (America/New_York)">
                 <TimeField defaultValue="16:00" />
               </FormField>
@@ -196,7 +201,12 @@ export function DailyNavSettings({ state }: ScreenProps) {
             <Text step="s" tone="secondary">
               Upload the firm's exact CSV template, then map every column to Daily NAV data or a hardcoded value. Column names, duplicates, and order are preserved in the generated report.
             </Text>
-            <Dropzone accept=".csv" hint="CSV · 15 MB max file size" onFiles={() => setDirty(true)} />
+            <Dropzone
+              accept=".csv"
+              hint="CSV · 15 MB max file size"
+              prompt={(browse) => <>Drop a CSV template or {browse('select a file')}</>}
+              onFiles={() => setDirty(true)}
+            />
           </Section>
           <SectionRule />
 
@@ -207,9 +217,7 @@ export function DailyNavSettings({ state }: ScreenProps) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: space.m }}>
               <FloatingLabelInput label="SFTP host" />
               <div style={{ maxWidth: '50%' }}>
-                <FormField label="Port">
-                  <NumberField value={port} onChange={setPort} min={1} max={65535} unitLabel="port" />
-                </FormField>
+                <NumberField label="Port" value={port} onChange={setPort} min={1} max={65535} unitLabel="port" />
               </div>
               <FloatingLabelInput label="Path" />
               <FloatingLabelInput label="Username" autoComplete="off" />
@@ -224,8 +232,9 @@ export function DailyNavSettings({ state }: ScreenProps) {
           <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             <VersionHistoryItem
               current
+              currentLabel="Current — today's NAV and the next"
               range="Aug 24, 2026 5:01 PM — Present"
-              meta={<>Today's NAV and the next · Changed by Steven Hansen</>}
+              meta="Changed by Steven Hansen"
               action={<div><Button variant="secondary" disabled={!dirty}>Apply to open NAV day</Button></div>}
             />
           </ul>

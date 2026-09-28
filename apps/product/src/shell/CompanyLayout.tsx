@@ -41,12 +41,15 @@ export interface CompanyLayoutProps extends Pick<AppFrameProps, 'openMenu' | 'ov
   dock?: DockTab[] | false;
   /** Which dock tab is open, if any — opens the drawer. */
   dockOpen?: string;
+  /** Body shown for every dock tab. */
   dockContent?: ReactNode;
+  /** Per-tab dock bodies, keyed by tab key; win over `dockContent`. */
+  dockPanels?: Partial<Record<string, ReactNode>>;
   children?: ReactNode;
 }
 
 export function CompanyLayout({
-  company, section, headerEnd, subNav, subNavEnd, footer, dock, dockOpen, dockContent,
+  company, section, headerEnd, subNav, subNavEnd, footer, dock, dockOpen, dockContent, dockPanels,
   openMenu, overlay, date, children,
 }: CompanyLayoutProps) {
   return (
@@ -86,7 +89,7 @@ export function CompanyLayout({
         </div>
       )}
 
-      {dock !== false && <WorkspaceDock tabs={dock} open={dockOpen}>{dockContent}</WorkspaceDock>}
+      {dock !== false && <WorkspaceDock tabs={dock} open={dockOpen} panels={dockPanels}>{dockContent}</WorkspaceDock>}
     </AppFrame>
   );
 }

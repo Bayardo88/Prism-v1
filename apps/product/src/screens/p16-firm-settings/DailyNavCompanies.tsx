@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Alert, Button, Cell, CheckboxItem, Chip, ColumnHeader, DataGrid, FormField, Heading, Icon, Input, Link, Modal,
-  Row, Text, glyphs, space,
+  Pagination, Row, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
+import { db } from '../../data/fixtures.js';
 import { FirmSettingsFrame } from './FirmSettingsFrame.js';
-import { dailyNavCompanies } from './data.js';
-
-const slug = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 /** Threshold columns: header, and the firm default each empty cell inherits. */
 const thresholds = [
@@ -22,19 +20,26 @@ const thresholds = [
   { key: 'mark', label: 'vs Mark', inherit: 'Inherit' },
 ];
 
-const col = {
-  company: { flex: 1.6 },
-  day: { flex: 1.1 },
-  enabled: { flex: 0.7 },
-  threshold: { flex: 1.2 },
-  alexandria: { flex: 0.8 },
-};
+/**
+ * Column tracks. The threshold columns hold inputs, whose intrinsic width would
+ * push the default `minmax(max-content, 1fr)` tracks past 1440, so they share the
+ * spare width from zero; the text columns keep their one-line header width.
+ */
+const columns = [
+  'minmax(max-content, 1.6fr)', 'max-content', 'max-content',
+  ...thresholds.map(() => 'minmax(0, 1fr)'),
+  'max-content',
+];
+
+/** The NAV day every enabled company is on (the open NAV day in the frames). */
+const NAV_DAY = 'Sep 22, 2026';
 
 function AlexandriaModal({ company, onClose }: { company: string; onClose: () => void }) {
   const [query, setQuery] = useState('');
   return (
     <Modal
       open
+      size="m"
       onClose={onClose}
       title={`Alexandria company — ${company}`}
       footer={<Button variant="tertiary" onClick={onClose}>Done</Button>}
@@ -47,7 +52,7 @@ function AlexandriaModal({ company, onClose }: { company: string; onClose: () =>
             placeholder="Search by company name…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            leadingIcon={<Icon size="s" tone="secondary"><glyphs.Search /></Icon>}
+            leadingIcon={<Icon size="s" tone="secondary"><icons.Search /></Icon>}
           />
         </FormField>
         <Alert style="info">No match in external company database. Try the company's legal or alternate name.</Alert>
@@ -59,7 +64,13 @@ function AlexandriaModal({ company, onClose }: { company: string; onClose: () =>
 export function DailyNavCompanies({ state }: ScreenProps) {
   const [linking, setLinking] = useState<string | undefined>(state === 'alexandria-modal' ? 'ABC Co' : undefined);
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(25);
   useEffect(() => setLinking(state === 'alexandria-modal' ? 'ABC Co' : undefined), [state]);
+
+  const all = useMemo(() => db.companies.all(), []);
+  const { rows, total } = db.companies.page((page - 1) * perPage, perPage, all);
+  const pageCount = Math.max(1, Math.ceil(total / perPage));
 
   return (
     <FirmSettingsFrame
@@ -76,45 +87,54 @@ export function DailyNavCompanies({ state }: ScreenProps) {
       </div>
       <DataGrid
         label="Daily NAV companies"
+        columns={columns}
         head={
           <>
-            <ColumnHeader style={col.company}>Company</ColumnHeader>
-            <ColumnHeader style={col.day}>NAV day</ColumnHeader>
-            <ColumnHeader style={col.enabled}>Enabled</ColumnHeader>
-            {thresholds.map((t) => <ColumnHeader key={t.key} style={col.threshold}>{t.label}</ColumnHeader>)}
-            <ColumnHeader style={col.alexandria}>Alexandria</ColumnHeader>
+            <ColumnHeader>Company</ColumnHeader>
+            <ColumnHeader>NAV day</ColumnHeader>
+            <ColumnHeader>Enabled</ColumnHeader>
+            {thresholds.map((t) => <ColumnHeader key={t.key}>{t.label}</ColumnHeader>)}
+            <ColumnHeader>Alexandria</ColumnHeader>
           </>
         }
       >
-        {dailyNavCompanies.map((c, i) => {
-          const id = c.id ?? slug(c.name);
-          const on = enabled[id] ?? true;
+        {rows.map((c, i) => {
+          const on = enabled[c.id] ?? c.dailyNav;
           return (
-            <Row key={id} zebra={i % 2 === 1}>
-              <Cell style={col.company}>
-                <Link size="s" href={href(routes.company.dailyNavSettings(id))}>{c.name}</Link>
+            <Row key={c.id} zebra={i % 2 === 1}>
+              <Cell>
+                <Link size="s" href={href(routes.company.dailyNavSettings(c.id))}>{c.name}</Link>
               </Cell>
-              <Cell style={col.day}><Chip size="s" styleVariant="positive">Sep 22, 2026</Chip></Cell>
-              <Cell style={col.enabled}>
+              <Cell>
+                {on ? <Chip size="s" styleVariant="positive">{NAV_DAY}</Chip> : <Text as="span" step="s" tone="tertiary">Off</Text>}
+              </Cell>
+              <Cell>
                 <CheckboxItem
                   size="s"
                   checked={on}
                   aria-label={`Daily NAV enabled for ${c.name}`}
-                  onChange={(e) => setEnabled((m) => ({ ...m, [id]: e.target.checked }))}
+                  onChange={(e) => setEnabled((m) => ({ ...m, [c.id]: e.target.checked }))}
                 />
               </Cell>
               {thresholds.map((t) => (
-                <Cell key={t.key} type="input" style={col.threshold}>
+                <Cell key={t.key} type="input">
                   <Input aria-label={`${c.name} ${t.label}`} placeholder={t.inherit} inputMode="decimal" disabled={!on} />
                 </Cell>
               ))}
-              <Cell style={col.alexandria}>
+              <Cell>
                 <Button variant="tertiary" size="s" onClick={() => setLinking(c.name)}>Set</Button>
               </Cell>
             </Row>
           );
         })}
       </DataGrid>
+      <Pagination
+        page={page}
+        pageCount={pageCount}
+        onPageChange={setPage}
+        rowsPerPage={perPage}
+        onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
+      />
     </FirmSettingsFrame>
   );
 }

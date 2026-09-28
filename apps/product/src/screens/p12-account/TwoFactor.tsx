@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 import {
-  Accordion, AccordionItem, Button, CodeGrid, ConfirmationDialog, Icon, Switch, Text, glyphs, space,
+  Accordion, AccordionItem, Button, CodeGrid, ConfirmationDialog, Icon, Switch, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
@@ -59,14 +59,14 @@ export function TwoFactor(_props: ScreenProps) {
                   codes={codes}
                   actions={
                     <>
-                      <Button variant="tertiary" onClick={download} leadingIcon={<Icon size="s" tone="inherit"><glyphs.Download /></Icon>}>Download codes</Button>
-                      <Button variant="tertiary" onClick={() => window.print()}>Print codes</Button>
+                      <Button variant="tertiary" onClick={download} leadingIcon={<Icon size="s" tone="inherit"><icons.CloudDownload /></Icon>}>Download codes</Button>
+                      <Button variant="tertiary" onClick={() => window.print()} leadingIcon={<Icon size="s" tone="inherit"><icons.Print /></Icon>}>Print codes</Button>
                     </>
                   }
                 />
                 <Button
                   variant="secondary"
-                  leadingIcon={<Icon size="s" tone="inherit"><glyphs.Refresh /></Icon>}
+                  leadingIcon={<Icon size="s" tone="inherit"><icons.Refresh /></Icon>}
                   onClick={() => setConfirming(true)}
                 >
                   Generate new codes

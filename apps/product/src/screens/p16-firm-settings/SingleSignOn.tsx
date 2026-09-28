@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
-  Checkbox, CopyField, FloatingLabelInput, FormField, Heading, Label, Select, TagInput, Text, space,
+  Checkbox, CopyField, FloatingLabelInput, FormField, Heading, Label, Select, SelectMenu, SelectMenuOption, TagInput, Text, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { FirmSettingsFrame, SidePanel, TwoColumn } from './FirmSettingsFrame.js';
-import { OptionMenu } from './OptionMenu.js';
+import { FirmSettingsFrame, MenuAnchor, SidePanel, TwoColumn } from './FirmSettingsFrame.js';
 import { firmRoles, sso } from './data.js';
 
 export function SingleSignOn({ state }: ScreenProps) {
@@ -39,12 +38,15 @@ export function SingleSignOn({ state }: ScreenProps) {
                 </Select>
               </FormField>
               {roleOpen && (
-                <OptionMenu
-                  label="Default firm role"
-                  options={firmRoles.map((r) => ({ value: r, label: r }))}
-                  value={role}
-                  onSelect={(v) => { setRole(v); setRoleOpen(false); }}
-                />
+                <MenuAnchor>
+                  <SelectMenu label="Default firm role">
+                    {firmRoles.map((r) => (
+                      <SelectMenuOption key={r} selected={r === role} active={r === role} onSelect={() => { setRole(r); setRoleOpen(false); }}>
+                        {r}
+                      </SelectMenuOption>
+                    ))}
+                  </SelectMenu>
+                </MenuAnchor>
               )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>

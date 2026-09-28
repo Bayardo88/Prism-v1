@@ -15,16 +15,16 @@
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, ConfirmationDialog, ContextMenu, GridColumnDivider, GridColumnHeader, GridValueCell,
-  Icon, InCellControl, InlineEdit, MenuItem, RowLabelCell, Text, glyphs, space,
+  Banner, Button, ConfirmationDialog, DataGrid, GridColumnDivider, GridColumnHeader, GridValueCell,
+  Icon, InCellControl, InlineEdit, Row, RowLabelCell, SelectMenu, SelectMenuOption, Tooltip, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { companyById, num } from '../../data/fixtures.js';
+import { companyById, num, type Company } from '../../data/fixtures.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
-import { Anchor, Sheet, SheetRow } from '../p07-company-cap-table/Sheet.js';
+import { Anchor } from '../p07-company-cap-table/Anchor.js';
 import { ValuationsLayout } from './ValuationsLayout.js';
-import { ALLOCATION_METHODS, CAP_TABLES, TARGET_SECURITIES } from './data.js';
+import { ALLOCATION_METHODS, CAP_TABLES, targetSecuritiesFor } from './data.js';
 
 interface Method { id: string; method: string; capTable: string; weight: number }
 interface Target { id: string; security?: string; shares?: number }
@@ -51,7 +51,8 @@ interface Model {
   confirm: boolean;
 }
 
-function initial(state: string): Model {
+function initial(state: string, company: Company): Model {
+  const securities = targetSecuritiesFor(company);
   const base: Model = { methods: one(), targets: [{ id: uid() }], dirty: false, showErrors: false, menu: null, confirm: false };
   switch (state) {
     case 'duplicate-methods':
@@ -66,7 +67,7 @@ function initial(state: string): Model {
       return {
         ...base,
         methods: three(),
-        targets: [{ id: uid(), security: 'Series A' }, { id: uid() }],
+        targets: [{ id: uid(), security: securities[securities.length - 1] }, { id: uid() }],
         dirty: true,
         confirm: state === 'unsaved-confirm',
         showErrors: state === 'validation-banner',
@@ -81,14 +82,14 @@ const $0 = money2.format(0);
 
 export function Backsolve({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [m, setM] = useState<Model>(() => initial(state));
+  const [m, setM] = useState<Model>(() => initial(state, company));
   const [approachMenu, setApproachMenu] = useState(state === 'add-approach-menu');
   const [pending, setPending] = useState<string>(href(routes.company.valuationSummary(company.id)));
   const bottom = useRef<HTMLDivElement>(null);
   const top = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setM(initial(state));
+    setM(initial(state, company));
     setApproachMenu(state === 'add-approach-menu');
     if (state === 'scrolled') bottom.current?.scrollIntoView({ block: 'end' });
   }, [state]);
@@ -169,38 +170,41 @@ export function Backsolve({ state, params }: ScreenProps) {
   const addRowDisabled = emptyRows > 0 && m.targets.length > 1;
 
   /* ---- cells ---- */
-  const menuOf = (key: string, label: string, options: readonly string[], value: string | undefined, choose: (v: string) => void, note?: ReactNode) =>
+  const securities = targetSecuritiesFor(company);
+  const menuOf = (key: string, label: string, options: readonly string[], value: string | undefined, choose: (v: string) => void) =>
     m.menu === key && (
-      <ContextMenu label={label}>
-        {note}
-        {options.map((o) => <MenuItem key={o} selected={o === value} onClick={() => choose(o)}>{o}</MenuItem>)}
-      </ContextMenu>
+      <SelectMenu label={label}>
+        {options.map((o) => <SelectMenuOption key={o} selected={o === value} onSelect={() => choose(o)}>{o}</SelectMenuOption>)}
+      </SelectMenu>
     );
 
   const methodCell = (x: Method) => {
     const key = `method:${x.id}`;
     const dup = duplicates.has(x.id);
     const open = m.menu === key;
-    const note = dup && (
-      <div role="alert" style={{ display: 'flex', gap: space.xs, alignItems: 'center', padding: `${space.xs} ${space.s}` }}>
-        <Icon size="s" tone="negative"><glyphs.Error /></Icon>
-        <Text as="span" step="s" tone="negative">{UNIQUE}</Text>
-      </div>
+    const control = (
+      <InCellControl
+        type="select"
+        label="Allocation method"
+        open={open}
+        state={dup && !open ? 'error' : 'default'}
+        errorMessage={dup ? UNIQUE : undefined}
+        onClick={() => toggleMenu(key)}
+      >
+        {x.method}
+      </InCellControl>
     );
     return (
-      <Anchor key={x.id} menu={menuOf(key, 'Allocation method', ALLOCATION_METHODS, x.method, (v) => setMethod(x.id, { method: v }), note)}>
-        {dup && !open ? (
-          <button
-            type="button"
-            aria-label={`Allocation method: ${x.method}. ${UNIQUE}`}
-            aria-haspopup="listbox"
-            onClick={() => toggleMenu(key)}
-            style={{ display: 'flex', flexDirection: 'column', padding: 0, border: 0, background: 'none', font: 'inherit', cursor: 'pointer' }}
-          >
-            <GridValueCell kind="editable" state="error" errorMessage={UNIQUE}>{x.method}</GridValueCell>
-          </button>
-        ) : (
-          <InCellControl type="select" label="Allocation method" open={open} onClick={() => toggleMenu(key)}>{x.method}</InCellControl>
+      <Anchor key={x.id} menu={menuOf(key, 'Allocation method', ALLOCATION_METHODS, x.method, (v) => setMethod(x.id, { method: v }))}>
+        {control}
+        {/* While a duplicate's menu is open, the rule is spelled out over the cell. The
+            Tooltip hangs off a zero-size marker so it doesn't wrap (and shrink) the control. */}
+        {dup && open && (
+          <div style={{ position: 'absolute', top: `calc(${space.m} * -1)`, left: '50%' }}>
+            <Tooltip content={UNIQUE} position="top" open>
+              <span aria-hidden />
+            </Tooltip>
+          </div>
         )}
       </Anchor>
     );
@@ -215,14 +219,19 @@ export function Backsolve({ state, params }: ScreenProps) {
     );
   };
 
-  const methodRow = (label: string, type: 'line-item' | 'subtotal' | 'child', cells: ReactNode[], total: ReactNode) => (
-    <SheetRow key={label} label={label}>
-      <RowLabelCell type={type}>{label}</RowLabelCell>
-      {cells}
-      <GridColumnDivider type="pinned" />
-      {total}
-    </SheetRow>
-  );
+  let stripe = 0;
+  const methodRow = (label: string, type: 'line-item' | 'subtotal' | 'child', cells: ReactNode[], total: ReactNode) => {
+    stripe += 1;
+    return (
+      <Row key={label} aria-label={label} zebra={type !== 'subtotal' && stripe % 2 === 0}>
+        <RowLabelCell type={type}>{label}</RowLabelCell>
+        {cells}
+        <GridColumnDivider type="pinned" />
+        {total}
+      </Row>
+    );
+  };
+  const V = 'minmax(max-content, 1fr)';
 
   const n = m.methods.length;
   const totalWeight = m.methods.reduce((a, x) => a + x.weight, 0);
@@ -260,17 +269,19 @@ export function Backsolve({ state, params }: ScreenProps) {
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: space.l, alignItems: 'flex-start' }}>
-          <Sheet
+          <DataGrid
             label="Backsolve allocation"
-            columns={`minmax(0, 2fr) repeat(${n}, minmax(0, 1.2fr)) auto minmax(0, 1.2fr)`}
-            width={`${Math.min(100, 24 + 16 * (n + 1))}%`}
+            columns={['minmax(max-content, 2fr)', ...m.methods.map(() => V), 'auto', V]}
+            style={{ width: `${Math.min(100, 24 + 16 * (n + 1))}%`, overflow: 'visible' }}
+            head={
+              <>
+                <GridColumnHeader>Backsolve</GridColumnHeader>
+                {m.methods.map((x) => <GridColumnHeader key={x.id}>{''}</GridColumnHeader>)}
+                <GridColumnDivider type="pinned" />
+                <GridColumnHeader numeric>Backsolve Total</GridColumnHeader>
+              </>
+            }
           >
-            <SheetRow label="Columns">
-              <GridColumnHeader>Backsolve</GridColumnHeader>
-              {m.methods.map((x) => <GridColumnHeader key={x.id}>{''}</GridColumnHeader>)}
-              <GridColumnDivider type="pinned" />
-              <GridColumnHeader numeric>Backsolve Total</GridColumnHeader>
-            </SheetRow>
             {methodRow('Allocation Method', 'subtotal', m.methods.map(methodCell), <GridValueCell kind="total" />)}
             {methodRow('Cap Table Selection', 'line-item', m.methods.map(capTableCell), <GridValueCell />)}
             {methodRow('Allocation Backsolve Weighting', 'line-item',
@@ -278,12 +289,12 @@ export function Backsolve({ state, params }: ScreenProps) {
               <GridValueCell>{`${totalWeight.toFixed(1)}%`}</GridValueCell>)}
             {methodRow('Present Share Values', 'subtotal',
               m.methods.map((x) => <GridValueCell key={x.id} kind="total" />), <GridValueCell kind="total" />)}
-            {TARGET_SECURITIES.map((s) => methodRow(s, 'child',
+            {securities.map((s) => methodRow(s, 'child',
               m.methods.map((x) => <GridValueCell key={x.id}>{$0}</GridValueCell>), <GridValueCell>{$0}</GridValueCell>))}
-          </Sheet>
+          </DataGrid>
           <Button
             variant="secondary"
-            leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
+            leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
             disabled={n >= MAX_METHODS}
             onClick={addMethod}
           >
@@ -292,19 +303,24 @@ export function Backsolve({ state, params }: ScreenProps) {
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: space.l, alignItems: 'flex-start' }}>
-          <Sheet label="Target securities" columns="minmax(0, 1.6fr) repeat(3, minmax(0, 1fr))" width="44%">
-            <SheetRow label="Columns">
-              <GridColumnHeader>Security</GridColumnHeader>
-              <GridColumnHeader numeric>Shares</GridColumnHeader>
-              <GridColumnHeader numeric>Per Share Value</GridColumnHeader>
-              <GridColumnHeader numeric>Total Value</GridColumnHeader>
-            </SheetRow>
-            {m.targets.map((t) => {
+          <DataGrid
+            label="Target securities"
+            style={{ width: '46%', overflow: 'visible' }}
+            head={
+              <>
+                <GridColumnHeader grow={1.6}>Security</GridColumnHeader>
+                <GridColumnHeader numeric>Shares</GridColumnHeader>
+                <GridColumnHeader numeric>Per Share Value</GridColumnHeader>
+                <GridColumnHeader numeric>Total Value</GridColumnHeader>
+              </>
+            }
+          >
+            {m.targets.map((t, i) => {
               const key = `sec:${t.id}`;
               const err = needsShares(t);
               return (
-                <SheetRow key={t.id} label={t.security ?? 'New target security'}>
-                  <Anchor menu={menuOf(key, 'Security', TARGET_SECURITIES, t.security, (v) => setSecurity(t.id, v))}>
+                <Row key={t.id} aria-label={t.security ?? 'New target security'} zebra={i % 2 === 1}>
+                  <Anchor align="left" menu={menuOf(key, 'Security', securities, t.security, (v) => setSecurity(t.id, v))}>
                     <InCellControl type="select" label="Security" open={m.menu === key} onClick={() => toggleMenu(key)}>
                       {t.security ?? 'Select security'}
                     </InCellControl>
@@ -319,19 +335,19 @@ export function Backsolve({ state, params }: ScreenProps) {
                   </GridValueCell>
                   <GridValueCell>{$0}</GridValueCell>
                   <GridValueCell>{$0}</GridValueCell>
-                </SheetRow>
+                </Row>
               );
             })}
-            <SheetRow label="Target Value">
+            <Row type="total" aria-label="Target Value">
               <RowLabelCell type="total">Target Value</RowLabelCell>
               <GridValueCell kind="total">{num.format(m.targets.reduce((a, t) => a + (t.shares ?? 0), 0))}</GridValueCell>
               <GridValueCell kind="total">{$0}</GridValueCell>
               <GridValueCell kind="editable">{$0}</GridValueCell>
-            </SheetRow>
-          </Sheet>
+            </Row>
+          </DataGrid>
           <Button
             variant="secondary"
-            leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
+            leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
             disabled={addRowDisabled}
             onClick={() => update((cur) => ({ targets: [...cur.targets, { id: uid() }] }))}
           >
@@ -340,21 +356,26 @@ export function Backsolve({ state, params }: ScreenProps) {
         </div>
 
         <div ref={bottom} style={{ display: 'flex', flexDirection: 'column', gap: space.l, alignItems: 'flex-start', paddingBottom: space.xl }}>
-          <Sheet label="Backsolve summary" columns="minmax(0, 1.6fr) minmax(0, 1fr)" width="24%">
-            <SheetRow label="Columns">
-              <GridColumnHeader>Backsolve Summary</GridColumnHeader>
-              <GridColumnHeader>{''}</GridColumnHeader>
-            </SheetRow>
-            <SheetRow label="Implied Equity Value">
+          <DataGrid
+            label="Backsolve summary"
+            style={{ width: '26%' }}
+            head={
+              <>
+                <GridColumnHeader grow={1.6}>Backsolve Summary</GridColumnHeader>
+                <GridColumnHeader>{''}</GridColumnHeader>
+              </>
+            }
+          >
+            <Row aria-label="Implied Equity Value">
               <RowLabelCell>Implied Equity Value</RowLabelCell>
               <GridValueCell>{$0}</GridValueCell>
-            </SheetRow>
-            <SheetRow label="Enterprise Value">
+            </Row>
+            <Row aria-label="Enterprise Value" zebra>
               <RowLabelCell>Enterprise Value</RowLabelCell>
               <GridValueCell>{$0}</GridValueCell>
-            </SheetRow>
-          </Sheet>
-          <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>} disabled>
+            </Row>
+          </DataGrid>
+          <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>} disabled>
             Add market adjustment
           </Button>
         </div>

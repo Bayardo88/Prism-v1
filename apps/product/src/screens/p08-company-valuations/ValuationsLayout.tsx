@@ -1,8 +1,8 @@
 /**
  * The frame shared by every Company · Valuations screen (Prism Navigation V4):
  *
- * - Company header end: the Valuation Info toggles — a "$" button that reveals
- *   Equity Value / Unrealized Firm Total, a clock button that reveals Market
+ * - Company header end: the Valuation Info toggles — an attach_money button that reveals
+ *   Equity Value / Unrealized Firm Total, an hourglass button that reveals Market
  *   Date / Version — then the work status (Final · Ready for Audit) and ⋮.
  * - Tertiary sub-nav: one tab per approach (Summary · Conclusions · External
  *   Valuation · Specified Share Value · Backsolve) and "+" → Add approach menu.
@@ -11,13 +11,14 @@
 import { useState, type ReactNode } from 'react';
 import {
   AITool, ButtonIcon, ContextMenu, CurrencySelector, Icon, InformationLabel, MenuItem,
-  ModalStatus, SplitButton, TertiaryMenuItem, Text, glyphs, space, zIndex,
+  ModalStatus, Selector, SplitButton, TertiaryMenuItem, Text, icons, space, zIndex,
 } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import type { DockTab } from '../../shell/WorkspaceDock.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
+import { headlineFor } from './data.js';
 
 export type ValuationTab = 'summary' | 'conclusions' | 'external-valuation' | 'specified-share-value' | 'backsolve';
 
@@ -61,6 +62,7 @@ export function ValuationsLayout({
 }: ValuationsLayoutProps) {
   const [values, setValues] = useState(false);
   const [dates, setDates] = useState(false);
+  const headline = headlineFor(company);
 
   const addApproach = (
     <div style={{ position: 'relative' }}>
@@ -70,7 +72,7 @@ export function ValuationsLayout({
         label="Add approach"
         aria-expanded={approachMenuOpen}
         onClick={() => onApproachMenuChange?.(!approachMenuOpen)}
-        icon={<Icon size="s" tone="inherit"><glyphs.Plus /></Icon>}
+        icon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
       />
       {approachMenuOpen && (
         <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay, marginTop: space.xs }}>
@@ -100,8 +102,8 @@ export function ValuationsLayout({
         <>
           {values && (
             <>
-              <InformationLabel label="Equity Value" value="$0" />
-              <InformationLabel label="Unrealized Firm Total" value="$0" />
+              <InformationLabel label="Equity Value" value={headline.equityValue} />
+              <InformationLabel label="Unrealized Firm Total" value={headline.unrealized} />
             </>
           )}
           <ButtonIcon
@@ -110,12 +112,12 @@ export function ValuationsLayout({
             selected={values}
             label={values ? 'Hide equity value and unrealized firm total' : 'Show equity value and unrealized firm total'}
             onClick={() => setValues((v) => !v)}
-            icon={<Text as="span" step="m" weight="bold" tone="positive" aria-hidden>$</Text>}
+            icon={<Icon size="s" tone="positive"><icons.AttachMoney /></Icon>}
           />
           {dates && (
             <>
-              <InformationLabel label="Market Date" value={company.asOf} />
-              <InformationLabel label="Version" value={`Version 1 - ${isoDate(company.asOf)}`} />
+              <Selector surface="surface" label="Market Date" value={company.asOf} />
+              <Selector surface="surface" label="Version" value={`Version 1 - ${company.asOfIso}`} />
             </>
           )}
           <ButtonIcon
@@ -124,7 +126,7 @@ export function ValuationsLayout({
             selected={dates}
             label={dates ? 'Hide market date and version' : 'Show market date and version'}
             onClick={() => setDates((v) => !v)}
-            icon={<Icon size="s" tone="brand"><glyphs.Clock /></Icon>}
+            icon={<Icon size="s" tone="brand"><icons.HourglassEmpty /></Icon>}
           />
           <ModalStatus state="final" />
           <ModalStatus state="review">Ready for Audit</ModalStatus>
@@ -132,7 +134,7 @@ export function ValuationsLayout({
             variant="tertiary"
             size="s"
             label="Valuation actions"
-            icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>}
+            icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>}
           />
         </>
       }
@@ -143,7 +145,7 @@ export function ValuationsLayout({
               key={t.key}
               current={t.key === tab}
               href={t.to ? href(t.to(company.id)) : undefined}
-              icon={errorTab === t.key ? <Icon size="s" tone="negative" label="Has errors"><glyphs.Error /></Icon> : undefined}
+              icon={errorTab === t.key ? <Icon size="s" tone="negative" label="Has errors"><icons.Error /></Icon> : undefined}
             >
               {t.label}
             </TertiaryMenuItem>
@@ -158,20 +160,14 @@ export function ValuationsLayout({
             <Text as="span" step="s" tone="positive">USD</Text>
             <Text as="span" step="s" tone="secondary">($) Thousands</Text>
           </CurrencySelector>
-          <ButtonIcon variant="tertiary" size="s" label="Fit to screen" icon={<Icon size="s" tone="inherit"><glyphs.Expand /></Icon>} />
-          <ButtonIcon variant="tertiary" size="s" label="Filter" icon={<Icon size="s" tone="inherit"><glyphs.Filter /></Icon>} />
+          <ButtonIcon variant="tertiary" size="s" label="Fit to screen" icon={<Icon size="s" tone="inherit"><icons.FitScreen /></Icon>} />
+          <ButtonIcon variant="tertiary" size="s" label="Filter" icon={<Icon size="s" tone="inherit"><icons.FilterList /></Icon>} />
           <SplitButton tone="positive" menuLabel="More save options" onClick={onSave}>Save</SplitButton>
-          <ButtonIcon variant="tertiary" size="s" label="Page actions" icon={<Icon size="s" tone="inherit"><glyphs.MoreVertical /></Icon>} />
+          <ButtonIcon variant="tertiary" size="s" label="Page actions" icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>} />
         </>
       }
     >
       {children}
     </CompanyLayout>
   );
-}
-
-/** "12/31/2024" → "2024-12-31", the version naming the app uses. */
-function isoDate(us: string): string {
-  const [m, d, y] = us.split('/');
-  return `${y}-${m}-${d}`;
 }
