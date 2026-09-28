@@ -1,6 +1,6 @@
 ---
 name: scalar-screen
-description: Build a Scalar product screen or prototype as React, composed entirely from the Scalar Design System layer, then optionally push it back into Figma. Use when asked to create, build, mock up or prototype any Scalar page, screen, view, dashboard, form, detail page or flow — even if Figma is never mentioned.
+description: Build a standalone Scalar screen as React (examples/screens), composed entirely from the Scalar Design System layer, then optionally push it back into Figma. Use for one-off screens outside the product app. For creating, editing or prototyping pages of the Scalar product itself (apps/product), use the scalar-product skill instead.
 ---
 
 # Scalar Screen Builder

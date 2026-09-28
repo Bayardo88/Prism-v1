@@ -8,6 +8,15 @@
         "scripts/serve.mjs"
       ],
       "port": 4178
+    },
+    {
+      "name": "scalar-product",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "scripts/serve.mjs"
+      ],
+      "port": 4178,
+      "url": "http://localhost:4178"
     }
   ]
 }

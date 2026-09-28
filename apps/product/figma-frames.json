@@ -1,0 +1,728 @@
+{
+ "fileKey": "cZktZhD0ssL5lRVOvSqmOV",
+ "fileName": "Scalar-full-product",
+ "capturedAt": "2026-09-28",
+ "frames": [
+  {
+   "node": "7:18",
+   "name": "Home — Firm Portfolio",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Firm Home & Global Navigation"
+  },
+  {
+   "node": "11:12608",
+   "name": "Home — Companies dropdown open",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Firm Home & Global Navigation"
+  },
+  {
+   "node": "11:16075",
+   "name": "Home — Date dropdown open",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Firm Home & Global Navigation"
+  },
+  {
+   "node": "11:20210",
+   "name": "Home — Global Search open",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Firm Home & Global Navigation"
+  },
+  {
+   "node": "11:23112",
+   "name": "Home — Notifications popover",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Firm Home & Global Navigation"
+  },
+  {
+   "node": "14:10216",
+   "name": "Home — Notification settings",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Firm Home & Global Navigation"
+  },
+  {
+   "node": "16:14684",
+   "name": "Portfolio Home — Companies dropdown (Add New Company)",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Portfolio Home & Add Company"
+  },
+  {
+   "node": "16:14723",
+   "name": "Portfolio Home — Add Company modal",
+   "page": "01 · Home & Global Navigation",
+   "pageId": "7:2",
+   "section": "Portfolio Home & Add Company"
+  },
+  {
+   "node": "11:17914",
+   "name": "Summaries — Firm Summary",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Grid & scroll states"
+  },
+  {
+   "node": "16:11594",
+   "name": "Summaries — Scrolled (Value metrics)",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Grid & scroll states"
+  },
+  {
+   "node": "16:12542",
+   "name": "Summaries — Scrolled (Preferences & projections)",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Grid & scroll states"
+  },
+  {
+   "node": "19:14796",
+   "name": "Summaries — Scrolled (Valuation status end)",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Grid & scroll states"
+  },
+  {
+   "node": "19:15817",
+   "name": "Summaries — Column selected",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Grid & scroll states"
+  },
+  {
+   "node": "19:24372",
+   "name": "Summaries — Cell trend popover",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Grid & scroll states"
+  },
+  {
+   "node": "19:32650",
+   "name": "Summaries — Saved view menu",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Menus & dialogs"
+  },
+  {
+   "node": "19:40655",
+   "name": "Summaries — Create Summary View",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Menus & dialogs"
+  },
+  {
+   "node": "19:33030",
+   "name": "Summaries — Page actions menu",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Menus & dialogs"
+  },
+  {
+   "node": "19:43157",
+   "name": "User Menu — Open",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Menus & dialogs"
+  },
+  {
+   "node": "19:43612",
+   "name": "User Menu — Firm Settings expanded",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Summaries — Menus & dialogs"
+  },
+  {
+   "node": "19:45879",
+   "name": "Schedule of Investments — By company",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Schedule of Investments"
+  },
+  {
+   "node": "19:49440",
+   "name": "Daily NAV — Previous valuation & secondary data",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "19:50974",
+   "name": "Daily NAV — Public comps & NAV status",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "19:53212",
+   "name": "Daily NAV — Report menu open",
+   "page": "02 · Intelligence",
+   "pageId": "7:3",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "11:13919",
+   "name": "Valuations — Firm Portfolio Summary",
+   "page": "03 · Valuations (Firm)",
+   "pageId": "7:4",
+   "section": "Firm Valuations Grid"
+  },
+  {
+   "node": "11:16597",
+   "name": "Valuations — Grid scrolled to Add Column",
+   "page": "03 · Valuations (Firm)",
+   "pageId": "7:4",
+   "section": "Firm Valuations Grid"
+  },
+  {
+   "node": "14:1134",
+   "name": "Valuations — Add Columns modal",
+   "page": "03 · Valuations (Firm)",
+   "pageId": "7:4",
+   "section": "Firm Valuations Grid"
+  },
+  {
+   "node": "16:5197",
+   "name": "Waterfalls — New scenario",
+   "page": "04 · Waterfalls (Firm)",
+   "pageId": "7:5",
+   "section": "Firm Waterfall Scenario"
+  },
+  {
+   "node": "16:13493",
+   "name": "Waterfalls — Backside Blocks scenario",
+   "page": "04 · Waterfalls (Firm)",
+   "pageId": "7:5",
+   "section": "Firm Waterfall Scenario"
+  },
+  {
+   "node": "19:13989",
+   "name": "Waterfalls — Company picker open",
+   "page": "04 · Waterfalls (Firm)",
+   "pageId": "7:5",
+   "section": "Firm Waterfall Scenario"
+  },
+  {
+   "node": "19:17752",
+   "name": "Waterfalls — Workspace drawer · Documents",
+   "page": "04 · Waterfalls (Firm)",
+   "pageId": "7:5",
+   "section": "Firm Waterfall Scenario"
+  },
+  {
+   "node": "19:24011",
+   "name": "Documents — All Documents",
+   "page": "05 · Documents (Firm)",
+   "pageId": "7:6",
+   "section": "All Documents"
+  },
+  {
+   "node": "19:38422",
+   "name": "Documents — Company selected · PDF loading",
+   "page": "05 · Documents (Firm)",
+   "pageId": "7:6",
+   "section": "Company Documents · Viewer & Add Folder"
+  },
+  {
+   "node": "19:44982",
+   "name": "Documents — PDF viewer",
+   "page": "05 · Documents (Firm)",
+   "pageId": "7:6",
+   "section": "Company Documents · Viewer & Add Folder"
+  },
+  {
+   "node": "19:47312",
+   "name": "Documents — Add Folder modal",
+   "page": "05 · Documents (Firm)",
+   "pageId": "7:6",
+   "section": "Company Documents · Viewer & Add Folder"
+  },
+  {
+   "node": "19:48713",
+   "name": "Documents — Add Folder · Parent Folder picker",
+   "page": "05 · Documents (Firm)",
+   "pageId": "7:6",
+   "section": "Company Documents · Viewer & Add Folder"
+  },
+  {
+   "node": "11:9624",
+   "name": "Summary — Summary Holdings",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Summary"
+  },
+  {
+   "node": "11:20696",
+   "name": "Financials — Income Statement",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Income Statement"
+  },
+  {
+   "node": "11:25364",
+   "name": "Financials — Version selector open",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Income Statement"
+  },
+  {
+   "node": "19:12054",
+   "name": "Financials — Company actions menu open",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Income Statement"
+  },
+  {
+   "node": "19:18159",
+   "name": "Financials — Notes drawer open",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Income Statement"
+  },
+  {
+   "node": "19:21548",
+   "name": "Financials — Balance Sheet",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Balance Sheet"
+  },
+  {
+   "node": "19:25279",
+   "name": "Financials — Balance Sheet expanded",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Balance Sheet"
+  },
+  {
+   "node": "19:27953",
+   "name": "Financials — Balance Sheet add year menu open",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Balance Sheet"
+  },
+  {
+   "node": "19:30302",
+   "name": "Financials — Balance Sheet historical year added",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Balance Sheet"
+  },
+  {
+   "node": "19:34233",
+   "name": "Financials — Balance Sheet projection year added",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "Balance Sheet"
+  },
+  {
+   "node": "19:38184",
+   "name": "Financials — KPIs empty",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "KPIs"
+  },
+  {
+   "node": "19:40300",
+   "name": "Financials — KPIs row added",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "KPIs"
+  },
+  {
+   "node": "19:41933",
+   "name": "Financials — KPI column menu open",
+   "page": "06 · Company · Summary & Financials",
+   "pageId": "7:7",
+   "section": "KPIs"
+  },
+  {
+   "node": "11:15081",
+   "name": "Cap Table — Securities",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Cap Table"
+  },
+  {
+   "node": "11:18882",
+   "name": "Cap Table — New security column",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Cap Table"
+  },
+  {
+   "node": "11:19396",
+   "name": "Cap Table — Security Type menu open",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Cap Table"
+  },
+  {
+   "node": "11:24812",
+   "name": "Fund Ownership — VIP Fund",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Fund Ownership"
+  },
+  {
+   "node": "16:10022",
+   "name": "Fund Ownership — New ownership column",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Fund Ownership"
+  },
+  {
+   "node": "16:14388",
+   "name": "Breakpoints — Calculated",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Breakpoints"
+  },
+  {
+   "node": "19:14358",
+   "name": "Breakpoints — Custom (3)",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Breakpoints"
+  },
+  {
+   "node": "19:17438",
+   "name": "Breakpoints — Custom (4 added)",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Breakpoints"
+  },
+  {
+   "node": "19:19341",
+   "name": "Cash Flow Ledger — Transactions",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Cash Flow Ledger"
+  },
+  {
+   "node": "19:21138",
+   "name": "Cash Flow Ledger — New transaction row",
+   "page": "07 · Company · Cap Table",
+   "pageId": "7:8",
+   "section": "Cash Flow Ledger"
+  },
+  {
+   "node": "11:24301",
+   "name": "Valuations — Summary (empty states)",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Valuation Summary"
+  },
+  {
+   "node": "16:10558",
+   "name": "Valuations — Summary",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Valuation Summary"
+  },
+  {
+   "node": "16:10794",
+   "name": "Valuations — Conclusions",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Valuation Summary"
+  },
+  {
+   "node": "19:20045",
+   "name": "Valuations — Backsolve",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Backsolve & Add Approach"
+  },
+  {
+   "node": "19:26154",
+   "name": "Valuations — Backsolve (scrolled)",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Backsolve & Add Approach"
+  },
+  {
+   "node": "19:26394",
+   "name": "Valuations — Backsolve · Add approach menu",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Backsolve & Add Approach"
+  },
+  {
+   "node": "19:20527",
+   "name": "Valuations — Backsolve (duplicate allocation methods error)",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Validation Errors & Unsaved Changes"
+  },
+  {
+   "node": "19:29164",
+   "name": "Valuations — Backsolve · Allocation method menu (must be unique)",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Validation Errors & Unsaved Changes"
+  },
+  {
+   "node": "19:35448",
+   "name": "Valuations — Backsolve · Security selected (unsaved)",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Validation Errors & Unsaved Changes"
+  },
+  {
+   "node": "19:37640",
+   "name": "Valuations — Backsolve · Unsaved changes confirmation",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Validation Errors & Unsaved Changes"
+  },
+  {
+   "node": "19:36020",
+   "name": "Valuations — Backsolve · Validation errors banner",
+   "page": "08 · Company · Valuations",
+   "pageId": "7:9",
+   "section": "Validation Errors & Unsaved Changes"
+  },
+  {
+   "node": "19:46787",
+   "name": "Waterfall — Current view",
+   "page": "09 · Company · Waterfall",
+   "pageId": "7:10",
+   "section": "Waterfall Views"
+  },
+  {
+   "node": "19:48005",
+   "name": "Waterfall — Create waterfall view modal",
+   "page": "09 · Company · Waterfall",
+   "pageId": "7:10",
+   "section": "Waterfall Views"
+  },
+  {
+   "node": "19:48097",
+   "name": "Waterfall — Saved view \"test\"",
+   "page": "09 · Company · Waterfall",
+   "pageId": "7:10",
+   "section": "Waterfall Views"
+  },
+  {
+   "node": "11:13664",
+   "name": "Documents — Document List",
+   "page": "10 · Company · Documents & Requests",
+   "pageId": "7:11",
+   "section": "Documents List"
+  },
+  {
+   "node": "14:4176",
+   "name": "Documents — Upload Document modal",
+   "page": "10 · Company · Documents & Requests",
+   "pageId": "7:11",
+   "section": "Documents List"
+  },
+  {
+   "node": "14:4259",
+   "name": "Documents — Page menu open",
+   "page": "10 · Company · Documents & Requests",
+   "pageId": "7:11",
+   "section": "Documents List"
+  },
+  {
+   "node": "16:13871",
+   "name": "Information Request — New request",
+   "page": "10 · Company · Documents & Requests",
+   "pageId": "7:11",
+   "section": "Information Request"
+  },
+  {
+   "node": "19:19795",
+   "name": "Information Request — Responsible picker open",
+   "page": "10 · Company · Documents & Requests",
+   "pageId": "7:11",
+   "section": "Information Request"
+  },
+  {
+   "node": "14:10616",
+   "name": "Questions — Empty",
+   "page": "10 · Company · Documents & Requests",
+   "pageId": "7:11",
+   "section": "Questions"
+  },
+  {
+   "node": "19:27294",
+   "name": "Company Overview — Overview",
+   "page": "11 · Company · Overview & Settings",
+   "pageId": "7:12",
+   "section": "Company Overview"
+  },
+  {
+   "node": "19:37229",
+   "name": "Daily NAV Settings — Top",
+   "page": "11 · Company · Overview & Settings",
+   "pageId": "7:12",
+   "section": "Daily NAV Settings"
+  },
+  {
+   "node": "19:41641",
+   "name": "Daily NAV Settings — Scrolled to bottom",
+   "page": "11 · Company · Overview & Settings",
+   "pageId": "7:12",
+   "section": "Daily NAV Settings"
+  },
+  {
+   "node": "11:16416",
+   "name": "Account — Settings",
+   "page": "12 · Account Settings",
+   "pageId": "7:13",
+   "section": "Account Settings"
+  },
+  {
+   "node": "11:20549",
+   "name": "Account — Two-Factor Authentication",
+   "page": "12 · Account Settings",
+   "pageId": "7:13",
+   "section": "Account Settings"
+  },
+  {
+   "node": "19:19113",
+   "name": "User Management — Firm Admin detail",
+   "page": "13 · User Management",
+   "pageId": "7:14",
+   "section": "User Management"
+  },
+  {
+   "node": "19:28790",
+   "name": "User Management — Analyst selected, row actions",
+   "page": "13 · User Management",
+   "pageId": "7:14",
+   "section": "User Management"
+  },
+  {
+   "node": "19:37494",
+   "name": "Comp Groups — Public comp group",
+   "page": "14 · Comp Groups",
+   "pageId": "7:15",
+   "section": "Comp Groups"
+  },
+  {
+   "node": "19:42969",
+   "name": "Comp Groups — Add comp group speed dial open",
+   "page": "14 · Comp Groups",
+   "pageId": "7:15",
+   "section": "Comp Groups"
+  },
+  {
+   "node": "19:45657",
+   "name": "Comp Groups — New transaction comp group",
+   "page": "14 · Comp Groups",
+   "pageId": "7:15",
+   "section": "Comp Groups"
+  },
+  {
+   "node": "19:47076",
+   "name": "Audit Logs — Log table",
+   "page": "15 · Audit Logs",
+   "pageId": "7:16",
+   "section": "Audit Logs"
+  },
+  {
+   "node": "11:14839",
+   "name": "Firm Settings — Firm Profile",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Profile"
+  },
+  {
+   "node": "11:18693",
+   "name": "Firm Settings — Single Sign-On",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "SSO"
+  },
+  {
+   "node": "11:21710",
+   "name": "Firm Settings — Single Sign-On · Default role menu open",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "SSO"
+  },
+  {
+   "node": "14:9854",
+   "name": "Firm Settings — SCIM",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "SCIM"
+  },
+  {
+   "node": "14:11037",
+   "name": "Firm Settings — SCIM · Mapping added",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "SCIM"
+  },
+  {
+   "node": "16:14082",
+   "name": "Firm Settings — Daily NAV Settings",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "19:23323",
+   "name": "Firm Settings — Daily NAV Settings · Trading market menu open",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "19:23627",
+   "name": "Firm Settings — Daily NAV Settings · Recipient added",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "19:27576",
+   "name": "Firm Settings — Daily NAV Companies",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "19:39149",
+   "name": "Firm Settings — Daily NAV Companies · Alexandria link modal",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Daily NAV"
+  },
+  {
+   "node": "19:42270",
+   "name": "Firm Settings — Scalar AI",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Scalar AI"
+  },
+  {
+   "node": "19:42439",
+   "name": "Firm Settings — Scalar AI · Maximum effort menu open",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Scalar AI"
+  },
+  {
+   "node": "19:42597",
+   "name": "Firm Settings — Scalar AI · Default effort menu open (capped)",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Scalar AI"
+  },
+  {
+   "node": "19:42781",
+   "name": "Firm Settings — Settings",
+   "page": "16 · Firm Settings",
+   "pageId": "7:17",
+   "section": "Settings"
+  }
+ ]
+}

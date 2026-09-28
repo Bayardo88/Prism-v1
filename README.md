@@ -72,20 +72,40 @@ import { Button, FormField, Input, Alert, color, space } from '@scalar/design-sy
 
 ---
 
-## Building screens with it
+## The full product — `apps/product`
 
-The repo ships a Claude skill, **`scalar-screen`**, that builds a product screen
-as React composed from this layer, verifies it, and can push it back into Figma
-as instances of the published library.
-
-```
-/scalar-screen  cap table page for a portfolio company
-```
-
-It lives in `.claude/skills/scalar-screen/`, so it is versioned with the design
-system and updates when the system does. To make it available outside this repo:
+Every frame of the **Scalar-full-product** Figma file (103 frames, 16 pages) is
+coded as a clickable prototype built only from this layer: 37 screens, each
+Figma frame one `?state=` of its screen, with the platform chrome, global menus
+and cross-page navigation wired up.
 
 ```bash
+npm run product          # build + serve → http://localhost:4178/apps/product/index.html#/catalog
+npm run verify:product   # compile · token lint · every Figma frame coded exactly once
+```
+
+Docs: [`docs/product/README.md`](docs/product/README.md) (IA, chrome, navigation
+map, platform rules) · [`docs/product/pages/`](docs/product/pages) (one per Figma
+page) · [`docs/product/screen-catalog.md`](docs/product/screen-catalog.md) (generated).
+
+## Building screens with it
+
+The repo ships two Claude skills, versioned with the design system:
+
+| Skill | Use it to |
+|---|---|
+| **`scalar-product`** | create a new product page, edit an existing one, or prototype a flow in `apps/product` — reusing its screens, chrome and components |
+| **`scalar-screen`** | build a standalone screen in `examples/screens` and push it back into Figma as library instances |
+
+```
+/scalar-product  add a "Scenario compare" tab to the company Waterfall
+/scalar-screen   cap table page for a portfolio company
+```
+
+To make them available outside this repo:
+
+```bash
+ln -sfn "$PWD/.claude/skills/scalar-product" ~/.claude/skills/scalar-product
 ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 ```
 

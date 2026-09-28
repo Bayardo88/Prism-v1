@@ -41,7 +41,11 @@
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "gen:tokens": "node scripts/gen-tokens.mjs",
     "verify": "npm run typecheck && npm run lint:tokens",
-    "build:examples": "tsc -p examples/tsconfig.json"
+    "build:examples": "tsc -p examples/tsconfig.json",
+    "build:product": "tsc -p apps/product/tsconfig.json",
+    "product": "npm run build && npm run build:product && node scripts/serve.mjs",
+    "product:catalog": "npm run build:product && node scripts/gen-product-catalog.mjs",
+    "verify:product": "npm run build:product && npm run lint:tokens && node scripts/gen-product-catalog.mjs"
   },
   "peerDependencies": {
     "react": ">=18",
