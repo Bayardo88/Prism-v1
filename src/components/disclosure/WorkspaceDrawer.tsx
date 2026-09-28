@@ -50,6 +50,10 @@ export interface WorkspaceDrawerProps {
  * documents, notes and model output are worked through without leaving the
  * table above.
  *
+ * It is sticky to the bottom of the viewport (or of its nearest scroll
+ * container): render it as the last child of the page's scrolling column and
+ * the content above scrolls behind it. 40vh, or 60vh when `expanded`.
+ *
  * Notes, Sheets and Documents are content slots: swap the children for that
  * tab's own view rather than forking the drawer.
  */
@@ -57,8 +61,7 @@ export function WorkspaceDrawer({ tabs, children, expanded, className }: Workspa
   return (
     <section
       className={cx('scalar-workspace-drawer', className)}
-      data-expanded={expanded}
-      style={{ height: expanded ? '60vh' : '40vh' }}
+      data-expanded={expanded ? 'true' : undefined}
     >
       <div className="scalar-workspace-drawer__tabs" role="tablist" aria-label="Workspace">
         {tabs}

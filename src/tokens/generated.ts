@@ -2,7 +2,7 @@
  * Source of truth: src/styles/tokens.css (extracted from Figma v1.1).
  */
 
-/** Every semantic colour token in the system. 154 tokens. */
+/** Every semantic colour token in the system. 176 tokens. */
 export type ColorToken =
   | '--color-bg-ai'
   | '--color-bg-ai-subtle'
@@ -11,6 +11,7 @@ export type ColorToken =
   | '--color-bg-brand-pressed'
   | '--color-bg-brand-subtle'
   | '--color-bg-disabled'
+  | '--color-bg-group-header'
   | '--color-bg-inverse'
   | '--color-bg-negative'
   | '--color-bg-negative-hover'
@@ -75,6 +76,18 @@ export type ColorToken =
   | '--color-entity-firm-background'
   | '--color-entity-firm-primary'
   | '--color-entity-firm-text'
+  | '--color-file-generic-background'
+  | '--color-file-generic-text'
+  | '--color-file-image-background'
+  | '--color-file-image-text'
+  | '--color-file-pdf-background'
+  | '--color-file-pdf-text'
+  | '--color-file-sheet-background'
+  | '--color-file-sheet-text'
+  | '--color-file-text-background'
+  | '--color-file-text-text'
+  | '--color-file-word-background'
+  | '--color-file-word-text'
   | '--color-icon-ai'
   | '--color-icon-brand'
   | '--color-icon-brand-hover'
@@ -100,6 +113,14 @@ export type ColorToken =
   | '--color-overlay-scrim'
   | '--color-overlay-strong'
   | '--color-overlay-subtle'
+  | '--color-product-documents-background'
+  | '--color-product-documents-icon'
+  | '--color-product-intelligence-background'
+  | '--color-product-intelligence-icon'
+  | '--color-product-valuations-background'
+  | '--color-product-valuations-icon'
+  | '--color-product-waterfalls-background'
+  | '--color-product-waterfalls-icon'
   | '--color-shadow-ambient'
   | '--color-shadow-key'
   | '--color-stroke-ai'
@@ -142,6 +163,7 @@ export type ColorToken =
   | '--color-text-on-brand-muted'
   | '--color-text-on-brand-subtle'
   | '--color-text-on-disabled'
+  | '--color-text-on-group-header'
   | '--color-text-on-negative'
   | '--color-text-on-positive'
   | '--color-text-on-warning'
@@ -193,8 +215,11 @@ export type ScaleToken =
   | '--size-icon-l'
   | '--size-icon-m'
   | '--size-icon-s'
+  | '--size-icon-well-l'
+  | '--size-icon-well-m'
   | '--size-icon-xl'
   | '--size-icon-xs'
+  | '--size-progress-ring-m'
   | '--size-row-compact'
   | '--size-target-comfortable'
   | '--size-target-dense'
@@ -550,6 +575,10 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
       "light": "#f1f5f9",
       "dark": "#1e293b"
     },
+    "--color-text-on-group-header": {
+      "light": "#ffffff",
+      "dark": "#ffffff"
+    },
     "--color-text-on-brand-muted": {
       "light": "#94a3b8",
       "dark": "#475569"
@@ -673,6 +702,10 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-bg-unread": {
       "light": "#ff2f3d",
       "dark": "#cb0000"
+    },
+    "--color-bg-group-header": {
+      "light": "#01294c",
+      "dark": "#013e73"
     },
     "--color-bg-ai": {
       "light": "#a614ff",
@@ -1065,6 +1098,86 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-utility-neutral-text": {
       "light": "#475569",
       "dark": "#cbd5e1"
+    },
+    "--color-file-pdf-background": {
+      "light": "#ffc8c9",
+      "dark": "#3b0104"
+    },
+    "--color-file-pdf-text": {
+      "light": "#9c0000",
+      "dark": "#ff686e"
+    },
+    "--color-file-word-background": {
+      "light": "#ced3fd",
+      "dark": "#020731"
+    },
+    "--color-file-word-text": {
+      "light": "#071592",
+      "dark": "#6d7bf8"
+    },
+    "--color-file-sheet-background": {
+      "light": "#bbe8ce",
+      "dark": "#002409"
+    },
+    "--color-file-sheet-text": {
+      "light": "#006012",
+      "dark": "#31c37b"
+    },
+    "--color-file-image-background": {
+      "light": "#ffe0c4",
+      "dark": "#3c1b00"
+    },
+    "--color-file-image-text": {
+      "light": "#a04900",
+      "dark": "#ffac5c"
+    },
+    "--color-file-text-background": {
+      "light": "#e3e8f0",
+      "dark": "#1e293b"
+    },
+    "--color-file-text-text": {
+      "light": "#1e293b",
+      "dark": "#e3e8f0"
+    },
+    "--color-file-generic-background": {
+      "light": "#f1f5f9",
+      "dark": "#0f172a"
+    },
+    "--color-file-generic-text": {
+      "light": "#475569",
+      "dark": "#cbd5e1"
+    },
+    "--color-product-intelligence-background": {
+      "light": "#e9ebfe",
+      "dark": "#020731"
+    },
+    "--color-product-intelligence-icon": {
+      "light": "#0a1cc2",
+      "dark": "#6d7bf8"
+    },
+    "--color-product-valuations-background": {
+      "light": "#e0f5e9",
+      "dark": "#002409"
+    },
+    "--color-product-valuations-icon": {
+      "light": "#007e17",
+      "dark": "#31c37b"
+    },
+    "--color-product-waterfalls-background": {
+      "light": "#e9faf4",
+      "dark": "#03402a"
+    },
+    "--color-product-waterfalls-icon": {
+      "light": "#058355",
+      "dark": "#6bdcb3"
+    },
+    "--color-product-documents-background": {
+      "light": "#fff1e4",
+      "dark": "#3c1b00"
+    },
+    "--color-product-documents-icon": {
+      "light": "#d26000",
+      "dark": "#ffac5c"
     }
   } as Record<ColorToken, { light: string; dark: string }>;
 
@@ -1103,6 +1216,9 @@ export const scaleValues: Record<ScaleToken, string> =
     "--size-avatar-l": "56px",
     "--size-avatar-xl": "80px",
     "--size-row-compact": "26px",
+    "--size-icon-well-m": "40px",
+    "--size-icon-well-l": "56px",
+    "--size-progress-ring-m": "48px",
     "--size-target-dense": "24px",
     "--size-target-minimum": "44px",
     "--size-target-comfortable": "48px",

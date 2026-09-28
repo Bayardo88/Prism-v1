@@ -65,7 +65,7 @@ const walk = (dir) =>
     return statSync(full).isDirectory() ? walk(full) : [full];
   });
 
-const sources = [join(root, 'src'), join(root, 'examples/screens')]
+const sources = [join(root, 'src'), join(root, 'examples/screens'), join(root, 'apps/product/src')]
   .filter((d) => { try { statSync(d); return true; } catch { return false; } })
   .flatMap(walk)
   .filter((f) => ['.css', '.ts', '.tsx'].includes(extname(f)));

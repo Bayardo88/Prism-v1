@@ -51,6 +51,7 @@ npm run verify
 | `src/components/` | One folder per Figma page |
 | `scripts/lint-tokens.mjs` | The token-contract linter |
 | `docs/known-gaps.md` | Inherited gaps that are deliberate — read before "fixing" one |
+| `apps/product/` | The full Scalar product as a prototype — every Scalar-full-product Figma frame. Change it with the `scalar-product` skill; `npm run verify:product` must pass |
 
 ## Deliberate decisions, not bugs
 

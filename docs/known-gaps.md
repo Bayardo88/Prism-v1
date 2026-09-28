@@ -57,21 +57,31 @@ system honours it — except data-grid furniture, where a row is 26px
 
 ---
 
-## 4. The icon library is not in this package
+## 4. The icon library is not in this package — resolved in code, open in Figma
 
-Product glyphs live in a third Figma library, `SDS_Main icons`, which is
-editable from neither of the two files this package was generated from.
+**Status (2026-09-28): resolved in the code layer.** The product icon set is
+now **Google Material Symbols (Outlined, weight 400)**, generated into
+`src/components/icon/material.tsx` and exported as `icons`
+(`<Icon><icons.Search /></Icon>`). The structural aliases in
+`src/components/icon/glyphs.tsx` (`ChevronDown`, `Close`, `Trash`…) now point at
+Material glyphs, so every component in this package draws Material. To add an
+icon, put its Material snake_case name in
+`src/components/icon/material-icons.json` and run `npm run gen:icons` — never
+hand-edit `material.tsx`.
 
-**What this means for you:** export the glyph you need and pass it as children
-to `Icon`. The handful of glyphs in `src/components/icon/glyphs.tsx` are
-**structural only** — chevrons, a tick, a close — and exist so this package's own
-components (Select, Checkbox, Pagination) function. They are not the Scalar icon
-set and should not be used in product UI.
+**Still open — Figma and code icons now differ.** Figma still draws glyphs from
+the third library, `SDS_Main icons`, which is editable from neither of the two
+files this package was generated from. A screen built in code and the same
+screen in Figma will show different glyph shapes for the same meaning. Match by
+**meaning**, never by shape, and do not push Material SVGs into Figma as loose
+vectors. **Real fix:** swap the Figma components onto a Material Symbols
+library (or publish one), then the two agree again.
 
-Related: 135 glyph fills in `SDS_Main icons` resolve to `Primitive: Color`, and
-icons imported from it default to `Text/On Brand` (white), which is invisible on
-a light surface. The `Icon` component always sets a tint, so anything rendered
-through it is safe.
+Related, Figma side only: 135 glyph fills in `SDS_Main icons` resolve to
+`Primitive: Color`, and icons imported from it default to `Text/On Brand`
+(white), which is invisible on a light surface. In code, `Icon` always sets a
+tint and Material glyphs fill with `currentColor`, so anything rendered through
+it is safe.
 
 ---
 
@@ -144,3 +154,29 @@ this onto `Row`'s `group` prop and `Cell`'s `groupStart` / `groupEnd`, and
 merges `Row-reading` and `Row-input` into a single `Row` whose cells carry the
 read/edit distinction via `Cell type`. That is a deliberate simplification of
 the Figma model, not a mismatch.
+
+**Since 2026-09-24 there is a fourth model.** The financial-statement grids on
+Figma page 22 use `RowLabelCell` (`type="group-header" | "subtotal" | "total"`)
+and `GridValueCell` (`kind="total"`), which carry the hierarchy on the cell
+rather than the row. They are deliberately not wired into `Row type="group"`:
+that one is still a `bg.subtle` band, while `RowLabelCell type="group-header"`
+is the navy `bg.groupHeader` band the live app draws. Pick one model per grid;
+never mix them in the same grid. Converging the two is open work.
+
+---
+
+## 10. Modal and panel widths have no sizing token
+
+`Semantic: Sizing` covers icons, controls, avatars, rows and targets — nothing
+at the scale of a dialog or a floating panel. `Modal size` (s 400 · m 560 ·
+l 800 · xl 1120), the `SelectMenu` minimum width and list height, and the
+`ImageCropField` well (160, or 320 × 160 when `wide`) therefore cannot come from
+a token.
+
+**Mitigation:** held as named component-local custom properties
+(`--modal-width-*`, `--select-menu-*`, `--image-crop-well-*`) declared once on
+the component in `src/styles/components.css`, the same way as
+`--field-height` (gap 2). They are never repeated.
+
+**Real fix:** add a `Semantic: Sizing/Panel` (or `Dialog`) ramp to the v1.1
+tokens file.

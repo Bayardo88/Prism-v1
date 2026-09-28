@@ -196,17 +196,37 @@ export interface SelectorProps {
   label?: ReactNode;
   /** The current value. */
   value: ReactNode;
+  /**
+   * `brand` (default) sits on the navy Primary Menu bar; `surface` sits on a
+   * light page or company header (Financials Date, Financials Version).
+   */
+  surface?: 'brand' | 'surface';
+  /** Its menu is open: sets `aria-expanded` and flips the chevron. */
+  expanded?: boolean;
+  disabled?: boolean;
   onClick?: () => void;
   className?: string;
 }
 
-/** Selector — a compact inline value picker. */
-export function Selector({ label, value, onClick, className }: SelectorProps) {
+/**
+ * Selector — a compact labelled value picker ("Date  Most Recent (06/30/2026) ▾").
+ * The trigger only: the screen owns the menu it opens.
+ */
+export function Selector({ label, value, surface = 'brand', expanded, disabled, onClick, className }: SelectorProps) {
   return (
-    <button type="button" onClick={onClick} className={cx('scalar-selector', className)}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-haspopup="menu"
+      aria-expanded={expanded ?? undefined}
+      className={cx('scalar-selector', `scalar-selector--${surface}`, className)}
+    >
       {label && <span className="scalar-selector__label">{label}</span>}
-      {value}
-      <Icon size="xs" tone="secondary"><ChevronDown /></Icon>
+      <span className="scalar-selector__value">{value}</span>
+      <Icon size="xs" tone="inherit" className={cx('scalar-selector__chevron', expanded && 'scalar-rotate-180')}>
+        <ChevronDown />
+      </Icon>
     </button>
   );
 }

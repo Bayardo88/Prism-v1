@@ -1,0 +1,1093 @@
+[
+  {
+    "id": "home.firm",
+    "title": "Home",
+    "figmaPage": "01 · Home & Global Navigation",
+    "route": "/",
+    "summary": "Land on the firm: switch firms, jump into a product, or find a portfolio company in the A–Z directory.",
+    "component": "Home",
+    "states": [
+      {
+        "key": "default",
+        "label": "Home — Firm Portfolio",
+        "figmaNode": "7:18",
+        "section": "Firm Home & Global Navigation",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=7-18"
+      },
+      {
+        "key": "companies-menu",
+        "label": "Home — Companies dropdown open",
+        "figmaNode": "11:12608",
+        "section": "Firm Home & Global Navigation",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-12608"
+      },
+      {
+        "key": "date-menu",
+        "label": "Home — Date dropdown open",
+        "figmaNode": "11:16075",
+        "section": "Firm Home & Global Navigation",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-16075"
+      },
+      {
+        "key": "search",
+        "label": "Home — Global Search open",
+        "figmaNode": "11:20210",
+        "section": "Firm Home & Global Navigation",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-20210"
+      },
+      {
+        "key": "notifications",
+        "label": "Home — Notifications popover",
+        "figmaNode": "11:23112",
+        "section": "Firm Home & Global Navigation",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-23112"
+      },
+      {
+        "key": "notification-settings",
+        "label": "Home — Notification settings",
+        "figmaNode": "14:10216",
+        "section": "Firm Home & Global Navigation",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-10216"
+      }
+    ]
+  },
+  {
+    "id": "home.portfolio",
+    "title": "Portfolio Home",
+    "figmaPage": "01 · Home & Global Navigation",
+    "route": "/portfolio",
+    "summary": "Add a new portfolio company from the Companies menu and set its fiscal year and currencies.",
+    "component": "Home",
+    "states": [
+      {
+        "key": "companies-add",
+        "label": "Portfolio Home — Companies dropdown (Add New Company)",
+        "figmaNode": "16:14684",
+        "section": "Portfolio Home & Add Company",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-14684"
+      },
+      {
+        "key": "add-company",
+        "label": "Portfolio Home — Add Company modal",
+        "figmaNode": "16:14723",
+        "section": "Portfolio Home & Add Company",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-14723"
+      }
+    ]
+  },
+  {
+    "id": "intelligence.summaries",
+    "title": "Summaries",
+    "figmaPage": "02 · Intelligence",
+    "route": "/intelligence/summaries",
+    "summary": "Review the whole portfolio in one configurable grid — ownership, invested capital, value metrics, preferences and valuation status per company — and save the column set as a view.",
+    "component": "Summaries",
+    "states": [
+      {
+        "key": "default",
+        "label": "Summaries — Firm Summary",
+        "figmaNode": "11:17914",
+        "section": "Summaries — Grid & scroll states",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-17914"
+      },
+      {
+        "key": "scrolled-value-metrics",
+        "label": "Summaries — Scrolled (Value metrics)",
+        "figmaNode": "16:11594",
+        "section": "Summaries — Grid & scroll states",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-11594"
+      },
+      {
+        "key": "scrolled-preferences",
+        "label": "Summaries — Scrolled (Preferences & projections)",
+        "figmaNode": "16:12542",
+        "section": "Summaries — Grid & scroll states",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-12542"
+      },
+      {
+        "key": "scrolled-status-end",
+        "label": "Summaries — Scrolled (Valuation status end)",
+        "figmaNode": "19:14796",
+        "section": "Summaries — Grid & scroll states",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-14796"
+      },
+      {
+        "key": "column-selected",
+        "label": "Summaries — Column selected",
+        "figmaNode": "19:15817",
+        "section": "Summaries — Grid & scroll states",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-15817"
+      },
+      {
+        "key": "cell-trend",
+        "label": "Summaries — Cell trend popover",
+        "figmaNode": "19:24372",
+        "section": "Summaries — Grid & scroll states",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-24372"
+      },
+      {
+        "key": "saved-view-menu",
+        "label": "Summaries — Saved view menu",
+        "figmaNode": "19:32650",
+        "section": "Summaries — Menus & dialogs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-32650"
+      },
+      {
+        "key": "create-view",
+        "label": "Summaries — Create Summary View",
+        "figmaNode": "19:40655",
+        "section": "Summaries — Menus & dialogs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-40655"
+      },
+      {
+        "key": "page-actions",
+        "label": "Summaries — Page actions menu",
+        "figmaNode": "19:33030",
+        "section": "Summaries — Menus & dialogs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-33030"
+      },
+      {
+        "key": "user-menu",
+        "label": "User Menu — Open",
+        "figmaNode": "19:43157",
+        "section": "Summaries — Menus & dialogs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-43157"
+      },
+      {
+        "key": "user-menu-firm-settings",
+        "label": "User Menu — Firm Settings expanded",
+        "figmaNode": "19:43612",
+        "section": "Summaries — Menus & dialogs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-43612"
+      }
+    ]
+  },
+  {
+    "id": "intelligence.schedule-of-investments",
+    "title": "Schedule of Investments",
+    "figmaPage": "02 · Intelligence",
+    "route": "/intelligence/schedule-of-investments",
+    "summary": "See every security the firm holds, grouped by company in its own currency, with invested capital, shares, ownership and realized / unrealized value.",
+    "component": "ScheduleOfInvestments",
+    "states": [
+      {
+        "key": "default",
+        "label": "Schedule of Investments — By company",
+        "figmaNode": "19:45879",
+        "section": "Schedule of Investments",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-45879"
+      }
+    ]
+  },
+  {
+    "id": "intelligence.daily-nav",
+    "title": "Daily NAV",
+    "figmaPage": "02 · Intelligence",
+    "route": "/intelligence/daily-nav",
+    "summary": "Mark every company daily against its previous valuation, secondary-market prices and public comps, then validate, preview, finalize and send the NAV report.",
+    "component": "DailyNav",
+    "states": [
+      {
+        "key": "default",
+        "label": "Daily NAV — Previous valuation & secondary data",
+        "figmaNode": "19:49440",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-49440"
+      },
+      {
+        "key": "public-comps",
+        "label": "Daily NAV — Public comps & NAV status",
+        "figmaNode": "19:50974",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-50974"
+      },
+      {
+        "key": "report-menu",
+        "label": "Daily NAV — Report menu open",
+        "figmaNode": "19:53212",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-53212"
+      }
+    ]
+  },
+  {
+    "id": "valuations.firm",
+    "title": "Firm Valuations",
+    "figmaPage": "03 · Valuations (Firm)",
+    "route": "/valuations",
+    "summary": "Track every company's latest valuation — date, open tasks, status, approaches and headline values — and open a company's valuation from its row.",
+    "component": "FirmValuations",
+    "states": [
+      {
+        "key": "default",
+        "label": "Valuations — Firm Portfolio Summary",
+        "figmaNode": "11:13919",
+        "section": "Firm Valuations Grid",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-13919"
+      },
+      {
+        "key": "scrolled-add-column",
+        "label": "Valuations — Grid scrolled to Add Column",
+        "figmaNode": "11:16597",
+        "section": "Firm Valuations Grid",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-16597"
+      },
+      {
+        "key": "add-columns",
+        "label": "Valuations — Add Columns modal",
+        "figmaNode": "14:1134",
+        "section": "Firm Valuations Grid",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-1134"
+      }
+    ]
+  },
+  {
+    "id": "waterfalls.scenario",
+    "title": "Waterfalls",
+    "figmaPage": "04 · Waterfalls (Firm)",
+    "route": "/waterfalls",
+    "summary": "Model an exit for any portfolio company and read the firm’s total exit proceeds.",
+    "component": "Waterfalls",
+    "states": [
+      {
+        "key": "default",
+        "label": "Waterfalls — New scenario",
+        "figmaNode": "16:5197",
+        "section": "Firm Waterfall Scenario",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-5197"
+      },
+      {
+        "key": "backside-blocks",
+        "label": "Waterfalls — Backside Blocks scenario",
+        "figmaNode": "16:13493",
+        "section": "Firm Waterfall Scenario",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-13493"
+      },
+      {
+        "key": "company-picker",
+        "label": "Waterfalls — Company picker open",
+        "figmaNode": "19:13989",
+        "section": "Firm Waterfall Scenario",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-13989"
+      },
+      {
+        "key": "workspace-documents",
+        "label": "Waterfalls — Workspace drawer · Documents",
+        "figmaNode": "19:17752",
+        "section": "Firm Waterfall Scenario",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-17752"
+      }
+    ]
+  },
+  {
+    "id": "documents.all",
+    "title": "Documents",
+    "figmaPage": "05 · Documents (Firm)",
+    "route": "/documents",
+    "summary": "Browse every document the firm holds by measurement date and company, and preview a file in place.",
+    "component": "Documents",
+    "states": [
+      {
+        "key": "default",
+        "label": "Documents — All Documents",
+        "figmaNode": "19:24011",
+        "section": "All Documents",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-24011"
+      },
+      {
+        "key": "pdf-loading",
+        "label": "Documents — Company selected · PDF loading",
+        "figmaNode": "19:38422",
+        "section": "Company Documents · Viewer & Add Folder",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-38422"
+      },
+      {
+        "key": "pdf-viewer",
+        "label": "Documents — PDF viewer",
+        "figmaNode": "19:44982",
+        "section": "Company Documents · Viewer & Add Folder",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-44982"
+      },
+      {
+        "key": "add-folder",
+        "label": "Documents — Add Folder modal",
+        "figmaNode": "19:47312",
+        "section": "Company Documents · Viewer & Add Folder",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-47312"
+      },
+      {
+        "key": "parent-folder-picker",
+        "label": "Documents — Add Folder · Parent Folder picker",
+        "figmaNode": "19:48713",
+        "section": "Company Documents · Viewer & Add Folder",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-48713"
+      }
+    ]
+  },
+  {
+    "id": "company.summary.holdings",
+    "title": "Summary Holdings",
+    "figmaPage": "06 · Company · Summary & Financials",
+    "route": "/companies/:companyId/summary",
+    "summary": "See every fund's position in the company — invested capital, shares, ownership and value — with fund and firm totals.",
+    "component": "SummaryHoldings",
+    "states": [
+      {
+        "key": "default",
+        "label": "Summary — Summary Holdings",
+        "figmaNode": "11:9624",
+        "section": "Summary",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-9624"
+      }
+    ]
+  },
+  {
+    "id": "company.financials.income-statement",
+    "title": "Income Statement",
+    "figmaPage": "06 · Company · Summary & Financials",
+    "route": "/companies/:companyId/financials/income-statement",
+    "summary": "Review and edit the historical and projected P&L, LTM and NTM, that feeds every valuation.",
+    "component": "IncomeStatement",
+    "states": [
+      {
+        "key": "default",
+        "label": "Financials — Income Statement",
+        "figmaNode": "11:20696",
+        "section": "Income Statement",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-20696"
+      },
+      {
+        "key": "version-menu",
+        "label": "Financials — Version selector open",
+        "figmaNode": "11:25364",
+        "section": "Income Statement",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-25364"
+      },
+      {
+        "key": "actions-menu",
+        "label": "Financials — Company actions menu open",
+        "figmaNode": "19:12054",
+        "section": "Income Statement",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-12054"
+      },
+      {
+        "key": "notes-drawer",
+        "label": "Financials — Notes drawer open",
+        "figmaNode": "19:18159",
+        "section": "Income Statement",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-18159"
+      }
+    ]
+  },
+  {
+    "id": "company.financials.balance-sheet",
+    "title": "Balance Sheet",
+    "figmaPage": "06 · Company · Summary & Financials",
+    "route": "/companies/:companyId/financials/balance-sheet",
+    "summary": "Enter assets, liabilities and equity by period; expand each section to its line items and add historical or projection years.",
+    "component": "BalanceSheet",
+    "states": [
+      {
+        "key": "default",
+        "label": "Financials — Balance Sheet",
+        "figmaNode": "19:21548",
+        "section": "Balance Sheet",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-21548"
+      },
+      {
+        "key": "expanded",
+        "label": "Financials — Balance Sheet expanded",
+        "figmaNode": "19:25279",
+        "section": "Balance Sheet",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-25279"
+      },
+      {
+        "key": "add-year-menu",
+        "label": "Financials — Balance Sheet add year menu open",
+        "figmaNode": "19:27953",
+        "section": "Balance Sheet",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-27953"
+      },
+      {
+        "key": "historical-added",
+        "label": "Financials — Balance Sheet historical year added",
+        "figmaNode": "19:30302",
+        "section": "Balance Sheet",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-30302"
+      },
+      {
+        "key": "projection-added",
+        "label": "Financials — Balance Sheet projection year added",
+        "figmaNode": "19:34233",
+        "section": "Balance Sheet",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-34233"
+      }
+    ]
+  },
+  {
+    "id": "company.financials.kpis",
+    "title": "KPIs",
+    "figmaPage": "06 · Company · Summary & Financials",
+    "route": "/companies/:companyId/financials/kpis",
+    "summary": "Track company-specific KPIs by period alongside the financial statements.",
+    "component": "Kpis",
+    "states": [
+      {
+        "key": "default",
+        "label": "Financials — KPIs empty",
+        "figmaNode": "19:38184",
+        "section": "KPIs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-38184"
+      },
+      {
+        "key": "row-added",
+        "label": "Financials — KPIs row added",
+        "figmaNode": "19:40300",
+        "section": "KPIs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-40300"
+      },
+      {
+        "key": "column-menu",
+        "label": "Financials — KPI column menu open",
+        "figmaNode": "19:41933",
+        "section": "KPIs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-41933"
+      }
+    ]
+  },
+  {
+    "id": "company.cap-table.securities",
+    "title": "Cap Table",
+    "figmaPage": "07 · Company · Cap Table",
+    "route": "/companies/:companyId/cap-table/securities",
+    "summary": "Maintain the company’s securities — type, issue price, shares and preferences — and see ownership and the firm’s holdings.",
+    "component": "CapTable",
+    "states": [
+      {
+        "key": "default",
+        "label": "Cap Table — Securities",
+        "figmaNode": "11:15081",
+        "section": "Cap Table",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-15081"
+      },
+      {
+        "key": "new-column",
+        "label": "Cap Table — New security column",
+        "figmaNode": "11:18882",
+        "section": "Cap Table",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-18882"
+      },
+      {
+        "key": "security-type-menu",
+        "label": "Cap Table — Security Type menu open",
+        "figmaNode": "11:19396",
+        "section": "Cap Table",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-19396"
+      }
+    ]
+  },
+  {
+    "id": "company.cap-table.fund-ownership",
+    "title": "Fund Ownership",
+    "figmaPage": "07 · Company · Cap Table",
+    "route": "/companies/:companyId/cap-table/fund-ownership",
+    "summary": "Record what each fund holds in each security: entity, investment date, capital, shares and proceeds.",
+    "component": "FundOwnership",
+    "states": [
+      {
+        "key": "default",
+        "label": "Fund Ownership — VIP Fund",
+        "figmaNode": "11:24812",
+        "section": "Fund Ownership",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-24812"
+      },
+      {
+        "key": "new-column",
+        "label": "Fund Ownership — New ownership column",
+        "figmaNode": "16:10022",
+        "section": "Fund Ownership",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10022"
+      }
+    ]
+  },
+  {
+    "id": "company.cap-table.breakpoints",
+    "title": "Breakpoint Analysis",
+    "figmaPage": "07 · Company · Cap Table",
+    "route": "/companies/:companyId/cap-table/breakpoints",
+    "summary": "Review the calculated equity breakpoints, or switch to custom breakpoints and enter them by hand.",
+    "component": "Breakpoints",
+    "states": [
+      {
+        "key": "calculated",
+        "label": "Breakpoints — Calculated",
+        "figmaNode": "16:14388",
+        "section": "Breakpoints",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-14388"
+      },
+      {
+        "key": "custom-3",
+        "label": "Breakpoints — Custom (3)",
+        "figmaNode": "19:14358",
+        "section": "Breakpoints",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-14358"
+      },
+      {
+        "key": "custom-4",
+        "label": "Breakpoints — Custom (4 added)",
+        "figmaNode": "19:17438",
+        "section": "Breakpoints",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-17438"
+      }
+    ]
+  },
+  {
+    "id": "company.cap-table.cash-flow-ledger",
+    "title": "Cash Flow Ledger",
+    "figmaPage": "07 · Company · Cap Table",
+    "route": "/companies/:companyId/cap-table/cash-flow-ledger",
+    "summary": "Log investments, distributions and sales per position and see each fund’s cost basis and gross IRR.",
+    "component": "CashFlowLedger",
+    "states": [
+      {
+        "key": "default",
+        "label": "Cash Flow Ledger — Transactions",
+        "figmaNode": "19:19341",
+        "section": "Cash Flow Ledger",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-19341"
+      },
+      {
+        "key": "new-row",
+        "label": "Cash Flow Ledger — New transaction row",
+        "figmaNode": "19:21138",
+        "section": "Cash Flow Ledger",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-21138"
+      }
+    ]
+  },
+  {
+    "id": "company.valuations.summary",
+    "title": "Valuation Summary",
+    "figmaPage": "08 · Company · Valuations",
+    "route": "/companies/:companyId/valuations/summary",
+    "summary": "See how every approach rolls into enterprise and equity value, and how equity is allocated across scenarios to each security.",
+    "component": "Summary",
+    "states": [
+      {
+        "key": "default",
+        "label": "Valuations — Summary (empty states)",
+        "figmaNode": "11:24301",
+        "section": "Valuation Summary",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-24301"
+      },
+      {
+        "key": "populated",
+        "label": "Valuations — Summary",
+        "figmaNode": "16:10558",
+        "section": "Valuation Summary",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10558"
+      }
+    ]
+  },
+  {
+    "id": "company.valuations.conclusions",
+    "title": "Valuation Conclusions",
+    "figmaPage": "08 · Company · Valuations",
+    "route": "/companies/:companyId/valuations/conclusions",
+    "summary": "Read the concluded value and MOIC of every fund position, by entity and fund.",
+    "component": "Conclusions",
+    "states": [
+      {
+        "key": "default",
+        "label": "Valuations — Conclusions",
+        "figmaNode": "16:10794",
+        "section": "Valuation Summary",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10794"
+      }
+    ]
+  },
+  {
+    "id": "company.valuations.backsolve",
+    "title": "Backsolve",
+    "figmaPage": "08 · Company · Valuations",
+    "route": "/companies/:companyId/valuations/backsolve",
+    "summary": "Solve for the equity value implied by a transaction: allocation methods, target security and shares.",
+    "component": "Backsolve",
+    "states": [
+      {
+        "key": "default",
+        "label": "Valuations — Backsolve",
+        "figmaNode": "19:20045",
+        "section": "Backsolve & Add Approach",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-20045"
+      },
+      {
+        "key": "scrolled",
+        "label": "Valuations — Backsolve (scrolled)",
+        "figmaNode": "19:26154",
+        "section": "Backsolve & Add Approach",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-26154"
+      },
+      {
+        "key": "add-approach-menu",
+        "label": "Valuations — Backsolve · Add approach menu",
+        "figmaNode": "19:26394",
+        "section": "Backsolve & Add Approach",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-26394"
+      },
+      {
+        "key": "duplicate-methods",
+        "label": "Valuations — Backsolve (duplicate allocation methods error)",
+        "figmaNode": "19:20527",
+        "section": "Validation Errors & Unsaved Changes",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-20527"
+      },
+      {
+        "key": "method-menu",
+        "label": "Valuations — Backsolve · Allocation method menu (must be unique)",
+        "figmaNode": "19:29164",
+        "section": "Validation Errors & Unsaved Changes",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-29164"
+      },
+      {
+        "key": "security-selected",
+        "label": "Valuations — Backsolve · Security selected (unsaved)",
+        "figmaNode": "19:35448",
+        "section": "Validation Errors & Unsaved Changes",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-35448"
+      },
+      {
+        "key": "unsaved-confirm",
+        "label": "Valuations — Backsolve · Unsaved changes confirmation",
+        "figmaNode": "19:37640",
+        "section": "Validation Errors & Unsaved Changes",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-37640"
+      },
+      {
+        "key": "validation-banner",
+        "label": "Valuations — Backsolve · Validation errors banner",
+        "figmaNode": "19:36020",
+        "section": "Validation Errors & Unsaved Changes",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-36020"
+      }
+    ]
+  },
+  {
+    "id": "company.waterfall",
+    "title": "Waterfall",
+    "figmaPage": "09 · Company · Waterfall",
+    "route": "/companies/:companyId/waterfall",
+    "summary": "Set the exit assumptions for one company and save them as named waterfall views.",
+    "component": "CompanyWaterfall",
+    "states": [
+      {
+        "key": "default",
+        "label": "Waterfall — Current view",
+        "figmaNode": "19:46787",
+        "section": "Waterfall Views",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-46787"
+      },
+      {
+        "key": "create-view",
+        "label": "Waterfall — Create waterfall view modal",
+        "figmaNode": "19:48005",
+        "section": "Waterfall Views",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-48005"
+      },
+      {
+        "key": "saved-view",
+        "label": "Waterfall — Saved view \"test\"",
+        "figmaNode": "19:48097",
+        "section": "Waterfall Views",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-48097"
+      }
+    ]
+  },
+  {
+    "id": "company.documents.list",
+    "title": "Documents",
+    "figmaPage": "10 · Company · Documents & Requests",
+    "route": "/companies/:companyId/documents",
+    "summary": "See the company’s documents for the measurement date, upload new ones and track information requests.",
+    "component": "DocumentList",
+    "states": [
+      {
+        "key": "default",
+        "label": "Documents — Document List",
+        "figmaNode": "11:13664",
+        "section": "Documents List",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-13664"
+      },
+      {
+        "key": "upload",
+        "label": "Documents — Upload Document modal",
+        "figmaNode": "14:4176",
+        "section": "Documents List",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-4176"
+      },
+      {
+        "key": "page-menu",
+        "label": "Documents — Page menu open",
+        "figmaNode": "14:4259",
+        "section": "Documents List",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-4259"
+      }
+    ]
+  },
+  {
+    "id": "company.documents.information-request",
+    "title": "Information Request",
+    "figmaPage": "10 · Company · Documents & Requests",
+    "route": "/companies/:companyId/documents/information-request",
+    "summary": "Compose the documents and questions to request from the company and send them to a responsible contact.",
+    "component": "InformationRequest",
+    "states": [
+      {
+        "key": "default",
+        "label": "Information Request — New request",
+        "figmaNode": "16:13871",
+        "section": "Information Request",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-13871"
+      },
+      {
+        "key": "responsible-picker",
+        "label": "Information Request — Responsible picker open",
+        "figmaNode": "19:19795",
+        "section": "Information Request",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-19795"
+      }
+    ]
+  },
+  {
+    "id": "company.documents.questions",
+    "title": "Questions",
+    "figmaPage": "10 · Company · Documents & Requests",
+    "route": "/companies/:companyId/documents/questions",
+    "summary": "Read the answers to questions sent in information requests.",
+    "component": "Questions",
+    "states": [
+      {
+        "key": "empty",
+        "label": "Questions — Empty",
+        "figmaNode": "14:10616",
+        "section": "Questions",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-10616"
+      }
+    ]
+  },
+  {
+    "id": "company.overview",
+    "title": "Company Overview",
+    "figmaPage": "11 · Company · Overview & Settings",
+    "route": "/companies/:companyId/overview",
+    "summary": "See the company profile, status and external data (Capital IQ, mutual fund marks), and resolve a pending common-profile match.",
+    "component": "CompanyOverview",
+    "states": [
+      {
+        "key": "default",
+        "label": "Company Overview — Overview",
+        "figmaNode": "19:27294",
+        "section": "Company Overview",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-27294"
+      }
+    ]
+  },
+  {
+    "id": "company.daily-nav-settings",
+    "title": "Daily NAV Settings",
+    "figmaPage": "11 · Company · Overview & Settings",
+    "route": "/companies/:companyId/daily-nav-settings",
+    "summary": "Override the firm's Daily NAV alert thresholds for one company, link its external profile and track comps.",
+    "component": "DailyNavSettings",
+    "states": [
+      {
+        "key": "default",
+        "label": "Daily NAV Settings — Top",
+        "figmaNode": "19:37229",
+        "section": "Daily NAV Settings",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-37229"
+      },
+      {
+        "key": "scrolled",
+        "label": "Daily NAV Settings — Scrolled to bottom",
+        "figmaNode": "19:41641",
+        "section": "Daily NAV Settings",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-41641"
+      }
+    ]
+  },
+  {
+    "id": "account.settings",
+    "title": "Account Settings",
+    "figmaPage": "12 · Account Settings",
+    "route": "/account/settings",
+    "summary": "Edit your name and email, email preferences, UI zoom and profile picture.",
+    "component": "AccountSettings",
+    "states": [
+      {
+        "key": "default",
+        "label": "Account — Settings",
+        "figmaNode": "11:16416",
+        "section": "Account Settings",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-16416"
+      }
+    ]
+  },
+  {
+    "id": "account.two-factor",
+    "title": "Two-Factor Authentication",
+    "figmaPage": "12 · Account Settings",
+    "route": "/account/two-factor",
+    "summary": "See your two-factor status and manage one-time backup codes.",
+    "component": "TwoFactor",
+    "states": [
+      {
+        "key": "default",
+        "label": "Account — Two-Factor Authentication",
+        "figmaNode": "11:20549",
+        "section": "Account Settings",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-20549"
+      }
+    ]
+  },
+  {
+    "id": "admin.users",
+    "title": "User Management",
+    "figmaPage": "13 · User Management",
+    "route": "/admin/users",
+    "summary": "Pick a firm user to review their role and Edit/View access per fund and company, or invite and remove users.",
+    "component": "UserManagement",
+    "states": [
+      {
+        "key": "default",
+        "label": "User Management — Firm Admin detail",
+        "figmaNode": "19:19113",
+        "section": "User Management",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-19113"
+      },
+      {
+        "key": "analyst-row-actions",
+        "label": "User Management — Analyst selected, row actions",
+        "figmaNode": "19:28790",
+        "section": "User Management",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-28790"
+      }
+    ]
+  },
+  {
+    "id": "admin.comp-groups",
+    "title": "Comp Groups",
+    "figmaPage": "14 · Comp Groups",
+    "route": "/admin/comp-groups",
+    "summary": "Maintain the firm’s public and transaction comparable groups that valuations draw their multiples from.",
+    "component": "CompGroups",
+    "states": [
+      {
+        "key": "default",
+        "label": "Comp Groups — Public comp group",
+        "figmaNode": "19:37494",
+        "section": "Comp Groups",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-37494"
+      },
+      {
+        "key": "speed-dial",
+        "label": "Comp Groups — Add comp group speed dial open",
+        "figmaNode": "19:42969",
+        "section": "Comp Groups",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-42969"
+      },
+      {
+        "key": "new-transaction",
+        "label": "Comp Groups — New transaction comp group",
+        "figmaNode": "19:45657",
+        "section": "Comp Groups",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-45657"
+      }
+    ]
+  },
+  {
+    "id": "admin.audit-logs",
+    "title": "Audit Logs",
+    "figmaPage": "15 · Audit Logs",
+    "route": "/admin/audit-logs",
+    "summary": "Review who changed what, and when, across the firm — filtered by business unit, date range and product.",
+    "component": "AuditLogs",
+    "states": [
+      {
+        "key": "default",
+        "label": "Audit Logs — Log table",
+        "figmaNode": "19:47076",
+        "section": "Audit Logs",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-47076"
+      }
+    ]
+  },
+  {
+    "id": "firm-settings.profile",
+    "title": "Firm Profile",
+    "figmaPage": "16 · Firm Settings",
+    "route": "/firm-settings/profile",
+    "summary": "Edit the firm's name, address, contact details and the icon and logo shown across the platform.",
+    "component": "FirmProfile",
+    "states": [
+      {
+        "key": "default",
+        "label": "Firm Settings — Firm Profile",
+        "figmaNode": "11:14839",
+        "section": "Profile",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-14839"
+      }
+    ]
+  },
+  {
+    "id": "firm-settings.sso",
+    "title": "Single Sign-On",
+    "figmaPage": "16 · Firm Settings",
+    "route": "/firm-settings/sso",
+    "summary": "Connect the firm's identity provider, choose how new SSO users are provisioned and copy Scalar's service-provider metadata.",
+    "component": "SingleSignOn",
+    "states": [
+      {
+        "key": "default",
+        "label": "Firm Settings — Single Sign-On",
+        "figmaNode": "11:18693",
+        "section": "SSO",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-18693"
+      },
+      {
+        "key": "role-menu",
+        "label": "Firm Settings — Single Sign-On · Default role menu open",
+        "figmaNode": "11:21710",
+        "section": "SSO",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-21710"
+      }
+    ]
+  },
+  {
+    "id": "firm-settings.scim",
+    "title": "SCIM",
+    "figmaPage": "16 · Firm Settings",
+    "route": "/firm-settings/scim",
+    "summary": "Turn on SCIM provisioning, map identity-provider groups to Scalar roles and manage the SCIM bearer token.",
+    "component": "Scim",
+    "states": [
+      {
+        "key": "default",
+        "label": "Firm Settings — SCIM",
+        "figmaNode": "14:9854",
+        "section": "SCIM",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-9854"
+      },
+      {
+        "key": "mapping-added",
+        "label": "Firm Settings — SCIM · Mapping added",
+        "figmaNode": "14:11037",
+        "section": "SCIM",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-11037"
+      }
+    ]
+  },
+  {
+    "id": "firm-settings.daily-nav",
+    "title": "Daily NAV Settings",
+    "figmaPage": "16 · Firm Settings",
+    "route": "/firm-settings/daily-nav",
+    "summary": "Set the firm-wide Daily NAV alert thresholds, trading market, report recipients, CSV template and delivery.",
+    "component": "DailyNavSettings",
+    "states": [
+      {
+        "key": "default",
+        "label": "Firm Settings — Daily NAV Settings",
+        "figmaNode": "16:14082",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-14082"
+      },
+      {
+        "key": "market-menu",
+        "label": "Firm Settings — Daily NAV Settings · Trading market menu open",
+        "figmaNode": "19:23323",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-23323"
+      },
+      {
+        "key": "recipient-added",
+        "label": "Firm Settings — Daily NAV Settings · Recipient added",
+        "figmaNode": "19:23627",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-23627"
+      }
+    ]
+  },
+  {
+    "id": "firm-settings.daily-nav-companies",
+    "title": "Daily NAV Companies",
+    "figmaPage": "16 · Firm Settings",
+    "route": "/firm-settings/daily-nav-companies",
+    "summary": "Enable Daily NAV per company, override its alert thresholds and link its Alexandria profile.",
+    "component": "DailyNavCompanies",
+    "states": [
+      {
+        "key": "default",
+        "label": "Firm Settings — Daily NAV Companies",
+        "figmaNode": "19:27576",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-27576"
+      },
+      {
+        "key": "alexandria-modal",
+        "label": "Firm Settings — Daily NAV Companies · Alexandria link modal",
+        "figmaNode": "19:39149",
+        "section": "Daily NAV",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-39149"
+      }
+    ]
+  },
+  {
+    "id": "firm-settings.scalar-ai",
+    "title": "Scalar AI",
+    "figmaPage": "16 · Firm Settings",
+    "route": "/firm-settings/scalar-ai",
+    "summary": "Cap the AI effort users may choose, set the default effort and switch AI features on or off for the firm.",
+    "component": "ScalarAi",
+    "states": [
+      {
+        "key": "default",
+        "label": "Firm Settings — Scalar AI",
+        "figmaNode": "19:42270",
+        "section": "Scalar AI",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-42270"
+      },
+      {
+        "key": "max-menu",
+        "label": "Firm Settings — Scalar AI · Maximum effort menu open",
+        "figmaNode": "19:42439",
+        "section": "Scalar AI",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-42439"
+      },
+      {
+        "key": "default-menu",
+        "label": "Firm Settings — Scalar AI · Default effort menu open (capped)",
+        "figmaNode": "19:42597",
+        "section": "Scalar AI",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-42597"
+      }
+    ]
+  },
+  {
+    "id": "firm-settings.settings",
+    "title": "Feature Settings",
+    "figmaPage": "16 · Firm Settings",
+    "route": "/firm-settings/settings",
+    "summary": "Switch firm-wide features on or off: required 2FA, process-management columns, Daily NAV and number-format entry.",
+    "component": "FeatureSettings",
+    "states": [
+      {
+        "key": "default",
+        "label": "Firm Settings — Settings",
+        "figmaNode": "19:42781",
+        "section": "Settings",
+        "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-42781"
+      }
+    ]
+  }
+]

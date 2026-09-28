@@ -90,6 +90,9 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | A primary action's fill | `color.bg.brand` + `text.onBrand` | `bg.brandSubtle` |
 | A destructive action's fill | `color.bg.negative` + `text.onNegative` | brand recoloured by hand |
 | An **unread** indicator dot | `color.bg.unread` | `bg.negative` — unread is not an error |
+| A **group band** row in a data grid (VIP Fund, Holding Co.) | `color.bg.groupHeader` + `text.onGroupHeader` | `bg.onBrand` — it inverts to pale blue in Dark |
+| A **file type** badge (PDF, DOCX, XLSX…) | `color.file.<kind>.background` + `.text` | `bg.negative` for a PDF — a format is not a status |
+| A **product** tile or mark (Intelligence, Valuations, Waterfalls, Documents) | `color.product.<key>.background` + `.icon` | status tints, or the AI family for Waterfalls |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
 | A card or panel surface | `color.bg.surface` | `bg.page` |
 | A surface lifted above another surface | `color.bg.surfaceRaised` | a lighter hex |
@@ -133,6 +136,8 @@ Two scales that must never be crossed (R2).
 | `size.icon.xs … xl` | 12 · 16 · 20 · 24 · 32 | every icon. Never hand-size one. |
 | `size.control.s / m / l` | 32 · 40 · 48 | button and field heights |
 | `size.avatar.xs … xl` | 24 · 32 · 40 · 56 · 80 | every avatar |
+| `size.iconWell.m / l` | 40 · 56 | a container holding one glyph (Product Tile mark, Dropzone well) — not `size.avatar` |
+| `size.progressRing.m` | 48 | Progress Ring diameter |
 | `size.row.compact` | 26px | data-grid row min-height |
 | `size.target.minimum` | **44px** | the tap target floor |
 | `size.target.dense` | 24px | documented exception: dense grid only |
@@ -223,6 +228,29 @@ Find the **intent**, not the shape.
 | Show composition **and** a meaningful total | `BarChart type="stacked"` | a donut over time |
 | Show one composition's split | `DonutChart` (≤8 slices) | a pie |
 | Show how a figure becomes another figure | `WaterfallChart` | a bar chart |
+| Page / row / column actions behind a ⋮ | `ContextMenu` + `MenuItem` | a row of icon buttons |
+| A main action with alternatives | `SplitButton` | two adjacent Buttons |
+| The page's one floating "add" action | `Fab` (+ `SpeedDial` for a choice) | a fixed primary Button |
+| Switch between 2–4 views of the same content | `SegmentedControl` | `Tabs`, or `ToolSwitch` (product switch only) |
+| Saved views / scenarios / notes as tabs | `ViewTabBar` + `ViewTab` | `Tabs` with a hand-rolled kebab |
+| A page-level or modal form field | `FloatingLabelInput` / `FloatingLabelSelect` | `FormField` (keep that for dense forms) |
+| Pick from a list that can exceed ~8 items | `ComboboxPanel` | `Select` |
+| A number with a unit, or an integer count | `NumberField` | `Input type="number"` |
+| Several short values (domains, names) | `TagInput` | a comma-separated `Input` |
+| A value the user must copy elsewhere | `CopyField` | a read-only `Input` |
+| A list of like rows the user adds/removes | `RepeatableRow` + tertiary "+ Add" | a grid |
+| Upload a file | `Dropzone` | a bare file input |
+| Confirm a consequential action | `ConfirmationDialog` | `window.confirm` or an `Alert` |
+| A page-level message spanning the page | `Banner` | `Alert` (boxed, in-section) |
+| Work with no known duration | `Spinner` | `ProgressBar` indeterminate |
+| A count-based goal (3/5 answered) | `ProgressRing` | a `Badge` |
+| A preference that applies at once | `SettingRow` | `CheckboxItem` |
+| Row hierarchy in a financial statement | `RowLabelCell` + `GridValueCell` | bold text in a `Cell` |
+| A file in a list | `FileRow` + `FileTypeBadge` | a `Link` with an icon |
+| A label/value pair in a description list | `KeyValueRow` | a two-column `DataGrid` |
+| The open menu of a select / picker trigger (≤ ~8 options) | `SelectMenu` + `SelectMenuOption` | a hand-rolled list of `MenuItem`s |
+| Pending tasks on a grid row | `TaskPill` (`label` required) | a coloured dot or a bare `Badge` |
+| Frame and zoom an uploaded logo or avatar | `ImageCropField` (+ `Dropzone` for the upload) | an `<img>` with a native range input |
 
 ---
 
@@ -285,13 +313,28 @@ Every component below is exported from the package root. Props marked
 ### Primitives
 
 **`Icon`** — `{ size?: 'xs'|'s'|'m'|'l'|'xl', tone?, label?, children }`
-Sizing and tint wrapper for a glyph. Glyphs ship from the separate
-`SDS_Main icons` Figma library and are **not** in this package — export the real
-glyph and pass it as children. The handful in `glyphs` are structural only
-(chevrons, tick, close) and exist so this package's own components work.
-Icons imported from SDS_Main default to white and are invisible on a light
-surface until re-tinted; `Icon` always sets a tint, so anything through it is
-safe. Pass `label` only when the icon carries meaning on its own.
+Sizing and tint wrapper for a glyph. Pass `label` only when the icon carries
+meaning on its own.
+
+**The product icon set is Google Material Symbols (Outlined, weight 400)**,
+exported as `icons`. Every glyph fills with `currentColor`, so `Icon`'s `tone`
+tints it:
+
+```tsx
+import { Icon, icons } from '@scalar/design-system';
+<Icon size="s" tone="secondary"><icons.FitScreen /></Icon>
+```
+
+- Names are Material's snake_case in PascalCase (`fit_screen` → `icons.FitScreen`).
+- **Adding one:** put the Material name in
+  `src/components/icon/material-icons.json`, run `npm run gen:icons`, and
+  commit the regenerated `material.tsx`. Never hand-edit `material.tsx` and
+  never paste a loose SVG into a component.
+- `glyphs` (`ChevronDown`, `Close`, `Trash`, `MoreHorizontal`…) are the
+  structural aliases this package's own components use; they now point at
+  Material glyphs. Prefer `icons.*` in product UI.
+- **Figma still uses `SDS_Main icons`**, so a glyph in code and the same glyph in
+  Figma can differ in shape. Match by meaning, never by shape (known gap 4).
 
 **`Typography`** — `{ variant?: TypeRole, step?, weight?, tone?, as?, truncate? }`
 Plus the shorthands `Heading`, `Text`, `Label`, `Overline`.
@@ -304,7 +347,7 @@ those independent is what stops an `<h2>` being chosen for its size.
 |---|---|---|
 | `Divider` | `orientation` | Only where whitespace fails to group. Two stacked dividers is a spacing bug. |
 | `Link` | `size`, `href` | Underline is **permanent**, not a hover reveal (R8). |
-| `Tooltip` | `content` **req**, `position` | Explains; never holds the only copy of something. Keyboard-reachable, Escape dismisses. |
+| `Tooltip` | `content` **req**, `position`, `open`, `onOpenChange` | Explains; never holds the only copy of something. Keyboard-reachable, Escape dismisses. `open` makes it controlled (`true` forces it open, e.g. a guided tour); omit it for hover / focus. |
 | `Scrim` | `onDismiss` | Sibling of the dialog, never a child. |
 | `EmptyState` | `title` **req**, `type`, `body`, `icon`, `actions` | `no-data` offers the filling action; `no-results` offers the way out; `error` explains and retries. Write guidance, not apology. |
 
@@ -353,7 +396,16 @@ The glyph is not the name. Use only where the icon is unambiguous alone.
   selected is a navigation bug, not a state.
 - The last `Breadcrumb` item is the current page: not a link, and it must not
   look like one.
-- `Pagination` never *hides* Previous/Next — it disables them.
+- `Pagination` never *hides* Previous/Next — it disables them. Pass
+  `rowsPerPage` + `onRowsPerPageChange` (and optionally `rowsPerPageOptions`,
+  default 10 · 25 · 50 · 100) to render the labelled "Rows per page" Select at
+  the start of the bar; reset `page` to 1 when it changes.
+- **`Selector`** — `{ label?, value` **req**`, surface?: 'brand' | 'surface', expanded?, disabled?, onClick? }`.
+  A trigger only; the screen owns its menu (render a `SelectMenu`).
+  `surface="brand"` (default) is for the navy Primary Menu bar and uses the On
+  Brand tokens; `surface="surface"` is for a light page or company header
+  (Financials Date / Version). `expanded` sets `aria-expanded` and flips the
+  chevron. Never put a `brand` Selector on a light surface or vice versa.
 - `Stepper`: show every step from the start. Never mark one complete until it
   is.
 - `FilterDropdown` shows **the value in force**, not the filter's name.
@@ -363,6 +415,45 @@ The glyph is not the name. Use only where the icon is unambiguous alone.
 
 `DataGrid` · `Row` · `Cell` · `ColumnHeader` · `ContentCell` · `Footnote` ·
 `Ledger` · `ModalStatus` · `ValuationStatus`
+
+**Column sizing is header-driven.** `DataGrid` is a CSS grid: each header cell
+in `head` (`ColumnHeader`, `GridColumnHeader`, `AddColumnHeader`) defines one
+column track, and every `Row` is a subgrid of those tracks, so a body cell
+always fills exactly its header's column.
+
+| Header prop | Track | Use |
+|---|---|---|
+| (none) | `minmax(max-content, 1fr)` | the default: never narrower than the header label on one line, shares leftover width |
+| `grow={n}` | `minmax(max-content, <n>fr)` | a column that should take more of the spare width (a name column) |
+| `width="…"` | that fixed track | an icon or checkbox column — pass a `size.*` token |
+| `span={n}` | n tracks | a header over several columns; body cells take `span` too |
+
+- `columns` on `DataGrid` overrides the derived tracks entirely; `groupHead`
+  takes a row of `ColumnGroupHeader`s (use their `span`) above `head`.
+- `maxHeight` bounds the grid: the body scrolls inside it and the header sticks
+  to the grid's top. Without it the grid grows with its rows. Wider than its
+  container, the grid scrolls sideways inside itself.
+- **Both cell models work inside `Row`:** `Cell`, and the grid-pattern cells
+  (`RowLabelCell`, `GridValueCell`, `InCellControl`). The row owns the
+  background, so `zebra`, hover and `type="total"` work for either. Still pick
+  one model per grid (known gap 8).
+- `Cell` and every grid-pattern cell take `span`, `style` and HTML attributes.
+
+**`ColumnHeader`** — `{ numeric?, sort?, onSortChange?, actions?, grow?, width?, span?, tone?: 'brand' | 'subtle' }`.
+`brand` (default) is the navy grid chrome. `subtle` is the light header band —
+`bg.subtle`, `text.secondary`, a `stroke.strong` bottom rule — for a table inside
+a card or modal. Use it instead of restyling a header by hand; one tone per grid.
+
+**`GridColumnHeader`** also takes `trailing` and `editable` — an editable-date
+column: editable-blue label with a trailing calendar glyph.
+
+**`ModalStatus`** states: `draft` · `review` · `in-process-usa` · `in-process-arg` ·
+`final` · `complete` · **`published`** (positive tint with a leading check, so it
+reads apart from Complete without relying on colour).
+
+**`TaskPill`** — `{ label` **req**`, count?, tone?: 'negative' | 'warning' | 'brand', icon?, onClick? }`.
+Pending tasks in a grid row: tinted pill, glyph and optional count; `label` is
+the accessible name and tooltip ("3 overdue tasks"). Dense grid furniture (24px).
 
 **`Cell`** — `{ type?: 'readable'|'input'|'data'|'group'|'divider', state?: 'default'|'selected'|'error'|'draft'|'total', numeric?, footnote?, icon?, groupStart?, groupEnd? }`
 
@@ -449,6 +540,60 @@ Rules:
 > **column total** instead and carry identity by stack order, which is a
 > non-colour channel and is stable across categories.
 
+### Gap-analysis patterns (Figma pages 20–26)
+
+`MenuItem` · `MenuDivider` · `ContextMenu` · `UserMenu` · `MenuSubItems` ·
+`SplitButton` · `Fab` · `SpeedDial` + `SpeedDialItem` · `SegmentedControl` ·
+`ViewTabBar` + `ViewTab` ·
+`FloatingLabelInput` · `FloatingLabelSelect` · `NumberField` · `TimeField` ·
+`TagInput` · `CopyField` · `ComboboxPanel` + `ComboboxOption` · `ShowMoreRow` ·
+`SelectMenu` + `SelectMenuOption` ·
+`RepeatableRow` · `Dropzone` · `Slider` · `ImageCropField` · `InlineEdit` · `InlinePicker` ·
+`RowLabelCell` · `GridValueCell` · `InCellControl` · `ColumnGroupHeader` ·
+`GridColumnHeader` · `AddColumnHeader` · `CollapsedColumnRail` · `GridColumnDivider` · `TaskPill` ·
+`ChartHoverCard` · `CellHistoryPopover` ·
+`FileTypeBadge` (+ `fileKindOf`) · `FileRow` · `TreeItem` · `PageStepper` · `ZoomControl` ·
+`DocumentViewerHeader` · `ScrollHintPill` ·
+`Banner` · `Spinner` · `ProgressRing` · `DataFreshness` · `SaveState` ·
+`ConfirmationDialog` · `SettingRow` · `NotificationCenter` · `RowActionToolbar` ·
+`KeyValueRow` · `VersionHistoryItem` · `PermissionMatrixRow` · `RoleSelector` ·
+`ProfileHeader` · `FilterBar` · `DirectoryGroup` · `ProductTile` · `FirmSwitcherTile` ·
+`PageTaskHeader` · `CodeGrid` · `RichTextToolbar` · `AppFooter`
+
+- Every icon-only control takes a **required text label** (`menuLabel`,
+  `label`, `removeLabel`…) — the glyph is not the name.
+- `ContextMenu`, `ComboboxPanel`, `SelectMenu`, `NotificationCenter` and
+  `CellHistoryPopover` are **surfaces only**: the trigger owns open state,
+  positioning and outside-click dismissal.
+- `SelectMenu` — `{ label` **req**`, search?, footer?, multiselectable? }` + HTML
+  attrs onto the `role="listbox"`; `SelectMenuOption` — `{ selected?, disabled?,
+  description?, icon?, active?, onSelect? }`. Selected options carry a trailing
+  check as well as the tint. Long searchable lists use `ComboboxPanel`.
+- `SplitButton menuPlacement="top"` opens its menu upward — for a button at the
+  foot of a page or above the Workspace Drawer.
+- `NumberField label` renders a floating label on the top border, matching a
+  filled `FloatingLabelInput` (44px box), for mixing number fields into page and
+  modal forms.
+- `Dropzone prompt` replaces the default "Drag & drop a file or select a file";
+  pass a function `(browse) => …` to keep the browse link.
+- `VersionHistoryItem currentLabel` sets the current-entry chip text (default
+  "Current").
+- `ImageCropField` — `{ label` **req**`, src?, zoom, onZoomChange, zoomMin?, zoomMax?, zoomStep?, onRemove?, shape?: 'square' | 'wide' }`.
+  Framed preview well (placeholder glyph when empty), zoom `Slider` between
+  zoom-out / zoom-in glyphs (disabled until there is an image), delete
+  `ButtonIcon`. Pair with a `Dropzone` for the upload.
+- `ComboboxPanel` does not filter — pass the already-filtered `items`.
+- `GridValueCell state="error"` **requires** `errorMessage` (R8).
+- `SegmentedControl` always has exactly one selected option.
+- `MenuItem tone="destructive"` goes last, after a `MenuDivider`. A
+  `ConfirmationDialog`'s confirm label repeats the verb — never "OK".
+- `FileTypeBadge` colour is format identity (`color.file.*`), `ProductTile`
+  colour is product identity (`color.product.*`) — neither is status.
+- `RowLabelCell` / `GridValueCell` are a separate grouping model from
+  `Row type="group"`; do not mix them in one grid (known gap 8).
+- Built-in glyphs are Material aliases. Pass any `icons.*` glyph through the
+  icon props to change one.
+
 ### Feedback, containers, search
 
 `Alert` · `Toast` + `ToastViewport` · `ProgressBar` · `Skeleton` ·
@@ -461,6 +606,15 @@ Rules:
 - `ProgressBar` with no `value` is indeterminate — use it only when the total
   genuinely is unknown.
 - `Modal` traps focus, closes on Escape, returns focus to its trigger.
+  `size`: `s` 400 (short confirm-style form) · `m` 560 (default) · `l` 800
+  (two-column form, small table) · `xl` 1120 (a grid or document preview);
+  never wider than the viewport.
+- `WorkspaceDrawer` is **sticky to the bottom of the viewport** (or its nearest
+  scroll container) at 40vh, 60vh when `expanded`. Render it as the last child
+  of the page's scrolling column; the content above scrolls behind it.
+- Field-like boxes (`Input`, `Select`, `Textarea`, `FloatingLabel*`,
+  `NumberField`, `TagInput`, `CopyField`…) are `box-sizing: border-box`, so
+  `width: 100%` never overflows the container.
 - `GlobalSearch`: scope is a **stack**, not a filter. Tab pushes, Backspace pops.
   Never show more than three chips.
 
@@ -522,6 +676,7 @@ bite you:
    Held as one named constant, `--field-height`, in the component layer.
 3. **Dense grid affordances cannot reach the 44px target.** This is a documented,
    deliberate exception scoped to grid furniture only — never generalise it.
-4. **Icon library is not in this package.** `SDS_Main icons` is a third Figma
-   library; export glyphs from it and pass them to `Icon`.
+4. **Icons differ between Figma and code.** Code uses Material Symbols
+   (`icons`, resolved); Figma still uses the `SDS_Main icons` library. Match by
+   meaning, never by shape.
 5. **`Gradient/AI`** has no Dark-mode counterpart. Verify on `bg.page` in Dark.

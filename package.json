@@ -41,13 +41,20 @@
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "gen:tokens": "node scripts/gen-tokens.mjs",
     "verify": "npm run typecheck && npm run lint:tokens",
-    "build:examples": "tsc -p examples/tsconfig.json"
+    "build:examples": "tsc -p examples/tsconfig.json",
+    "build:product": "tsc -p apps/product/tsconfig.json",
+    "product": "npm run build && npm run build:product && node scripts/serve.mjs",
+    "product:catalog": "npm run build:product && node scripts/gen-product-catalog.mjs",
+    "verify:product": "npm run build:product && npm run lint:tokens && node scripts/gen-product-catalog.mjs",
+    "gen:icons": "node scripts/gen-icons.mjs",
+    "product:seed": "node apps/product/db/seed.mjs"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@material-symbols/svg-400": "^0.47.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "typescript": "^5.6.3"

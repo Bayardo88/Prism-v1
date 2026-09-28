@@ -53,6 +53,8 @@ export const text = {
   onBrandSubtle: v('--color-text-on-brand-subtle'),
   onBrandMuted: v('--color-text-on-brand-muted'),
   onBrandInactive: v('--color-text-on-brand-inactive'),
+  /** Label and toggle on `bg.groupHeader`. White in both modes — never `text.onBrand` there. */
+  onGroupHeader: v('--color-text-on-group-header'),
   onPositive: v('--color-text-on-positive'),
   onNegative: v('--color-text-on-negative'),
   onWarning: v('--color-text-on-warning'),
@@ -86,6 +88,12 @@ export const bg = {
   negativePressed: v('--color-bg-negative-pressed'),
   negativeSubtle: v('--color-bg-negative-subtle'),
   unread: v('--color-bg-unread'),
+  /**
+   * Full-width band that groups rows in a data grid (VIP Fund, Holding Co.).
+   * Stays navy in both modes — `bg.onBrand` inverts to pale blue in Dark.
+   * Pair only with `text.onGroupHeader`.
+   */
+  groupHeader: v('--color-bg-group-header'),
   ai: v('--color-bg-ai'),
   aiSubtle: v('--color-bg-ai-subtle'),
 } as const;
@@ -232,7 +240,38 @@ export const prism = {
 /** The five PRISM concepts that Global Search can scope into. */
 export type PrismConcept = keyof typeof prism;
 
-export const color = { text, bg, stroke, icon, overlay, chart, prism } as const;
+/**
+ * File type — the File Type Badge. Colour identifies a FORMAT, never a status:
+ * a PDF is red because it is a PDF, so never reach for `bg.negative` here.
+ * `background` is the badge tint, `text` the extension label on it (AA).
+ */
+export const file = {
+  pdf: { background: v('--color-file-pdf-background'), text: v('--color-file-pdf-text') },
+  word: { background: v('--color-file-word-background'), text: v('--color-file-word-text') },
+  sheet: { background: v('--color-file-sheet-background'), text: v('--color-file-sheet-text') },
+  image: { background: v('--color-file-image-background'), text: v('--color-file-image-text') },
+  text: { background: v('--color-file-text-background'), text: v('--color-file-text-text') },
+  generic: { background: v('--color-file-generic-background'), text: v('--color-file-generic-text') },
+} as const;
+
+export type FileKind = keyof typeof file;
+
+/**
+ * Product identity — Product Tile and product-level marks. Identity, not
+ * status: Valuations is green because it is Valuations. Waterfalls must not
+ * borrow the AI family, which is reserved for model output.
+ * `icon` is graphic only (≥ 3:1); titles on the tint use `text.primary`.
+ */
+export const product = {
+  intelligence: { background: v('--color-product-intelligence-background'), icon: v('--color-product-intelligence-icon') },
+  valuations: { background: v('--color-product-valuations-background'), icon: v('--color-product-valuations-icon') },
+  waterfalls: { background: v('--color-product-waterfalls-background'), icon: v('--color-product-waterfalls-icon') },
+  documents: { background: v('--color-product-documents-background'), icon: v('--color-product-documents-icon') },
+} as const;
+
+export type ProductKey = keyof typeof product;
+
+export const color = { text, bg, stroke, icon, overlay, chart, prism, file, product } as const;
 
 /* ---------------------------------------------------------------------------
  * Scales
@@ -275,6 +314,9 @@ export const size = {
     l: v('--size-avatar-l'), xl: v('--size-avatar-xl'),
   },
   row: { compact: v('--size-row-compact') },
+  /** Container for a single glyph (Product Tile mark, Dropzone well). Not an avatar. */
+  iconWell: { m: v('--size-icon-well-m'), l: v('--size-icon-well-l') },
+  progressRing: { m: v('--size-progress-ring-m') },
   target: {
     dense: v('--size-target-dense'),
     minimum: v('--size-target-minimum'),
@@ -366,6 +408,6 @@ export const typeSteps = {
 export const type = { style: typeStyle, steps: typeSteps, weight: fontWeight, family: fontFamily } as const;
 
 export const tokens = {
-  color, text, bg, stroke, icon, overlay, chart, prism,
+  color, text, bg, stroke, icon, overlay, chart, prism, file, product,
   space, radius, size, breakpoint, elevation, motion, zIndex, type,
 } as const;

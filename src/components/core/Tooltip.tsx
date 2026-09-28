@@ -10,6 +10,14 @@ export interface TooltipProps {
   content: ReactNode;
   /** The side the tooltip sits on, so the arrow points back at its trigger. */
   position?: TooltipPosition;
+  /**
+   * Controlled visibility. `true` forces the tooltip open (a guided tour, a
+   * documentation frame), `false` keeps it shut; omit it for the normal
+   * hover / focus behaviour.
+   */
+  open?: boolean;
+  /** Called with the hover / focus / Escape intent, controlled or not. */
+  onOpenChange?: (open: boolean) => void;
   className?: string;
 }
 
@@ -23,8 +31,13 @@ export interface TooltipProps {
  * Escape. It describes the trigger (`aria-describedby`) and never wraps it as a
  * container.
  */
-export function Tooltip({ children, content, position = 'top', className }: TooltipProps) {
-  const [open, setOpen] = useState(false);
+export function Tooltip({ children, content, position = 'top', open: openProp, onOpenChange, className }: TooltipProps) {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp ?? openState;
+  const setOpen = (next: boolean) => {
+    if (openProp === undefined) setOpenState(next);
+    onOpenChange?.(next);
+  };
   const id = useId();
 
   return (
