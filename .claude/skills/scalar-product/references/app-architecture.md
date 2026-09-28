@@ -15,7 +15,9 @@ apps/product/
     types.ts                 ScreenDef · ScreenState · ScreenProps
     registry.ts              concatenates screens/*/index.ts in Figma page order
     Catalog.tsx              #/catalog — every screen & state, linked
-    data/fixtures.ts         firm, firms, user, companies, formatters (shared names)
+    data/db.ts               the company database: db.companies.{all,byId,search,where,page}, db.funds
+    data/companies.db.ts     GENERATED from db/companies.json by db/seed.mjs (200 companies) — never edit
+    data/fixtures.ts         firm, firms, user, companies/companyById (from db), formatters
     shell/
       AppFrame.tsx           ScalarProvider + navy Primary Menu + body; `openMenu`, `overlay`
       CompanyLayout.tsx      company header + Secondary Menu + Tertiary sub-nav + footer + dock
@@ -74,9 +76,20 @@ use the pattern: `route: companyPattern(routes.company.capTable)` →
 - Only `@scalar/design-system` components and tokens. `npm run lint:tokens`
   scans `apps/product/src` and fails on raw hex, raw px in spacing/sizing, and
   hand-set font sizes. Layout ratios (`fr`, `%`, `flex`) and 1px borders are fine.
-- Glyphs: `import { glyphs, Icon }` → `<Icon><glyphs.Plus /></Icon>`. They are
-  structural stand-ins; the product icon set (SDS_Main icons) is not in the
-  package (known gap).
+- Icons are **Google Material Symbols**: `import { icons, Icon }` →
+  `<Icon><icons.AttachMoney /></Icon>` (PascalCase of the Material name). Missing
+  one? Add its name to `src/components/icon/material-icons.json`, run
+  `npm run gen:icons` then `npm run build`. Don't use `glyphs.*` in screens.
+- Companies come from `db` — never hard-code a company list. Long lists page
+  (25, `Pagination` with rows-per-page) or use `ShowMoreRow`; pickers use
+  `db.companies.search`. Re-seed with `npm run product:seed` (deterministic).
+- `DataGrid` sizes columns from the header cells: each column is at least its
+  header label on one line, leftover width shared by `grow` (or fixed `width`);
+  rows are subgrids so cells fill the column. Put grid-pattern cells
+  (`RowLabelCell`, `GridValueCell`, `InCellControl`) straight into `Row`; use
+  `groupHead` for `ColumnGroupHeader`s. No per-cell width styles.
+- A menu/popover inside a sideways-scrolling grid gets clipped — anchor it
+  outside the grid (see `p07-company-cap-table/Anchor.tsx`).
 - Grid cells: `numeric` on every number; `type="input"` = user-entered (blue),
   `type="data"` = sourced/calculated (green); totals `Row type="total"`.
   Column headers stay on one line.
