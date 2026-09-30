@@ -10,7 +10,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import {
   Avatar, ButtonIcon, CompanyDropdown, Icon, MainMenuItem,
   Notification, PrimaryMenu, ScalarProvider, SearchBar, Selector, Text, icons,
-  ToolSwitch, color, space, type ToolSwitchValue,
+  ToolSwitch, color, space, type ThemeMode, type ToolSwitchValue,
 } from '@scalar/design-system';
 import { href } from '../router.js';
 import { routes } from '../routes.js';
@@ -30,10 +30,15 @@ export interface AppFrameProps {
   openMenu?: GlobalMenu;
   /** Screen-level overlay (modal, drawer, popover) drawn above the body. */
   overlay?: ReactNode;
+  /**
+   * Colour mode for this screen. `system` follows the OS. Pin `light` or
+   * `dark` when a screen must stay on one theme.
+   */
+  mode?: ThemeMode;
   children?: ReactNode;
 }
 
-export function AppFrame({ area, company, date, openMenu, overlay, children }: AppFrameProps) {
+export function AppFrame({ area, company, date, openMenu, overlay, mode = 'system', children }: AppFrameProps) {
   const [open, setOpen] = useState<GlobalMenu | undefined>(openMenu);
   const [tool, setTool] = useState<ToolSwitchValue>('valuations');
   useEffect(() => setOpen(openMenu), [openMenu]);
@@ -42,7 +47,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
   const Overlay = open ? overlays[open] : undefined;
 
   return (
-    <ScalarProvider mode="system" viewport="auto">
+    <ScalarProvider mode={mode} viewport="auto">
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: color.bg.page }}>
         <PrimaryMenu
           logo={

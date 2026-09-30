@@ -26,7 +26,7 @@ const SECTIONS: Array<{ key: CompanySection; label: string; to: (id: string) => 
   { key: 'documents', label: 'Documents', to: routes.company.documents },
 ];
 
-export interface CompanyLayoutProps extends Pick<AppFrameProps, 'openMenu' | 'overlay' | 'date'> {
+export interface CompanyLayoutProps extends Pick<AppFrameProps, 'openMenu' | 'overlay' | 'date' | 'mode'> {
   company: Company;
   section: CompanySection;
   /** Right side of the company header: Financials Date, version selectors, the ⋮ actions menu. */
@@ -50,10 +50,10 @@ export interface CompanyLayoutProps extends Pick<AppFrameProps, 'openMenu' | 'ov
 
 export function CompanyLayout({
   company, section, headerEnd, subNav, subNavEnd, footer, dock, dockOpen, dockContent, dockPanels,
-  openMenu, overlay, date, children,
+  openMenu, overlay, date, mode, children,
 }: CompanyLayoutProps) {
   return (
-    <AppFrame area="company" company={company} openMenu={openMenu} overlay={overlay} date={date}>
+    <AppFrame area="company" company={company} openMenu={openMenu} overlay={overlay} date={date} mode={mode}>
       <header
         style={{
           display: 'flex', alignItems: 'center', gap: space.l,

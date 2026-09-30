@@ -5,7 +5,7 @@ Company Valuations is where a valuation analyst builds one valuation version of 
 - **Tertiary Menu:** one tab per approach (Summary · Conclusions · External Valuation · Specified Share Value · Backsolve) and **+** (Add approach).
 - **Actions:** Ask AI, USD ($) Thousands, fit to screen, filter, the green Save split button and ⋮.
 
-Open it from the company's Secondary Menu → **Valuations**.
+Open it from the company's Secondary Menu → **Valuations**. These screens pin the light colour mode, so the page stays on the light token set when the OS is dark.
 
 Source code: `apps/product/src/screens/p08-company-valuations/`. The shared chrome is `ValuationsLayout.tsx`. Every grid is a `DataGrid` + `Row` (the Summary tables use `groupHead` for the column groups). Menus are anchored with `p07-company-cap-table/Anchor.tsx`.
 
