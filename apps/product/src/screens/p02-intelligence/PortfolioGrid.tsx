@@ -166,6 +166,7 @@ export function PortfolioGrid({
       <GridValueCell
         key={col.key}
         data-cell={`${row.id}|${col.key}`}
+        data-tour={isFocused ? 'numeric-highlight' : undefined}
         kind={col.kind ?? 'calculated'}
         state={isFocused ? 'focused' : 'default'}
         onClick={onCellClick ? () => onCellClick(row.id, col.key) : undefined}

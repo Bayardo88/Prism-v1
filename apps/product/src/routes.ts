@@ -18,6 +18,7 @@ export const routes = {
   valuations: '/valuations',
   waterfalls: '/waterfalls',
   documents: '/documents',
+  reports: '/reports',
   company: {
     summary: c('summary'),
     incomeStatement: c('financials/income-statement'),

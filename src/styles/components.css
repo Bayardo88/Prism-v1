@@ -193,6 +193,7 @@
 }
 
 /* Sizes. S is dense table furniture only, never a primary action. */
+.scalar-button--xs { height: var(--size-icon-l); padding-inline: var(--space-xs); gap: var(--space-xs); border-radius: var(--radius-xs); font-size: var(--font-size-label-s); line-height: var(--line-height-label-s); }
 .scalar-button--s { height: var(--size-control-s); padding-inline: var(--space-s);  font-size: var(--font-size-label-s); line-height: var(--line-height-label-s); }
 .scalar-button--m { height: var(--size-control-m); padding-inline: var(--space-m);  font-size: var(--font-size-label-m); line-height: var(--line-height-label-m); }
 .scalar-button--l { height: var(--size-control-l); padding-inline: var(--space-l);  font-size: var(--font-size-label-l); line-height: var(--line-height-label-l); }
@@ -236,6 +237,7 @@
 
 /* Icon-only: the visible box is the icon, but the target stays at 44px. */
 .scalar-button--icon-only { padding-inline: 0; aspect-ratio: 1; }
+.scalar-button--icon-only.scalar-button--xs { width: var(--size-icon-l); }
 .scalar-button--icon-only.scalar-button--s { width: var(--size-control-s); }
 .scalar-button--icon-only.scalar-button--m { width: var(--size-control-m); }
 .scalar-button--icon-only.scalar-button--l { width: var(--size-control-l); }
@@ -278,6 +280,9 @@
   user-select: none;
 }
 .scalar-avatar__image { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* Ringed — the 2px brand stroke on the Primary Menu's user avatar. */
+.scalar-avatar--ringed { box-sizing: border-box; border: 2px solid var(--color-stroke-brand); }
 
 /* Sizes are bound to Semantic: Sizing/Avatar; initials scale with the ramp. */
 .scalar-avatar--xs { width: var(--size-avatar-xs); height: var(--size-avatar-xs); font-size: var(--font-size-heading-s);   line-height: var(--line-height-heading-s); }
@@ -1226,9 +1231,9 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-primary-menu {
   display: flex;
   align-items: center;
-  gap: var(--space-2xl);
+  gap: var(--space-s);
   height: var(--size-control-l);
-  padding: 0 var(--space-xl);
+  padding: 0 var(--space-l);
   background: var(--color-bg-brand-hover);
   color: var(--color-text-on-brand);
   font-family: var(--font-family-default);
@@ -1236,8 +1241,12 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
   top: 0;
   z-index: var(--z-sticky);
 }
-.scalar-primary-menu__nav { display: flex; align-items: center; gap: var(--space-2xs); }
-.scalar-primary-menu__end { margin-left: auto; display: flex; align-items: center; gap: var(--space-m); }
+.scalar-primary-menu__nav { display: flex; align-items: center; gap: var(--space-s); }
+.scalar-primary-menu__end { margin-left: auto; display: flex; align-items: center; gap: var(--space-s); }
+/* The firm's own mark, 34 x 32. */
+.scalar-primary-menu__more { display: inline-flex; align-items: center; justify-content: center; width: var(--size-icon-l); height: var(--size-icon-l); padding: 0; border: 0; border-radius: var(--radius-xs); background: none; color: var(--color-icon-on-brand); cursor: pointer; }
+.scalar-primary-menu__more:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
+.scalar-primary-menu__logo { display: block; width: 34px; height: var(--size-icon-xl); border-radius: var(--radius-xs); object-fit: cover; }
 
 .scalar-main-menu-item {
   display: inline-flex;
@@ -1249,8 +1258,8 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
   background: none;
   color: var(--color-text-on-brand-inactive);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-label-m);
-  line-height: var(--line-height-label-m);
+  font-size: var(--font-size-label-s);
+  line-height: var(--line-height-label-s);
   font-weight: var(--font-weight-semi-bold);
   cursor: pointer;
   white-space: nowrap;
@@ -1270,59 +1279,68 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-secondary-menu {
   display: flex;
   align-items: stretch;
-  gap: var(--space-l);
-  padding: 0 var(--space-xl);
-  background: var(--color-bg-surface);
-  border-bottom: 1px solid var(--color-stroke-divider);
   font-family: var(--font-family-default);
 }
 .scalar-secondary-menu-item {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  padding: var(--space-s) 0;
+  justify-content: center;
+  gap: var(--space-xs);
+  height: var(--size-control-s);
+  padding: var(--space-s);
   border: 0;
-  border-bottom: 2px solid transparent;
   background: none;
   color: var(--color-text-tertiary);
-  font-size: var(--font-size-label-m);
-  line-height: var(--line-height-label-m);
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-label-s);
+  line-height: var(--line-height-label-s);
   font-weight: var(--font-weight-semi-bold);
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
-  margin-bottom: -1px;
 }
-.scalar-secondary-menu-item:hover { color: var(--color-text-primary); }
-.scalar-secondary-menu-item[aria-current='page'] { color: var(--color-text-brand); border-bottom-color: var(--color-stroke-brand); }
+.scalar-secondary-menu-item:hover { color: var(--color-text-secondary); }
+.scalar-secondary-menu-item[aria-current='page'] { background: var(--color-bg-subtle); color: var(--color-text-primary); }
+.scalar-secondary-menu-item:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
 
 /* --- Tertiary menu (tier 3) -------------------------------------------------- */
 .scalar-tertiary-menu {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: var(--space-l);
   height: var(--size-control-m);
-  padding: 0 var(--space-xl);
+  margin-inline: var(--space-l);
+  padding: var(--space-xs);
   background: var(--color-bg-subtle);
   font-family: var(--font-family-default);
 }
+.scalar-tertiary-menu__items { display: flex; align-items: center; min-width: 0; }
+.scalar-tertiary-menu__end { margin-left: auto; display: flex; align-items: center; gap: var(--space-s); }
 .scalar-tertiary-menu-item {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-xs);
-  padding: var(--space-xs) var(--space-s);
+  height: var(--size-control-s);
+  padding: var(--space-s);
   border: 0;
   border-radius: var(--radius-xs);
   background: none;
   color: var(--color-text-tertiary);
-  font-size: var(--font-size-heading-s);
-  line-height: var(--line-height-heading-s);
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-label-s);
+  line-height: var(--line-height-label-s);
   font-weight: var(--font-weight-semi-bold);
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
 }
-.scalar-tertiary-menu-item:hover { color: var(--color-text-primary); }
-.scalar-tertiary-menu-item[aria-current='page'] { color: var(--color-text-primary); }
+.scalar-tertiary-menu-item:hover { color: var(--color-text-secondary); }
+.scalar-tertiary-menu-item[aria-current='page'] { background: var(--color-bg-disabled); color: var(--color-text-primary); }
+.scalar-tertiary-menu-item:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
 
 /* --- Submenu / dropdown panels ----------------------------------------------- */
 .scalar-menu-panel {
@@ -1375,58 +1393,59 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  height: var(--size-icon-l);
-  padding: 0 var(--space-s);
+  padding: var(--space-xs);
   background: var(--color-bg-on-brand);
   color: var(--color-text-on-brand-subtle);
   border: 0;
   border-radius: var(--radius-xs);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-label-s);
-  line-height: var(--line-height-label-s);
-  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-text-m);
+  line-height: var(--line-height-text-m);
+  font-weight: var(--font-weight-regular);
   cursor: pointer;
 }
+.scalar-company-dropdown:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 
 .scalar-filter-dropdown {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
   height: var(--size-icon-l);
-  padding: 0 var(--space-s);
+  padding: 0 var(--space-xs);
   background: var(--color-bg-subtle);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   border: 0;
   border-radius: var(--radius-xs);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-label-s);
-  line-height: var(--line-height-label-s);
+  font-size: var(--font-size-text-s);
+  line-height: var(--line-height-text-s);
+  font-weight: var(--font-weight-regular);
   cursor: pointer;
 }
 
 .scalar-search-bar {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-s);
-  width: 221px;
+  gap: var(--space-xs);
+  box-sizing: border-box;
   height: var(--size-control-s);
-  padding: 0 var(--space-s);
+  padding: var(--space-xs) var(--space-s);
   background: var(--color-bg-on-brand);
   color: var(--color-text-on-brand-muted);
-  border: 0;
+  border: 1px solid var(--color-stroke-brand-pressed);
   border-radius: var(--radius-xs);
   font-family: var(--font-family-default);
   cursor: text;
 }
 .scalar-search-bar:focus-within { background: var(--color-bg-surface); color: var(--color-text-primary); }
-.scalar-search-bar__input { flex: 1 1 auto; min-width: 0; border: 0; background: none; outline: none; color: inherit; font: inherit; font-size: var(--font-size-text-s); }
-.scalar-search-bar__input::placeholder { color: inherit; opacity: 0.8; }
+.scalar-search-bar__input { flex: none; width: 198px; padding: 0; border: 0; background: none; outline: none; color: inherit; font: inherit; font-size: var(--font-size-text-m); line-height: var(--line-height-text-m); }
+.scalar-search-bar__input::placeholder { color: inherit; opacity: 1; }
 .scalar-search-bar__shortcut { flex: none; opacity: 0.8; font-size: var(--font-size-overline-s); }
 
-/* Notification — the bell sits on Background/On Brand, so contrast is no longer
- * the binding constraint; hierarchy is. Icon/On Brand Inactive holds 9.9:1 in
- * Light and 8.0:1 in Dark while staying quieter than the Icon/On Brand glyphs
- * beside it (14.8:1 / 13.8:1). */
+/* Notification — a 32 x 32 well on Background/On Brand with the bell at 16 and
+ * an unread dot at its top-right. Icon/On Brand Inactive holds 9.9:1 in Light
+ * and 8.0:1 in Dark while staying quieter than the Icon/On Brand glyphs beside
+ * it. The drawn box is 32; the tap target stays 44 through ::after. */
 .scalar-notification {
   position: relative;
   display: inline-flex;
@@ -1434,30 +1453,23 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
   justify-content: center;
   width: var(--size-icon-xl);
   height: var(--size-icon-xl);
-  min-width: var(--size-target-minimum);
-  min-height: var(--size-target-minimum);
-  background: none;
+  padding: 0;
+  background: var(--color-bg-on-brand);
   border: 0;
+  border-radius: var(--radius-s);
   cursor: pointer;
   color: var(--color-icon-on-brand-inactive);
 }
-.scalar-notification__ground {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--size-icon-xl);
-  height: var(--size-icon-xl);
-  border-radius: var(--radius-full);
-  background: var(--color-bg-on-brand);
-}
+.scalar-notification::after { content: ''; position: absolute; inset: -6px; }
+.scalar-notification:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 /* The dot means unread, not urgent, and carries no count — hence bg.unread and
  * not bg.negative, which reads as an error. It inverts with its ground: darker
  * in Dark, where bg.onBrand lightens. Colour alone carries no meaning (R8), so
  * unread must also reach the control's accessible name. */
 .scalar-notification__dot {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 2px;
+  left: 20px;
   width: 10px;
   height: 10px;
   border-radius: var(--radius-full);
@@ -1468,15 +1480,14 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
   display: inline-flex;
   align-items: center;
   gap: var(--space-2xs);
-  padding: var(--space-2xs) var(--space-s);
+  padding: var(--space-2xs) var(--space-xs);
   background: var(--color-bg-subtle);
   color: var(--color-text-tertiary);
   border-radius: var(--radius-xs);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-overline-s);
-  line-height: var(--line-height-overline-s);
-  letter-spacing: var(--letter-spacing-overline-s);
-  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-text-s);
+  line-height: var(--line-height-text-s);
+  font-weight: var(--font-weight-regular);
   white-space: nowrap;
 }
 
@@ -1486,31 +1497,48 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 
 .scalar-currency-selector {
   display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-2xs) var(--space-s);
-  background: var(--color-bg-subtle);
-  color: var(--color-text-primary);
+  align-items: stretch;
+  padding: 0;
+  background: none;
   border: 0;
-  border-radius: var(--radius-xs);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-label-s);
-  line-height: var(--line-height-label-s);
+  font-size: var(--font-size-text-s);
+  line-height: var(--line-height-text-s);
   cursor: pointer;
 }
+/* Two parts: the currency code, then the unit. */
+.scalar-currency-selector__currency {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2xs) var(--space-xs);
+  background: var(--color-bg-surface);
+  color: var(--color-text-positive);
+  border: 1px solid var(--color-stroke-subtle);
+  border-radius: var(--radius-xs) 0 0 var(--radius-xs);
+}
+.scalar-currency-selector__unit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-2xs) var(--space-xs);
+  background: var(--color-bg-disabled);
+  color: var(--color-text-secondary);
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+}
+.scalar-currency-selector:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 
 .scalar-selector {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  height: var(--size-icon-l);            /* matches Company Dropdown on the bar */
-  padding: 0 var(--space-s);
-  border: 1px solid transparent;
+  box-sizing: border-box;
+  padding: var(--space-xs);
+  border: 0;
   border-radius: var(--radius-xs);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-label-s);
-  line-height: var(--line-height-label-s);
-  font-weight: var(--font-weight-semi-bold);
+  font-size: var(--font-size-text-m);
+  line-height: var(--line-height-text-m);
+  font-weight: var(--font-weight-regular);
   white-space: nowrap;                   /* the value never wraps onto a second line */
   cursor: pointer;
 }
@@ -1518,57 +1546,63 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-selector:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 1px; }
 .scalar-selector:disabled { cursor: not-allowed; color: var(--color-text-disabled); }
 
-/* On the navy Primary Menu bar. */
-.scalar-selector--brand { background: var(--color-bg-on-brand); color: var(--color-text-on-brand-subtle); }
+/* On the Primary Menu bar. */
+.scalar-selector--brand { background: var(--color-bg-on-brand); color: var(--color-text-on-brand); }
 .scalar-selector--brand .scalar-selector__label { color: var(--color-text-on-brand-muted); }
 .scalar-selector--brand .scalar-selector__chevron { color: var(--color-icon-on-brand-subtle); }
 .scalar-selector--brand:hover:not(:disabled),
-.scalar-selector--brand[aria-expanded='true'] { border-color: var(--color-stroke-on-brand); }
+.scalar-selector--brand[aria-expanded='true'] { box-shadow: inset 0 0 0 1px var(--color-stroke-on-brand); }
 
-/* On a light page or company header. */
-.scalar-selector--surface { background: transparent; color: var(--color-text-primary); }
-.scalar-selector--surface .scalar-selector__label { color: var(--color-text-secondary); }
-.scalar-selector--surface .scalar-selector__value { color: var(--color-text-editable); }
-.scalar-selector--surface .scalar-selector__chevron { color: var(--color-icon-secondary); }
+/* On a light page or company header: the bordered Info label (Financials Date,
+ * Financials Version). */
+.scalar-selector--surface {
+  height: var(--size-icon-l);
+  padding: 0 var(--space-xs);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  box-shadow: inset 0 0 0 1px var(--color-stroke-subtle);
+  font-size: var(--font-size-text-s);
+  line-height: var(--line-height-text-s);
+}
+.scalar-selector--surface .scalar-selector__label { color: var(--color-text-tertiary); }
+.scalar-selector--surface .scalar-selector__value { color: var(--color-text-brand); }
+.scalar-selector--surface .scalar-selector__chevron { color: var(--color-icon-brand); }
 .scalar-selector--surface:hover:not(:disabled),
-.scalar-selector--surface[aria-expanded='true'] { background: var(--color-bg-subtle); border-color: var(--color-stroke-control); }
+.scalar-selector--surface[aria-expanded='true'] { background: var(--color-bg-subtle); box-shadow: inset 0 0 0 1px var(--color-stroke-control); }
 
-.scalar-information-label { display: inline-flex; align-items: center; gap: var(--space-xs); font-family: var(--font-family-default); font-size: var(--font-size-heading-s); line-height: var(--line-height-heading-s); border-radius: var(--radius-xs); }
-.scalar-information-label__label { color: var(--color-text-secondary); }
-.scalar-information-label__value { color: var(--color-text-primary); font-weight: var(--font-weight-semi-bold); }
+.scalar-information-label { display: inline-flex; align-items: center; gap: var(--space-xs); box-sizing: border-box; height: var(--size-icon-l); padding: 0 var(--space-xs); box-shadow: inset 0 0 0 1px var(--color-stroke-subtle); font-family: var(--font-family-default); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); border-radius: var(--radius-xs); white-space: nowrap; }
+.scalar-information-label__label { color: var(--color-text-tertiary); }
+.scalar-information-label__value { color: var(--color-text-positive); }
+.scalar-information-label__value--brand { color: var(--color-text-brand); }
 
 /* Tool switch — exactly one side is always selected. */
-.scalar-tool-switch { display: inline-flex; gap: var(--space-2xs); padding: var(--space-2xs); border-radius: var(--radius-xs); background: var(--color-bg-on-brand); }
+.scalar-tool-switch { display: inline-flex; gap: 0; padding: var(--space-xs); border-radius: var(--radius-xs); background: var(--color-bg-on-brand); }
 .scalar-tool-switch__option {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-2xs);
-  padding: var(--space-xs) var(--space-s);
+  justify-content: center;
+  padding: var(--space-xs);
   border: 0;
   border-radius: var(--radius-2xs);
   background: none;
-  color: var(--color-text-on-brand);
-  font-family: var(--font-family-default);
-  font-size: var(--font-size-overline-s);
-  line-height: var(--line-height-overline-s);
-  font-weight: var(--font-weight-semi-bold);
+  color: var(--color-icon-on-brand);
   cursor: pointer;
 }
 .scalar-tool-switch__option[aria-pressed='true'] { background: var(--color-bg-brand); color: var(--color-icon-on-brand); }
+.scalar-tool-switch__option:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 
 .scalar-ai-tool {
   display: inline-flex;
   align-items: center;
   gap: var(--space-s);
-  padding: var(--space-s) var(--space-m);
+  padding: var(--space-xs);
   background: var(--color-bg-ai);
   color: var(--color-text-on-ai);
   border: 0;
-  border-radius: var(--radius-s);
+  border-radius: var(--radius-xs);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-label-m);
-  line-height: var(--line-height-label-m);
+  font-size: var(--font-size-label-s);
+  line-height: var(--line-height-label-s);
   font-weight: var(--font-weight-semi-bold);
   cursor: pointer;
 }
@@ -1576,19 +1610,24 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-ai-tool__input::placeholder { color: inherit; opacity: 0.8; }
 
 /* --- Company info bar --------------------------------------------------------- */
+/* The Secondary Menu bar: title, badge or filter, the tab row, and the page's
+ * selectors on the right. 32 high, no rule beneath it. */
 .scalar-company-info {
   display: flex;
   align-items: center;
-  gap: var(--space-m);
-  min-height: var(--size-icon-xl);
-  padding: var(--space-xs) var(--space-xl);
+  gap: var(--space-s);
+  min-height: var(--size-control-s);
+  margin-inline: var(--space-l);
+  padding: 0 var(--space-s);
   background: var(--color-bg-surface);
-  border-bottom: 1px solid var(--color-stroke-divider);
   font-family: var(--font-family-default);
 }
-.scalar-company-info__name { color: var(--color-text-primary); font-size: var(--font-size-text-l); line-height: var(--line-height-text-l); font-weight: var(--font-weight-semi-bold); }
-.scalar-company-info__meta { color: var(--color-text-tertiary); font-size: var(--font-size-heading-s); line-height: var(--line-height-heading-s); }
-.scalar-company-info__end { margin-left: auto; display: flex; align-items: center; gap: var(--space-m); }
+.scalar-company-info__name { color: var(--color-text-primary); font-size: var(--font-size-text-l); line-height: var(--line-height-text-l); font-weight: var(--font-weight-semi-bold); white-space: nowrap; }
+.scalar-company-info__meta { color: var(--color-text-tertiary); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); }
+.scalar-company-info__pin { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: var(--radius-xs); background: var(--color-bg-disabled); color: var(--color-icon-secondary); cursor: pointer; }
+.scalar-company-info__pin[aria-pressed='true'] { background: var(--color-bg-brand-subtle); color: var(--color-icon-brand); }
+.scalar-company-info__pin:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
+.scalar-company-info__end { margin-left: auto; display: flex; align-items: center; gap: var(--space-s); }
 
 /* =============================================================================
  * GAP-ANALYSIS COMPONENTS — Figma pages 20–26 (added 2026-09-24)

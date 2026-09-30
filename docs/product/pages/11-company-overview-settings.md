@@ -49,3 +49,13 @@ Behaviour & rules:
 - The lead brief said `section="overview"`. The frames and the live app show these pages under **Summary** (Summary is highlighted in the Secondary Menu), so `section="summary"` was used. `overview` would leave no Secondary item current.
 - ABC Co's record has `dailyNav: false`, but the frame shows the company included. The screen special-cases ABC Co so the frame holds; the record (or the frame) should be reconciled.
 - "SEC Filing" has no destination in the frame, so it does nothing.
+
+## Prototype — Company Overview v2 (`/prototypes/company-overview-v2/:companyId`)
+Code: `apps/product/src/screens/prototypes/company-overview-v2/`. States: `default`, `board-short`, `board-long` (short/long AI-generated board content).
+- **ZX Index Value**: Zanbato | Forge | Caplight `SegmentedControl` and the range toggle re-drive the `LineChart` and the 7 stat tiles from one dataset per provider (`data.ts`). Robustness Score sits in the card header (`InformationLabel` + `Chip`).
+- **Stat tile** (`StatTile.tsx`): neutral on `bg.subtle`; any % delta above +5% or below −5% takes `bg.warningSubtle`, a warning stroke, and the words "Beyond ±5%" (colour alone never carries it).
+- **Public Comps**: mirrors the ZX chrome; range + Chart/Table toggles; the `LineChart` legend supplies the Public Comps / Peer Group chips; 6 tiles.
+- **Board Presentations**: title + "View Presentation" link (new tab), deck name/date, overview, 3 equal tiles, 5 highlights — all wrap, none clip.
+- Mutual Fund Marks, Fundraising Rounds, Financial History, News are out-of-scope placeholders.
+
+Gaps: (1) `StatTile` is screen-local (ladder rung 6); promote to `src/components/` + Figma if approved. (2) The duplicated stat row / Financial History in production is not present in this code — engineering bug ticket. (3) No coded 409A public-comps chart exists; the DS `LineChart` stands in. (4) "View Presentation" has no real PDF target.

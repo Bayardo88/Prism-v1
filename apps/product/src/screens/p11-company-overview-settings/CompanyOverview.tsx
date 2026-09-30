@@ -7,6 +7,7 @@ import { companyById, type Company } from '../../data/fixtures.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
+import { ToolbarAi } from '../../shell/Toolbar.js';
 import { CompanyActions, CurrencyUnit, SummarySubNav } from '../p06-company-summary-financials/CompanyChrome.js';
 
 /** Record status → the chip the frame shows ("Operating" for an active company). Words carry it, not colour. */
@@ -29,7 +30,7 @@ export function CompanyOverview({ params }: ScreenProps) {
       date={company.asOf}
       headerEnd={<CompanyActions company={company} />}
       subNav={<SummarySubNav company={company} current="overview" />}
-      subNavEnd={<CurrencyUnit />}
+      subNavEnd={<><ToolbarAi /><CurrencyUnit /></>}
     >
       <Banner
         tone="warning"

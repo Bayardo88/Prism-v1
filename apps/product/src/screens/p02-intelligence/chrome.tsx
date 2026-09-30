@@ -6,11 +6,12 @@
  */
 import { useEffect, useRef, type ReactNode, type RefObject } from 'react';
 import {
-  ButtonIcon, ContextMenu, MenuDivider, CurrencySelector, FilterDropdown, Heading, Icon, MenuItem,
-  SecondaryMenu, SecondaryMenuItem, Text, ViewTab, ViewTabBar, color, icons, space, zIndex,
+  ButtonIcon, ContextMenu, MenuDivider, FilterDropdown, Icon, MenuItem,
+  TertiaryMenu, TertiaryMenuItem, Text, icons, space, zIndex,
 } from '@scalar/design-system';
-import { href } from '../../router.js';
 import { routes } from '../../routes.js';
+import { PageHeader } from '../../shell/PageHeader.js';
+import { ToolbarAi, ToolbarCurrency, ToolbarTableTools } from '../../shell/Toolbar.js';
 
 /** Outside-click and Escape dismissal for a popover the trigger owns. */
 export function useDismiss(ref: RefObject<HTMLElement | null>, open: boolean, close: () => void): void {
@@ -50,11 +51,11 @@ export function PageActions({ open, onOpenChange, label, children }: {
     <div ref={ref} style={{ position: 'relative' }}>
       <ButtonIcon
         variant="tertiary"
-        size="s"
+        size="xs"
         label={label}
         aria-expanded={open}
         onClick={() => onOpenChange(!open)}
-        icon={<Icon><icons.MoreVert /></Icon>}
+        icon={<Icon size="l" tone="primary"><icons.MoreVert /></Icon>}
       />
       {open && (
         <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay }}>
@@ -77,28 +78,17 @@ export function PortfolioHeader({ title, tab, actionsOpen, onActionsOpen, action
   actions: ReactNode;
 }) {
   return (
-    <header
-      style={{
-        display: 'flex', alignItems: 'center', gap: space.m,
-        padding: `${space.xs} ${space.l}`, background: color.bg.surface,
-        borderBottom: `1px solid ${color.stroke.divider}`,
-      }}
-    >
-      <Heading level={1} step="l">{title}</Heading>
-      <FilterDropdown>Filter by Fund</FilterDropdown>
-      {tab && (
-        <SecondaryMenu>
-          {TABS.map((t) => (
-            <SecondaryMenuItem key={t.key} current={t.key === tab} href={href(t.to)}>{t.label}</SecondaryMenuItem>
-          ))}
-        </SecondaryMenu>
-      )}
-      <div style={{ marginLeft: 'auto' }}>
+    <PageHeader
+      title={title}
+      filter={<FilterDropdown>Filter by Fund</FilterDropdown>}
+      tabs={tab ? TABS : undefined}
+      current={tab}
+      trailing={
         <PageActions open={actionsOpen} onOpenChange={onActionsOpen} label={`${title} page actions`}>
           {actions}
         </PageActions>
-      </div>
-    </header>
+      }
+    />
   );
 }
 
@@ -114,8 +104,9 @@ export function ExportMenuItems() {
 }
 
 /**
- * Saved views row: View Tab Bar (each tab has a ⋮ with Edit / Clone /
- * Delete), "+" to create a view, then Scalar AI and the display currency.
+ * Saved views: the Tertiary Menu. Each view is an item (the current one shows
+ * a ⋮ that opens Edit / Clone / Delete), "+" creates a view, then the toolbar
+ * carries Scalar AI, the display currency and the table tools.
  */
 export function SavedViewsBar({ views, current, onSelect, menuFor, onMenuFor, onAdd, onEdit }: {
   views: string[];
@@ -130,15 +121,26 @@ export function SavedViewsBar({ views, current, onSelect, menuFor, onMenuFor, on
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(ref, !!menuFor, () => onMenuFor(undefined));
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: space.s }}>
-      <div ref={ref} style={{ position: 'relative' }}>
-        <ViewTabBar label="Saved views" onAdd={onAdd} addLabel="Create summary view">
-          {views.map((v) => (
-            <ViewTab key={v} selected={v === current} onSelect={() => onSelect(v)} onMenu={() => onMenuFor(menuFor === v ? undefined : v)}>
-              {v}
-            </ViewTab>
-          ))}
-        </ViewTabBar>
+    <TertiaryMenu
+      onAdd={onAdd}
+      end={
+        <>
+          <ToolbarAi />
+          <ToolbarCurrency />
+          <ToolbarTableTools />
+        </>
+      }
+    >
+      <div ref={ref} style={{ position: 'relative', display: 'flex' }}>
+        {views.map((v) => (
+          <TertiaryMenuItem
+            key={v}
+            current={v === current}
+            onClick={() => (v === current ? onMenuFor(menuFor === v ? undefined : v) : onSelect(v))}
+          >
+            {v}
+          </TertiaryMenuItem>
+        ))}
         {menuFor && (
           <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay }}>
             <ContextMenu label={`${menuFor} actions`}>
@@ -150,11 +152,7 @@ export function SavedViewsBar({ views, current, onSelect, menuFor, onMenuFor, on
           </div>
         )}
       </div>
-      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: space.s }}>
-        <ButtonIcon variant="tertiary" size="s" label="Ask Scalar AI" icon={<Icon tone="ai"><icons.StarShine /></Icon>} />
-        <CurrencySelector>USD ($) Thousands</CurrencySelector>
-      </div>
-    </div>
+    </TertiaryMenu>
   );
 }
 

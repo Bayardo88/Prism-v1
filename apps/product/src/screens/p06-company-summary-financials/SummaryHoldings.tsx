@@ -5,6 +5,7 @@ import {
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
+import { ToolbarAi } from '../../shell/Toolbar.js';
 import { CompanyActions, CurrencyUnit, SummarySubNav } from './CompanyChrome.js';
 import { holdings, holdingsColumns, type HoldingRow } from './data.js';
 
@@ -44,7 +45,7 @@ export function SummaryHoldings({ params }: ScreenProps) {
       section="summary"
       headerEnd={<CompanyActions company={company} />}
       subNav={<SummarySubNav company={company} current="holdings" />}
-      subNavEnd={<CurrencyUnit />}
+      subNavEnd={<><ToolbarAi /><CurrencyUnit /></>}
     >
       <DataGrid
         label="Summary holdings"

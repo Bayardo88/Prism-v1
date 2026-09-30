@@ -44,11 +44,12 @@ export function CompanyActions({ company, initialOpen = false }: { company: Comp
     >
       <ButtonIcon
         variant="tertiary"
+        size="xs"
         label="Company actions"
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        icon={<Icon tone="inherit"><icons.MoreVert /></Icon>}
+        icon={<Icon size="l" tone="primary"><icons.MoreVert /></Icon>}
       />
     </Anchored>
   );
@@ -62,7 +63,7 @@ export function FinancialsSelectors({ company, initialVersionOpen = false }: { c
   const items = versions.filter((v) => v.label.toLowerCase().includes(query.toLowerCase()));
   return (
     <>
-      <Selector surface="surface" label="Financials Date" value={p.financialsDate} />
+      <Selector surface="surface" icon="calendar" label="Financials Date" value={p.financialsDate} />
       <Anchored
         open={open}
         popover={
@@ -121,7 +122,7 @@ export function SummarySubNav({ company, current }: { company: Company; current:
 
 /** Display currency and unit. A display concern only — never a recorded conversion. */
 export function CurrencyUnit({ unit = '($) Thousands' }: { unit?: string }) {
-  return <CurrencySelector>USD {unit}</CurrencySelector>;
+  return <CurrencySelector currency="USD">{unit}</CurrencySelector>;
 }
 
 /** Workspace → Notes: one note tab, Client / Internal audience, rich-text body. */

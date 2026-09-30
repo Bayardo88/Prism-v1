@@ -32,6 +32,10 @@ Three layers, and which one you touch:
    screens, states, routes, chrome and overlays fit together.
 4. Open **`docs/product/screen-catalog.md`** (or `docs/product/screens.json`) to
    see what already exists. Read `docs/product/README.md` for the navigation map.
+5. Read **[references/reuse-ladder.md](references/reuse-ladder.md)** (the gate) and
+   **[references/screen-logic.md](references/screen-logic.md)** (screen brief,
+   archetypes, Figma grounding). Both apply to every mode below.
+6. `npm install` if `node_modules/` is missing.
 
 ## Step 1 — Classify the request
 
@@ -48,6 +52,20 @@ state on the closest screen), and add the frame to `apps/product/figma-frames.js
 
 Say which mode and which existing screen(s) you will start from, in one line,
 before writing code.
+
+## Step 1b — Reuse check, then screen brief (mandatory, before any JSX)
+
+1. Run `node .claude/skills/scalar-product/scripts/reuse-check.mjs <2–4 keywords + synonyms>`.
+   It searches screens/states, the Figma→React component map, the AI-GUIDE
+   intent table, page docs, tokens and known gaps in one go.
+2. Write the **screen brief** from `references/screen-logic.md` §1 (job, chrome,
+   archetype, route + entry point, data, inputs vs calculated, states, actions,
+   rules, reuse verdict). This is the logic the code implements — it comes from
+   the design system's documented patterns and the page docs, not from taste.
+3. Walk the **reuse ladder**. Everything on the page must land on rungs 1–5.
+   A new component, token or layout is allowed **only when the feature itself
+   needs behaviour no existing piece provides** — then follow the rung-7
+   protocol (state the gap, ask, build smallest, log it). Never for looks.
 
 ## Step 2A — New page
 
@@ -100,7 +118,9 @@ npm run build            # only if src/ changed
 npm run verify:product   # compile app + token lint + every-frame coverage check
 ```
 
-Then render: `node scripts/serve.mjs` → `http://localhost:4178/apps/product/index.html#<route>?state=<key>`.
+Also confirm the reuse contract: `git diff --stat` shows **no new file under
+`src/components/` or `src/styles/`** unless a rung-7 request was approved, and
+no `style={{…}}` value that isn't a token. Then render: `node scripts/serve.mjs` → `http://localhost:4178/apps/product/index.html#<route>?state=<key>`.
 Check, in order: no console errors · every state of the screen you touched ·
 the links in and out actually navigate · dark mode (flip the OS/`data-theme`) ·
 focus visible · nothing under 12px. Report what you checked; if you could not
@@ -121,7 +141,11 @@ render, say so.
 ## Refuse to
 
 - Hand-roll a component, colour, spacing or type size that the layer has
-  (raw hex/px fails `lint:tokens` anyway).
+  (raw hex/px fails `lint:tokens` anyway), or add a component/layout/token
+  because it "looks better" — only because the feature demands it, via
+  `references/reuse-ladder.md` rung 7.
+- Invent behaviour: if the page docs or DS patterns already define how a thing
+  works (validation, empty state, confirmation, pagination), follow them.
 - Build a page without the platform chrome, or with chrome copied instead of
   `AppFrame`/`CompanyLayout`.
 - Leave a new page unreachable, or break an existing route (the catalog check

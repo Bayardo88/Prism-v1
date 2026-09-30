@@ -6,6 +6,7 @@ import {
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
+import { ToolbarAi, ToolbarSave } from '../../shell/Toolbar.js';
 import { CompanyActions, CurrencyUnit, SummarySubNav } from '../p06-company-summary-financials/CompanyChrome.js';
 
 interface Threshold {
@@ -91,8 +92,9 @@ export function DailyNavSettings({ state, params }: ScreenProps) {
       subNav={<SummarySubNav company={company} current="daily-nav" />}
       subNavEnd={
         <>
+          <ToolbarAi />
           <CurrencyUnit unit="$" />
-          <Button variant="primary" tone="positive" disabled={!dirty}>Save</Button>
+          <ToolbarSave disabled={!dirty} />
         </>
       }
     >

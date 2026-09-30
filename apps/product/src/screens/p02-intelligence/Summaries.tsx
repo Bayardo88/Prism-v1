@@ -6,11 +6,12 @@
  * popover, the saved-view and page-action menus, the Create Summary View
  * modal, and the global User Menu opened over it.
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CellHistoryPopover, LineChart, Pagination, Text, space } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
 import { companyById } from '../../data/fixtures.js';
+import { useLocation } from '../../router.js';
 import { PortfolioGrid, type GridRow } from './PortfolioGrid.js';
 import { ExportMenuItems, PortfolioHeader, PublishedNote, SavedViewsBar } from './chrome.js';
 import { CreateSummaryView } from './CreateSummaryView.js';
@@ -49,6 +50,26 @@ export function Summaries({ state }: ScreenProps) {
   const [trendOpen, setTrendOpen] = useState(state === 'cell-trend');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(PAGE_SIZE);
+
+  // Numeric Global Search lands here with ?hl=<companyId>|<columnKey>: page to the row, scroll to the column, focus the cell.
+  const { query } = useLocation();
+  const hl = query.get('hl') ?? undefined;
+  const [hlCol, hlRow] = [hl?.split('|')[1], hl?.split('|')[0]];
+  const [hlActive, setHlActive] = useState(!!hl);
+  useEffect(() => {
+    setHlActive(!!hl);
+    if (!hlRow) return;
+    const i = ORDER.findIndex((c) => c.id === hlRow);
+    if (i >= 0) setPage(Math.floor(i / perPage) + 1);
+  }, [hl]);
+  useEffect(() => {
+    if (!hlActive || !hlRow || !hlCol) return;
+    const t = setTimeout(() => {
+      document.querySelector<HTMLElement>(`[data-cell="${CSS.escape(`${hlRow}|${hlCol}`)}"]`)
+        ?.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+    }, 50);
+    return () => clearTimeout(t);
+  }, [hlActive, hlRow, hlCol, page]);
 
   const rows: GridRow[] = useMemo(() => ORDER.slice((page - 1) * perPage, page * perPage).map((c) => {
     const v = summaryValues(c);
@@ -95,26 +116,26 @@ export function Summaries({ state }: ScreenProps) {
         onActionsOpen={setActions}
         actions={<ExportMenuItems />}
       />
+      <SavedViewsBar
+        views={['Firm Summary', 'New View (Copy)']}
+        current={view}
+        onSelect={setView}
+        menuFor={viewMenu}
+        onMenuFor={setViewMenu}
+        onAdd={() => setModal('create')}
+        onEdit={() => setModal('edit')}
+      />
       <PageBody gap={space.m}>
-        <SavedViewsBar
-          views={['Firm Summary', 'New View (Copy)']}
-          current={view}
-          onSelect={setView}
-          menuFor={viewMenu}
-          onMenuFor={setViewMenu}
-          onAdd={() => setModal('create')}
-          onEdit={() => setModal('edit')}
-        />
         <PortfolioGrid
           label="Firm portfolio summary"
           firstColumn="Firm Portfolio Summary"
           columns={summaryColumns}
           rows={rows}
           total={total}
-          scrollTo={SCROLL[state]}
+          scrollTo={hlActive && hlCol ? hlCol : SCROLL[state]}
           selectedCol={selectedCol}
-          focused={focused}
-          onCellClick={onCellClick}
+          focused={hlActive && hlRow && hlCol ? { row: hlRow, col: hlCol } : focused}
+          onCellClick={(r, c) => { setHlActive(false); onCellClick(r, c); }}
           onAddColumn={() => setModal('edit')}
           addColumnLabel=""
           rails

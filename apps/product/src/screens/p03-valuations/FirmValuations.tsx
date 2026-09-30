@@ -118,16 +118,16 @@ export function FirmValuations({ state }: ScreenProps) {
         onActionsOpen={setActions}
         actions={<ExportMenuItems />}
       />
+      <SavedViewsBar
+        views={['Firm Valuations', 'Steven Valuation View']}
+        current={view}
+        onSelect={setView}
+        menuFor={viewMenu}
+        onMenuFor={setViewMenu}
+        onAdd={() => navigate(routes.intelligence.summaries, 'create-view')}
+        onEdit={() => setAdding(true)}
+      />
       <PageBody gap={space.m}>
-        <SavedViewsBar
-          views={['Firm Valuations', 'Steven Valuation View']}
-          current={view}
-          onSelect={setView}
-          menuFor={viewMenu}
-          onMenuFor={setViewMenu}
-          onAdd={() => navigate(routes.intelligence.summaries, 'create-view')}
-          onEdit={() => setAdding(true)}
-        />
         <PortfolioGrid
           label="Firm valuations"
           firstColumn="Firm Portfolio Summary"
