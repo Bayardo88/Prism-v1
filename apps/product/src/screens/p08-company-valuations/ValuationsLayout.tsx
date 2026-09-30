@@ -96,6 +96,7 @@ export function ValuationsLayout({
     <CompanyLayout
       company={company}
       section="valuations"
+      mode="light"
       dock={DOCK}
       overlay={overlay}
       headerEnd={
