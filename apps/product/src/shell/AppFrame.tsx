@@ -6,9 +6,9 @@
  * The global menus are real and clickable on every screen — a Figma frame that
  * shows one open (e.g. "Home — Global Search open") just passes `openMenu`.
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  Avatar, ButtonIcon, CompanyDropdown, Icon, MainMenuItem,
+  Avatar, CompanyDropdown, Icon, MainMenuItem,
   Notification, PrimaryMenu, ScalarProvider, SearchBar, Selector, Text, icons,
   ToolSwitch, color, space, type ToolSwitchValue,
 } from '@scalar/design-system';
@@ -17,7 +17,7 @@ import { routes } from '../routes.js';
 import { portfolioDate, user, type Company } from '../data/fixtures.js';
 import { overlays, type GlobalMenu } from './overlays/index.js';
 
-export type Area = 'home' | 'intelligence' | 'valuations' | 'waterfalls' | 'documents' | 'company' | 'settings';
+export type Area = 'home' | 'intelligence' | 'valuations' | 'waterfalls' | 'documents' | 'reports' | 'company' | 'settings';
 
 export interface AppFrameProps {
   /** Which Primary Menu item is current. `company` and `settings` light none. */
@@ -37,6 +37,8 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
   const [open, setOpen] = useState<GlobalMenu | undefined>(openMenu);
   const [tool, setTool] = useState<ToolSwitchValue>('valuations');
   useEffect(() => setOpen(openMenu), [openMenu]);
+  // Closing Global Search hands focus back to the search bar, whose onFocus would reopen it.
+  const closedAt = useRef(0);
 
   const toggle = (m: GlobalMenu) => () => setOpen((cur) => (cur === m ? undefined : m));
   const Overlay = open ? overlays[open] : undefined;
@@ -46,17 +48,15 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: color.bg.page }}>
         <PrimaryMenu
           logo={
-            <a href={href(routes.home)} aria-label="Scalar home" style={{ color: 'inherit', textDecoration: 'none' }}>
-              <Text step="l" weight="bold" tone="inherit" as="span">Scalar</Text>
+            <a href={href(routes.home)} aria-label="Scalar home" style={{ display: 'inline-flex' }}>
+              <img className="scalar-primary-menu__logo" src="./assets/firm-logo.jpg" alt="" />
             </a>
           }
           end={
             <>
               <SearchBar
-                placeholder="Search"
                 readOnly
-                onFocus={() => setOpen('search')}
-                shortcut="⌘K"
+                onFocus={() => { if (Date.now() - closedAt.current > 300) setOpen('search'); }}
               />
               <Notification unread onClick={toggle('notifications')} />
               <ToolSwitch value={tool} onChange={setTool} />
@@ -67,14 +67,11 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
                 aria-expanded={open === 'user' || open === 'user-firm-settings'}
                 style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
               >
-                <Avatar size="s" initials={user.initials} alt={user.name} />
+                <Avatar size="s" className="scalar-avatar--ringed" initials={user.initials} alt={user.name} />
               </button>
-              <ButtonIcon
-                variant="tertiary"
-                size="s"
-                label="More"
-                icon={<Icon tone="onBrand"><icons.MoreVert /></Icon>}
-              />
+              <button type="button" className="scalar-primary-menu__more" aria-label="More">
+                <Icon size="l" tone="inherit"><icons.MoreVert /></Icon>
+              </button>
             </>
           }
         >
@@ -82,12 +79,13 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
           <MainMenuItem current={area === 'valuations'} href={href(routes.valuations)}>Valuations</MainMenuItem>
           <MainMenuItem current={area === 'waterfalls'} href={href(routes.waterfalls)}>Waterfalls</MainMenuItem>
           <MainMenuItem current={area === 'documents'} href={href(routes.documents)}>Documents</MainMenuItem>
+          <MainMenuItem current={area === 'reports'} href={href(routes.reports)}>Reports</MainMenuItem>
           <CompanyDropdown expanded={open === 'companies'} onClick={toggle('companies')}>
             {company ? company.name : 'Companies'}
           </CompanyDropdown>
           <Selector
-            label="Date"
-            value={date ?? (company ? `Most Recent (${company.asOf})` : portfolioDate)}
+            label="Measurement Date"
+            value={date ?? (company ? `Most Recent ${company.asOf}` : portfolioDate)}
             expanded={open === 'date'}
             onClick={toggle('date')}
           />
@@ -95,7 +93,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
 
         <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
           {children}
-          {Overlay && <Overlay menu={open!} company={company} onClose={() => setOpen(undefined)} />}
+          {Overlay && <Overlay menu={open!} company={company} onClose={() => { closedAt.current = Date.now(); setOpen(undefined); }} />}
           {overlay}
         </div>
       </div>

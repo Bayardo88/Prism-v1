@@ -7,11 +7,13 @@
  */
 import { useCallback, useRef, useState } from 'react';
 import {
-  Button, ContextMenu, CurrencySelector, Icon, MenuDivider, MenuItem, ViewTab, ViewTabBar, icons, space, zIndex,
+  ContextMenu, Icon, MenuDivider, MenuItem, TertiaryMenuItem, icons, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
+import { ToolbarAi, ToolbarCurrency, ToolbarSave, ToolbarTableTools } from '../../shell/Toolbar.js';
+import { CompanyActions } from '../p06-company-summary-financials/CompanyChrome.js';
 import { ScenarioGrid } from '../p04-waterfalls/ScenarioGrid.js';
 import { CreateViewModal, WATERFALL_DOCK, scenarioFor, waterfallDockPanels } from '../p04-waterfalls/shared.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
@@ -22,7 +24,7 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
   const [view, setView] = useState(state === 'saved-view' ? 'test' : 'Current');
   const [creating, setCreating] = useState(state === 'create-view');
   const [menuFor, setMenuFor] = useState<string | undefined>();
-  const { columns, band, rateLabel } = scenarioFor(company);
+  const { columns, band } = scenarioFor(company);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setMenuFor(undefined), []);
@@ -39,21 +41,19 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
       company={company}
       section="waterfall"
       date={company.asOf}
-      headerEnd={<Button variant="primary" tone="positive" disabled>Save Notes &amp; Documents</Button>}
+      headerEnd={<CompanyActions company={company} />}
       subNav={
-        <div style={{ position: 'relative' }} data-popover-trigger="">
-          <ViewTabBar label="Waterfall views" addLabel="Create waterfall view" onAdd={() => setCreating(true)}>
-            {views.map((v) => (
-              <ViewTab
-                key={v}
-                selected={v === view}
-                onSelect={() => setView(v)}
-                onMenu={v === 'Current' ? undefined : () => setMenuFor((m) => (m === v ? undefined : v))}
-              >
-                {v}
-              </ViewTab>
-            ))}
-          </ViewTabBar>
+        <div style={{ position: 'relative', display: 'flex' }} data-popover-trigger="">
+          {views.map((v) => (
+            <TertiaryMenuItem
+              key={v}
+              current={v === view}
+              menu={v === 'Current' ? false : undefined}
+              onClick={() => (v === view && v !== 'Current' ? setMenuFor((m) => (m === v ? undefined : v)) : setView(v))}
+            >
+              {v}
+            </TertiaryMenuItem>
+          ))}
           {menuFor && (
             <div ref={menuRef} style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay }}>
               <ContextMenu label={`${menuFor} view actions`}>
@@ -65,7 +65,15 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
           )}
         </div>
       }
-      subNavEnd={<CurrencySelector>{rateLabel}</CurrencySelector>}
+      subNavAdd={() => setCreating(true)}
+      subNavEnd={
+        <>
+          <ToolbarAi />
+          {band && <ToolbarCurrency currency={band.rate} unit={band.unit} />}
+          <ToolbarTableTools />
+          <ToolbarSave disabled>Save Notes &amp; Documents</ToolbarSave>
+        </>
+      }
       dock={WATERFALL_DOCK}
       dockPanels={waterfallDockPanels(company.id)}
       overlay={

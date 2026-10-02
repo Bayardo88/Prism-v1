@@ -22,7 +22,7 @@ export function DocumentsSubNav({ companyId, current }: { companyId: string; cur
 }
 
 export function CompanyActionsButton() {
-  return <ButtonIcon variant="tertiary" size="s" label="Company actions" icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>} />;
+  return <ButtonIcon variant="tertiary" size="xs" label="Company actions" icon={<Icon size="l" tone="primary"><icons.MoreVert /></Icon>} />;
 }
 
 export function RequestsHeading({ companyId, title, counts, menuOpen: initialMenu = false }: {

@@ -11,7 +11,7 @@
  * Companies come from `db.companies.search`; each matched company brings its
  * own documents, valuation version and waterfall action.
  */
-import { useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   GlobalSearch, Icon, Link, icons,
   type SearchResult, type SearchScope, type PrismType,
@@ -20,6 +20,7 @@ import { href, navigate } from '../../router.js';
 import { routes } from '../../routes.js';
 import { firm } from '../../data/fixtures.js';
 import { db, usDate, type CompanyRecord } from '../../data/db.js';
+import { MAX_RESULTS, parseNumericQuery, searchNumeric, type NumericHit, type NumericSearchStatus } from '../../data/numericSearch.js';
 import type { OverlayProps } from './index.js';
 
 interface Entry extends SearchResult {
@@ -91,6 +92,28 @@ const companyDetail = (c: CompanyRecord): Entry[] => [
   entry(`ca-waterfall-${c.id}`, 'company-action', `Run waterfall — ${c.name}`, c.name, [routes.company.waterfall(c.id)], c.id),
 ];
 
+/** Demo switches so every state can be opened from the URL: ?nsFirm=vk · ?nsDate=2023-06-30 · ?nsFlag=off · ?nsError=1 */
+const demo = () => new URLSearchParams(window.location.hash.split('?')[1] ?? '');
+
+const statusCopy: Record<Exclude<NumericSearchStatus, 'ok'>, [string, string]> = {
+  disabled: ['Numeric search is not enabled', 'Ask a firm admin to turn on numeric search'],
+  'unauthorized-firm': ['You don’t have access to this firm’s data', 'Switch to a firm you can access'],
+  'unavailable-date': ['This measurement date is not available', 'Pick another measurement date'],
+};
+
+const numericEntry = (h: NumericHit): Entry => ({
+  ...entry(`ns-${h.id}`, 'company', h.company, `${h.field} · ${h.display} · ${usDate(h.date)}`, [routes.intelligence.summaries]),
+  companyId: h.companyId,
+});
+
+const statusEntry = (id: string, title: string, subtitle: string): Entry => entry(id, 'neutral', title, subtitle, [routes.intelligence.summaries]);
+
+/** Where a numeric hit lands: the Summaries grid with the matched cell highlighted. */
+const goToHit = (id: string) => {
+  const [companyId, col] = id.replace(/^ns-/, '').split('|');
+  window.location.hash = `${href(routes.intelligence.summaries).slice(1)}?hl=${encodeURIComponent(`${companyId}|${col}`)}`;
+};
+
 const QUICK_ACCESS = ['p-intelligence', 'p-valuations', 'cp-summary', 'cp-financials', 'md-2026-06-30', 'md-2026-05-01'];
 
 export function SearchOverlay({ company, onClose }: OverlayProps) {
@@ -101,7 +124,31 @@ export function SearchOverlay({ company, onClose }: OverlayProps) {
   const scoped = db.companies.byId(scopedId);
   const target = scoped ?? db.companies.byId(company?.id);
 
+  // Numeric queries are answered here and never reach AI mode.
+  const numeric = useMemo(() => parseNumericQuery(query), [query]);
+  const [pending, setPending] = useState(false);
+  const [settled, setSettled] = useState('');
+  useEffect(() => {
+    if (!numeric) { setPending(false); return; }
+    setPending(true);
+    const t = setTimeout(() => { setPending(false); setSettled(query); }, 250);
+    return () => clearTimeout(t);
+  }, [numeric, query]);
+
+  const numericResults = useMemo((): Entry[] | null => {
+    if (!numeric) return null;
+    if (pending || settled !== query) return [statusEntry('ns-loading', 'Searching values…', 'Looking Glass · current firm and measurement date')];
+    const d = demo();
+    if (d.get('nsError')) return [statusEntry('ns-error', 'Numeric search failed', 'Try again in a moment')];
+    const r = searchNumeric(numeric, { firmId: d.get('nsFirm') ?? undefined, date: d.get('nsDate') ?? undefined, enabled: d.get('nsFlag') !== 'off' });
+    if (r.status !== 'ok') return [statusEntry(`ns-${r.status}`, ...statusCopy[r.status])];
+    if (!r.hits.length) return [statusEntry('ns-empty', 'No values within 10%', `Nothing near “${query.trim()}” for this measurement date`)];
+    const rows = r.hits.map(numericEntry);
+    return r.truncated ? [...rows, statusEntry('ns-truncated', `Showing ${MAX_RESULTS} of ${r.total}`, 'Add a field name to narrow, e.g. “moic 3x”')] : rows;
+  }, [numeric, pending, settled, query]);
+
   const results = useMemo(() => {
+    if (numericResults) return numericResults;
     const q = query.trim().toLowerCase();
     const fixed = staticEntries(target?.id ?? db.companies.all()[0]!.id, target?.name ?? 'Choose a company');
     if (scoped) {
@@ -116,9 +163,23 @@ export function SearchOverlay({ company, onClose }: OverlayProps) {
       ...hits.map(companyEntry),
       ...hits.slice(0, 2).flatMap(companyDetail),
     ].slice(0, 14);
-  }, [query, scoped, target]);
+  }, [query, scoped, target, numericResults]);
+
+  // Stable semantic hooks for the guided tour (SCAL-9327); GlobalSearch does not forward row attributes.
+  const host = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = host.current;
+    if (!root) return;
+    root.querySelectorAll<HTMLElement>('[role=option]').forEach((el, i) => {
+      const id = results[i]?.id ?? '';
+      if (id.startsWith('ns-') && /^ns-(loading|error|empty|truncated|disabled|unauthorized-firm|unavailable-date)/.test(id)) el.dataset.tour = `numeric-search-state-${id.slice(3)}`;
+      else if (id.startsWith('ns-')) el.dataset.tour = 'numeric-search-result-row';
+      else delete el.dataset.tour;
+    });
+  });
 
   return (
+    <div ref={host} data-tour="numeric-search" data-numeric-mode={numeric ? 'on' : 'off'} style={{ display: 'contents' }}>
     <GlobalSearch
       open
       onClose={onClose}
@@ -129,10 +190,13 @@ export function SearchOverlay({ company, onClose }: OverlayProps) {
       onScopesChange={(next) => setScopes(next.slice(0, 3))}
       onSelect={(r) => {
         const hit = r as Entry;
+        if (hit.id === 'ns-loading' || hit.id === 'ns-error' || hit.id === 'ns-empty' || hit.id === 'ns-truncated' || /^ns-(disabled|unauthorized|unavailable)/.test(hit.id)) return;
         onClose();
-        navigate(hit.to[0], hit.to[1]);
+        if (hit.id.startsWith('ns-')) goToHit(hit.id);
+        else navigate(hit.to[0], hit.to[1]);
       }}
       footer={<Link href={href(routes.home)}>{firm.name}</Link>}
     />
+    </div>
   );
 }

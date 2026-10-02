@@ -7,6 +7,7 @@
 import { useState, type ReactNode } from 'react';
 import { Button, ContextMenu, Icon, MenuItem, SplitButton, icons } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
+import { ToolbarAi, ToolbarSave, ToolbarTableTools } from '../../shell/Toolbar.js';
 import type { Company } from '../../data/fixtures.js';
 import {
   CompanyActions, CurrencyUnit, FinancialsSelectors, FinancialsSubNav, NotesPanel, type FinancialsTab,
@@ -70,8 +71,10 @@ export function FinancialsPage({
       subNav={<FinancialsSubNav company={company} current={tab} />}
       subNavEnd={
         <>
+          <ToolbarAi />
           <CurrencyUnit />
-          <Button variant="primary" tone="positive">Save</Button>
+          <ToolbarTableTools />
+          <ToolbarSave />
         </>
       }
       footer={

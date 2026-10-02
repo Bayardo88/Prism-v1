@@ -14,13 +14,14 @@ import {
   ModalStatus, Selector, SplitButton, TertiaryMenuItem, Text, icons, space, zIndex,
 } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
+import { ToolbarAi, ToolbarCurrency, ToolbarKebab, ToolbarSave, ToolbarTableTools } from '../../shell/Toolbar.js';
 import type { DockTab } from '../../shell/WorkspaceDock.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
 import { headlineFor } from './data.js';
 
-export type ValuationTab = 'summary' | 'conclusions' | 'external-valuation' | 'specified-share-value' | 'backsolve';
+export type ValuationTab = 'overview' | 'summary' | 'conclusions' | 'external-valuation' | 'specified-share-value' | 'backsolve';
 
 const TABS: Array<{ key: ValuationTab; label: string; to?: (id: string) => string }> = [
   { key: 'summary', label: 'Summary', to: routes.company.valuationSummary },
@@ -50,6 +51,8 @@ export interface ValuationsLayoutProps {
   /** Controlled "Add approach" menu under the "+" tab. */
   approachMenuOpen?: boolean;
   onApproachMenuChange?: (open: boolean) => void;
+  /** Prototype only: when set, an Overview tab is prepended and links here. */
+  overviewHref?: string;
   /** Marks a tab as holding validation errors (icon + words, never colour alone). */
   errorTab?: ValuationTab;
   onSave?: () => void;
@@ -58,7 +61,7 @@ export interface ValuationsLayoutProps {
 }
 
 export function ValuationsLayout({
-  company, tab, approachMenuOpen = false, onApproachMenuChange, errorTab, onSave, overlay, children,
+  company, tab, overviewHref, approachMenuOpen = false, onApproachMenuChange, errorTab, onSave, overlay, children,
 }: ValuationsLayoutProps) {
   const [values, setValues] = useState(false);
   const [dates, setDates] = useState(false);
@@ -140,6 +143,9 @@ export function ValuationsLayout({
       }
       subNav={
         <>
+          {overviewHref && (
+            <TertiaryMenuItem current={tab === 'overview'} href={overviewHref}>Overview</TertiaryMenuItem>
+          )}
           {TABS.map((t) => (
             <TertiaryMenuItem
               key={t.key}
@@ -155,15 +161,11 @@ export function ValuationsLayout({
       }
       subNavEnd={
         <>
-          <AITool />
-          <CurrencySelector>
-            <Text as="span" step="s" tone="positive">USD</Text>
-            <Text as="span" step="s" tone="secondary">($) Thousands</Text>
-          </CurrencySelector>
-          <ButtonIcon variant="tertiary" size="s" label="Fit to screen" icon={<Icon size="s" tone="inherit"><icons.FitScreen /></Icon>} />
-          <ButtonIcon variant="tertiary" size="s" label="Filter" icon={<Icon size="s" tone="inherit"><icons.FilterList /></Icon>} />
-          <SplitButton tone="positive" menuLabel="More save options" onClick={onSave}>Save</SplitButton>
-          <ButtonIcon variant="tertiary" size="s" label="Page actions" icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>} />
+          <ToolbarAi />
+          <ToolbarCurrency />
+          <ToolbarTableTools />
+          <ToolbarSave onClick={onSave} />
+          <ToolbarKebab />
         </>
       }
     >

@@ -74,3 +74,9 @@ Behaviour & rules:
 - **DS bug — `MenuItem` with `href` overflows:** `.scalar-menu-item` is `width: 100%` + padding with content-box sizing, so an `<a>` item is wider than its menu (the button form is border-box by default). This made `summaries?state=user-menu-firm-settings` 1479px wide. Workaround: User Menu and page-action items navigate `onClick` instead of `href`. Fix: `box-sizing: border-box` on `.scalar-menu-item` in `src/styles/components.css`, then restore `href`.
 - `PortfolioGrid` keeps a thin local wrapper around `DataGrid` for behaviour the DataGrid does not own: the sticky pinned first column (its cells repeat the zebra stripe so the column stays opaque), scroll-to-column for the "Scrolled" frames, Collapsed Column Rails, and anchoring the trend popover under a cell. A `pinned` column option on DataGrid would remove the first of these.
 - Guessed: the Invested Capital history (three points scaled from the record), the FY labels on Projected Revenue, preference figures and Daily NAV market data (none in the record). Row-level blue selection bar not drawn. Column drag-reorder, filtering, Clone/Delete and report actions are visual only.
+
+
+### Numeric search (prototype)
+Global Search answers numeric queries (`10M`, `12.5%`, `3.2x`, `moic 3x`) from the Summaries values for the active firm and selected measurement date, within 10%, capped at 25 rows. Selecting a result opens Summaries with `?hl=<companyId>|<colKey>`: the grid pages to the row, scrolls to the column and focuses the cell. See `tour-checklists/numeric-search.md`.
+
+**Gaps:** access rules, the feature flag and measurement-date availability are fixtures in `data/numericSearch.ts`; "Looking Glass" is assumed to be this grid; `GlobalSearch` has no loading/error/empty slots or row-attribute forwarding, so those states are neutral rows and `data-tour` attributes are set from `SearchOverlay`.

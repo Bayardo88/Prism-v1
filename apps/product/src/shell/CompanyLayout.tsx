@@ -7,7 +7,7 @@
  */
 import type { ReactNode } from 'react';
 import {
-  Heading, SecondaryMenu, SecondaryMenuItem, TertiaryMenu, color, space,
+  Badge, CompanyInfo, SecondaryMenu, SecondaryMenuItem, TertiaryMenu, space,
 } from '@scalar/design-system';
 import { AppFrame, type AppFrameProps } from './AppFrame.js';
 import { WorkspaceDock, type DockTab } from './WorkspaceDock.js';
@@ -35,6 +35,8 @@ export interface CompanyLayoutProps extends Pick<AppFrameProps, 'openMenu' | 'ov
   subNav?: ReactNode;
   /** Right side of the sub-navigation bar: currency, Save, page actions. */
   subNavEnd?: ReactNode;
+  /** Shows the + after the Tertiary items; called when it is pressed. */
+  subNavAdd?: () => void;
   /** Sticky footer actions (e.g. "Add Projection Year"). */
   footer?: ReactNode;
   /** Workspace dock tabs. Pass `false` to hide the dock. */
@@ -49,19 +51,12 @@ export interface CompanyLayoutProps extends Pick<AppFrameProps, 'openMenu' | 'ov
 }
 
 export function CompanyLayout({
-  company, section, headerEnd, subNav, subNavEnd, footer, dock, dockOpen, dockContent, dockPanels,
+  company, section, headerEnd, subNav, subNavEnd, subNavAdd, footer, dock, dockOpen, dockContent, dockPanels,
   openMenu, overlay, date, children,
 }: CompanyLayoutProps) {
   return (
     <AppFrame area="company" company={company} openMenu={openMenu} overlay={overlay} date={date}>
-      <header
-        style={{
-          display: 'flex', alignItems: 'center', gap: space.l,
-          padding: `${space.s} ${space.l}`, background: color.bg.surface,
-          borderBottom: `1px solid ${color.stroke.divider}`,
-        }}
-      >
-        <Heading level={1} step="l">{company.name}</Heading>
+      <CompanyInfo name={company.name} status={<Badge>Draft</Badge>} end={headerEnd}>
         <SecondaryMenu>
           {SECTIONS.map((s) => (
             <SecondaryMenuItem key={s.key} current={s.key === section} href={href(s.to(company.id))}>
@@ -69,13 +64,11 @@ export function CompanyLayout({
             </SecondaryMenuItem>
           ))}
         </SecondaryMenu>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: space.m }}>{headerEnd}</div>
-      </header>
+      </CompanyInfo>
 
       {(subNav || subNavEnd) && (
-        <TertiaryMenu>
+        <TertiaryMenu onAdd={subNavAdd} end={subNavEnd}>
           {subNav}
-          <div style={{ marginLeft: 'auto', display: 'flex', gap: space.s, alignItems: 'center' }}>{subNavEnd}</div>
         </TertiaryMenu>
       )}
 

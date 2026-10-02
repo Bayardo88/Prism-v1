@@ -1089,5 +1089,77 @@
         "figmaUrl": "https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-42781"
       }
     ]
+  },
+  {
+    "id": "prototype.company-overview-v2",
+    "title": "Company Overview v2 (prototype)",
+    "figmaPage": "Prototype · company-overview-v2",
+    "route": "/prototypes/company-overview-v2/:companyId",
+    "summary": "Compare secondary-market index providers, public comps and the latest board deck for a company in one Overview page.",
+    "component": "CompanyOverviewV2",
+    "states": [
+      {
+        "key": "default",
+        "label": "Overview v2 — default",
+        "figmaNode": "proto:company-overview-v2:1",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "board-short",
+        "label": "Overview v2 — short board content",
+        "figmaNode": "proto:company-overview-v2:2",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "board-long",
+        "label": "Overview v2 — long board content",
+        "figmaNode": "proto:company-overview-v2:3",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
+  },
+  {
+    "id": "prototype.company-valuations-v2",
+    "title": "Company Valuations Overview (prototype)",
+    "figmaPage": "Prototype · company-valuations-v2",
+    "route": "/prototypes/company-valuations-v2/:companyId",
+    "summary": "See a company’s current valuation at a glance — headline value, version history, approaches and concluded value per fund — and open any tab from it.",
+    "component": "CompanyValuationsV2",
+    "states": [
+      {
+        "key": "default",
+        "label": "Valuations Overview — default",
+        "figmaNode": "proto:company-valuations-v2:1",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "no-approaches",
+        "label": "Valuations Overview — new version, no approaches",
+        "figmaNode": "proto:company-valuations-v2:2",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
+  },
+  {
+    "id": "prototype.reports",
+    "title": "Reports (prototype)",
+    "figmaPage": "Prototype · reports",
+    "route": "/reports",
+    "summary": "Request a report from the Scalar team or create one from the portfolio data.",
+    "component": "Reports",
+    "states": [
+      {
+        "key": "default",
+        "label": "Reports — default",
+        "figmaNode": "proto:reports:1",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
   }
 ]

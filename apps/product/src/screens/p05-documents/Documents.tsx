@@ -10,13 +10,14 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Badge, Button, ButtonIcon, Checkbox, CheckboxItem, Chip, ComboboxPanel, DocumentViewerHeader, EmptyState,
   FileRow, FilterDropdown, FormField, Heading, Icon, Input, Link, Modal, PageStepper, ScrollHintPill, Spinner,
-  TertiaryMenu, Text, TreeItem, ViewTab, ViewTabBar, ZoomControl, color, elevation, icons, radius, space,
+  TertiaryMenu, TertiaryMenuItem, Text, TreeItem, ZoomControl, color, elevation, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href, navigate } from '../../router.js';
 import { routes } from '../../routes.js';
 import { AppFrame } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
+import { ToolbarKebab } from '../../shell/Toolbar.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
 import {
   VISIBLE_COMPANIES, allFilesFor, companyDates, docCompanies, measurementDates, rootFiles, subfoldersFor,
@@ -347,27 +348,36 @@ export function Documents({ state }: ScreenProps) {
         )
       }
     >
-      <PageHeader title="Documents" tabs={[{ key: 'documents', label: 'Documents', to: routes.documents }]} current="documents" />
-      <TertiaryMenu>
-        <ViewTabBar label="Document views">
-          <ViewTab selected={!company} onSelect={() => { setCompanyId(undefined); setFileId(undefined); }}>All Documents</ViewTab>
-          {company && (
-            <ViewTab selected onClose={() => { setCompanyId(undefined); setFileId(undefined); }}>{company.name}</ViewTab>
-          )}
-        </ViewTabBar>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: space.xs, alignItems: 'center' }}>
-          <Checkbox
-            size="s"
-            checked={allChecked}
-            indeterminate={!allChecked && checked.size > 0}
-            onChange={(e) => setChecked(e.target.checked ? new Set(everyId) : new Set())}
-          >
-            Select all documents
-          </Checkbox>
-          <ButtonIcon variant="tertiary" size="s" label="Search documents" icon={<Icon size="s" tone="inherit"><icons.Search /></Icon>} />
-          <ButtonIcon variant="tertiary" size="s" label="Filter documents" icon={<Icon size="s" tone="inherit"><icons.FilterList /></Icon>} />
-          <ButtonIcon variant="tertiary" size="s" label="Full screen" icon={<Icon size="s" tone="inherit"><icons.Fullscreen /></Icon>} />
-        </div>
+      <PageHeader
+        title="Documents"
+        trailing={<ToolbarKebab />}
+        actions={
+          <>
+            <Button variant="secondary" size="xs" leadingIcon={<Icon size="s" tone="inherit"><icons.Description /></Icon>}>Request Document</Button>
+            <Button variant="primary" size="xs" leadingIcon={<Icon size="s" tone="inherit"><icons.UploadFile /></Icon>}>Upload Document</Button>
+            <Button variant="primary" tone="positive" size="xs">Request Information</Button>
+          </>
+        }
+      />
+      <TertiaryMenu
+        end={
+          <>
+            <Checkbox
+              size="s"
+              checked={allChecked}
+              indeterminate={!allChecked && checked.size > 0}
+              onChange={(e) => setChecked(e.target.checked ? new Set(everyId) : new Set())}
+            >
+              Select all documents
+            </Checkbox>
+            <ButtonIcon variant="tertiary" size="xs" label="Search documents" icon={<Icon size="s" tone="secondary"><icons.Search /></Icon>} />
+            <ButtonIcon variant="tertiary" size="xs" label="Filter documents" icon={<Icon size="s" tone="secondary"><icons.FilterList /></Icon>} />
+            <ButtonIcon variant="tertiary" size="xs" label="Full screen" icon={<Icon size="s" tone="secondary"><icons.Fullscreen /></Icon>} />
+          </>
+        }
+      >
+        <TertiaryMenuItem current={!company} menu={false} onClick={() => { setCompanyId(undefined); setFileId(undefined); }}>All Documents</TertiaryMenuItem>
+        {company && <TertiaryMenuItem current menu={false}>{company.name}</TertiaryMenuItem>}
       </TertiaryMenu>
 
       <main style={{ flex: 1, display: 'flex', gap: space.l, padding: space.l, alignItems: 'flex-start' }}>

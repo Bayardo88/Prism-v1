@@ -53,3 +53,5 @@ Behaviour & rules:
 - Figma shows the Add New Company button in both Companies-menu frames, so `companies` and `companies-add` render the same panel.
 - Search documents are generated per company (Financials.xlsx, Certificate of Incorporation.pdf); there is no documents table in the db yet.
 - Measurement dates are a local list in `shell/overlays/data.ts`, not db-driven.
+
+- **Numeric search** in Global Search: a query that parses as a number (with optional column name) is answered from Looking Glass values and never reaches AI mode — see `02-intelligence.md` and `tour-checklists/numeric-search.md`. Closing Global Search no longer reopens it when focus returns to the search bar (`AppFrame` ignores focus for 300 ms after close).

@@ -7,7 +7,7 @@
  */
 import { useCallback, useRef, useState } from 'react';
 import {
-  Button, ComboboxPanel, CurrencySelector, Link, TertiaryMenu, ViewTab, ViewTabBar, space,
+  ComboboxPanel, FilterDropdown, Link, TertiaryMenu, TertiaryMenuItem, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
@@ -15,6 +15,7 @@ import { routes } from '../../routes.js';
 import { companyById, db } from '../../data/fixtures.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
+import { ToolbarAi, ToolbarCurrency, ToolbarSave, ToolbarTableTools } from '../../shell/Toolbar.js';
 import { WorkspaceDock } from '../../shell/WorkspaceDock.js';
 import { ScenarioGrid } from './ScenarioGrid.js';
 import { CreateViewModal, WATERFALL_DOCK, scenarioFor, waterfallDockPanels } from './shared.js';
@@ -37,7 +38,7 @@ export function Waterfalls({ state }: ScreenProps) {
   useDismiss(pickerRef, pickerOpen, closePicker);
 
   const company = companyId ? companyById(companyId) : undefined;
-  const { columns, band, rateLabel } = scenarioFor(company);
+  const { columns, band } = scenarioFor(company);
 
   const shown = query
     ? db.companies.search(query, 20)
@@ -71,19 +72,21 @@ export function Waterfalls({ state }: ScreenProps) {
         />
       }
     >
-      <PageHeader
-        title="Waterfalls"
-        actions={<Button variant="primary" tone="positive" disabled={state !== 'workspace-documents'}>Save Notes &amp; Documents</Button>}
-      />
-      <TertiaryMenu>
-        <ViewTabBar label="Waterfall views" addLabel="Create waterfall view" onAdd={() => setCreating(true)}>
-          {views.map((v) => (
-            <ViewTab key={v} selected={v === view} onSelect={() => setView(v)} onMenu={v === 'Current' ? undefined : () => {}}>{v}</ViewTab>
-          ))}
-        </ViewTabBar>
-        <div style={{ marginLeft: 'auto', display: 'flex', gap: space.s, alignItems: 'center' }}>
-          <CurrencySelector>{rateLabel}</CurrencySelector>
-        </div>
+      <PageHeader title="Waterfalls" filter={<FilterDropdown>Filter by Fund</FilterDropdown>} />
+      <TertiaryMenu
+        onAdd={() => setCreating(true)}
+        end={
+          <>
+            <ToolbarAi />
+            <ToolbarCurrency currency={band?.rate ?? 'USD'} unit={band?.unit ?? '($) Millions'} />
+            <ToolbarTableTools />
+            <ToolbarSave disabled={state !== 'workspace-documents'}>Save Notes &amp; Documents</ToolbarSave>
+          </>
+        }
+      >
+        {views.map((v) => (
+          <TertiaryMenuItem key={v} current={v === view} menu={v === 'Current' ? false : undefined} onClick={() => setView(v)}>{v}</TertiaryMenuItem>
+        ))}
       </TertiaryMenu>
 
       <PageBody>

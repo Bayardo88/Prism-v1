@@ -15,7 +15,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 export type ButtonTone = 'main' | 'positive' | 'warning' | 'negative';
 
 /** S is dense table furniture only — never a primary action. */
-export type ButtonSize = 's' | 'm' | 'l';
+export type ButtonSize = 'xs' | 's' | 'm' | 'l';
 
 export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   children?: ReactNode;

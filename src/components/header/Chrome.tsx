@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
+import { Icon } from '../icon/Icon.js';
+import { Add, MoreVert } from '../icon/material.js';
 
 /* ---------------------------------------------------------------------------
  * Tier 1 — Primary Menu
@@ -116,13 +118,15 @@ export interface TertiaryMenuItemProps {
   current?: boolean;
   /** Combo tags shown beside the label. */
   tags?: ReactNode;
+  /** Show the kebab that opens the view's actions. Defaults to on for the current item. */
+  menu?: boolean;
   href?: string;
   onClick?: () => void;
   className?: string;
 }
 
 /** Tertiary Menu Item — one item in the third navigation tier. */
-export function TertiaryMenuItem({ children, icon, current, tags, href, onClick, className }: TertiaryMenuItemProps) {
+export function TertiaryMenuItem({ children, icon, current, tags, menu, href, onClick, className }: TertiaryMenuItemProps) {
   const Tag = href ? 'a' : 'button';
   return (
     <Tag
@@ -134,6 +138,7 @@ export function TertiaryMenuItem({ children, icon, current, tags, href, onClick,
       {icon}
       {children}
       {tags}
+      {(menu ?? current) && <Icon size="s" tone="inherit"><MoreVert /></Icon>}
     </Tag>
   );
 }
@@ -144,10 +149,26 @@ export function TertiaryMenuItem({ children, icon, current, tags, href, onClick,
  * Three tiers is the limit. A fourth level belongs in the page body, not the
  * chrome.
  */
-export function TertiaryMenu({ children, className }: { children?: ReactNode; className?: string }) {
+export function TertiaryMenu({ children, onAdd, end, className }: {
+  /** TertiaryMenuItem instances. */
+  children?: ReactNode;
+  /** Shows the + that adds a view; called when it is pressed. */
+  onAdd?: () => void;
+  /** The page toolbar on the right: AI tool, currency, table tools, primary action. */
+  end?: ReactNode;
+  className?: string;
+}) {
   return (
     <nav className={cx('scalar-tertiary-menu', className)} aria-label="Tertiary">
-      {children}
+      <div className="scalar-tertiary-menu__items">
+        {children}
+        {onAdd && (
+          <button type="button" onClick={onAdd} aria-label="Add view" className="scalar-tertiary-menu-item">
+            <Icon size="s" tone="inherit"><Add /></Icon>
+          </button>
+        )}
+      </div>
+      {end && <div className="scalar-tertiary-menu__end">{end}</div>}
     </nav>
   );
 }
@@ -157,30 +178,39 @@ export function TertiaryMenu({ children, className }: { children?: ReactNode; cl
  * ------------------------------------------------------------------------ */
 
 export interface CompanyInfoProps {
-  /** An Avatar instance. */
+  /** An Avatar instance, for a company with its own mark. */
   avatar?: ReactNode;
+  /** The page or company title. */
   name: ReactNode;
-  /** Ticker, sector and other metadata. */
+  /** Ticker, sector and other metadata beside the name. */
   meta?: ReactNode;
-  /** Badge, Chip or status pill beside the name. */
+  /** Badge beside the name, e.g. Draft. */
   status?: ReactNode;
-  /** Key figures — InformationLabel instances. */
+  /** A FilterDropdown beside the name, e.g. Filter by Fund. */
+  filter?: ReactNode;
+  /** The tab row: SecondaryMenu with its items. */
+  children?: ReactNode;
+  /** The page's selectors and actions, pinned right. */
   end?: ReactNode;
   className?: string;
 }
 
 /**
- * Company info — the company identity block under the primary bar.
+ * Company info — the Secondary Menu bar under the primary bar.
  *
- * Composed from Avatar, Badge, InformationLabel and ComboTag.
+ * Composed from Badge, FilterDropdown, SecondaryMenu, InformationLabel and
+ * Selector. On a firm page it carries the page title; on a company it carries
+ * the company name and its tab row.
  */
-export function CompanyInfo({ avatar, name, meta, status, end, className }: CompanyInfoProps) {
+export function CompanyInfo({ avatar, name, meta, status, filter, children, end, className }: CompanyInfoProps) {
   return (
     <div className={cx('scalar-company-info', className)}>
       {avatar}
       <span className="scalar-company-info__name">{name}</span>
       {meta && <span className="scalar-company-info__meta">{meta}</span>}
       {status}
+      {filter}
+      {children}
       {end && <div className="scalar-company-info__end">{end}</div>}
     </div>
   );

@@ -71,6 +71,18 @@ Behaviour & rules (the validation is real, not drawn):
 - Weightings are inputs (100.0% on the first column, 0.0% on added ones), and Backsolve Total sums them. Present share values, per-share and total values are calculated ($0.00 in the demo). **Add market adjustment** is disabled, as in every frame.
 - **scrolled** opens scrolled to the Backsolve Summary.
 
+## Prototype · Company Valuations Overview
+
+A landing page for the company's Valuations area, built as a prototype (`apps/product/src/screens/prototypes/company-valuations-v2/`, not yet a Figma frame). Open it with `#/prototypes/company-valuations-v2/aeromind-labs`.
+
+- **Job:** an analyst or reviewer sees the current valuation at a glance, then opens the real tabs from it.
+- **Chrome:** `ValuationsLayout` with an **Overview** tab prepended (`overviewHref`, only set by the prototype, so the real tabs are unchanged).
+- **Content:** Current valuation `Card` with a `SegmentedControl` to switch version (headline, status, MOIC and every table follow it) · Equity value by version `LineChart` · Versions `DataGrid` (each row links to Summary) · Approaches with weights · Concluded value by fund (links to Conclusions).
+- **Data:** the company record for the current version; the three earlier versions are the same company scaled back a quarter at a time (synthetic). The approaches come from `approachRowsFor` and the funds from `conclusionsFor`. Money is $ thousands, as in the header.
+- **States:** `default` and `no-approaches` (both cards show `EmptyState`, headline reads $0). ABC Co always shows the empty presentation, like its p08 Summary and header.
+- **Light mode only.**
+- **Gaps:** the real Summary, Conclusions and Backsolve tabs don't link back to Overview. Promoting this means adding a frame, a route in `routes.ts` and the tab to `ValuationsLayout` for good.
+
 ## Cross-platform links
 - In: Company Secondary Menu → Valuations (from every company page). The firm-level Valuations list (page 03) opens a company's valuation.
 - Out: tabs link Summary ⇄ Conclusions ⇄ Backsolve. The Secondary Menu leads to Cap Table, which supplies the securities, positions and "Primary Captable" used here, and to Waterfall and Documents.

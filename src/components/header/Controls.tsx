@@ -1,7 +1,8 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 import { Icon } from '../icon/Icon.js';
-import { Bell, ChevronDown, Search as SearchGlyph, Sparkle } from '../icon/glyphs.js';
+import { AiMark, Bell, ChevronDown, Search as SearchGlyph } from '../icon/glyphs.js';
+import { ArrowDropDown, CalendarMonth, Store, ViewSidebar } from '../icon/material.js';
 
 /* --- Badge ---------------------------------------------------------------- */
 
@@ -48,8 +49,9 @@ export function CompanyDropdown({ children, onClick, expanded, className }: Comp
       aria-haspopup="menu"
       className={cx('scalar-company-dropdown', className)}
     >
+      <Icon size="s" tone="inherit"><Store /></Icon>
       {children}
-      <Icon size="xs" tone="onBrand"><ChevronDown /></Icon>
+      <Icon size="s" tone="inherit"><ArrowDropDown /></Icon>
     </button>
   );
 }
@@ -78,7 +80,7 @@ export function FilterDropdown({ children, onClick, expanded, className }: Filte
       className={cx('scalar-filter-dropdown', className)}
     >
       {children}
-      <Icon size="xs" tone="secondary"><ChevronDown /></Icon>
+      <Icon size="s" tone="secondary"><ArrowDropDown /></Icon>
     </button>
   );
 }
@@ -86,7 +88,7 @@ export function FilterDropdown({ children, onClick, expanded, className }: Filte
 /* --- Search bar ------------------------------------------------------------ */
 
 export interface SearchBarProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  /** The keyboard shortcut shown at rest, e.g. "⌘K". */
+  /** An optional keyboard-shortcut hint shown at the right edge. */
   shortcut?: string;
   className?: string;
 }
@@ -94,13 +96,14 @@ export interface SearchBarProps extends Omit<InputHTMLAttributes<HTMLInputElemen
 /**
  * Search bar — global search in the primary bar.
  *
- * Shows its keyboard shortcut at rest. Filters as you type; it does not submit.
+ * Its placeholder names the shortcut ("Search (Ctrl+K on Windows)"). Filters as
+ * you type; it does not submit.
  */
-export function SearchBar({ shortcut = '⌘K', className, ...rest }: SearchBarProps) {
+export function SearchBar({ shortcut, className, ...rest }: SearchBarProps) {
   return (
     <div className={cx('scalar-search-bar', className)}>
       <Icon size="s" tone="inherit"><SearchGlyph /></Icon>
-      <input type="search" className="scalar-search-bar__input" placeholder="Search" {...rest} />
+      <input type="search" className="scalar-search-bar__input" placeholder="Search (Ctrl+K on Windows)" {...rest} />
       {shortcut && <span className="scalar-search-bar__shortcut">{shortcut}</span>}
     </div>
   );
@@ -134,9 +137,7 @@ export function Notification({ unread, onClick, className }: NotificationProps) 
       aria-label={unread ? 'Notifications, unread' : 'Notifications'}
       className={cx('scalar-notification', className)}
     >
-      <span className="scalar-notification__ground">
-        <Icon size="m" tone="primary"><Bell /></Icon>
-      </span>
+      <Icon size="s" tone="inherit"><Bell /></Icon>
       {unread && <span className="scalar-notification__dot" aria-hidden />}
     </button>
   );
@@ -169,7 +170,10 @@ export function ComboTag({ label, value, className }: ComboTagProps) {
 /* --- Currency selector ------------------------------------------------------ */
 
 export interface CurrencySelectorProps {
+  /** The display unit, e.g. "($) Thousands". */
   children?: ReactNode;
+  /** The currency code, shown in the first part of the chip, e.g. "USD". */
+  currency?: ReactNode;
   onClick?: () => void;
   className?: string;
 }
@@ -180,11 +184,11 @@ export interface CurrencySelectorProps {
  * Currency is a display concern. Switching it must never imply a conversion has
  * been recorded against the data.
  */
-export function CurrencySelector({ children, onClick, className }: CurrencySelectorProps) {
+export function CurrencySelector({ children, currency, onClick, className }: CurrencySelectorProps) {
   return (
     <button type="button" onClick={onClick} className={cx('scalar-currency-selector', className)}>
-      {children}
-      <Icon size="xs" tone="secondary"><ChevronDown /></Icon>
+      {currency && <span className="scalar-currency-selector__currency">{currency}</span>}
+      <span className="scalar-currency-selector__unit">{children}</span>
     </button>
   );
 }
@@ -204,6 +208,8 @@ export interface SelectorProps {
   /** Its menu is open: sets `aria-expanded` and flips the chevron. */
   expanded?: boolean;
   disabled?: boolean;
+  /** The trailing glyph: a dropdown caret (default) or a calendar for date pickers. */
+  icon?: 'caret' | 'calendar';
   onClick?: () => void;
   className?: string;
 }
@@ -212,7 +218,7 @@ export interface SelectorProps {
  * Selector — a compact labelled value picker ("Date  Most Recent (06/30/2026) ▾").
  * The trigger only: the screen owns the menu it opens.
  */
-export function Selector({ label, value, surface = 'brand', expanded, disabled, onClick, className }: SelectorProps) {
+export function Selector({ label, value, surface = 'brand', expanded, disabled, icon = 'caret', onClick, className }: SelectorProps) {
   return (
     <button
       type="button"
@@ -224,8 +230,8 @@ export function Selector({ label, value, surface = 'brand', expanded, disabled, 
     >
       {label && <span className="scalar-selector__label">{label}</span>}
       <span className="scalar-selector__value">{value}</span>
-      <Icon size="xs" tone="inherit" className={cx('scalar-selector__chevron', expanded && 'scalar-rotate-180')}>
-        <ChevronDown />
+      <Icon size="s" tone="inherit" className={cx('scalar-selector__chevron', expanded && icon === 'caret' && 'scalar-rotate-180')}>
+        {icon === 'calendar' ? <CalendarMonth /> : <ArrowDropDown />}
       </Icon>
     </button>
   );
@@ -238,15 +244,17 @@ export interface InformationLabelProps {
   value: ReactNode;
   /** A status marker. It reinforces the words; it never replaces them (R8). */
   marker?: ReactNode;
+  /** `positive` (default) for amounts; `brand` for a value the user can pick. */
+  tone?: 'positive' | 'brand';
   className?: string;
 }
 
-/** Information Label — a label with an inline status marker. */
-export function InformationLabel({ label, value, marker, className }: InformationLabelProps) {
+/** Information Label — a bordered label and value with an inline status marker. */
+export function InformationLabel({ label, value, marker, tone = 'positive', className }: InformationLabelProps) {
   return (
     <span className={cx('scalar-information-label', className)}>
       <span className="scalar-information-label__label">{label}</span>
-      <span className="scalar-information-label__value">{value}</span>
+      <span className={cx('scalar-information-label__value', tone === 'brand' && 'scalar-information-label__value--brand')}>{value}</span>
       {marker}
     </span>
   );
@@ -268,9 +276,9 @@ export interface ToolSwitchProps {
  * Exactly one side is always selected; there is no unselected state.
  */
 export function ToolSwitch({ value, onChange, className }: ToolSwitchProps) {
-  const options: Array<{ key: ToolSwitchValue; label: string }> = [
-    { key: 'valuations', label: 'Valuations' },
-    { key: 'workboard', label: 'Workboard' },
+  const options: Array<{ key: ToolSwitchValue; label: string; glyph: ReactNode }> = [
+    { key: 'valuations', label: 'Valuations', glyph: <ViewSidebar /> },
+    { key: 'workboard', label: 'Workboard', glyph: <CalendarMonth /> },
   ];
   return (
     <div className={cx('scalar-tool-switch', className)} role="group" aria-label="Tool">
@@ -280,9 +288,11 @@ export function ToolSwitch({ value, onChange, className }: ToolSwitchProps) {
           type="button"
           aria-pressed={value === o.key}
           onClick={() => onChange?.(o.key)}
+          aria-label={o.label}
+          title={o.label}
           className="scalar-tool-switch__option"
         >
-          {o.label}
+          <Icon size="s" tone="inherit">{o.glyph}</Icon>
         </button>
       ))}
     </div>
@@ -311,7 +321,7 @@ export function AITool({ state = 'trigger', children, value, onValueChange, onCl
   if (state === 'input') {
     return (
       <div className={cx('scalar-ai-tool', className)}>
-        <Icon size="s" tone="inherit"><Sparkle /></Icon>
+        <Icon size="s" tone="inherit"><AiMark /></Icon>
         <input
           className="scalar-ai-tool__input"
           value={value}
@@ -323,9 +333,9 @@ export function AITool({ state = 'trigger', children, value, onValueChange, onCl
     );
   }
   return (
-    <button type="button" onClick={onClick} className={cx('scalar-ai-tool', className)}>
-      <Icon size="s" tone="inherit"><Sparkle /></Icon>
-      {children ?? 'Ask AI'}
+    <button type="button" onClick={onClick} aria-label={children ? undefined : 'Ask AI'} className={cx('scalar-ai-tool', className)}>
+      <Icon size="s" tone="inherit"><AiMark /></Icon>
+      {children}
     </button>
   );
 }

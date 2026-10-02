@@ -6,10 +6,10 @@
  */
 import { useState, type ReactNode } from 'react';
 import {
-  ButtonIcon, CurrencySelector, Icon, ModalStatus, SelectMenu, SelectMenuOption, Selector, SplitButton,
-  TertiaryMenuItem, icons, zIndex,
+  ModalStatus, SelectMenu, SelectMenuOption, Selector, TertiaryMenuItem, zIndex,
 } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
+import { ToolbarAi, ToolbarCurrency, ToolbarKebab, ToolbarSave, ToolbarTableTools } from '../../shell/Toolbar.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
@@ -76,12 +76,7 @@ export function CapTableLayout({ company, page, currency, save = true, onSave, f
             )}
           </div>
           <ModalStatus state="draft" />
-          <ButtonIcon
-            variant="tertiary"
-            size="s"
-            label="Cap table actions"
-            icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>}
-          />
+          <ToolbarKebab label="Cap table actions" />
         </>
       }
       subNav={PAGES.map((p) => (
@@ -89,10 +84,10 @@ export function CapTableLayout({ company, page, currency, save = true, onSave, f
       ))}
       subNavEnd={
         <>
-          {currency && <CurrencySelector>USD</CurrencySelector>}
-          {save && (
-            <SplitButton tone="positive" menuLabel="More save options" onClick={onSave}>Save</SplitButton>
-          )}
+          <ToolbarAi />
+          {currency && <ToolbarCurrency unit="($) Thousands" />}
+          <ToolbarTableTools />
+          {save && <ToolbarSave onClick={onSave} />}
         </>
       }
     >
