@@ -44,6 +44,10 @@ State which archetype you picked and why, in one line, before writing code.
 
 ## Step 3 — Compose, never hand-roll
 
+Start from `PageTemplate` (`@scalar/design-system`): pass `navigation`,
+`companyInfo`, `subNavigation` and `drawer`, and put your screen in `children` —
+the body slot. Do not hand-assemble the chrome. See `docs/page-template.md` §6.
+
 The layer exports ~95 components. Before writing any element, check whether one
 exists — the decision table in AI-GUIDE §5 maps intent to component.
 

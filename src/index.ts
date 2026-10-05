@@ -35,6 +35,7 @@ export * from './components/feedback/index.js';
 export * from './components/disclosure/index.js';
 export * from './components/modals/index.js';
 export * from './components/search/index.js';
+export * from './components/template/index.js';
 export * from './components/actions-menus/index.js';
 export * from './components/form-patterns/index.js';
 export * from './components/grid-patterns/index.js';

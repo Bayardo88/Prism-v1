@@ -1158,6 +1158,25 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
   box-shadow: var(--elevation-overlay);
 }
 .scalar-workspace-drawer[data-expanded='true'] { height: 60vh; }
+.scalar-workspace-drawer[data-docked='true'] { height: auto; box-shadow: none; }
+
+/* --- Page template ----------------------------------------------------------- */
+/* The base layout of every screen. Slots: navigation · companyInfo · subNavigation ·
+ * body (children) · drawer. CompanyInfo and TertiaryMenu carry their own inline
+ * margin, so only the body slot and the drawer are inset here. */
+.scalar-page-template { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; background: var(--color-bg-surface); font-family: var(--font-family-default); }
+.scalar-page-template--full { min-height: 100vh; }
+.scalar-page-template__body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.scalar-page-template__sheet { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.scalar-page-template__slot { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; margin-inline: var(--space-l); overflow: auto; }
+.scalar-page-template__drawer { flex: none; margin-inline: var(--space-l); position: sticky; bottom: 0; z-index: var(--z-drawer); }
+/* A drawer inside the template is already inset and docked by the wrapper. */
+.scalar-page-template__drawer > .scalar-workspace-drawer { position: static; }
+
+/* BodySlot — the placeholder that stands in for content until it is replaced. */
+.scalar-body-slot { box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-xs); flex: 1 1 auto; min-height: var(--size-avatar-xl); border: 2px dashed var(--color-stroke-control); border-radius: var(--radius-xs); background: var(--color-bg-subtle); color: var(--color-text-tertiary); text-align: center; }
+.scalar-body-slot__label { font-size: var(--font-size-heading-m); line-height: var(--line-height-heading-m); font-weight: var(--font-weight-semi-bold); }
+.scalar-body-slot__hint { font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); }
 .scalar-workspace-drawer__tabs { display: flex; align-items: stretch; gap: var(--space-2xs); border-bottom: 2px solid var(--color-bg-ai); background: var(--color-bg-subtle); }
 .scalar-workspace-drawer__body { flex: 1 1 auto; overflow: auto; }
 .scalar-workspace-tab {

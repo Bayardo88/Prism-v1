@@ -17,7 +17,7 @@ import type { Company } from '../data/fixtures.js';
 
 export type CompanySection = 'summary' | 'financials' | 'cap-table' | 'valuations' | 'waterfall' | 'documents' | 'overview';
 
-const SECTIONS: Array<{ key: CompanySection; label: string; to: (id: string) => string }> = [
+export const SECTIONS: Array<{ key: CompanySection; label: string; to: (id: string) => string }> = [
   { key: 'summary', label: 'Summary', to: routes.company.summary },
   { key: 'financials', label: 'Financials', to: routes.company.incomeStatement },
   { key: 'cap-table', label: 'Cap Table', to: routes.company.capTable },
