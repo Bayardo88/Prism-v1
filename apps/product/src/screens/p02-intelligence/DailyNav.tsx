@@ -15,7 +15,7 @@ import { routes } from '../../routes.js';
 import { navigate } from '../../router.js';
 import { PortfolioGrid, type GridRow } from './PortfolioGrid.js';
 import { PortfolioHeader, useDismiss } from './chrome.js';
-import { CompanyLink } from './cells.js';
+import { companyHref } from './cells.js';
 import { NAV_FRAME, PAGE_SIZE, inFrameOrder, navColumns, navGroups, previousValuation } from './data.js';
 
 const DASH = '—';
@@ -33,7 +33,8 @@ export function DailyNav({ state }: ScreenProps) {
     const prev = previousValuation(c);
     return {
       id: c.id,
-      label: <CompanyLink company={c} to={routes.company.dailyNavSettings} />,
+      label: c.name,
+      href: companyHref(c, routes.company.dailyNavSettings),
       sortText: c.name,
       expandable: !!prev,
       values: {

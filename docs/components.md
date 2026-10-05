@@ -127,8 +127,8 @@ control in three pieces; exactly one side is always selected, so a single
 |---|---|---|---|
 | cell | State × Type + 5 booleans (145) | = `Cell` (＋ `label`, `tooltip`, `trailingIcon` for the Label / Tooltip / Icon Type properties) | `table/Cell.tsx` |
 | Header | Style + 6 booleans (11) | = `ColumnHeader` (`kind`, `mark`, `label`, `tooltip`, `icon`, `input`, `action`; ＋ `grow` / `width` / `span` column sizing; ＋ `tone="subtle"` light header band) | `table/ColumnHeader.tsx` |
-| Row-reading | 27 | ⊕ `Row` | `table/Row.tsx` |
-| Row-input | 37 | ⊕ `Row` | `table/Row.tsx` |
+| Row-reading | 27 | ⊕ `RowHeader` (the row's first cell) + `Row` | `table/RowHeader.tsx`, `table/Row.tsx` |
+| Row-input | 37 | ⊕ `RowHeader` (the row's first cell) + `Row` | `table/RowHeader.tsx`, `table/Row.tsx` |
 | Content_Cell | Content | = `ContentCell` | `table/ContentCell.tsx` |
 | Ledger | — | = `Ledger` | `table/ContentCell.tsx` |
 | Modal_Status | State | = `ModalStatus` (＋ `published` state) | `table/Status.tsx` |
@@ -137,9 +137,14 @@ control in three pieces; exactly one side is always selected, so a single
 | cell-icon/Dropdown, cell-icon/Calendar | — | glyphs only — drawn by `Cell`'s `icon` slot | — |
 | — | — | ＋ `DataGrid` | `table/DataGrid.tsx` |
 
-**Merge.** `Row-reading` and `Row-input` have the same anatomy; the reading set
-simply suppresses the editing affordances. In code that distinction lives on the
-cell (`Cell type="readable"` vs `"input"`), so one `Row` covers both.
+**Merge.** `Row-reading` and `Row-input` have the same anatomy — a mark bar, an
+optional bulk checkbox, the label, a trailing glyph. They are the **row header**:
+the first cell of a row. In code that is `RowHeader` (`type` readable · data ·
+input · total · divider; `mark`, `bulk`, `icon`), with Reading's `group` (a left
+bar) and Input's `groupStart` / `groupEnd` (rules on top and underneath) as three
+props of one component. The row itself is `Row`; the read/edit distinction on the
+rest of the row lives on `Cell type`. Use `RowHeader` for the first cell of every
+row instead of a text `Link` or a bare `Cell`.
 
 **Addition.** Figma has no single grid component — each screen assembles Header,
 Rows and Cells itself. `DataGrid` is that assembly, kept in one place so sticky

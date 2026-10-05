@@ -1,13 +1,16 @@
 /** Small cell renderers shared by the portfolio grids (Intelligence and firm Valuations). */
-import { Link, ModalStatus } from '@scalar/design-system';
+import { ModalStatus } from '@scalar/design-system';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
 import { statusView } from './data.js';
 
-/** A company name, linked to one of its own pages (Summary by default). */
-export function CompanyLink({ company, to = routes.company.summary }: { company: Company; to?: (id: string) => string }) {
-  return <Link size="s" href={href(to(company.id))}>{company.name}</Link>;
+/**
+ * Where a company's row header goes (its Summary by default). Pass it to a
+ * `GridRow`'s `href`: the row header is a Row Header, not a text link.
+ */
+export function companyHref(company: Company, to: (id: string) => string = routes.company.summary): string {
+  return href(to(company.id));
 }
 
 /** The valuation workflow status as a ModalStatus (label and tint, R8). */
