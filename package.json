@@ -44,6 +44,7 @@
     "build:examples": "tsc -p examples/tsconfig.json",
     "build:product": "tsc -p apps/product/tsconfig.json",
     "product": "npm run build && npm run build:product && node scripts/serve.mjs",
+    "playground": "npm run build && npm run build:examples && node scripts/serve.mjs",
     "product:catalog": "npm run build:product && node scripts/gen-product-catalog.mjs",
     "verify:product": "npm run build:product && npm run lint:tokens && node scripts/gen-product-catalog.mjs",
     "gen:icons": "node scripts/gen-icons.mjs",

@@ -125,7 +125,7 @@ Search open") only sets `openMenu`.
   each has its own colour. PRISM never signals access or permission.
 - Everything else is the design-system contract in
   [`AI-GUIDE.md`](../../AI-GUIDE.md): tokens only, a 12px text floor, visible
-  focus, and dark mode that works.
+  focus, and light mode only — pages render light even when the OS is dark.
 
 ## 5 · Known limits of the prototype
 

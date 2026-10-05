@@ -7,8 +7,8 @@ import { resolveChartTokens, type ChartTokens } from './chartTokens.js';
  * Three things can change the values under a chart, and all three are watched:
  *   1. `data-theme` flipping on an ancestor (an explicit Light/Dark choice)
  *   2. `data-viewport` changing the type ramp
- *   3. the OS colour scheme changing while the app is on `mode="system"`,
- *      which fires no attribute mutation at all
+ *   3. the OS colour scheme changing — pages stay light now, but the
+ *      listener is kept so an explicit `dark` library preview still tracks
  */
 export function useChartTokens(ref: RefObject<HTMLElement | null>): ChartTokens | null {
   const [tokens, setTokens] = useState<ChartTokens | null>(null);

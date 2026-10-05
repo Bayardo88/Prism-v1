@@ -55,7 +55,7 @@ export function InformationRequest({ state, params }: ScreenProps) {
   };
 
   return (
-    <ScalarProvider mode="system" viewport="auto">
+    <ScalarProvider mode="light" viewport="auto">
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: color.bg.page }}>
         <PageTaskHeader
           title="Information Request"

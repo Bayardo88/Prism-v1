@@ -29,14 +29,15 @@ import { ScalarProvider } from '@scalar/design-system';
 
 export default function App() {
   return (
-    <ScalarProvider mode="system" viewport="auto">
+    <ScalarProvider mode="light" viewport="auto">
       <YourApp />
     </ScalarProvider>
   );
 }
 ```
 
-`mode` is `light | dark | system`. `viewport` is `desktop | desktop-large |
+`mode` is **`light`** — always, for every page, even when the machine is set to
+dark (R14). `dark` is a library-only preview; `system` no longer follows the OS. `viewport` is `desktop | desktop-large |
 mobile | auto` and selects the **type ramp**, not the layout.
 
 Everything else imports by name from the package root:
@@ -56,7 +57,7 @@ import { BarChart } from '@scalar/design-system/charts';
 
 ## 1. The hard rules
 
-These are the system's own rules (R1–R13), restated for code. Breaking one is a
+These are the system's rules (R1–R13 from the Figma contract, plus R14 for code), restated for code. Breaking one is a
 bug, not a style preference.
 
 | # | Rule |
@@ -70,6 +71,7 @@ bug, not a style preference.
 | **R7** | Weight is orthogonal to size. Changing weight never moves size, line-height or tracking. |
 | **R8** | **Colour alone never carries meaning.** Status needs an icon or words. Chart series need direct labels. Links need a permanent underline. |
 | **R9** | Elevation is a ladder: `raised` < `overlay` < `modal`. Shadow colours are token-bound and deepen automatically in Dark. |
+| **R14** | **Pages are always light mode**, even when the machine's system style is dark. `ScalarProvider` defaults to `mode="light"` and the stylesheet does not follow `prefers-color-scheme`. Never ship `mode="dark"`, never set `data-theme="dark"` on a page, never add your own dark styling. Dark exists for the library only. |
 | **R10** | **Text floor is 12px** for everything a user reads. `heading.xs` (10px) is the single sanctioned exception, for data-grid chrome only — column headers and in-cell labels, never prose, form labels or helper text. Display is marketing-only. Uppercase labels use the Overline role, which owns the +0.8px tracking — never set `letterSpacing` yourself. |
 | **R11** | PRISM says what an item **represents** — never access, availability or permission. |
 | **R12** | 33 of the 78 type tokens are identical across all three modes. That is intentional. Do not "fix" them. |

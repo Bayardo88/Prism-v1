@@ -7,7 +7,7 @@
  *   import '@scalar/design-system/styles.css';
  *   import { ScalarProvider } from '@scalar/design-system';
  *
- *   <ScalarProvider mode="system" viewport="auto"><App /></ScalarProvider>
+ *   <ScalarProvider mode="light" viewport="auto"><App /></ScalarProvider>
  *
  * The contract every component in here obeys is documented in AI-GUIDE.md.
  */

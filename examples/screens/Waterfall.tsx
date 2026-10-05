@@ -140,7 +140,7 @@ export function Waterfall() {
   ];
 
   return (
-    <ScalarProvider mode="system" viewport="auto">
+    <ScalarProvider mode="light" viewport="auto">
       <PrimaryMenu
         logo={<Text step="l" weight="bold" tone="inherit" as="span">Scalar</Text>}
         end={

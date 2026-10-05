@@ -163,13 +163,16 @@ wrong shortcut gets copied into every page.
 6. **Choose slots from the ticket, not from habit.** Company page → pass
    `company` and `section`. Firm page → omit them. Needs sub-navigation → pass
    `subNav`. Needs the drawer → leave `dock` on; otherwise `dock={false}`.
-7. **Everything in the body obeys the contract in [AI-GUIDE.md](../AI-GUIDE.md):**
+7. **Light mode only.** The page renders light even when the machine is set to
+   dark: wrap in `ScalarProvider mode="light"` (the default) and never ship
+   `mode="dark"` or `data-theme="dark"`. Check your screen with the OS in dark mode.
+8. **Everything in the body obeys the contract in [AI-GUIDE.md](../AI-GUIDE.md):**
    semantic tokens only, `space` for gaps and `size` for widths, the 12 px text
    floor, components before custom markup. `npm run verify` must pass.
-8. **If the template cannot express what the ticket needs** (a second drawer, a
+9. **If the template cannot express what the ticket needs** (a second drawer, a
    side panel, a full-bleed hero) — stop and say so. Propose a new slot; do not
    work around it inside the body.
-9. **Never register the template itself as a product screen.** The product
+10. **Never register the template itself as a product screen.** The product
    catalog only accepts frames from the Scalar-full-product Figma file.
 
 ### Checklist before you hand off
