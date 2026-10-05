@@ -9,7 +9,7 @@ contract is.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 462 design tokens · 165 components · Light + Dark · 3 type modes.
+- **Scale:** 462 design tokens · 167 components · Light + Dark · 3 type modes.
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---
