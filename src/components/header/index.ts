@@ -22,6 +22,9 @@ export type {
   InformationLabelProps, ToolSwitchProps, ToolSwitchValue, AIToolProps,
 } from './Controls.js';
 
+export { ValuationInfo } from './ValuationInfo.js';
+export type { ValuationInfoProps, ValuationInfoOpen } from './ValuationInfo.js';
+
 export { SubmenuItem, MenuPanel, MenuGroupLabel, CompanyDropdownPanel, SectionSubMenu } from './Menus.js';
 export type {
   SubmenuItemProps, SubmenuItemState, MenuPanelProps,
