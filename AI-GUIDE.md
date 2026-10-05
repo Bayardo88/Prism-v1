@@ -54,7 +54,7 @@ bug, not a style preference.
 
 | # | Rule |
 |---|------|
-| **R1** | Never use a `--primitive-*` token in product code. They have no mode and will not respond to the theme. Use a semantic token. |
+| **R1** | Never use a `--primitive-*` token in product code. The primitive collections are published and visible in Figma and in `tokens.css`, but they are off-limits to developers and AI agents — **only the Semantic collections are for use.** Primitives have no mode and will not respond to the theme. |
 | **R2** | Colour from `color.*`. Type from `type.style()` or a `scalar-type-*` class. **Gap and padding** from `space.*`. Radius from `radius.*`. **Width and height** from `size.*`. Never cross `space` and `size`. |
 | **R3** | Every filled surface has a matching on-colour. `bg.brand` pairs with `text.onBrand` and `icon.onBrand`. **`text.primary` on a filled surface is a contrast bug.** |
 | **R4** | Yellow is the exception. `bg.warning` is identical in both modes and `text.onWarning` is near-black in both. White can never clear AA on yellow. |

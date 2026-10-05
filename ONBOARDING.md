@@ -89,7 +89,7 @@ re-themes and its variants can be swapped.
 
 The full set (R1–R13) is in `AI-GUIDE.md`.
 
-1. **Never use a `--primitive-*` token.** No mode, will not theme.
+1. **Never use a `--primitive-*` token.** Published but off-limits — use the Semantic tokens only. No mode, will not theme.
 2. **`space` is gap and padding. `size` is width and height.** Never cross them.
 3. **Every filled surface uses its `on*` text token.** `text.primary` on a fill
    is a contrast bug.
