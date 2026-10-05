@@ -15,7 +15,7 @@ import { useLocation } from '../../router.js';
 import { PortfolioGrid, type GridRow } from './PortfolioGrid.js';
 import { ExportMenuItems, PortfolioHeader, PublishedNote, SavedViewsBar } from './chrome.js';
 import { CreateSummaryView } from './CreateSummaryView.js';
-import { CompanyLink, StatusCell } from './cells.js';
+import { companyHref, StatusCell } from './cells.js';
 import { PAGE_SIZE, SUMMARY_FRAME, inFrameOrder, investedHistory, summaryColumns, summaryTotal, summaryValues } from './data.js';
 
 const SCROLL: Record<string, string | undefined> = {
@@ -75,7 +75,8 @@ export function Summaries({ state }: ScreenProps) {
     const v = summaryValues(c);
     return {
       id: c.id,
-      label: <CompanyLink company={c} />,
+      label: c.name,
+      href: companyHref(c),
       sortText: c.name,
       values: {
         ...v,

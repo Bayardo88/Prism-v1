@@ -14,7 +14,7 @@ import { navigate } from '../../router.js';
 import { routes } from '../../routes.js';
 import { PortfolioGrid, type GridRow } from '../p02-intelligence/PortfolioGrid.js';
 import { ExportMenuItems, PortfolioHeader, PublishedNote, SavedViewsBar } from '../p02-intelligence/chrome.js';
-import { CompanyLink, StatusCell } from '../p02-intelligence/cells.js';
+import { companyHref, StatusCell } from '../p02-intelligence/cells.js';
 import { PAGE_SIZE, columnCatalogue, inFrameOrder } from '../p02-intelligence/data.js';
 import type { Company } from '../../data/fixtures.js';
 import { VALUATIONS_FRAME, tasksOf, valuationColumns, valuationValues } from './data.js';
@@ -101,7 +101,8 @@ export function FirmValuations({ state }: ScreenProps) {
 
   const rows: GridRow[] = useMemo(() => ORDER.slice((page - 1) * perPage, page * perPage).map((c) => ({
     id: c.id,
-    label: <CompanyLink company={c} to={routes.company.valuationSummary} />,
+    label: c.name,
+    href: companyHref(c, routes.company.valuationSummary),
     sortText: c.name,
     values: {
       ...valuationValues(c),

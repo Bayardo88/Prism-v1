@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Alert, Button, Cell, CheckboxItem, Chip, ColumnHeader, DataGrid, FormField, Heading, Icon, Input, Link, Modal,
-  Pagination, Row, Text, icons, space,
+  Pagination, Row, RowHeader, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
@@ -102,9 +102,7 @@ export function DailyNavCompanies({ state }: ScreenProps) {
           const on = enabled[c.id] ?? c.dailyNav;
           return (
             <Row key={c.id} zebra={i % 2 === 1}>
-              <Cell>
-                <Link size="s" href={href(routes.company.dailyNavSettings(c.id))}>{c.name}</Link>
-              </Cell>
+              <RowHeader href={href(routes.company.dailyNavSettings(c.id))}>{c.name}</RowHeader>
               <Cell>
                 {on ? <Chip size="s" styleVariant="positive">{NAV_DAY}</Chip> : <Text as="span" step="s" tone="tertiary">Off</Text>}
               </Cell>

@@ -824,6 +824,43 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-cell--total { background: var(--color-bg-subtle); font-weight: var(--font-weight-semi-bold); }
 .scalar-cell__editor { width: 100%; border: 0; background: none; color: inherit; font: inherit; outline: none; text-align: inherit; }
 
+/* Row Header — Figma Row-reading 1035:1911 / Row-input 1092:3672.
+ * Surface fill, 26px, padding 2/4, Heading/S Light. Mark = 2px Stroke/Focus on
+ * the left; Group = 2px Stroke/Control on the left (Row-reading); Start / End
+ * Group = a 2px rule on top / underneath (Row-input). */
+.scalar-row-header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: var(--size-row-compact);
+  min-width: 0;
+  padding: var(--space-2xs) var(--space-xs);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-heading-s);
+  line-height: var(--line-height-heading-s);
+  letter-spacing: var(--letter-spacing-heading-s);
+  font-weight: var(--font-weight-light);
+}
+.scalar-row-header__text { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: inherit; font: inherit; text-decoration: none; }
+.scalar-row-header__text--action { cursor: pointer; }
+.scalar-row-header__text--action:hover { text-decoration: underline; }
+.scalar-row-header__text--action:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
+.scalar-row-header__icon { flex: none; }
+.scalar-row-header__icon--action { display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--color-icon-disabled); cursor: pointer; }
+.scalar-row-header__icon--action:hover { color: var(--color-icon-secondary); }
+.scalar-row-header__icon--action:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
+.scalar-row-header--data { color: var(--color-text-sourced); }
+.scalar-row-header--input { color: var(--color-text-editable); }
+.scalar-row-header--total { border-top: 2px solid var(--color-stroke-control); border-bottom: 2px solid var(--color-stroke-control); font-weight: var(--font-weight-semi-bold); }
+.scalar-row-header--divider { background: var(--color-bg-disabled); color: var(--color-text-on-disabled); font-weight: var(--font-weight-semi-bold); }
+.scalar-row-header--group { border-left: 2px solid var(--color-stroke-control); }
+.scalar-row-header--group-start { border-top: 2px solid var(--color-stroke-control); }
+.scalar-row-header--group-end { border-bottom: 2px solid var(--color-stroke-control); }
+.scalar-row-header--mark { border-left: 2px solid var(--color-stroke-focus); }
+
 /* Group bracket edges. */
 .scalar-cell--group-start { border-left: 2px solid var(--color-stroke-brand); }
 .scalar-cell--group-end   { border-bottom-width: 2px; border-bottom-color: var(--color-stroke-brand); }

@@ -153,8 +153,9 @@ generated from the component definitions, not from the published library.
 `Row-reading`, `Row-input` and `cell` each express grouping with their own
 boolean set (`Group`, `Start Group`, `End Group`). The code layer normalises
 this onto `Row`'s `group` prop and `Cell`'s `groupStart` / `groupEnd`, and
-merges `Row-reading` and `Row-input` into a single `Row` whose cells carry the
-read/edit distinction via `Cell type`. That is a deliberate simplification of
+merges `Row-reading` and `Row-input` into one `RowHeader` (the first cell of a row;
+Reading's `group` and Input's `groupStart` / `groupEnd` are three props of it) plus
+a single `Row` whose cells carry the read/edit distinction via `Cell type`. That is a deliberate simplification of
 the Figma model, not a mismatch.
 
 **Since 2026-09-24 there is a fourth model.** The financial-statement grids on

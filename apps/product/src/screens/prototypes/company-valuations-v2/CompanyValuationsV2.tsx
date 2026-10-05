@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Card, CardItem, Cell, ColumnHeader, DataGrid, EmptyState, LineChart, Link, ModalStatus,
-  Row, SegmentedControl, Text, space,
+  Row, RowHeader, SegmentedControl, Text, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
 import { companyById, num, pct, usd } from '../../../data/fixtures.js';
@@ -88,7 +88,7 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
           >
             {versions.map((x, i) => (
               <Row key={x.key} zebra={i % 2 === 1}>
-                <Cell><Link size="s" href={summary}>{x.label}</Link></Cell>
+                <RowHeader href={summary}>{x.label}</RowHeader>
                 <Cell>{x.date}</Cell>
                 <Cell><StatusBadge status={x.status} /></Cell>
                 <Cell numeric type="data">{i === 0 && empty ? '$0' : k(x.equityValue)}</Cell>

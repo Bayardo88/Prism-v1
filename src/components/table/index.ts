@@ -2,6 +2,8 @@ export { Cell } from './Cell.js';
 export type { CellProps, CellType, CellState } from './Cell.js';
 export { ColumnHeader } from './ColumnHeader.js';
 export type { ColumnHeaderProps } from './ColumnHeader.js';
+export { RowHeader } from './RowHeader.js';
+export type { RowHeaderProps, RowHeaderType } from './RowHeader.js';
 export { Row } from './Row.js';
 export type { RowProps, RowType } from './Row.js';
 export { ModalStatus, ValuationStatus } from './Status.js';

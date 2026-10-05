@@ -3,7 +3,7 @@
  * Schedule of Investments, Daily NAV) and the firm Valuations page.
  *
  * It is a `DataGrid` + `Row` of grid-pattern cells — Grid Column Header,
- * Column Group Header, Row Label Cell, Grid Value Cell, Add Column Header —
+ * Column Group Header, Row Header, Grid Value Cell, Add Column Header —
  * so column tracks come from the headers and body cells fill them. The local
  * wrapper exists only for behaviour the DataGrid does not own:
  *
@@ -15,7 +15,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   AddColumnHeader, CollapsedColumnRail, ColumnGroupHeader, DataGrid, GridColumnHeader, GridValueCell,
-  Row, RowLabelCell, color, zIndex, type SortDirection, type ValueKind,
+  Row, RowHeader, color, icons, zIndex, type SortDirection, type ValueKind,
 } from '@scalar/design-system';
 
 export interface GridCol {
@@ -30,13 +30,15 @@ export interface GridCol {
 
 export interface GridRow {
   id: string;
-  /** Rendered in the pinned Row Label Cell (may be a Link). */
+  /** The row's name, rendered in the pinned Row Header. Plain text. */
   label: ReactNode;
+  /** Makes the row header navigate (it stays a Row Header, not a text link). */
+  href?: string;
   /** Plain text of the label, for sorting. */
   sortText: string;
   /** `undefined` renders a shaded Not Applicable cell; `''` an empty one. */
   values: Record<string, ReactNode | undefined>;
-  /** Draws the + expander on the row label (Daily NAV companies with a valuation). */
+  /** Draws the trailing + on the row header (Daily NAV companies with a valuation). */
   expandable?: boolean;
 }
 
@@ -214,11 +216,7 @@ export function PortfolioGrid({
       >
         {sorted.map((r, i) => (
           <Row key={r.id} zebra={i % 2 === 1}>
-            {r.expandable ? (
-              <RowLabelCell expanded={false} style={pinRow(i)}>{r.label}</RowLabelCell>
-            ) : (
-              <RowLabelCell style={pinRow(i)}>{r.label}</RowLabelCell>
-            )}
+            <RowHeader href={r.href} icon={r.expandable ? <icons.Add /> : undefined} style={pinRow(i)}>{r.label}</RowHeader>
             {columns.map((c) => valueCell(r, c))}
             {onAddColumn && <GridValueCell>{''}</GridValueCell>}
           </Row>
@@ -226,7 +224,7 @@ export function PortfolioGrid({
 
         {total && (
           <Row type="total">
-            <RowLabelCell type="total" style={pin}>Total</RowLabelCell>
+            <RowHeader type="total" style={pin}>Total</RowHeader>
             {columns.map((c) => <GridValueCell key={c.key} kind="total">{total[c.key] ?? ''}</GridValueCell>)}
             {onAddColumn && <GridValueCell kind="total">{''}</GridValueCell>}
           </Row>

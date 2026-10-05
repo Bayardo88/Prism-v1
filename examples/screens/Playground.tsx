@@ -10,7 +10,7 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   Accordion, AccordionItem, AIButton, AITool, Alert, Avatar, Badge, BarChart, Breadcrumb, Button, ButtonIcon,
-  CalendarDay, Card, CardItem, Cell, ChartLegend, Checkbox, CheckboxItem, Chip, ColumnHeader, ColumnItem,
+  CalendarDay, Card, CardItem, Cell, RowHeader, ChartLegend, Checkbox, CheckboxItem, Chip, ColumnHeader, ColumnItem,
   ColumnTitle, ComboTag, CompanyDropdown, CompanyInfo, ContentCell, CurrencySelector, DataGrid, DataReviewCard,
   DatePicker, Divider, DonutChart, Drawer, EmptyState, FilterDropdown, FormField, Footnote, Icon, Input,
   InformationLabel, KeyHint, Ledger, LineChart, Link, MainMenuItem, MenuGroupLabel, MenuPanel, Modal, ModalSearch,
@@ -287,6 +287,35 @@ function Components() {
         </Block>
       </Part>
 
+      <Part id="c-rowheader" title="Row headers">
+        <Block title="Row Header · Row-reading and Row-input" note="The first cell of every table row. Reading groups with a left bar (group); Input groups with rules on top and underneath (groupStart / groupEnd).">
+          <div className="pg-grid">
+            <div className="pg-col">
+              <Cap>Types</Cap>
+              <RowHeader>Readable — Text/Primary</RowHeader>
+              <RowHeader type="data">Data — Text/Sourced</RowHeader>
+              <RowHeader type="input">Input — Text/Editable</RowHeader>
+              <RowHeader type="total">Total</RowHeader>
+              <RowHeader type="divider">Divider</RowHeader>
+            </div>
+            <div className="pg-col">
+              <Cap>Mark · Bulk · Icon</Cap>
+              <RowHeader mark>Mark</RowHeader>
+              <RowHeader mark bulk selectLabel="Select">Mark + bulk</RowHeader>
+              <RowHeader icon={<icons.Add />}>Trailing icon</RowHeader>
+              <RowHeader href="#c-rowheader">With a destination</RowHeader>
+            </div>
+            <div className="pg-col">
+              <Cap>Grouping</Cap>
+              <RowHeader group>Reading · group</RowHeader>
+              <RowHeader groupStart>Input · start group</RowHeader>
+              <RowHeader>Between</RowHeader>
+              <RowHeader groupEnd>Input · end group</RowHeader>
+            </div>
+          </div>
+        </Block>
+      </Part>
+
       <Part id="c-charts" title="Charts">
         <div className="pg-grid pg-grid--wide">
           <Block title="Bar chart"><BarChart title="Revenue by quarter" categoryLabel="Quarter" categories={['Q1', 'Q2', 'Q3', 'Q4']} series={[{ label: 'Product', values: [12, 18, 15, 22] }, { label: 'Services', values: [6, 8, 9, 11] }]} format={(v) => `$${v}M`} /></Block>
@@ -355,7 +384,7 @@ export function Playground() {
   const [viewport, setViewport] = useState<ViewportMode>('desktop');
   const nav: Array<[string, Array<[string, string]>]> = [
     ['Tokens', [['t-colour', 'Colour'], ['t-space', 'Spacing & radius'], ['t-size', 'Sizing'], ['t-type', 'Type ramp'], ['t-elev', 'Elevation & motion'], ['t-prim', 'Primitives']]],
-    ['Components', [['c-core', 'Core & primitives'], ['c-actions', 'Actions'], ['c-forms', 'Forms'], ['c-header', 'Header & menus'], ['c-nav', 'Navigation'], ['c-grid', 'Data grid'], ['c-charts', 'Charts'], ['c-feedback', 'Cards & feedback'], ['c-containers', 'Containers & overlays'], ['c-search', 'Search'], ['c-patterns', 'Patterns 20–26'], ['c-template', 'Page template']]],
+    ['Components', [['c-core', 'Core & primitives'], ['c-actions', 'Actions'], ['c-forms', 'Forms'], ['c-header', 'Header & menus'], ['c-nav', 'Navigation'], ['c-grid', 'Data grid'], ['c-rowheader', 'Row headers'], ['c-charts', 'Charts'], ['c-feedback', 'Cards & feedback'], ['c-containers', 'Containers & overlays'], ['c-search', 'Search'], ['c-patterns', 'Patterns 20–26'], ['c-template', 'Page template']]],
   ];
   return (
     <ScalarProvider mode={mode} viewport={viewport}>

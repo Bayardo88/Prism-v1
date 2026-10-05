@@ -9,7 +9,7 @@ contract is.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 462 design tokens · 167 components · Light + Dark · 3 type modes.
+- **Scale:** 462 design tokens · 168 components · Light + Dark · 3 type modes.
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---
@@ -435,7 +435,7 @@ wrapper inside the slot. Full guide: `docs/page-template.md`.
 
 ### Data grid
 
-`DataGrid` · `Row` · `Cell` · `ColumnHeader` · `ContentCell` · `Footnote` ·
+`DataGrid` · `Row` · `RowHeader` · `Cell` · `ColumnHeader` · `ContentCell` · `Footnote` ·
 `Ledger` · `ModalStatus` · `ValuationStatus`
 
 **Column sizing is header-driven.** `DataGrid` is a CSS grid: each header cell
@@ -455,6 +455,12 @@ always fills exactly its header's column.
 - `maxHeight` bounds the grid: the body scrolls inside it and the header sticks
   to the grid's top. Without it the grid grows with its rows. Wider than its
   container, the grid scrolls sideways inside itself.
+- **Every row starts with a `RowHeader`** (Figma Row-reading / Row-input): its first
+  cell, the row's name. `type` readable · data · input · total · divider; `mark`,
+  `bulk` (+ `checked` / `onCheckedChange` / `selectLabel`), `icon` (+ `onIconClick`),
+  `footnote`; grouping is `group` (left bar) or `groupStart` / `groupEnd` (rules).
+  **Never put a text `Link` in a row's first cell** — pass `href` to the `RowHeader`:
+  it navigates and keeps the row-header look.
 - **Both cell models work inside `Row`:** `Cell`, and the grid-pattern cells
   (`RowLabelCell`, `GridValueCell`, `InCellControl`). The row owns the
   background, so `zebra`, hover and `type="total"` work for either. Still pick
@@ -650,6 +656,7 @@ Rules:
 |---------|------|
 | `style={{ color: '#0268c1' }}` | `style={{ color: color.text.brand }}` |
 | `style={{ padding: 12 }}` | `style={{ padding: space.m }}` |
+| `<Cell><Link href=…>{name}</Link></Cell>` as a row's first cell | `<RowHeader href=…>{name}</RowHeader>` |
 | A screen that assembles `PrimaryMenu` + `CompanyInfo` + `WorkspaceDrawer` itself | `<PageTemplate …>{content}</PageTemplate>` |
 | Shipping the `BodySlot` placeholder, or wrapping the body in extra padding / `max-width` / a scroll box | Real `children`; the slot already scrolls and is inset |
 | `style={{ fontSize: 13 }}` | a `type.style()` role/step, min 12px (`heading.xs` 10px only for data-grid chrome) |
