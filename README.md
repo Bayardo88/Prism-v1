@@ -54,7 +54,7 @@ npm run build
 import '@scalar/design-system/styles.css';
 import { ScalarProvider } from '@scalar/design-system';
 
-<ScalarProvider mode="system" viewport="auto">
+<ScalarProvider mode="light" viewport="auto">
   <App />
 </ScalarProvider>;
 ```
@@ -113,7 +113,7 @@ ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 
 | Read this | When |
 |---|---|
-| **[ONBOARDING.md](ONBOARDING.md)** | **New here?** Install, first component, the nine rules, and the two live blockers. Ten minutes. |
+| **[ONBOARDING.md](ONBOARDING.md)** | **New here?** Install, first component, the ten rules, and the two live blockers. Ten minutes. |
 | **[AI-GUIDE.md](AI-GUIDE.md)** | **Start here.** The complete contract: rules, decision tables, component API, anti-patterns. Written to be read by both people and coding agents before building a page. |
 | [CLAUDE.md](CLAUDE.md) | Auto-loaded by agents working *on* this package. Points at AI-GUIDE and lists the non-negotiables. |
 | **[docs/page-template.md](docs/page-template.md)** | **Building a screen?** The base template — navigation, body slot, drawer — and how to use it. Read before writing any page. |
@@ -125,7 +125,7 @@ ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 
 ## The short version
 
-Nine rules cover most of what goes wrong. The full set (R1–R13) is in
+Ten rules cover most of what goes wrong. The full set (R1–R14) is in
 [AI-GUIDE.md](AI-GUIDE.md).
 
 1. **Never use a `--primitive-*` token.** They are published but off-limits — use the Semantic tokens only. They have no mode and will not theme.
@@ -139,6 +139,9 @@ Nine rules cover most of what goes wrong. The full set (R1–R13) is in
 7. **Never set `letterSpacing`** — the Overline role owns its tracking.
 8. **Every interactive control reaches 44px**, except documented dense grid.
 9. **PRISM says what a thing *is*** — never whether you may open it.
+10. **Always light mode.** Every page and screen renders in Light, even when the
+    machine is set to dark. `ScalarProvider` defaults to `light`; never ship
+    `mode="dark"` or follow the OS.
 
 ---
 

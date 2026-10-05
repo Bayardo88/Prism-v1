@@ -126,7 +126,7 @@ Also confirm the reuse contract: `git diff --stat` shows **no new file under
 `src/components/` or `src/styles/`** unless a rung-7 request was approved, and
 no `style={{…}}` value that isn't a token. Then render: `node scripts/serve.mjs` → `http://localhost:4178/apps/product/index.html#<route>?state=<key>`.
 Check, in order: no console errors · every state of the screen you touched ·
-the links in and out actually navigate · dark mode (flip the OS/`data-theme`) ·
+the links in and out actually navigate · light mode only — emulate OS dark and confirm the page stays light (R14) ·
 focus visible · nothing under 12px. Report what you checked; if you could not
 render, say so.
 

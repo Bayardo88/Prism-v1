@@ -54,7 +54,7 @@ export function CapTable() {
   const totalValue = SECURITIES.reduce((a, s) => a + s.value, 0);
 
   return (
-    <ScalarProvider mode="system" viewport="auto">
+    <ScalarProvider mode="light" viewport="auto">
       <PrimaryMenu
         logo={<Text step="l" weight="bold" tone="inherit" as="span">Scalar</Text>}
         end={

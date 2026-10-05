@@ -34,7 +34,10 @@ content, and the docked drawer. Read **[docs/page-template.md](docs/page-templat
    collections are published in Figma but are off-limits to developers and AI
    agents — only the Semantic collections are for use. They have no mode and
    will not respond to the theme.
-5. **Chart.js configs take resolved values, never `var(--…)` strings.** Canvas
+5. **Pages are always light mode**, even when the machine is set to dark.
+   `ScalarProvider` defaults to `light`; never ship `mode="dark"` or follow the
+   OS (rule R14 in AI-GUIDE).
+6. **Chart.js configs take resolved values, never `var(--…)` strings.** Canvas
    cannot read CSS custom properties; `var()` renders transparent. Take values
    off the `ChartTokens` object from `useChartTokens`.
 

@@ -351,7 +351,7 @@ function Components() {
 
 export function Playground() {
   const data = useTokens();
-  const [mode, setMode] = useState<ThemeMode>('system');
+  const [mode, setMode] = useState<ThemeMode>('light');
   const [viewport, setViewport] = useState<ViewportMode>('desktop');
   const nav: Array<[string, Array<[string, string]>]> = [
     ['Tokens', [['t-colour', 'Colour'], ['t-space', 'Spacing & radius'], ['t-size', 'Sizing'], ['t-type', 'Type ramp'], ['t-elev', 'Elevation & motion'], ['t-prim', 'Primitives']]],
@@ -373,7 +373,7 @@ export function Playground() {
         <div className="pg-main">
           <div className="pg-bar">
             <label>Theme
-              <select value={mode} onChange={(e) => setMode(e.target.value as ThemeMode)}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select>
+              <select value={mode} onChange={(e) => setMode(e.target.value as ThemeMode)}><option value="light">Light</option><option value="dark">Dark (library preview only)</option></select>
             </label>
             <label>Type ramp
               <select value={viewport} onChange={(e) => setViewport(e.target.value as ViewportMode)}><option value="desktop">Desktop (1440)</option><option value="desktop-large">Desktop Large (1920)</option><option value="mobile">Mobile (393)</option></select>

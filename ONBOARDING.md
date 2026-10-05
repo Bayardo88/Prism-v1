@@ -27,7 +27,7 @@ for anything you ship: `github:Bayardo88/Prism-v1#v1.1.0`.
 import '@scalar/design-system/styles.css';
 import { ScalarProvider } from '@scalar/design-system';
 
-<ScalarProvider mode="system" viewport="auto">
+<ScalarProvider mode="light" viewport="auto">
   <App />
 </ScalarProvider>
 ```
@@ -85,9 +85,9 @@ re-themes and its variants can be swapped.
 
 ---
 
-## The nine rules that prevent most mistakes
+## The ten rules that prevent most mistakes
 
-The full set (R1–R13) is in `AI-GUIDE.md`.
+The full set (R1–R14) is in `AI-GUIDE.md`.
 
 1. **Never use a `--primitive-*` token.** Published but off-limits — use the Semantic tokens only. No mode, will not theme.
 2. **`space` is gap and padding. `size` is width and height.** Never cross them.
@@ -100,6 +100,9 @@ The full set (R1–R13) is in `AI-GUIDE.md`.
 7. **Never set `letterSpacing`** — the Overline role owns its tracking.
 8. **Every interactive control reaches 44px**, except documented dense grid.
 9. **PRISM says what a thing *is*** — never whether you may open it.
+10. **Always light mode.** Every page and screen renders in Light, even when the
+    machine is set to dark. `ScalarProvider` defaults to `light`; never ship
+    `mode="dark"` or follow the OS.
 
 ---
 

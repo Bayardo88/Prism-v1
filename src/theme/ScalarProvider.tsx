@@ -1,6 +1,11 @@
 import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
 
-/** Colour mode. `system` follows the OS and is the default. */
+/**
+ * Colour mode. **Pages are always `light`**, even when the OS is set to dark —
+ * that is the default and the rule. `dark` exists for the library only and must
+ * be asked for explicitly. `system` no longer follows the OS: it is the same as
+ * `light`, kept so existing code keeps compiling.
+ */
 export type ThemeMode = 'light' | 'dark' | 'system';
 
 /**
@@ -18,7 +23,7 @@ export interface ScalarThemeContextValue {
 }
 
 const ScalarThemeContext = createContext<ScalarThemeContextValue>({
-  mode: 'system',
+  mode: 'light',
   viewport: 'desktop',
 });
 
@@ -26,7 +31,7 @@ export const useScalarTheme = (): ScalarThemeContextValue => useContext(ScalarTh
 
 export interface ScalarProviderProps {
   children: ReactNode;
-  /** Colour mode. Defaults to `system`. */
+  /** Colour mode. Defaults to `light` — pages are always light, whatever the OS says. */
   mode?: ThemeMode;
   /** Type-ramp mode. Defaults to `desktop`. */
   viewport?: ViewportMode;
@@ -51,7 +56,7 @@ function resolveViewport(viewport: ViewportMode): 'desktop' | 'desktop-large' | 
 /**
  * Establishes the Scalar theme. Wrap the application once.
  *
- *   <ScalarProvider mode="system" viewport="auto">
+ *   <ScalarProvider mode="light" viewport="auto">
  *     <App />
  *   </ScalarProvider>
  *
@@ -60,7 +65,7 @@ function resolveViewport(viewport: ViewportMode): 'desktop' | 'desktop-large' | 
  */
 export function ScalarProvider({
   children,
-  mode = 'system',
+  mode = 'light',
   viewport = 'desktop',
   target = 'root',
   className,
@@ -71,8 +76,8 @@ export function ScalarProvider({
     if (target !== 'root' || typeof document === 'undefined') return;
     const el = document.documentElement;
 
-    // `system` means "no pinned theme" — the stylesheet's prefers-color-scheme
-    // branch takes over, so the attribute must be absent rather than set.
+    // The stylesheet no longer follows prefers-color-scheme, so an absent
+    // attribute is light. `system` is therefore light too.
     if (mode === 'system') el.removeAttribute('data-theme');
     else el.setAttribute('data-theme', mode);
 

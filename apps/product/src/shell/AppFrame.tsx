@@ -44,7 +44,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
   const Overlay = open ? overlays[open] : undefined;
 
   return (
-    <ScalarProvider mode="system" viewport="auto">
+    <ScalarProvider mode="light" viewport="auto">
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: color.bg.page }}>
         <PrimaryMenu
           logo={

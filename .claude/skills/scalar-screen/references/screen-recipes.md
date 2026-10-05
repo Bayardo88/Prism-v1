@@ -144,7 +144,7 @@ Every product screen shares the same top. Three tiers is the limit — a fourth
 level belongs in the page body.
 
 ```tsx
-<ScalarProvider mode="system" viewport="auto">
+<ScalarProvider mode="light" viewport="auto">
   <PrimaryMenu
     logo={<ScalarMark />}
     end={<><SearchBar /><Notification unread /><Avatar size="s" initials="BV" /></>}

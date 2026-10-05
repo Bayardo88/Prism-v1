@@ -19,7 +19,7 @@ import { useState } from 'react';
 export function PageTemplateExample({ withContent = false }: { withContent?: boolean }) {
   const [tool, setTool] = useState<'valuations' | 'workboard'>('valuations');
   return (
-    <ScalarProvider mode="system" viewport="auto">
+    <ScalarProvider mode="light" viewport="auto">
       <PageTemplate
         /* 1 · navigation */
         navigation={

@@ -80,8 +80,9 @@ npm run verify     # typecheck + token-contract lint
 Then actually look at it. Render the screen and check, in this order:
 
 1. It renders with no console errors.
-2. **Dark mode.** Flip `data-theme` and look again — this is where hard-coded
-   values surface immediately.
+2. **Light mode only (R14).** The page must render light even when the OS is in
+   dark mode — emulate OS dark and confirm nothing changes. Never ship
+   `mode="dark"`.
 3. Focus is visible on every interactive control.
 4. Nothing is below 12px.
 5. Charts with three or more series carry direct labels.
