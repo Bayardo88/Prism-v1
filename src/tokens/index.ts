@@ -49,6 +49,10 @@ export const text = {
   ai: v('--color-text-ai'),
   sourced: v('--color-text-sourced'),
   editable: v('--color-text-editable'),
+  /** Table title, column-group labels and single-row column headers in a data grid. */
+  gridHeader: v('--color-text-grid-header'),
+  /** Row-label column of a data grid: line items, children, subtotals, totals. */
+  rowLabel: v('--color-text-row-label'),
   onBrand: v('--color-text-on-brand'),
   onBrandSubtle: v('--color-text-on-brand-subtle'),
   onBrandMuted: v('--color-text-on-brand-muted'),
@@ -94,6 +98,8 @@ export const bg = {
    * Pair only with `text.onGroupHeader`.
    */
   groupHeader: v('--color-bg-group-header'),
+  /** Alternate-row fill (zebra striping) in a dense data grid. */
+  rowStripe: v('--color-bg-row-stripe'),
   ai: v('--color-bg-ai'),
   aiSubtle: v('--color-bg-ai-subtle'),
 } as const;
@@ -111,6 +117,8 @@ export const stroke = {
   strong: v('--color-stroke-strong'),
   control: v('--color-stroke-control'),
   focus: v('--color-stroke-focus'),
+  /** The one structural rule in a striped data grid: under the header row and above each total. */
+  gridRule: v('--color-stroke-grid-rule'),
   onBrand: v('--color-stroke-on-brand'),
   disabled: v('--color-stroke-disabled'),
   brand: v('--color-stroke-brand'),
@@ -313,7 +321,9 @@ export const size = {
     xs: v('--size-avatar-xs'), s: v('--size-avatar-s'), m: v('--size-avatar-m'),
     l: v('--size-avatar-l'), xl: v('--size-avatar-xl'),
   },
-  row: { compact: v('--size-row-compact') },
+  row: { compact: v('--size-row-compact'), header: v('--size-row-header') },
+  /** Pinned-column divider (Grid Column Divider, Type = Pinned). */
+  divider: { pinned: v('--size-divider-pinned') },
   /** Container for a single glyph (Product Tile mark, Dropzone well). Not an avatar. */
   iconWell: { m: v('--size-icon-well-m'), l: v('--size-icon-well-l') },
   progressRing: { m: v('--size-progress-ring-m') },

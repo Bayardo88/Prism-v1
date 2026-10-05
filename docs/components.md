@@ -1,7 +1,7 @@
 # Figma → React traceability
 
-Every component in the Figma components file (`Z4MtKOfkNEzhMYJzN1q3kR`, 145
-components across 23 pages) mapped to its React export.
+Every component in the Figma components file (`Z4MtKOfkNEzhMYJzN1q3kR`, 154
+component sets and 1,260 variants across 23 pages; last checked against the live file on 2026-10-05) mapped to its React export.
 
 **How the Figma variant matrix becomes props.** Figma models every combination
 as a discrete variant — `Button` alone is 225. React collapses that: each Figma
@@ -70,7 +70,7 @@ Legend: **=** direct mapping · **⊕** several Figma sets merged into one expor
 | Calendar Day | State | = `CalendarDay` | `form-controls/CalendarDay.tsx` |
 | Date Picker | — | = `DatePicker` | `form-controls/DatePicker.tsx` |
 
-## 09 · Header & Menus (24)
+## 09 · Header & Menus (25)
 
 | Figma | Variants | React | File |
 |---|---|---|---|
@@ -93,7 +93,8 @@ Legend: **=** direct mapping · **⊕** several Figma sets merged into one expor
 | Combo tag | — | = `ComboTag` | `header/Controls.tsx` |
 | Currency Selector | — | = `CurrencySelector` | `header/Controls.tsx` |
 | Selector | — | = `Selector` | `header/Controls.tsx` |
-| Information Label | — | = `InformationLabel` | `header/Controls.tsx` |
+| Information Label | — (Figma also has `Has drop down`, `Long Value`, `L1`–`L3`; not modelled — see known-gaps 11) | = `InformationLabel` | `header/Controls.tsx` |
+| Valuation Info | Open (None · Values · Dates · Both) | **not built** — see known-gaps 11 | — |
 | Valuation | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
 | Workboard | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
 | Tool-switch | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
@@ -120,12 +121,12 @@ control in three pieces; exactly one side is always selected, so a single
 | Step | State | = `Step` | `navigation/Stepper.tsx` |
 | Stepper | — | = `Stepper` | `navigation/Stepper.tsx` |
 
-## 11 · Table & Cells (9)
+## 11 · Table & Cells (11)
 
 | Figma | Variants | React | File |
 |---|---|---|---|
-| cell | State × Type + 5 booleans (145) | = `Cell` | `table/Cell.tsx` |
-| Header | Style + 6 booleans (11) | = `ColumnHeader` (＋ `grow` / `width` / `span` column sizing; ＋ `tone="subtle"` light header band) | `table/ColumnHeader.tsx` |
+| cell | State × Type + 5 booleans (145) | ≈ `Cell` — the `Tooltip` and `Label` booleans and the icon-type swap are not modelled (known-gaps 11) | `table/Cell.tsx` |
+| Header | Style + 6 booleans (11) | ≈ `ColumnHeader` — `Mark`, `Tooltip`, `Input`, `Action` and `Style = Action Button` are not modelled (known-gaps 11) (＋ `grow` / `width` / `span` column sizing; ＋ `tone="subtle"` light header band) | `table/ColumnHeader.tsx` |
 | Row-reading | 27 | ⊕ `Row` | `table/Row.tsx` |
 | Row-input | 37 | ⊕ `Row` | `table/Row.tsx` |
 | Content_Cell | Content | = `ContentCell` | `table/ContentCell.tsx` |
@@ -133,6 +134,7 @@ control in three pieces; exactly one side is always selected, so a single
 | Modal_Status | State | = `ModalStatus` (＋ `published` state) | `table/Status.tsx` |
 | Valuation Status | State | = `ValuationStatus` | `table/Status.tsx` |
 | Footnote | Content | = `Footnote` | `table/Footnote.tsx` |
+| cell-icon/Dropdown, cell-icon/Calendar | — | glyphs only — drawn by `Cell`'s `icon` slot | — |
 | — | — | ＋ `DataGrid` | `table/DataGrid.tsx` |
 
 **Merge.** `Row-reading` and `Row-input` have the same anatomy; the reading set
@@ -356,7 +358,7 @@ repeating them per page would guarantee drift.
 | `ScalarProvider` | Carries the colour mode and the type-ramp mode. In Figma these are variable modes set on a frame. |
 | `Icon` | Sizing and tint wrapper. Enforces the re-tint that SDS_Main glyphs require. |
 | `icons` | The product icon set — Google Material Symbols (Outlined), generated from `icon/material-icons.json` by `npm run gen:icons`. Figma uses SDS_Main instead. |
-| `Typography` / `Heading` / `Text` / `Label` / `Overline` | The type ramp as components. Figma expresses this as 68 text styles. |
+| `Typography` / `Heading` / `Text` / `Label` / `Overline` | The type ramp as components. Figma expresses this as 72 text styles. |
 | `DataGrid` | The grid shell — a CSS grid whose column tracks come from the header cells, with a sticky header under `maxHeight`. |
 | `ChartCanvas` | Chart.js lifecycle, token re-resolution on theme change, and the screen-reader data table. |
 | `chartScaffold` / `baseChartOptions` | The Figma Chart Frame spec as Chart.js options. |
