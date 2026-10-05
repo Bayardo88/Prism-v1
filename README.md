@@ -134,7 +134,7 @@ Nine rules cover most of what goes wrong. The full set (R1–R13) is in
 4. **`stroke.control` for anything interactive**, `stroke.default` only for
    container edges.
 5. **Colour alone never carries meaning.** Status needs words or an icon.
-6. **Text floor is 12px.** There is no smaller step.
+6. **Text floor is 12px** for anything a user reads. The one step below it is `heading.xs` (10px), for data-grid column headers and in-cell labels only.
 7. **Never set `letterSpacing`** — the Overline role owns its tracking.
 8. **Every interactive control reaches 44px**, except documented dense grid.
 9. **PRISM says what a thing *is*** — never whether you may open it.

@@ -16,7 +16,7 @@ export interface TypographyProps extends Omit<HTMLAttributes<HTMLElement>, 'colo
    * Named `variant` rather than `role` so the DOM `role` attribute stays free.
    */
   variant?: TypeRole;
-  /** The step within the role. The ramp has no step below 12px (rule R10). */
+  /** The step within the role. The ramp has no step below 12px except `heading.xs` (10px, data-grid chrome only — rule R10). */
   step?: string;
   /** Orthogonal to size: changing it never moves size or line-height (rule R7). */
   weight?: TypeWeight;

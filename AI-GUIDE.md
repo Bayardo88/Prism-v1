@@ -632,7 +632,7 @@ Rules:
 |---------|------|
 | `style={{ color: '#0268c1' }}` | `style={{ color: color.text.brand }}` |
 | `style={{ padding: 12 }}` | `style={{ padding: space.m }}` |
-| `style={{ fontSize: 13 }}` | a `type.style()` role/step, min 12px |
+| `style={{ fontSize: 13 }}` | a `type.style()` role/step, min 12px (`heading.xs` 10px only for data-grid chrome) |
 | `width: space.l` | `width: size.icon.s` (R2) |
 | `background: bg.brand; color: text.primary` | `color: text.onBrand` (R3) |
 | white text on `bg.warning` | `text.onWarning` (R4) |
@@ -667,7 +667,7 @@ Then check by hand:
 - [ ] Every status carries words or an icon, not just colour (R8).
 - [ ] Focus is visible on every control, 2px `stroke.focus`, outside the box.
 - [ ] It reads correctly in **both** Light and Dark.
-- [ ] No text below 12px (R10).
+- [ ] No text below 12px (R10) — the only exception is `heading.xs` (10px) in data-grid column headers and in-cell labels.
 - [ ] Charts with ≥3 series carry direct labels.
 
 ---
