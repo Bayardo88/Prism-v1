@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Button, ButtonIcon, Cell, ColumnHeader, DataGrid, FilterBar, FloatingLabelInput, FloatingLabelSelect, Icon,
-  Link, Modal, Row, Select, Text, icons, space,
+  Modal, Row, RowHeader, Select, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame } from '../../shell/AppFrame.js';
@@ -87,7 +87,7 @@ export function AuditLogs(_: ScreenProps) {
               <Cell>{r.time}</Cell>
               <Cell>{r.user}</Cell>
               <Cell>{r.feature}</Cell>
-              <Cell><Link size="s" href={href(routes.company.summary(r.companyId))}>{r.company}</Link></Cell>
+              <RowHeader role="gridcell" href={href(routes.company.summary(r.companyId))}>{r.company}</RowHeader>
               <Cell>{r.object}</Cell>
               <Cell>{r.action}</Cell>
               <Cell style={{ minWidth: 0 }}>

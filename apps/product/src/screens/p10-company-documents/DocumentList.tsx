@@ -7,7 +7,7 @@
 import { useCallback, useRef, useState } from 'react';
 import {
   Button, ButtonIcon, Cell, CheckboxItem, ColumnHeader, ContextMenu, DataGrid, Dropzone, FileRow, FileTypeBadge,
-  Icon, Input, Link, MenuDivider, MenuItem, Modal, Row, Text, icons, size, space, zIndex,
+  Icon, Input, MenuDivider, MenuItem, Modal, Row, RowHeader, Text, icons, size, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
@@ -93,9 +93,7 @@ export function DocumentList({ state, params }: ScreenProps) {
       <Cell>{d.name}</Cell>
       <Cell>{d.source}</Cell>
       <Cell numeric>{d.uploaded}</Cell>
-      <Cell>
-        <Link size="s" href={href(d.reference.startsWith('Cap') ? routes.company.capTable(company.id) : routes.company.incomeStatement(company.id))}>{d.reference}</Link>
-      </Cell>
+      <RowHeader role="gridcell" href={href(d.reference.startsWith('Cap') ? routes.company.capTable(company.id) : routes.company.incomeStatement(company.id))}>{d.reference}</RowHeader>
       <Cell>—</Cell>
       <Cell style={{ justifyContent: 'flex-end' }}>
         <ButtonIcon variant="tertiary" size="s" label={`Download ${d.name}`} icon={<Icon size="s" tone="inherit"><icons.CloudDownload /></Icon>} />

@@ -461,6 +461,10 @@ always fills exactly its header's column.
   `footnote`; grouping is `group` (left bar) or `groupStart` / `groupEnd` (rules).
   **Never put a text `Link` in a row's first cell** — pass `href` to the `RowHeader`:
   it navigates and keeps the row-header look.
+  The same goes for a company or reference link anywhere in a table: use a
+  `RowHeader` with `role="gridcell"` outside the first column, and
+  `type="divider"` (with `role="heading"` and `aria-level`) for the shaded band that
+  titles a table.
 - **Both cell models work inside `Row`:** `Cell`, and the grid-pattern cells
   (`RowLabelCell`, `GridValueCell`, `InCellControl`). The row owns the
   background, so `zebra`, hover and `type="total"` work for either. Still pick

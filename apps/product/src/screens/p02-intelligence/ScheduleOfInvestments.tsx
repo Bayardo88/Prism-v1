@@ -4,7 +4,7 @@
  * the company's cap-table currency, with "Show N more companies".
  */
 import { useState } from 'react';
-import { CurrencySelector, Heading, Link, ShowMoreRow, space } from '@scalar/design-system';
+import { CurrencySelector, Heading, RowHeader, ShowMoreRow, space } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
 import { href } from '../../router.js';
@@ -29,9 +29,7 @@ export function ScheduleOfInvestments(_props: ScreenProps) {
           const s = soiFor(c);
           return (
             <section key={c.id} style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
-              <Heading level={3} step="s">
-                <Link href={href(routes.company.capTable(c.id))}>{c.name}</Link>
-              </Heading>
+              <RowHeader type="divider" role="heading" aria-level={3} href={href(routes.company.capTable(c.id))}>{c.name}</RowHeader>
               <div><CurrencySelector>{s.currency.code} ({s.currency.symbol})</CurrencySelector></div>
               <PortfolioGrid
                 label={`${c.name} investments`}
