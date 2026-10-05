@@ -116,6 +116,7 @@ ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 | **[ONBOARDING.md](ONBOARDING.md)** | **New here?** Install, first component, the nine rules, and the two live blockers. Ten minutes. |
 | **[AI-GUIDE.md](AI-GUIDE.md)** | **Start here.** The complete contract: rules, decision tables, component API, anti-patterns. Written to be read by both people and coding agents before building a page. |
 | [CLAUDE.md](CLAUDE.md) | Auto-loaded by agents working *on* this package. Points at AI-GUIDE and lists the non-negotiables. |
+| **[docs/page-template.md](docs/page-template.md)** | **Building a screen?** The base template — navigation, body slot, drawer — and how to use it. Read before writing any page. |
 | [docs/tokens.md](docs/tokens.md) | The full token reference — every colour in Light and Dark, every scale, the type ramp in all three modes. Generated. |
 | [docs/components.md](docs/components.md) | Figma → React traceability. Which Figma component set each export came from, and where any two were merged. |
 | [docs/known-gaps.md](docs/known-gaps.md) | Inherited gaps that are deliberate, with the reason and the workaround. Read before "fixing" one. |

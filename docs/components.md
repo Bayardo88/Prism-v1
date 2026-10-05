@@ -231,6 +231,16 @@ one-off. The `Modal` shell is the reusable part and is new in the code layer.
 from `PrimaryMenu`, `CompanyInfo`, `SecondaryMenu`, `TertiaryMenu` and
 `DataGrid`.
 
+## Page template (components file node 1671:13280)
+
+| Figma | React | File |
+|---|---|---|
+| Page Template · body space used for any component | ＋ `PageTemplate` — the five slots; `children` is the body slot | `template/PageTemplate.tsx` |
+| BODY-SLOT | ＋ `BodySlot` — the placeholder shown when `children` is omitted | `template/PageTemplate.tsx` |
+| Workspace Drawer · docked | `WorkspaceDrawer docked` (tab strip only) | `disclosure/WorkspaceDrawer.tsx` |
+
+The product app wraps it as `shell/PageTemplate.tsx`. Guide: [page-template.md](page-template.md).
+
 ## 20 · Menus & Actions (11)
 
 | Figma | Variants | React | File |

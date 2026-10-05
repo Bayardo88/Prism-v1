@@ -14,6 +14,13 @@ contract is.
 
 ---
 
+**Building a screen? Start from `PageTemplate`** — it owns the navigation, the
+body slot and the docked drawer, and you only supply the content. Read
+[docs/page-template.md](docs/page-template.md) (§6 is the agent rules) before
+writing any page.
+
+---
+
 ## 0. Setup — do this once per application
 
 ```tsx
@@ -389,6 +396,13 @@ The glyph is not the name. Use only where the icon is unambiguous alone.
 
 ### Navigation & chrome
 
+**`PageTemplate`** — `{ navigation?, companyInfo?, subNavigation?, children?, drawer?, fullHeight? }`.
+The base of every screen (Figma `1671:13280`). `children` is the **body slot**; omit
+it and `BodySlot` (a labelled placeholder) shows. In `apps/product` import the
+wrapper from `shell/PageTemplate.js` (`area`, `company`, `section`, `subNav`,
+`dock`, …). Never hand-assemble the chrome, never add outer padding or a scroll
+wrapper inside the slot. Full guide: `docs/page-template.md`.
+
 `Tabs` + `TabItem` · `Breadcrumb` · `Pagination` + `PageItem` · `Stepper` + `Step`
 `PrimaryMenu` + `MainMenuItem` · `SecondaryMenu` + `SecondaryMenuItem` ·
 `TertiaryMenu` + `TertiaryMenuItem` · `CompanyInfo` ·
@@ -632,6 +646,8 @@ Rules:
 |---------|------|
 | `style={{ color: '#0268c1' }}` | `style={{ color: color.text.brand }}` |
 | `style={{ padding: 12 }}` | `style={{ padding: space.m }}` |
+| A screen that assembles `PrimaryMenu` + `CompanyInfo` + `WorkspaceDrawer` itself | `<PageTemplate …>{content}</PageTemplate>` |
+| Shipping the `BodySlot` placeholder, or wrapping the body in extra padding / `max-width` / a scroll box | Real `children`; the slot already scrolls and is inset |
 | `style={{ fontSize: 13 }}` | a `type.style()` role/step, min 12px (`heading.xs` 10px only for data-grid chrome) |
 | `width: space.l` | `width: size.icon.s` (R2) |
 | `background: bg.brand; color: text.primary` | `color: text.onBrand` (R3) |
@@ -649,6 +665,8 @@ Rules:
 ---
 
 ## 9. Before you call it done
+
+- [ ] The screen is built in `PageTemplate` and no `BodySlot` placeholder is left.
 
 ```bash
 npm run verify     # typecheck + token-contract lint

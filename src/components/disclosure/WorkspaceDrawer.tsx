@@ -42,6 +42,12 @@ export interface WorkspaceDrawerProps {
   children?: ReactNode;
   /** Expanded trades page height for drawer height. */
   expanded?: boolean;
+  /**
+   * Docked: the tab strip only, with no content area — the resting state at the
+   * foot of a page (Figma "Workspace Drawer · docked"). Opening a tab swaps it
+   * for the open drawer.
+   */
+  docked?: boolean;
   className?: string;
 }
 
@@ -57,16 +63,17 @@ export interface WorkspaceDrawerProps {
  * Notes, Sheets and Documents are content slots: swap the children for that
  * tab's own view rather than forking the drawer.
  */
-export function WorkspaceDrawer({ tabs, children, expanded, className }: WorkspaceDrawerProps) {
+export function WorkspaceDrawer({ tabs, children, expanded, docked, className }: WorkspaceDrawerProps) {
   return (
     <section
       className={cx('scalar-workspace-drawer', className)}
       data-expanded={expanded ? 'true' : undefined}
+      data-docked={docked ? 'true' : undefined}
     >
       <div className="scalar-workspace-drawer__tabs" role="tablist" aria-label="Workspace">
         {tabs}
       </div>
-      <div className="scalar-workspace-drawer__body">{children}</div>
+      {!docked && <div className="scalar-workspace-drawer__body">{children}</div>}
     </section>
   );
 }

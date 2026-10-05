@@ -69,6 +69,10 @@ before writing code.
 
 ## Step 2A — New page
 
+0. **Build it in `PageTemplate`** (`apps/product/src/shell/PageTemplate.tsx`): your
+   content is its `children` (the body slot). Never assemble the Primary Menu,
+   company header or drawer by hand, and add no outer padding or scroll wrapper
+   in the body. Read `docs/page-template.md` §6 first.
 1. **Pick the nearest existing screen as the base** from the catalog — same
    archetype (grid / form / settings / detail / list), same chrome (firm,
    company or settings). Copy its structure, not its data.

@@ -11,6 +11,12 @@ decision tables for colour / size / type / component, the full API, and an
 anti-pattern list. It applies to code in this repo and to any product UI built
 on it.
 
+## Building a screen
+
+Every screen starts from `PageTemplate` — navigation, a body slot for your
+content, and the docked drawer. Read **[docs/page-template.md](docs/page-template.md)**
+(§6 is the agent rules) before writing one. Never assemble the chrome by hand.
+
 ## Non-negotiables
 
 1. **Token values come from Figma, never from here.** `src/styles/tokens.css` is
