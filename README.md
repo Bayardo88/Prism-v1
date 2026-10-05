@@ -1,6 +1,6 @@
 # Scalar Design System — React layer
 
-The code layer for the Scalar product: **462 design tokens** and **164
+The code layer for the Scalar product: **462 design tokens** and **165
 components**, generated from the v1.1 Figma libraries, with Light/Dark theming
 and a three-mode type ramp.
 
@@ -128,7 +128,7 @@ ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 Nine rules cover most of what goes wrong. The full set (R1–R13) is in
 [AI-GUIDE.md](AI-GUIDE.md).
 
-1. **Never use a `--primitive-*` token.** They have no mode and will not theme.
+1. **Never use a `--primitive-*` token.** They are published but off-limits — use the Semantic tokens only. They have no mode and will not theme.
 2. **`space` is gap and padding. `size` is width and height.** Never cross them.
 3. **Every filled surface uses its `on*` text token.** `text.primary` on a fill
    is a contrast bug.

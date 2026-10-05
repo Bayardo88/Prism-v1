@@ -12,6 +12,7 @@ import {
   SettingRow, NotificationCenter, RowActionToolbar,
   KeyValueRow, VersionHistoryItem, PermissionMatrixRow, RoleSelector, ProfileHeader, FilterBar, DirectoryGroup,
   ProductTile, FirmSwitcherTile, PageTaskHeader, CodeGrid, RichTextToolbar, AppFooter,
+  ValuationInfo, InformationLabel, Selector, ColumnHeader, Cell,
 } from '@scalar/design-system';
 
 const G = (glyph: ReactNode) => <Icon size="s" tone="inherit">{glyph}</Icon>;
@@ -214,6 +215,33 @@ export function Gallery() {
         <CodeGrid masked codes={Array.from({ length: 10 }, () => 'xxxx-xxxx')} actions={<><Button variant="tertiary" size="s">Download codes</Button><Button variant="tertiary" size="s">Print codes</Button></>} />
         <RichTextToolbar active={['bold']} onToggle={() => {}} />
         <div style={{ width: '100%' }}><AppFooter version="v8.12.4" /></div>
+      </Section>
+      <Section title="Property gaps closed · Valuation Info, Header, cell, Information Label, Selector">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-s)' }}>
+          {(['none', 'values', 'dates', 'both'] as const).map((o) => (
+            <ValuationInfo key={o} defaultOpen={o} equityValue="$34,560,000" unrealizedFirmTotal="$48,871,695" marketDate="06/01/2026" version="2026/06/01" />
+          ))}
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-s)' }}>
+          <InformationLabel label="Equity Value" value="$34,560,000" />
+          <InformationLabel label="Equity Value" value="$34,560,000" longValue="Valuation Version - 12/31/2026" />
+          <InformationLabel label="Market" value="06/01/2026" tone="brand" dropdown />
+          <Selector surface="surface" label="Measurement Date" value="01/17/2024" />
+          <Selector surface="surface" label="Measurement Date" value="01/17/2024" dropdown={false} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '232px', gap: 'var(--space-xs)' }}>
+          <ColumnHeader icon={G(<glyphs.Plus />)}>Column Header</ColumnHeader>
+          <ColumnHeader kind="action-button" icon={G(<glyphs.Plus />)}>Column Header</ColumnHeader>
+          <ColumnHeader input icon={G(<glyphs.Plus />)}>Column Header</ColumnHeader>
+          <ColumnHeader label="Projection" icon={G(<glyphs.Plus />)}>Column Header</ColumnHeader>
+          <ColumnHeader mark label="Projection" tooltip="Forecast periods" icon={G(<glyphs.Plus />)}>Column Header</ColumnHeader>
+          <ColumnHeader action icon={G(<glyphs.Plus />)}>Column Header</ColumnHeader>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '200px', gap: 'var(--space-xs)' }}>
+          <Cell numeric trailingIcon="dropdown">$80,000,000</Cell>
+          <Cell numeric trailingIcon="calendar">06/01/2026</Cell>
+          <Cell numeric label="Label" tooltip="Source: cap table" trailingIcon="dropdown" footnote={<span>1</span>}>$80,000,000</Cell>
+        </div>
       </Section>
     </div>
   );

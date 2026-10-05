@@ -92,9 +92,9 @@ Legend: **=** direct mapping · **⊕** several Figma sets merged into one expor
 | Badge | — | = `Badge` | `header/Controls.tsx` |
 | Combo tag | — | = `ComboTag` | `header/Controls.tsx` |
 | Currency Selector | — | = `CurrencySelector` | `header/Controls.tsx` |
-| Selector | — | = `Selector` | `header/Controls.tsx` |
-| Information Label | — (Figma also has `Has drop down`, `Long Value`, `L1`–`L3`; not modelled — see known-gaps 11) | = `InformationLabel` | `header/Controls.tsx` |
-| Valuation Info | Open (None · Values · Dates · Both) | **not built** — see known-gaps 11 | — |
+| Selector | `Drop-Down`, `Picker label` | = `Selector` (`dropdown`; omit `label` to hide it) | `header/Controls.tsx` |
+| Information Label | `Has drop down`, `Long Value`, `L1`–`L3` | = `InformationLabel` (`dropdown`, `longValue`; omit `label` / `value` to hide) | `header/Controls.tsx` |
+| Valuation Info | Open (None · Values · Dates · Both) | = `ValuationInfo` (`open` / `defaultOpen` / `onOpenChange`) | `header/ValuationInfo.tsx` |
 | Valuation | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
 | Workboard | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
 | Tool-switch | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
@@ -125,8 +125,8 @@ control in three pieces; exactly one side is always selected, so a single
 
 | Figma | Variants | React | File |
 |---|---|---|---|
-| cell | State × Type + 5 booleans (145) | ≈ `Cell` — the `Tooltip` and `Label` booleans and the icon-type swap are not modelled (known-gaps 11) | `table/Cell.tsx` |
-| Header | Style + 6 booleans (11) | ≈ `ColumnHeader` — `Mark`, `Tooltip`, `Input`, `Action` and `Style = Action Button` are not modelled (known-gaps 11) (＋ `grow` / `width` / `span` column sizing; ＋ `tone="subtle"` light header band) | `table/ColumnHeader.tsx` |
+| cell | State × Type + 5 booleans (145) | = `Cell` (＋ `label`, `tooltip`, `trailingIcon` for the Label / Tooltip / Icon Type properties) | `table/Cell.tsx` |
+| Header | Style + 6 booleans (11) | = `ColumnHeader` (`kind`, `mark`, `label`, `tooltip`, `icon`, `input`, `action`; ＋ `grow` / `width` / `span` column sizing; ＋ `tone="subtle"` light header band) | `table/ColumnHeader.tsx` |
 | Row-reading | 27 | ⊕ `Row` | `table/Row.tsx` |
 | Row-input | 37 | ⊕ `Row` | `table/Row.tsx` |
 | Content_Cell | Content | = `ContentCell` | `table/ContentCell.tsx` |

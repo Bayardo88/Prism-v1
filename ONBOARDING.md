@@ -1,7 +1,7 @@
 # Scalar Design System — start here
 
 The design tokens and React components for the Scalar product, generated from
-the v1.1 Figma libraries. **462 tokens · 164 components · Light + Dark · three
+the v1.1 Figma libraries. **462 tokens · 165 components · Light + Dark · three
 type modes.**
 
 Pages are built *out of* this. They never re-specify colour, spacing or type.
@@ -89,7 +89,7 @@ re-themes and its variants can be swapped.
 
 The full set (R1–R13) is in `AI-GUIDE.md`.
 
-1. **Never use a `--primitive-*` token.** No mode, will not theme.
+1. **Never use a `--primitive-*` token.** Published but off-limits — use the Semantic tokens only. No mode, will not theme.
 2. **`space` is gap and padding. `size` is width and height.** Never cross them.
 3. **Every filled surface uses its `on*` text token.** `text.primary` on a fill
    is a contrast bug.
@@ -120,7 +120,7 @@ build.
 
 Both are recorded in `docs/known-gaps.md`.
 
-**`cell` and `Header` are UNPUBLISHED in Figma.** They are the atoms of the data
+**`cell` and `Header` are still UNPUBLISHED in Figma** (checked 2026-10-05, after the rest of the library was published). They are the atoms of the data
 grid. Until they are published, a designer cannot place a data cell or column
 header from the library, and a generated data-sheet screen cannot have its grid
 filled in Figma. **Code is unaffected** — `Cell`, `ColumnHeader` and `Row` work

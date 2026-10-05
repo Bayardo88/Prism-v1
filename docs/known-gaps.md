@@ -93,21 +93,21 @@ uses it.
 
 ---
 
-## 6. Figma counts drift slightly from the published contract text
+## 6. Figma counts drift from the contract text — resolved
 
-The `TOKEN-CONTRACT.txt` frame in the tokens file states 461 variables across 9
-collections. The live library, read directly, has slightly more:
+The `TOKEN-CONTRACT.txt` frame in the tokens file used to lag the live library
+(461 variables; `Semantic: Color` 144, `Radius` 7, `Sizing` 15). It was rewritten
+on 2026-10-05 and now states 511 variables across 9 collections, matching the
+live values — `Semantic: Color` 180, `Radius` 8, `Sizing` 22 — and this package.
 
-| Collection | Contract text | Live |
-|---|---|---|
-| `Semantic: Color` | 144 | **145** (`Chart/Total` was added) |
-| `Semantic: Radius` | 7 | **8** (`2XS` at 2px was added) |
-| `Semantic: Sizing` | 15 | **17** (`Row/Compact`, `Target/Dense`) |
+The library itself is **published**: on 2026-10-05 the components file could see
+all 9 collections through the team library, with 180 / 22 / 8 semantic colour,
+sizing and radius variables, including `Chart/Total`, `Target/Dense`,
+`Radius/2XS` and the data-grid, File and Product families. Components therefore
+no longer need to wait on a republish to bind to them.
 
-**This package is generated from the live library**, so it carries the newer
-values. The contract text is stale, not wrong in kind. Notably, `Chart/Total`
-now exists, which resolves the contract's own "there is no neutral chart token"
-gap — `WaterfallChart` uses it for total bars.
+If the contract text and the live library disagree again, the live library wins:
+re-extract and regenerate rather than hand-editing the generated files.
 
 ---
 
@@ -125,7 +125,7 @@ confirms it:
 | `Header` | 11 | **UNPUBLISHED** |
 | every other component sampled, across 4 pages | — | `CURRENT` |
 
-Re-checked 2026-10-05: both are **still unpublished**.
+Re-checked 2026-10-05, **after the library was published**: the other component sets sampled (including the new pages 20–26 and `Valuation Info`) read `CURRENT`, but `cell` and `Header` are **still unpublished**. Re-run the check before assuming otherwise.
 
 These two are the atoms of the data grid — the core Scalar screen. While they
 are unpublished, a designer cannot place a data cell or a column header from the
@@ -185,25 +185,40 @@ tokens file.
 
 ---
 
-## 11. Figma properties with no React counterpart
+## 11. Figma properties with no React counterpart — closed in code
 
-**Severity: low — nothing is broken, but a designer can specify these and the
-code cannot express them.** Found by diffing every Figma component's variant
-properties against the React props on 2026-10-05.
+**Resolved.** Found on 2026-10-05 by diffing every Figma component's variant
+properties against the React props, and closed in the same pass. Kept here so
+the mapping is traceable.
 
-| Figma component | Property in Figma | In code |
+| Figma component | Figma property | React |
 |---|---|---|
-| `Valuation Info` (09 · Header & Menus, 4 variants) | `Open` = None · Values · Dates · Both | **No component at all** |
-| `Header` | `Mark`, `Tooltip`, `Input`, `Action`, `Style = Action Button` | `ColumnHeader` has `numeric`, `sort`, `actions`, `grow`, `width`, `span` |
-| `cell` | `Tooltip`, `Label`, icon-type swap | `Cell` has `footnote` and `icon` only |
-| `Information Label` | `Has drop down`, `Long Value`, `L1` / `L2` / `L3` | `label`, `value`, `marker`, `tone` |
-| `Selector` | `Drop-Down`, `Picker label` toggles | Not confirmed — check before relying on it |
+| `Valuation Info` | `Open` = None · Values · Dates · Both | `ValuationInfo` — `open` / `defaultOpen` / `onOpenChange` (`'none' \| 'values' \| 'dates' \| 'both'`) |
+| `Header` | `Style = Action Button` | `ColumnHeader kind="action-button"` |
+| | `Mark` | `mark` — brand rule across the top edge |
+| | `Label` | `label` — tag beside the title |
+| | `Tooltip` | `tooltip` — corner indicator plus a hover / focus tooltip |
+| | `Icon` | `icon` — trailing 12px glyph |
+| | `Input` | `input` — trailing glyph takes the accent tint |
+| | `Action` | `action` — accent rule on the top and left edges |
+| `cell` | `Label` | `label` |
+| | `Tooltip` | `tooltip` |
+| | `Icon Type` (Dropdown · Calendar) | `trailingIcon="dropdown" \| "calendar"`, or any glyph |
+| `Information Label` | `L1` / `L2` / `L3` | `label`, `value`, `longValue` — each hides when omitted |
+| | `Has drop down` | `dropdown` |
+| `Selector` | `Drop-Down` | `dropdown` (default true) |
+| | `Picker label` | `label` — omit it to hide the label |
 
-Interaction states (Hover, Focus, Pressed) are deliberately not listed: they are
-CSS pseudo-classes, not props.
+**Judgement calls — check these against the design.** Figma records `Input` and
+`Action` on `Header` only as booleans with no description, so their rendering
+here is read from the variant screenshots, not from a spec: `input` tints the
+trailing glyph, `action` draws the accent rule on the top and left edges, and
+`mark` / `tooltip` use `Stroke/Focus` for the rule and the corner indicator.
+If the designers meant something else, change the CSS in the "Closing the Figma
+property gaps" block of `src/styles/components.css`, not the prop names.
 
-**Real fix:** build `ValuationInfo` and extend the four components above, then
-update the traceability table in `docs/components.md`.
+Interaction states (Hover, Focus, Pressed) are deliberately not props: they are
+CSS pseudo-classes.
 
 ---
 

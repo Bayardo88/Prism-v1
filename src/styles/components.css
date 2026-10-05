@@ -2640,3 +2640,36 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
 
 /* Row, selected — brand-subtle ground with a brand leading edge. */
 .scalar-row.scalar-row--selected { background: var(--color-bg-brand-subtle); box-shadow: inset 3px 0 0 var(--color-stroke-brand); }
+
+/* --- Closing the Figma property gaps (known-gaps 11) ------------------------ */
+
+/* Header — Style, Mark, Label, Tooltip, Icon, Input, Action. */
+.scalar-column-header { position: relative; box-sizing: border-box; }
+.scalar-column-header__tag { padding: 0 var(--space-xs); border-radius: var(--radius-xs); background: var(--color-bg-brand); color: var(--color-text-on-brand); font-weight: var(--font-weight-regular); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); }
+.scalar-column-header__icon { color: var(--color-icon-on-brand); }
+.scalar-column-header--mark { border-top: 3px solid var(--color-stroke-focus); }
+.scalar-column-header--tooltip::after { content: ''; position: absolute; top: 0; right: 0; width: var(--size-icon-xs); height: var(--size-icon-xs); background: var(--color-stroke-focus); clip-path: polygon(0 0, 100% 0, 100% 100%); pointer-events: none; }
+.scalar-column-header--input .scalar-column-header__icon { color: var(--color-icon-brand); }
+.scalar-column-header--action { box-shadow: inset 3px 3px 0 var(--color-stroke-focus); }
+.scalar-column-header--action-button { background: var(--color-bg-surface); color: var(--color-text-primary); }
+.scalar-column-header--action-button .scalar-column-header__icon { color: var(--color-icon-primary); }
+
+/* Cell — Label, Tooltip, trailing Icon Type. */
+.scalar-cell { position: relative; }
+.scalar-cell__tag { padding: 0 var(--space-xs); border-radius: var(--radius-xs); background: var(--color-bg-subtle); color: var(--color-text-tertiary); font-weight: var(--font-weight-regular); white-space: nowrap; }
+.scalar-cell__trailing { flex: none; margin-left: auto; }
+.scalar-cell--tooltip::after { content: ''; position: absolute; top: 0; right: 0; width: var(--space-s); height: var(--space-s); background: var(--color-stroke-focus); clip-path: polygon(0 0, 100% 0, 100% 100%); pointer-events: none; }
+
+/* Information Label — Long Value and Has drop down. */
+.scalar-information-label__long { color: var(--color-text-secondary); }
+.scalar-information-label__caret { color: var(--color-icon-secondary); flex: none; }
+
+/* Valuation Info — two 24px toggles on Background/Subtle. */
+.scalar-valuation-info { display: inline-flex; align-items: center; gap: var(--space-xs); padding: var(--space-2xs); background: var(--color-bg-subtle); border-radius: var(--radius-xs); }
+.scalar-valuation-info__group { display: inline-flex; align-items: center; gap: var(--space-2xs); }
+.scalar-valuation-info__toggle { display: inline-flex; align-items: center; justify-content: center; min-width: var(--size-target-dense); min-height: var(--size-target-dense); padding: 0; border: 0; border-radius: var(--radius-xs); background: transparent; cursor: pointer; }
+.scalar-valuation-info__toggle:hover { background: var(--color-bg-surface); }
+.scalar-valuation-info__toggle[aria-expanded='true'] { background: var(--color-bg-surface); }
+.scalar-valuation-info__picker { padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: var(--radius-xs); }
+.scalar-valuation-info__toggle:focus-visible,
+.scalar-valuation-info__picker:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 1px; }
