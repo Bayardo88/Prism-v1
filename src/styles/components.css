@@ -1267,30 +1267,34 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-primary-menu__more:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 .scalar-primary-menu__logo { display: block; width: 34px; height: var(--size-icon-xl); border-radius: var(--radius-xs); object-fit: cover; }
 
+/* Main-Menu-horizontal-item — Figma 374:432 / 1671:13374.
+ * Default: Text/On Brand Inactive. Hover: Text/On Brand. Active: Text/On Brand
+ * with a 1px Stroke/On Brand rule under it, inside the item. Padding Spacing/S,
+ * gap Spacing/2XS, no corner radius, type Heading/S Semi Bold. No fill in any
+ * state — a brand-subtle ground on the brand bar puts Text/Brand at ~1.1:1 (R3). */
 .scalar-main-menu-item {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: var(--space-2xs);
   padding: var(--space-s);
   border: 0;
-  border-radius: var(--radius-xs);
+  border-radius: var(--radius-none);
   background: none;
   color: var(--color-text-on-brand-inactive);
   font-family: var(--font-family-default);
-  font-size: var(--font-size-label-s);
-  line-height: var(--line-height-label-s);
+  font-size: var(--font-size-heading-s);
+  line-height: var(--line-height-heading-s);
+  letter-spacing: var(--letter-spacing-heading-s);
   font-weight: var(--font-weight-semi-bold);
   cursor: pointer;
   white-space: nowrap;
   text-decoration: none;
 }
 .scalar-main-menu-item:hover { color: var(--color-text-on-brand); }
-/* The active item is marked by an underline, not a light chip — a brand-subtle
- * ground on the brand bar puts Text/Brand at ~1.1:1 (R3). */
 .scalar-main-menu-item[aria-current='page'],
 .scalar-main-menu-item[aria-expanded='true'] {
   color: var(--color-text-on-brand);
-  box-shadow: inset 0 -2px 0 var(--color-stroke-on-brand);
+  box-shadow: inset 0 -1px 0 var(--color-stroke-on-brand);
 }
 .scalar-main-menu-item:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 
