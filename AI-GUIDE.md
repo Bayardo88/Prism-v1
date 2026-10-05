@@ -9,7 +9,7 @@ contract is.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 462 design tokens · 164 components · Light + Dark · 3 type modes.
+- **Scale:** 462 design tokens · 165 components · Light + Dark · 3 type modes.
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---
@@ -394,7 +394,7 @@ The glyph is not the name. Use only where the icon is unambiguous alone.
 `TertiaryMenu` + `TertiaryMenuItem` · `CompanyInfo` ·
 `MenuPanel` + `SubmenuItem` + `MenuGroupLabel` · `CompanyDropdownPanel` · `SectionSubMenu` ·
 `CompanyDropdown` · `FilterDropdown` · `SearchBar` · `Notification` · `Badge` ·
-`ComboTag` · `CurrencySelector` · `Selector` · `InformationLabel` · `ToolSwitch` · `AITool`
+`ComboTag` · `CurrencySelector` · `Selector` · `InformationLabel` · `ValuationInfo` · `ToolSwitch` · `AITool`
 
 - **Three navigation tiers is the limit.** A fourth level belongs in the page
   body, not the chrome.
@@ -406,7 +406,7 @@ The glyph is not the name. Use only where the icon is unambiguous alone.
   `rowsPerPage` + `onRowsPerPageChange` (and optionally `rowsPerPageOptions`,
   default 10 · 25 · 50 · 100) to render the labelled "Rows per page" Select at
   the start of the bar; reset `page` to 1 when it changes.
-- **`Selector`** — `{ label?, value` **req**`, surface?: 'brand' | 'surface', expanded?, disabled?, onClick? }`.
+- **`Selector`** — `{ label?, value` **req**`, surface?: 'brand' | 'surface', expanded?, disabled?, icon?, dropdown?, onClick? }`.
   A trigger only; the screen owns its menu (render a `SelectMenu`).
   `surface="brand"` (default) is for the navy Primary Menu bar and uses the On
   Brand tokens; `surface="surface"` is for a light page or company header
@@ -444,8 +444,10 @@ always fills exactly its header's column.
   background, so `zebra`, hover and `type="total"` work for either. Still pick
   one model per grid (known gap 8).
 - `Cell` and every grid-pattern cell take `span`, `style` and HTML attributes.
+- `Cell` also takes `label`, `tooltip` and `trailingIcon` (`'dropdown' | 'calendar' | glyph`).
+- `InformationLabel` takes `longValue` and `dropdown`; `ValuationInfo` takes `open` / `defaultOpen` / `onOpenChange` plus `equityValue`, `unrealizedFirmTotal`, `marketDate`, `version`.
 
-**`ColumnHeader`** — `{ numeric?, sort?, onSortChange?, actions?, grow?, width?, span?, tone?: 'brand' | 'subtle' }`.
+**`ColumnHeader`** — `{ numeric?, sort?, onSortChange?, actions?, grow?, width?, span?, tone?: 'brand' | 'subtle', kind?: 'default' | 'action-button', mark?, label?, tooltip?, icon?, input?, action? }`.
 `brand` (default) is the navy grid chrome. `subtle` is the light header band —
 `bg.subtle`, `text.secondary`, a `stroke.strong` bottom rule — for a table inside
 a card or modal. Use it instead of restyling a header by hand; one tone per grid.
@@ -686,7 +688,5 @@ bite you:
    (`icons`, resolved); Figma still uses the `SDS_Main icons` library. Match by
    meaning, never by shape.
 5. **`Gradient/AI`** has no Dark-mode counterpart. Verify on `bg.page` in Dark.
-6. **Some Figma component properties have no React prop** — `Valuation Info` has
-   no component, and `Header`, `cell` and `Information Label` carry properties the
-   code does not model. See `docs/known-gaps.md` §11 before assuming a Figma
-   option exists in code.
+6. **`Header`'s `Input` and `Action` properties** have no spec in Figma, so their
+   rendering is a reading of the variant screenshots. See `docs/known-gaps.md` §11.

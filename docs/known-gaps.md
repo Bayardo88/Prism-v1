@@ -185,25 +185,40 @@ tokens file.
 
 ---
 
-## 11. Figma properties with no React counterpart
+## 11. Figma properties with no React counterpart — closed in code
 
-**Severity: low — nothing is broken, but a designer can specify these and the
-code cannot express them.** Found by diffing every Figma component's variant
-properties against the React props on 2026-10-05.
+**Resolved.** Found on 2026-10-05 by diffing every Figma component's variant
+properties against the React props, and closed in the same pass. Kept here so
+the mapping is traceable.
 
-| Figma component | Property in Figma | In code |
+| Figma component | Figma property | React |
 |---|---|---|
-| `Valuation Info` (09 · Header & Menus, 4 variants) | `Open` = None · Values · Dates · Both | **No component at all** |
-| `Header` | `Mark`, `Tooltip`, `Input`, `Action`, `Style = Action Button` | `ColumnHeader` has `numeric`, `sort`, `actions`, `grow`, `width`, `span` |
-| `cell` | `Tooltip`, `Label`, icon-type swap | `Cell` has `footnote` and `icon` only |
-| `Information Label` | `Has drop down`, `Long Value`, `L1` / `L2` / `L3` | `label`, `value`, `marker`, `tone` |
-| `Selector` | `Drop-Down`, `Picker label` toggles | Not confirmed — check before relying on it |
+| `Valuation Info` | `Open` = None · Values · Dates · Both | `ValuationInfo` — `open` / `defaultOpen` / `onOpenChange` (`'none' \| 'values' \| 'dates' \| 'both'`) |
+| `Header` | `Style = Action Button` | `ColumnHeader kind="action-button"` |
+| | `Mark` | `mark` — brand rule across the top edge |
+| | `Label` | `label` — tag beside the title |
+| | `Tooltip` | `tooltip` — corner indicator plus a hover / focus tooltip |
+| | `Icon` | `icon` — trailing 12px glyph |
+| | `Input` | `input` — trailing glyph takes the accent tint |
+| | `Action` | `action` — accent rule on the top and left edges |
+| `cell` | `Label` | `label` |
+| | `Tooltip` | `tooltip` |
+| | `Icon Type` (Dropdown · Calendar) | `trailingIcon="dropdown" \| "calendar"`, or any glyph |
+| `Information Label` | `L1` / `L2` / `L3` | `label`, `value`, `longValue` — each hides when omitted |
+| | `Has drop down` | `dropdown` |
+| `Selector` | `Drop-Down` | `dropdown` (default true) |
+| | `Picker label` | `label` — omit it to hide the label |
 
-Interaction states (Hover, Focus, Pressed) are deliberately not listed: they are
-CSS pseudo-classes, not props.
+**Judgement calls — check these against the design.** Figma records `Input` and
+`Action` on `Header` only as booleans with no description, so their rendering
+here is read from the variant screenshots, not from a spec: `input` tints the
+trailing glyph, `action` draws the accent rule on the top and left edges, and
+`mark` / `tooltip` use `Stroke/Focus` for the rule and the corner indicator.
+If the designers meant something else, change the CSS in the "Closing the Figma
+property gaps" block of `src/styles/components.css`, not the prop names.
 
-**Real fix:** build `ValuationInfo` and extend the four components above, then
-update the traceability table in `docs/components.md`.
+Interaction states (Hover, Focus, Pressed) are deliberately not props: they are
+CSS pseudo-classes.
 
 ---
 

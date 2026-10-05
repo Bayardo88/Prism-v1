@@ -210,6 +210,8 @@ export interface SelectorProps {
   disabled?: boolean;
   /** The trailing glyph: a dropdown caret (default) or a calendar for date pickers. */
   icon?: 'caret' | 'calendar';
+  /** Figma `Drop-Down`: show the trailing glyph. Default true; false for a read-only value. */
+  dropdown?: boolean;
   onClick?: () => void;
   className?: string;
 }
@@ -218,7 +220,7 @@ export interface SelectorProps {
  * Selector — a compact labelled value picker ("Date  Most Recent (06/30/2026) ▾").
  * The trigger only: the screen owns the menu it opens.
  */
-export function Selector({ label, value, surface = 'brand', expanded, disabled, icon = 'caret', onClick, className }: SelectorProps) {
+export function Selector({ label, value, surface = 'brand', expanded, disabled, icon = 'caret', dropdown = true, onClick, className }: SelectorProps) {
   return (
     <button
       type="button"
@@ -230,9 +232,11 @@ export function Selector({ label, value, surface = 'brand', expanded, disabled, 
     >
       {label && <span className="scalar-selector__label">{label}</span>}
       <span className="scalar-selector__value">{value}</span>
-      <Icon size="s" tone="inherit" className={cx('scalar-selector__chevron', expanded && icon === 'caret' && 'scalar-rotate-180')}>
-        {icon === 'calendar' ? <CalendarMonth /> : <ArrowDropDown />}
-      </Icon>
+      {dropdown && (
+        <Icon size="s" tone="inherit" className={cx('scalar-selector__chevron', expanded && icon === 'caret' && 'scalar-rotate-180')}>
+          {icon === 'calendar' ? <CalendarMonth /> : <ArrowDropDown />}
+        </Icon>
+      )}
     </button>
   );
 }
@@ -240,8 +244,14 @@ export function Selector({ label, value, surface = 'brand', expanded, disabled, 
 /* --- Information label ------------------------------------------------------ */
 
 export interface InformationLabelProps {
-  label: ReactNode;
-  value: ReactNode;
+  /** Figma `L1` / `Label`. Omit to hide it. */
+  label?: ReactNode;
+  /** Figma `L2` / `Amount`. Omit to hide it. */
+  value?: ReactNode;
+  /** Figma `L3` / `Long Value`: a longer third text, e.g. "Valuation Version - 12/31/2026". Omit to hide it. */
+  longValue?: ReactNode;
+  /** Figma `Has drop down`: a trailing caret, for a value the user can change. The screen owns the menu. */
+  dropdown?: boolean;
   /** A status marker. It reinforces the words; it never replaces them (R8). */
   marker?: ReactNode;
   /** `positive` (default) for amounts; `brand` for a value the user can pick. */
@@ -250,12 +260,20 @@ export interface InformationLabelProps {
 }
 
 /** Information Label — a bordered label and value with an inline status marker. */
-export function InformationLabel({ label, value, marker, tone = 'positive', className }: InformationLabelProps) {
+export function InformationLabel({ label, value, longValue, dropdown, marker, tone = 'positive', className }: InformationLabelProps) {
   return (
     <span className={cx('scalar-information-label', className)}>
-      <span className="scalar-information-label__label">{label}</span>
-      <span className={cx('scalar-information-label__value', tone === 'brand' && 'scalar-information-label__value--brand')}>{value}</span>
+      {label != null && <span className="scalar-information-label__label">{label}</span>}
+      {value != null && (
+        <span className={cx('scalar-information-label__value', tone === 'brand' && 'scalar-information-label__value--brand')}>{value}</span>
+      )}
+      {longValue != null && <span className="scalar-information-label__long">{longValue}</span>}
       {marker}
+      {dropdown && (
+        <Icon size="s" tone="inherit" className="scalar-information-label__caret">
+          <ArrowDropDown />
+        </Icon>
+      )}
     </span>
   );
 }
