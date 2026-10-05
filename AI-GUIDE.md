@@ -9,7 +9,7 @@ contract is.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 431 design tokens · 88 components · Light + Dark · 3 type modes.
+- **Scale:** 462 design tokens · 164 components · Light + Dark · 3 type modes.
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---
@@ -91,6 +91,10 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | A destructive action's fill | `color.bg.negative` + `text.onNegative` | brand recoloured by hand |
 | An **unread** indicator dot | `color.bg.unread` | `bg.negative` — unread is not an error |
 | A **group band** row in a data grid (VIP Fund, Holding Co.) | `color.bg.groupHeader` + `text.onGroupHeader` | `bg.onBrand` — it inverts to pale blue in Dark |
+| **Alternate-row** striping in a dense data grid | `color.bg.rowStripe` | `bg.subtle` — it is not the grid's striping token |
+| The structural rule in a striped grid (under the header, above totals) | `color.stroke.gridRule` | `stroke.default` |
+| The **row-label** column of a grid (line items, subtotals, totals) | `color.text.rowLabel` | `text.primary` |
+| A grid **table title**, column-group label or single-row column header | `color.text.gridHeader` | `text.primary` |
 | A **file type** badge (PDF, DOCX, XLSX…) | `color.file.<kind>.background` + `.text` | `bg.negative` for a PDF — a format is not a status |
 | A **product** tile or mark (Intelligence, Valuations, Waterfalls, Documents) | `color.product.<key>.background` + `.icon` | status tints, or the AI family for Waterfalls |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
@@ -139,6 +143,8 @@ Two scales that must never be crossed (R2).
 | `size.iconWell.m / l` | 40 · 56 | a container holding one glyph (Product Tile mark, Dropzone well) — not `size.avatar` |
 | `size.progressRing.m` | 48 | Progress Ring diameter |
 | `size.row.compact` | 26px | data-grid row min-height |
+| `size.row.header` | 40px | data-grid header row height |
+| `size.divider.pinned` | 4px | the divider before a pinned Total column (Grid Column Divider, Type = Pinned) |
 | `size.target.minimum` | **44px** | the tap target floor |
 | `size.target.dense` | 24px | documented exception: dense grid only |
 
@@ -680,3 +686,7 @@ bite you:
    (`icons`, resolved); Figma still uses the `SDS_Main icons` library. Match by
    meaning, never by shape.
 5. **`Gradient/AI`** has no Dark-mode counterpart. Verify on `bg.page` in Dark.
+6. **Some Figma component properties have no React prop** — `Valuation Info` has
+   no component, and `Header`, `cell` and `Information Label` carry properties the
+   code does not model. See `docs/known-gaps.md` §11 before assuming a Figma
+   option exists in code.

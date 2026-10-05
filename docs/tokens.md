@@ -5,9 +5,9 @@
 > `anrnTIJKgu27zV224h7vON (Scalar_Design_System-v1.1)`.
 > **Do not hand-edit.** Run `npm run gen:tokens && node scripts/gen-docs.mjs`.
 
-- **176** semantic colour tokens (Light + Dark)
+- **180** semantic colour tokens (Light + Dark)
 - **142** primitive colour steps (reference only)
-- **58** scale, elevation and motion tokens
+- **60** scale, elevation and motion tokens
 - **80** typography tokens × 3 viewport modes
 
 ---
@@ -28,6 +28,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-text-brand-pressed` | `#013e73` | `#cde5fa` |
 | `--color-text-disabled` | `#94a3b8` | `#475569` |
 | `--color-text-editable` | `#0268c1` | `#68b1f1` |
+| `--color-text-grid-header` | `#01294c` | `#cde5fa` |
 | `--color-text-inverse` | `#f8fafc` | `#0f172a` |
 | `--color-text-link` | `#2a3ef4` | `#9ea7fa` |
 | `--color-text-link-hover` | `#0a1cc2` | `#ced3fd` |
@@ -49,6 +50,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-text-positive-hover` | `#006012` | `#7ed6a5` |
 | `--color-text-positive-pressed` | `#00420f` | `#bbe8ce` |
 | `--color-text-primary` | `#0f172a` | `#f8fafc` |
+| `--color-text-row-label` | `#013e73` | `#9acbf6` |
 | `--color-text-secondary` | `#1e293b` | `#e3e8f0` |
 | `--color-text-sourced` | `#007e17` | `#31c37b` |
 | `--color-text-tertiary` | `#475569` | `#cbd5e1` |
@@ -79,6 +81,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-bg-positive-hover` | `#006012` | `#31c37b` |
 | `--color-bg-positive-pressed` | `#00420f` | `#7ed6a5` |
 | `--color-bg-positive-subtle` | `#e0f5e9` | `#002409` |
+| `--color-bg-row-stripe` | `#f8fafc` | `#334155` |
 | `--color-bg-subtle` | `#f1f5f9` | `#1e293b` |
 | `--color-bg-surface` | `#ffffff` | `#1e293b` |
 | `--color-bg-surface-raised` | `#ffffff` | `#334155` |
@@ -103,6 +106,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-stroke-disabled` | `#e3e8f0` | `#334155` |
 | `--color-stroke-divider` | `#e3e8f0` | `#334155` |
 | `--color-stroke-focus` | `#037de8` | `#68b1f1` |
+| `--color-stroke-grid-rule` | `#94a3b8` | `#64748b` |
 | `--color-stroke-negative` | `#cb0000` | `#ff2f3d` |
 | `--color-stroke-negative-hover` | `#9c0000` | `#ff686e` |
 | `--color-stroke-negative-pressed` | `#6c0003` | `#ff999c` |
@@ -307,6 +311,8 @@ One tint + icon colour per Scalar product (Product Tile). Identity, not status; 
 | `--size-avatar-l` | `56px` |
 | `--size-avatar-xl` | `80px` |
 | `--size-row-compact` | `26px` |
+| `--size-row-header` | `40px` |
+| `--size-divider-pinned` | `4px` |
 | `--size-icon-well-m` | `40px` |
 | `--size-icon-well-l` | `56px` |
 | `--size-progress-ring-m` | `48px` |

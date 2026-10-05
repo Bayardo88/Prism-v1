@@ -2,7 +2,7 @@
  * Source of truth: src/styles/tokens.css (extracted from Figma v1.1).
  */
 
-/** Every semantic colour token in the system. 176 tokens. */
+/** Every semantic colour token in the system. 180 tokens. */
 export type ColorToken =
   | '--color-bg-ai'
   | '--color-bg-ai-subtle'
@@ -23,6 +23,7 @@ export type ColorToken =
   | '--color-bg-positive-hover'
   | '--color-bg-positive-pressed'
   | '--color-bg-positive-subtle'
+  | '--color-bg-row-stripe'
   | '--color-bg-subtle'
   | '--color-bg-surface'
   | '--color-bg-surface-raised'
@@ -132,6 +133,7 @@ export type ColorToken =
   | '--color-stroke-disabled'
   | '--color-stroke-divider'
   | '--color-stroke-focus'
+  | '--color-stroke-grid-rule'
   | '--color-stroke-negative'
   | '--color-stroke-negative-hover'
   | '--color-stroke-negative-pressed'
@@ -150,6 +152,7 @@ export type ColorToken =
   | '--color-text-brand-pressed'
   | '--color-text-disabled'
   | '--color-text-editable'
+  | '--color-text-grid-header'
   | '--color-text-inverse'
   | '--color-text-link'
   | '--color-text-link-hover'
@@ -171,6 +174,7 @@ export type ColorToken =
   | '--color-text-positive-hover'
   | '--color-text-positive-pressed'
   | '--color-text-primary'
+  | '--color-text-row-label'
   | '--color-text-secondary'
   | '--color-text-sourced'
   | '--color-text-tertiary'
@@ -212,6 +216,7 @@ export type ScaleToken =
   | '--size-control-l'
   | '--size-control-m'
   | '--size-control-s'
+  | '--size-divider-pinned'
   | '--size-icon-l'
   | '--size-icon-m'
   | '--size-icon-s'
@@ -221,6 +226,7 @@ export type ScaleToken =
   | '--size-icon-xs'
   | '--size-progress-ring-m'
   | '--size-row-compact'
+  | '--size-row-header'
   | '--size-target-comfortable'
   | '--size-target-dense'
   | '--size-target-minimum'
@@ -579,6 +585,14 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
       "light": "#ffffff",
       "dark": "#ffffff"
     },
+    "--color-text-row-label": {
+      "light": "#013e73",
+      "dark": "#9acbf6"
+    },
+    "--color-text-grid-header": {
+      "light": "#01294c",
+      "dark": "#cde5fa"
+    },
     "--color-text-on-brand-muted": {
       "light": "#94a3b8",
       "dark": "#475569"
@@ -707,6 +721,10 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
       "light": "#01294c",
       "dark": "#013e73"
     },
+    "--color-bg-row-stripe": {
+      "light": "#f8fafc",
+      "dark": "#334155"
+    },
     "--color-bg-ai": {
       "light": "#a614ff",
       "dark": "#c668ff"
@@ -738,6 +756,10 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-stroke-focus": {
       "light": "#037de8",
       "dark": "#68b1f1"
+    },
+    "--color-stroke-grid-rule": {
+      "light": "#94a3b8",
+      "dark": "#64748b"
     },
     "--color-stroke-disabled": {
       "light": "#e3e8f0",
@@ -1216,6 +1238,8 @@ export const scaleValues: Record<ScaleToken, string> =
     "--size-avatar-l": "56px",
     "--size-avatar-xl": "80px",
     "--size-row-compact": "26px",
+    "--size-row-header": "40px",
+    "--size-divider-pinned": "4px",
     "--size-icon-well-m": "40px",
     "--size-icon-well-l": "56px",
     "--size-progress-ring-m": "48px",

@@ -205,6 +205,8 @@
   --color-text-on-brand: #ffffff;
   --color-text-on-brand-subtle: #f1f5f9;
   --color-text-on-group-header: #ffffff;
+  --color-text-row-label: #013e73;
+  --color-text-grid-header: #01294c;
   --color-text-on-brand-muted: #94a3b8;
   --color-text-on-brand-inactive: #9acbf6;
   --color-text-on-positive: #ffffff;
@@ -239,6 +241,7 @@
   --color-bg-negative-subtle: #ffe6e7;
   --color-bg-unread: #ff2f3d;
   --color-bg-group-header: #01294c;
+  --color-bg-row-stripe: #f8fafc;
   --color-bg-ai: #a614ff;
   --color-bg-ai-subtle: #fbf4ff;
 
@@ -249,6 +252,7 @@
   --color-stroke-strong: #475569;
   --color-stroke-control: #64748b;
   --color-stroke-focus: #037de8;
+  --color-stroke-grid-rule: #94a3b8;
   --color-stroke-disabled: #e3e8f0;
   --color-stroke-brand: #0268c1;
   --color-stroke-brand-hover: #02539a;
@@ -416,6 +420,8 @@
   --color-text-on-brand: #0f172a;
   --color-text-on-brand-subtle: #1e293b;
   --color-text-on-group-header: #ffffff;
+  --color-text-row-label: #9acbf6;
+  --color-text-grid-header: #cde5fa;
   --color-text-on-brand-muted: #475569;
   --color-text-on-brand-inactive: #013e73;
   --color-text-on-positive: #0f172a;
@@ -450,6 +456,7 @@
   --color-bg-negative-subtle: #3b0104;
   --color-bg-unread: #cb0000;
   --color-bg-group-header: #013e73;
+  --color-bg-row-stripe: #334155;
   --color-bg-ai: #c668ff;
   --color-bg-ai-subtle: #5d0095;
 
@@ -460,6 +467,7 @@
   --color-stroke-strong: #cbd5e1;
   --color-stroke-control: #94a3b8;
   --color-stroke-focus: #68b1f1;
+  --color-stroke-grid-rule: #64748b;
   --color-stroke-disabled: #334155;
   --color-stroke-brand: #3597ed;
   --color-stroke-brand-hover: #68b1f1;
@@ -623,6 +631,8 @@
     --color-text-on-brand: #0f172a;
     --color-text-on-brand-subtle: #1e293b;
     --color-text-on-group-header: #ffffff;
+    --color-text-row-label: #9acbf6;
+    --color-text-grid-header: #cde5fa;
     --color-text-on-brand-muted: #475569;
     --color-text-on-brand-inactive: #013e73;
     --color-text-on-positive: #0f172a;
@@ -657,6 +667,7 @@
     --color-bg-negative-subtle: #3b0104;
     --color-bg-unread: #cb0000;
     --color-bg-group-header: #013e73;
+    --color-bg-row-stripe: #334155;
     --color-bg-ai: #c668ff;
     --color-bg-ai-subtle: #5d0095;
   
@@ -667,6 +678,7 @@
     --color-stroke-strong: #cbd5e1;
     --color-stroke-control: #94a3b8;
     --color-stroke-focus: #68b1f1;
+    --color-stroke-grid-rule: #64748b;
     --color-stroke-disabled: #334155;
     --color-stroke-brand: #3597ed;
     --color-stroke-brand-hover: #68b1f1;
@@ -842,6 +854,8 @@
   --size-avatar-l: 56px;
   --size-avatar-xl: 80px;
   --size-row-compact: 26px;
+  --size-row-header: 40px;
+  --size-divider-pinned: 4px;
   --size-icon-well-m: 40px;
   --size-icon-well-l: 56px;
   --size-progress-ring-m: 48px;

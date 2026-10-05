@@ -125,6 +125,8 @@ confirms it:
 | `Header` | 11 | **UNPUBLISHED** |
 | every other component sampled, across 4 pages | — | `CURRENT` |
 
+Re-checked 2026-10-05: both are **still unpublished**.
+
 These two are the atoms of the data grid — the core Scalar screen. While they
 are unpublished, a designer cannot place a data cell or a column header from the
 library in any file, and the code→design push cannot fill the grid region of a
@@ -180,3 +182,43 @@ the component in `src/styles/components.css`, the same way as
 
 **Real fix:** add a `Semantic: Sizing/Panel` (or `Dialog`) ramp to the v1.1
 tokens file.
+
+---
+
+## 11. Figma properties with no React counterpart
+
+**Severity: low — nothing is broken, but a designer can specify these and the
+code cannot express them.** Found by diffing every Figma component's variant
+properties against the React props on 2026-10-05.
+
+| Figma component | Property in Figma | In code |
+|---|---|---|
+| `Valuation Info` (09 · Header & Menus, 4 variants) | `Open` = None · Values · Dates · Both | **No component at all** |
+| `Header` | `Mark`, `Tooltip`, `Input`, `Action`, `Style = Action Button` | `ColumnHeader` has `numeric`, `sort`, `actions`, `grow`, `width`, `span` |
+| `cell` | `Tooltip`, `Label`, icon-type swap | `Cell` has `footnote` and `icon` only |
+| `Information Label` | `Has drop down`, `Long Value`, `L1` / `L2` / `L3` | `label`, `value`, `marker`, `tone` |
+| `Selector` | `Drop-Down`, `Picker label` toggles | Not confirmed — check before relying on it |
+
+Interaction states (Hover, Focus, Pressed) are deliberately not listed: they are
+CSS pseudo-classes, not props.
+
+**Real fix:** build `ValuationInfo` and extend the four components above, then
+update the traceability table in `docs/components.md`.
+
+---
+
+## 12. Figma documentation was out of date until 2026-10-05
+
+The Figma files lagged behind the library they describe. As of 2026-10-05:
+
+- `TOKEN-CONTRACT.txt` (tokens file, node `538:7`) now lists 511 variables across
+  9 collections, including the File and Product identity families, the On Brand
+  family, `Chart/Total`, `Background/Unread`, the data-grid tokens, `Heading/XS`
+  and the seven new sizing tokens.
+- The components `00 · Read Me` index now states 154 component sets and 1,260
+  variants, and indexes pages 20–26 (63 sets) and the sets added to pages 09, 11
+  and 15.
+
+If either number in Figma disagrees with the code layer again, the live
+variables and component sets win — re-extract and regenerate rather than
+editing the generated files.
