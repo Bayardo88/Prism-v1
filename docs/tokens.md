@@ -371,7 +371,7 @@ One tint + icon colour per Scalar product (Product Tile). Identity, not status; 
 ## 3. Typography
 
 Three modes (rule R6). Desktop is the default. Weight is orthogonal to size
-(R7). The floor is 12px (R10).
+(R7). The floor is 12px (R10); `heading.xs` (10px) is the one sanctioned exception, for data-grid chrome only.
 
 Values are `size/line-height` in px.
 
