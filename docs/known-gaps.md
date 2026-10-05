@@ -93,21 +93,21 @@ uses it.
 
 ---
 
-## 6. Figma counts drift slightly from the published contract text
+## 6. Figma counts drift from the contract text — resolved
 
-The `TOKEN-CONTRACT.txt` frame in the tokens file states 461 variables across 9
-collections. The live library, read directly, has slightly more:
+The `TOKEN-CONTRACT.txt` frame in the tokens file used to lag the live library
+(461 variables; `Semantic: Color` 144, `Radius` 7, `Sizing` 15). It was rewritten
+on 2026-10-05 and now states 511 variables across 9 collections, matching the
+live values — `Semantic: Color` 180, `Radius` 8, `Sizing` 22 — and this package.
 
-| Collection | Contract text | Live |
-|---|---|---|
-| `Semantic: Color` | 144 | **145** (`Chart/Total` was added) |
-| `Semantic: Radius` | 7 | **8** (`2XS` at 2px was added) |
-| `Semantic: Sizing` | 15 | **17** (`Row/Compact`, `Target/Dense`) |
+The library itself is **published**: on 2026-10-05 the components file could see
+all 9 collections through the team library, with 180 / 22 / 8 semantic colour,
+sizing and radius variables, including `Chart/Total`, `Target/Dense`,
+`Radius/2XS` and the data-grid, File and Product families. Components therefore
+no longer need to wait on a republish to bind to them.
 
-**This package is generated from the live library**, so it carries the newer
-values. The contract text is stale, not wrong in kind. Notably, `Chart/Total`
-now exists, which resolves the contract's own "there is no neutral chart token"
-gap — `WaterfallChart` uses it for total bars.
+If the contract text and the live library disagree again, the live library wins:
+re-extract and regenerate rather than hand-editing the generated files.
 
 ---
 
@@ -125,7 +125,7 @@ confirms it:
 | `Header` | 11 | **UNPUBLISHED** |
 | every other component sampled, across 4 pages | — | `CURRENT` |
 
-Re-checked 2026-10-05: both are **still unpublished**.
+Re-checked 2026-10-05, **after the library was published**: the other component sets sampled (including the new pages 20–26 and `Valuation Info`) read `CURRENT`, but `cell` and `Header` are **still unpublished**. Re-run the check before assuming otherwise.
 
 These two are the atoms of the data grid — the core Scalar screen. While they
 are unpublished, a designer cannot place a data cell or a column header from the

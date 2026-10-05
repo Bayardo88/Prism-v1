@@ -120,7 +120,7 @@ build.
 
 Both are recorded in `docs/known-gaps.md`.
 
-**`cell` and `Header` are UNPUBLISHED in Figma.** They are the atoms of the data
+**`cell` and `Header` are still UNPUBLISHED in Figma** (checked 2026-10-05, after the rest of the library was published). They are the atoms of the data
 grid. Until they are published, a designer cannot place a data cell or column
 header from the library, and a generated data-sheet screen cannot have its grid
 filled in Figma. **Code is unaffected** — `Cell`, `ColumnHeader` and `Row` work
