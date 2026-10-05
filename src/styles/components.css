@@ -860,6 +860,8 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-row-header--group-start { border-top: 2px solid var(--color-stroke-control); }
 .scalar-row-header--group-end { border-bottom: 2px solid var(--color-stroke-control); }
 .scalar-row-header--mark { border-left: 2px solid var(--color-stroke-focus); }
+/* In a zebra row the header takes the stripe too. */
+.scalar-row--zebra > .scalar-row-header:not(.scalar-row-header--divider) { background: var(--color-bg-subtle); }
 
 /* Group bracket edges. */
 .scalar-cell--group-start { border-left: 2px solid var(--color-stroke-brand); }
