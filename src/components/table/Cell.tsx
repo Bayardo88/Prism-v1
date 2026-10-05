@@ -35,9 +35,7 @@ export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content
  * The Figma set is 145 variants: State × Type plus a set of content booleans.
  * Here Type and State are props and the booleans are optional slots.
  *
- * Known gap carried over from Figma: these cells use a 2px corner, which maps
- * to Semantic: Radius/2XS — present in the v1.1 collection but not yet in the
- * published contract text. See docs/known-gaps.md.
+ * These cells use a 2px corner, which maps to Semantic: Radius/2XS.
  */
 export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
   { children, type = 'readable', state = 'default', numeric, footnote, icon, groupStart, groupEnd, span, className, style, ...rest },
