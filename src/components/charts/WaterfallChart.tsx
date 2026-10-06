@@ -1,5 +1,6 @@
 import type { ChartConfiguration } from 'chart.js';
-import { ChartCanvas } from './ChartCanvas.js';
+import { forwardRef } from 'react';
+import { ChartCanvas, type ChartRootProps } from './ChartCanvas.js';
 import { baseChartOptions, chartScaffold } from './chartSetup.js';
 import { directLabelsPlugin, waterfallConnectorsPlugin } from './plugins.js';
 import type { ChartTokens } from './chartTokens.js';
@@ -12,12 +13,11 @@ export interface WaterfallStep {
   total?: boolean;
 }
 
-export interface WaterfallChartProps {
+export interface WaterfallChartProps extends ChartRootProps {
   steps: WaterfallStep[];
   title: string;
   format?: (value: number) => string;
   height?: number;
-  className?: string;
 }
 
 /**
@@ -32,7 +32,12 @@ export interface WaterfallChartProps {
  * shape, so the numbers are not optional. Connectors carry the running total
  * between steps.
  */
-export function WaterfallChart({ steps, title, format = String, height = 260, className }: WaterfallChartProps) {
+export const WaterfallChart = forwardRef<HTMLElement, WaterfallChartProps>(function WaterfallChart(
+  { steps, title, format = String, height = 260, ...rest },
+  ref,
+) {
+  /** Deltas always carry a sign, so increase/decrease never rests on the green/red fill alone. */
+  const signed = (v: number) => (v > 0 ? `+${format(v)}` : format(v));
   // Walk the steps once to find each bar's span on the value axis.
   let running = 0;
   const bars = steps.map((step) => {
@@ -77,7 +82,7 @@ export function WaterfallChart({ steps, title, format = String, height = 260, cl
               label: (ctx) => {
                 const bar = bars[ctx.dataIndex];
                 if (!bar) return '';
-                return bar.step.total ? format(bar.to) : format(bar.step.value);
+                return bar.step.total ? format(bar.to) : signed(bar.step.value);
               },
             },
           },
@@ -88,6 +93,7 @@ export function WaterfallChart({ steps, title, format = String, height = 260, cl
         directLabelsPlugin({
           tokens: t,
           format,
+          formatAt: (_di, i, v) => (bars[i]?.step.total ? format(v) : signed(v)),
           // Label the delta, not the end point — the delta is what the step did.
           valueAt: (_di, i) => {
             const bar = bars[i];
@@ -101,18 +107,19 @@ export function WaterfallChart({ steps, title, format = String, height = 260, cl
 
   return (
     <ChartCanvas
+      ref={ref}
+      {...rest}
       build={build}
       title={title}
       height={height}
-      className={className}
       table={{
         columns: ['Step', 'Change', 'Running total'],
         rows: bars.map((b) => [
           b.step.label,
-          b.step.total ? '—' : format(b.step.value),
+          b.step.total ? '—' : signed(b.step.value),
           format(b.to),
         ]),
       }}
     />
   );
-}
+});

@@ -23,7 +23,8 @@ content, and the docked drawer. Read **[docs/page-template.md](docs/page-templat
    the only hand-maintained token file, and it is transcribed from the live
    library. `src/tokens/tokens.json`, `src/tokens/generated.ts` and
    `docs/tokens.md` are **generated** — never hand-edit them.
-2. **`npm run verify` must pass** before any commit. It typechecks and runs the
+2. **`npm run verify` must pass** before any commit. It typechecks, runs ESLint
+   (React-hooks and jsx-a11y rules are errors), runs the test suite, and runs the
    token-contract linter, which fails on raw hex, raw px in scaled properties,
    unresolved `var()` references, and contract violations inside JSX
    `style={{ … }}` objects — including type set from a sizing token, and the
@@ -40,6 +41,15 @@ content, and the docked drawer. Read **[docs/page-template.md](docs/page-templat
 6. **Chart.js configs take resolved values, never `var(--…)` strings.** Canvas
    cannot read CSS custom properties; `var()` renders transparent. Take values
    off the `ChartTokens` object from `useChartTokens`.
+
+## Building a component
+
+Every component follows **[docs/component-contract.md](docs/component-contract.md)**:
+`forwardRef`, native props with `...rest`, merged `className`, exported props type,
+`asChild` on triggers, and the keyboard model for any ARIA role it declares
+(built from `useOverlay` / `useRovingFocus` / `Slot` in `src/utils`). A new or
+changed component needs a test (axe + keyboard + ref/className passthrough) and a
+story. Commands: `npm test` · `npm run lint` · `npm run storybook`.
 
 ## Changing a token
 
@@ -59,7 +69,9 @@ npm run verify
 | `src/styles/tokens.css` | Source of truth for every token value in code |
 | `src/styles/components.css` | Component layer, zero raw hex by construction |
 | `src/tokens/` | Generated TS token API |
-| `src/components/` | One folder per Figma page |
+| `src/components/` | One folder per Figma page — each with `*.test.tsx` and `*.stories.tsx` |
+| `src/utils/` | Shared primitives: `Slot`, `useOverlay`, `useRovingFocus`, `useFieldIds`, … |
+| `docs/decisions/` | Architecture decisions (why in-house hooks, not Radix) |
 | `scripts/lint-tokens.mjs` | The token-contract linter |
 | `docs/known-gaps.md` | Inherited gaps that are deliberate — read before "fixing" one |
 | `apps/product/` | The full Scalar product as a prototype — every Scalar-full-product Figma frame. Change it with the `scalar-product` skill; `npm run verify:product` must pass |

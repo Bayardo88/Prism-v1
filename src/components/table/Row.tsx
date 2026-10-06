@@ -23,13 +23,17 @@ export interface RowProps extends HTMLAttributes<HTMLDivElement> {
  * for locked periods and published figures.
  *
  * Both sets are composed from Cell — change Cell, not this.
+ *
+ * Accessibility: `role="row"` — place it directly inside a `DataGrid` (an ARIA
+ * `table`). `selected` sets `aria-selected` on the row. The `divider` type is a
+ * presentational rule (`role="presentation"`), not a row of the table.
  */
 export const Row = forwardRef<HTMLDivElement, RowProps>(function Row(
   { children, type = 'readable', zebra, group, selected, className, ...rest },
   ref,
 ) {
   if (type === 'divider') {
-    return <div ref={ref} className={cx('scalar-row', 'scalar-row--divider', className)} aria-hidden {...rest} />;
+    return <div ref={ref} role="presentation" className={cx('scalar-row', 'scalar-row--divider', className)} {...rest} />;
   }
   return (
     <div

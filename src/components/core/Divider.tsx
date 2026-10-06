@@ -3,6 +3,12 @@ import { cx } from '../../utils/cx.js';
 
 export interface DividerProps extends HTMLAttributes<HTMLHRElement> {
   orientation?: 'horizontal' | 'vertical';
+  /**
+   * Purely visual: removes the separator from the accessibility tree. Use it
+   * when the rule only adds spacing and the grouping is already conveyed by
+   * the markup.
+   */
+  decorative?: boolean;
 }
 
 /**
@@ -15,15 +21,17 @@ export interface DividerProps extends HTMLAttributes<HTMLHRElement> {
  * stacked with nothing between them is a spacing problem, not a divider one.
  */
 export const Divider = forwardRef<HTMLHRElement, DividerProps>(function Divider(
-  { orientation = 'horizontal', className, ...rest },
+  { orientation = 'horizontal', decorative, className, ...rest },
   ref,
 ) {
   return (
     <hr
       ref={ref}
-      className={cx('scalar-divider', `scalar-divider--${orientation}`, className)}
-      aria-orientation={orientation}
       {...rest}
+      className={cx('scalar-divider', `scalar-divider--${orientation}`, className)}
+      {...(decorative
+        ? { role: 'none' }
+        : { 'aria-orientation': orientation })}
     />
   );
 });

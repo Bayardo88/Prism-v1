@@ -10,7 +10,7 @@ import {
   FileTypeBadge, FileRow, TreeItem, PageStepper, ZoomControl, DocumentViewerHeader, ScrollHintPill,
   Banner, Spinner, ProgressRing, DataFreshness, SaveState,
   SettingRow, NotificationCenter, RowActionToolbar,
-  KeyValueRow, VersionHistoryItem, PermissionMatrixRow, RoleSelector, ProfileHeader, FilterBar, DirectoryGroup,
+  KeyValueRow, VersionHistoryItem, PermissionMatrix, PermissionMatrixRow, RoleSelector, ProfileHeader, FilterBar, DirectoryGroup,
   ProductTile, FirmSwitcherTile, PageTaskHeader, CodeGrid, RichTextToolbar, AppFooter,
   ValuationInfo, InformationLabel, Selector, ColumnHeader, Cell,
 } from '@scalar/design-system';
@@ -192,11 +192,11 @@ export function Gallery() {
           <VersionHistoryItem current range="Aug 24, 2026 5:01 PM — Present" meta="Changed by Analyst · Firm template change" />
           <VersionHistoryItem range="Jun 2, 2026 9:12 AM — Aug 24, 2026" meta="Changed by Firm admin" action={<Button variant="tertiary" size="s">Restore</Button>} />
         </ol>
-        <div role="grid" aria-label="Permissions" style={{ width: 480 }}>
+        <PermissionMatrix aria-label="Permissions" style={{ width: 480 }}>
           <PermissionMatrixRow type="group" label="Funds" edit={false} view={false} />
           <PermissionMatrixRow label="VIP Fund" edit view />
           <PermissionMatrixRow label="Holding Co." edit={false} view />
-        </div>
+        </PermissionMatrix>
         <ProfileHeader name="Full name" email="name@firm.com" lastLogin="Last login: Sep 22, 2026, 11:37 AM" initials="FN" role={<RoleSelector role="Firm admin" />} />
         <div style={{ width: '100%' }}>
           <FilterBar action={<Button leadingIcon={G(<glyphs.Refresh />)}>Refresh</Button>}>

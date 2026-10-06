@@ -1,5 +1,11 @@
-import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
+import {
+  forwardRef, useId, useRef,
+  type ButtonHTMLAttributes, type CSSProperties, type HTMLAttributes, type KeyboardEvent, type MouseEventHandler, type ReactNode, type Ref,
+} from 'react';
 import { cx } from '../../utils/cx.js';
+import { composeRefs } from '../../utils/refs.js';
+import { useOverlay } from '../../utils/useOverlay.js';
+import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
 import { Icon } from '../icon/Icon.js';
 import { ArrowDown, ArrowUp, Calendar, ChevronDown, Close, DragHandle, Filter, Minus, Plus, Sort } from '../icon/glyphs.js';
 import { ButtonIcon } from '../button/ButtonIcon.js';
@@ -18,17 +24,31 @@ const spanStyle = (span: number | undefined, style: CSSProperties | undefined): 
 
 export type RowLabelType = 'line-item' | 'child' | 'subtotal' | 'total' | 'group-header';
 
-export interface RowLabelCellProps extends CellAttrs {
+export interface RowLabelCellBaseProps extends CellAttrs {
   children: ReactNode;
   span?: number;
   style?: CSSProperties;
   /** Row hierarchy. `group-header` is the full-width band (VIP Fund, Holding Co.). */
   type?: RowLabelType;
-  /** Makes the row expandable; `true` = children showing. */
-  expanded?: boolean;
-  onToggle?: () => void;
+  /**
+   * Names the row in the toggle's accessible name ("Expand Apple Inc."). Defaults
+   * to `children` when that is a string.
+   */
+  toggleLabel?: string;
   className?: string;
 }
+
+/** A row is either static, or expandable — and an expandable one needs its handler. */
+export type RowLabelCellExpandProps =
+  | { expanded?: undefined; onToggle?: undefined }
+  | {
+      /** Makes the row expandable; `true` = children showing. */
+      expanded: boolean;
+      /** Called when the toggle is pressed. Required with `expanded`. */
+      onToggle: () => void;
+    };
+
+export type RowLabelCellProps = RowLabelCellBaseProps & RowLabelCellExpandProps;
 
 /**
  * Row Label Cell — the first (sticky) column of a financial statement, cap
@@ -38,20 +58,29 @@ export interface RowLabelCellProps extends CellAttrs {
  *
  * Tokens: Group Header = Background/Group Header + Text/On Group Header (stays
  * navy in both modes); Total = Background/Subtle with Stroke/Strong rules.
+ *
+ * Accessibility: `role="rowheader"` inside a `Row` of a `DataGrid` (an ARIA
+ * table). The expand control is a native `<button>` named "Expand <row>" with
+ * `aria-expanded`; it is a normal tab stop — there is no tree-grid arrow-key
+ * model, because the table is not a `treegrid`.
  */
-export function RowLabelCell({ children, type = 'line-item', expanded, onToggle, span, style, className, ...rest }: RowLabelCellProps) {
+export const RowLabelCell = forwardRef<HTMLDivElement, RowLabelCellProps>(function RowLabelCell(
+  { children, type = 'line-item', expanded, onToggle, toggleLabel, span, style, className, ...rest },
+  ref,
+) {
   const expandable = expanded !== undefined;
+  const name = toggleLabel ?? (typeof children === 'string' ? children : undefined);
   return (
-    <div role="rowheader" aria-expanded={expandable ? expanded : undefined} className={cx('scalar-row-label', `scalar-row-label--${type}`, className)} style={spanStyle(span, style)} {...rest}>
+    <div ref={ref} role="rowheader" className={cx('scalar-row-label', `scalar-row-label--${type}`, className)} style={spanStyle(span, style)} {...rest}>
       {expandable && (
-        <button type="button" className="scalar-row-label__toggle" aria-label={expanded ? 'Collapse row' : 'Expand row'} onClick={onToggle}>
+        <button type="button" className="scalar-row-label__toggle" aria-label={name ? `Expand ${name}` : 'Expand row'} aria-expanded={expanded} onClick={onToggle}>
           <Icon size="xs" tone="inherit">{expanded ? <Minus /> : <Plus />}</Icon>
         </button>
       )}
       <span className="scalar-row-label__text">{children}</span>
     </div>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * Grid Value Cell
@@ -65,14 +94,22 @@ export interface GridValueCellProps extends CellAttrs {
   children?: ReactNode;
   span?: number;
   style?: CSSProperties;
-  onClick?: () => void;
+  /**
+   * Makes the value activatable (open its history, select it). The content is
+   * then wrapped in a native `<button>` inside the cell, so Enter / Space work.
+   */
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   /** calculated → Text/Primary · editable → Text/Editable · sourced → Text/Sourced · total → bold, ruled. */
   kind?: ValueKind;
   state?: ValueCellState;
   /** Draws the corner flag used for cell notes. */
   hasComment?: boolean;
-  /** Required with `state="error"` — explain why (R8). Rendered as the cell's title and accessible description. */
+  /** Accessible name of the note flag. Default "Has note". */
+  commentLabel?: string;
+  /** Required with `state="error"` — explain why (R8). Shown as the cell's title and read out as its description. */
   errorMessage?: string;
+  /** What `state="placeholder"` shows. Default "Enter data". */
+  placeholderText?: string;
   className?: string;
 }
 
@@ -81,27 +118,45 @@ export interface GridValueCellProps extends CellAttrs {
  * tabular figures. Error always carries a message (colour alone never carries
  * meaning, R8); Placeholder is an empty required input ("ENTER DATA");
  * Not Applicable is shaded and non-interactive.
+ *
+ * Accessibility: `role="cell"` inside a `Row` of a `DataGrid`. With `onClick`
+ * the value is a native `<button>` (one tab stop per actionable cell); without
+ * it the cell is static text. Editing is the consumer's job — render an input
+ * as `children`. `data-state` / `data-kind` expose the state for styling hooks.
  */
-export function GridValueCell({ children, kind = 'calculated', state = 'default', hasComment, errorMessage, span, style, onClick, className, ...rest }: GridValueCellProps) {
-  const content = state === 'placeholder' ? 'Enter data' : state === 'not-applicable' ? '—' : children;
+export const GridValueCell = forwardRef<HTMLDivElement, GridValueCellProps>(function GridValueCell(
+  { children, kind = 'calculated', state = 'default', hasComment, commentLabel = 'Has note', errorMessage, placeholderText = 'Enter data', span, style, onClick, className, ...rest },
+  ref,
+) {
+  const errorId = useId();
+  const content = state === 'placeholder' ? placeholderText : state === 'not-applicable' ? '—' : children;
+  const actionable = onClick && state !== 'not-applicable';
   return (
     <div
-      role="gridcell"
+      ref={ref}
+      role="cell"
       aria-invalid={state === 'error' || undefined}
-      aria-readonly={state === 'not-applicable' || undefined}
-      aria-description={state === 'error' ? errorMessage : undefined}
+      aria-describedby={state === 'error' && errorMessage ? errorId : undefined}
       title={state === 'error' ? errorMessage : undefined}
-      tabIndex={state === 'not-applicable' ? undefined : -1}
+      data-state={state}
+      data-kind={kind}
       className={cx('scalar-value-cell', `scalar-value-cell--${kind}`, `scalar-value-cell--${state}`, className)}
       style={spanStyle(span, style)}
-      onClick={onClick}
       {...rest}
     >
-      {content}
-      {hasComment && <span className="scalar-value-cell__flag" aria-label="Has note" role="img" />}
+      {actionable ? (
+        <button type="button" className="scalar-value-cell__button" onClick={onClick}>
+          {content}
+        </button>
+      ) : (
+        content
+      )}
+      {state === 'not-applicable' && <VisuallyHidden>Not applicable</VisuallyHidden>}
+      {state === 'error' && errorMessage && <VisuallyHidden id={errorId}>{errorMessage}</VisuallyHidden>}
+      {hasComment && <span className="scalar-value-cell__flag" aria-label={commentLabel} role="img" />}
     </div>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * In-cell Control
@@ -109,18 +164,19 @@ export function GridValueCell({ children, kind = 'calculated', state = 'default'
 
 export type InCellControlType = 'select' | 'date' | 'currency';
 
-export interface InCellControlProps extends CellAttrs {
+export interface InCellControlProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children' | 'className' | 'style' | 'type'> {
   type: InCellControlType;
   /** `error` paints the cell negative; pass `errorMessage` — colour alone never carries meaning (R8). */
   state?: 'default' | 'error';
   errorMessage?: string;
   span?: number;
+  /** Style of the cell wrapper (the control fills it). */
   style?: CSSProperties;
   /** Current value, or omit for the "Select option" prompt. */
   children?: ReactNode;
+  /** Whether the popup is open. Omit when no popup is wired — `aria-expanded` is then not announced. */
   open?: boolean;
-  onClick?: () => void;
-  /** Accessible name ("Security type"). */
+  /** Accessible name of the field ("Security type"); the current value is appended to it. */
   label: string;
   className?: string;
 }
@@ -129,32 +185,48 @@ export interface InCellControlProps extends CellAttrs {
  * In-cell Control — borderless picker inside a grid cell: Select (security
  * type, allocation method), Date (opens DatePicker), Currency (company
  * currency pill). Text/Editable marks it as user input.
+ *
+ * Accessibility: a `role="cell"` wrapper holds a native `<button>`, so the
+ * control keeps its button semantics. Its name is `label` plus the visible
+ * value ("Security type Common"), which satisfies label-in-name. Pass
+ * `aria-controls` (the popup's id) through; the ref and rest props go to the
+ * button. Focus return after the popup closes is the popup owner's job.
  */
-export function InCellControl({ type, children, open = false, onClick, label, state = 'default', errorMessage, span, style, className, ...rest }: InCellControlProps) {
+export const InCellControl = forwardRef<HTMLButtonElement, InCellControlProps>(function InCellControl(
+  { type, children, open, label, state = 'default', errorMessage, span, style, className, ...rest },
+  ref,
+) {
+  const ids = useId();
+  const labelId = `${ids}-label`;
+  const valueId = `${ids}-value`;
+  const errorId = `${ids}-error`;
+  const value = children ?? (type === 'select' ? 'Select option' : type === 'date' ? 'Select date' : 'USD');
   return (
-    <button
-      type="button"
-      role="gridcell"
-      aria-haspopup={type === 'date' ? 'dialog' : 'listbox'}
-      aria-expanded={open}
-      aria-label={label}
-      aria-invalid={state === 'error' || undefined}
-      aria-description={state === 'error' ? errorMessage : undefined}
-      title={state === 'error' ? errorMessage : undefined}
-      onClick={onClick}
-      className={cx('scalar-incell', `scalar-incell--${type}`, open && 'scalar-incell--open', state === 'error' && 'scalar-incell--error', className)}
-      style={spanStyle(span, style)}
-      {...rest}
-    >
-      <span className={type === 'currency' ? 'scalar-incell__pill' : 'scalar-incell__value'}>
-        {children ?? (type === 'select' ? 'Select option' : type === 'date' ? 'Select date' : 'USD')}
-        {type === 'currency' && <Icon size="xs" tone="inherit" className={cx(open && 'scalar-rotate-180')}><ChevronDown /></Icon>}
-      </span>
-      {type === 'select' && <Icon size="xs" tone="inherit" className={cx(open && 'scalar-rotate-180')}><ChevronDown /></Icon>}
-      {type === 'date' && <Icon size="s" tone="inherit"><Calendar /></Icon>}
-    </button>
+    <div role="cell" className="scalar-incell-cell" style={spanStyle(span, style)}>
+      <button
+        ref={ref}
+        type="button"
+        aria-haspopup={type === 'date' ? 'dialog' : 'listbox'}
+        aria-expanded={open}
+        aria-labelledby={`${labelId} ${valueId}`}
+        aria-invalid={state === 'error' || undefined}
+        aria-describedby={state === 'error' && errorMessage ? errorId : undefined}
+        title={state === 'error' ? errorMessage : undefined}
+        className={cx('scalar-incell', `scalar-incell--${type}`, open && 'scalar-incell--open', state === 'error' && 'scalar-incell--error', className)}
+        {...rest}
+      >
+        <VisuallyHidden id={labelId}>{label}</VisuallyHidden>
+        <span id={valueId} className={type === 'currency' ? 'scalar-incell__pill' : 'scalar-incell__value'}>
+          {value}
+          {type === 'currency' && <Icon size="xs" tone="inherit" className={cx(open && 'scalar-rotate-180')}><ChevronDown /></Icon>}
+        </span>
+        {type === 'select' && <Icon size="xs" tone="inherit" className={cx(open && 'scalar-rotate-180')}><ChevronDown /></Icon>}
+        {type === 'date' && <Icon size="s" tone="inherit"><Calendar /></Icon>}
+        {state === 'error' && errorMessage && <VisuallyHidden id={errorId}>{errorMessage}</VisuallyHidden>}
+      </button>
+    </div>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * Headers
@@ -176,10 +248,17 @@ export interface ColumnGroupHeaderProps extends CellAttrs {
  * Column Group Header — second header tier spanning a run of columns
  * (Projections over FY2025–27, LTM/NTM, Previous valuation…). Repeat the
  * period rule down the body with `GridColumnDivider`.
+ *
+ * Accessibility: `role="columnheader"` with `aria-colspan`, in the group row of
+ * a `DataGrid`.
  */
-export function ColumnGroupHeader({ children, span, styleVariant = 'default', periodDivider, style, className, ...rest }: ColumnGroupHeaderProps) {
+export const ColumnGroupHeader = forwardRef<HTMLDivElement, ColumnGroupHeaderProps>(function ColumnGroupHeader(
+  { children, span, styleVariant = 'default', periodDivider, style, className, ...rest },
+  ref,
+) {
   return (
     <div
+      ref={ref}
       role="columnheader"
       aria-colspan={span}
       style={{ gridColumn: `span ${span}`, ...style }}
@@ -189,7 +268,7 @@ export function ColumnGroupHeader({ children, span, styleVariant = 'default', pe
       {children}
     </div>
   );
-}
+});
 
 export type SortDirection = 'none' | 'ascending' | 'descending';
 
@@ -201,16 +280,30 @@ export interface GridColumnHeaderProps extends CellAttrs {
   width?: string;
   span?: number;
   style?: CSSProperties;
+  /**
+   * Plain-text name of the column, used by the filter and reorder buttons
+   * ("Filter Revenue"). Defaults to `children` when that is a string.
+   */
+  label?: string;
   /** Trailing content after the label, e.g. an editable-date marker. */
   trailing?: ReactNode;
   sort?: SortDirection;
   /** Cycles none → ascending → descending. Omit for an unsortable column. */
   onSort?: () => void;
-  /** Shows the drag handle; wire reordering in the grid. */
+  /**
+   * Shows the drag handle. On its own the handle is a decorative affordance —
+   * wire pointer reordering in the grid and pair it with `onMove`.
+   */
   draggable?: boolean;
+  /**
+   * Keyboard (and single-pointer) alternative to dragging, WCAG 2.5.7. With
+   * `draggable`, the handle becomes a button: focus it and press ArrowLeft /
+   * ArrowRight to move the column one place.
+   */
+  onMove?: (direction: 'left' | 'right') => void;
   /** Shows the in-header filter button. */
   onFilter?: () => void;
-  /** Active column (blue top tab). */
+  /** Active column (blue top tab). Exposed as `aria-current`. */
   selected?: boolean;
   numeric?: boolean;
   /**
@@ -223,21 +316,41 @@ export interface GridColumnHeaderProps extends CellAttrs {
 
 /**
  * Grid Column Header — interactive header for configurable portfolio grids:
- * drag handle, sort indicator, optional filter and a resize edge. Long labels
- * truncate; put the full label in a Tooltip.
+ * drag handle, sort indicator and an optional filter. Long labels truncate; put
+ * the full label in a Tooltip. (The old resize edge was decorative and has been
+ * removed — column widths come from the DataGrid tracks.)
+ *
+ * Accessibility: `role="columnheader"` with `aria-sort` when sortable; sort,
+ * filter and reorder are separate native buttons.
  */
-export function GridColumnHeader({ children, sort = 'none', onSort, draggable, onFilter, selected, numeric, editable, grow: _grow, width: _width, span, style, trailing, className, ...rest }: GridColumnHeaderProps) {
-  const name = typeof children === 'string' ? children : 'column';
+export const GridColumnHeader = forwardRef<HTMLDivElement, GridColumnHeaderProps>(function GridColumnHeader(
+  { children, label, sort = 'none', onSort, draggable, onMove, onFilter, selected, numeric, editable, grow: _grow, width: _width, span, style, trailing, className, ...rest },
+  ref,
+) {
+  const name = label ?? (typeof children === 'string' ? children : 'column');
+  const onHandleKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      onMove?.(e.key === 'ArrowLeft' ? 'left' : 'right');
+    }
+  };
   return (
     <div
+      ref={ref}
       role="columnheader"
       aria-sort={onSort ? sort : undefined}
-      aria-selected={selected || undefined}
+      aria-current={selected || undefined}
       className={cx('scalar-grid-header', selected && 'scalar-grid-header--selected', numeric && 'scalar-grid-header--numeric', editable && 'scalar-grid-header--editable', className)}
       style={spanStyle(span, style)}
       {...rest}
     >
-      {draggable && <span className="scalar-grid-header__drag" aria-hidden><Icon size="xs" tone="inherit"><DragHandle /></Icon></span>}
+      {draggable && (onMove ? (
+        <button type="button" className="scalar-grid-header__drag" aria-label={`Move ${name}`} title="Use the left and right arrow keys to move this column" onKeyDown={onHandleKey}>
+          <Icon size="xs" tone="inherit"><DragHandle /></Icon>
+        </button>
+      ) : (
+        <span className="scalar-grid-header__drag" aria-hidden><Icon size="xs" tone="inherit"><DragHandle /></Icon></span>
+      ))}
       {onSort ? (
         <button type="button" className="scalar-grid-header__label" onClick={onSort}>
           <span className="scalar-grid-header__text">{children}</span>
@@ -255,120 +368,178 @@ export function GridColumnHeader({ children, sort = 'none', onSort, draggable, o
           <Icon size="xs" tone="inherit"><Filter /></Icon>
         </button>
       )}
-      <span className="scalar-grid-header__resize" aria-hidden />
     </div>
   );
-}
+});
 
 export interface AddColumnHeaderProps extends CellAttrs {
   onClick: () => void;
   children?: ReactNode;
   /** The add-column affordance is the active target (e.g. its picker is open). */
   selected?: boolean;
+  /** The id of the dialog the button opens (`aria-controls`). */
+  controls?: string;
   width?: string;
   grow?: number;
   style?: CSSProperties;
   className?: string;
 }
 
-/** Add Column Header — trailing pseudo-header that opens the Add Columns modal. */
-export function AddColumnHeader({ onClick, children = 'Add column', selected, width: _width, grow: _grow, style, className, ...rest }: AddColumnHeaderProps) {
+/**
+ * Add Column Header — trailing pseudo-header that opens the Add Columns modal.
+ * The ref and rest props go to the `columnheader` wrapper; the button inside is
+ * the control (`aria-haspopup="dialog"`, `aria-expanded` while `selected`).
+ */
+export const AddColumnHeader = forwardRef<HTMLDivElement, AddColumnHeaderProps>(function AddColumnHeader(
+  { onClick, children = 'Add column', selected, controls, width: _width, grow: _grow, style, className, ...rest },
+  ref,
+) {
   return (
-    <div role="columnheader" aria-selected={selected || undefined} className={cx('scalar-add-column', selected && 'scalar-add-column--selected', className)} style={style} {...rest}>
-      <button type="button" onClick={onClick} aria-expanded={selected}>
+    <div ref={ref} role="columnheader" className={cx('scalar-add-column', selected && 'scalar-add-column--selected', className)} style={style} {...rest}>
+      <button type="button" onClick={onClick} aria-haspopup="dialog" aria-expanded={selected ?? false} aria-controls={controls}>
         {children}
         <Icon size="xs" tone="inherit"><Plus /></Icon>
       </button>
     </div>
   );
-}
+});
 
-export interface CollapsedColumnRailProps {
+export interface CollapsedColumnRailProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'className' | 'children'> {
   /** Number of hidden columns. */
   count: number;
   onExpand: () => void;
   className?: string;
 }
 
-/** Collapsed Column Rail — vertical pill standing in for hidden columns ("+ 8 columns"). */
-export function CollapsedColumnRail({ count, onExpand, className }: CollapsedColumnRailProps) {
+/**
+ * Collapsed Column Rail — vertical pill standing in for hidden columns ("+ 8 columns").
+ * Its name is the visible text plus a hidden "show hidden columns" hint, so the
+ * visible label is contained in the name.
+ */
+export const CollapsedColumnRail = forwardRef<HTMLButtonElement, CollapsedColumnRailProps>(function CollapsedColumnRail(
+  { count, onExpand, className, ...rest },
+  ref,
+) {
   return (
-    <button type="button" onClick={onExpand} aria-label={`Show ${count} hidden columns`} className={cx('scalar-column-rail', className)}>
-      <span className="scalar-column-rail__text">+ {count} columns</span>
+    <button ref={ref} type="button" onClick={onExpand} className={cx('scalar-column-rail', className)} {...rest}>
+      <span className="scalar-column-rail__text">+ {count} {count === 1 ? 'column' : 'columns'}</span>
+      <VisuallyHidden>, show hidden {count === 1 ? 'column' : 'columns'}</VisuallyHidden>
     </button>
   );
-}
+});
 
-export interface GridColumnDividerProps {
+export interface GridColumnDividerProps extends HTMLAttributes<HTMLDivElement> {
   /** `period` = actuals | projections (Stroke/Brand); `pinned` = before a pinned total column (Stroke/Strong). */
   type?: 'period' | 'pinned';
-  className?: string;
 }
 
-/** Grid Column Divider — full-height vertical rule between column groups. */
-export function GridColumnDivider({ type = 'period', className }: GridColumnDividerProps) {
-  return <div role="separator" aria-orientation="vertical" className={cx('scalar-column-divider', `scalar-column-divider--${type}`, className)} />;
-}
+/** Grid Column Divider — full-height vertical rule between column groups. Purely decorative: hidden from assistive technology. */
+export const GridColumnDivider = forwardRef<HTMLDivElement, GridColumnDividerProps>(function GridColumnDivider(
+  { type = 'period', className, ...rest },
+  ref,
+) {
+  return <div ref={ref} aria-hidden className={cx('scalar-column-divider', `scalar-column-divider--${type}`, className)} {...rest} />;
+});
 
 /* ---------------------------------------------------------------------------
  * Chart Hover Card / Cell History Popover
  * ------------------------------------------------------------------------ */
 
-export interface ChartHoverCardProps {
+export interface ChartHoverRow {
+  /** Stable key for the row. Defaults to `label` when that is a string. */
+  id?: string;
+  label: ReactNode;
+  value: ReactNode;
+  /** A resolved colour from useChartTokens. */
+  swatch: string;
+}
+
+export interface ChartHoverCardProps extends HTMLAttributes<HTMLDivElement> {
   /** The x value ("Dec 31, 2024"). */
   heading: ReactNode;
-  /** One entry per series; `swatch` is a resolved colour from useChartTokens. */
-  rows: ReadonlyArray<{ label: ReactNode; value: ReactNode; swatch: string }>;
-  className?: string;
+  /** One entry per series. */
+  rows: ReadonlyArray<ChartHoverRow>;
 }
 
 /**
  * Chart Hover Card — hover read-out for Line / Bar / Waterfall charts. The
  * swatch is passed in resolved (canvas colours come from `useChartTokens`).
+ *
+ * Accessibility: `role="tooltip"` is a pointer read-out — the same data is in
+ * the chart's table alternative. To tie it to its trigger, give it an `id`
+ * and set `aria-describedby` on the trigger; the owner dismisses it on Escape.
  */
-export function ChartHoverCard({ heading, rows, className }: ChartHoverCardProps) {
+export const ChartHoverCard = forwardRef<HTMLDivElement, ChartHoverCardProps>(function ChartHoverCard(
+  { heading, rows, className, ...rest },
+  ref,
+) {
   return (
-    <div role="tooltip" className={cx('scalar-chart-hover', className)}>
+    <div ref={ref} role="tooltip" className={cx('scalar-chart-hover', className)} {...rest}>
       <div className="scalar-chart-hover__heading">{heading}</div>
       {rows.map((r, i) => (
-        <div key={i} className="scalar-chart-hover__row">
-          <span className="scalar-chart-hover__swatch" style={{ background: r.swatch }} aria-hidden />
+        <div key={r.id ?? (typeof r.label === 'string' ? r.label : i)} className="scalar-chart-hover__row">
+          <span className="scalar-chart-hover__swatch" style={{ '--swatch': r.swatch } as CSSProperties} aria-hidden />
           <span className="scalar-chart-hover__label">{r.label}:</span>
           <span className="scalar-chart-hover__value">{r.value}</span>
         </div>
       ))}
     </div>
   );
-}
+});
 
-export interface CellHistoryPopoverProps {
+export interface CellHistoryPopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   title: ReactNode;
   subtitle?: ReactNode;
   /** The chart — normally a `LineChart`. */
   children: ReactNode;
   onClose: () => void;
-  className?: string;
+  /** Accessible name of the close button. Default "Close". */
+  closeLabel?: string;
+  /**
+   * Move focus into the popover on mount and return it to the opener on
+   * unmount. The popover is mounted only while open, so this defaults to
+   * `true`; pass `false` to render it statically (a gallery) without taking focus.
+   * Escape and outside clicks only close it while this is on.
+   */
+  autoFocus?: boolean;
 }
 
 /**
  * Cell History Popover — opened from the trend icon on a value cell; shows
- * that value over time. Anchor below-right of the cell, close on Escape or
- * outside click (the caller owns positioning and dismissal).
+ * that value over time. The caller owns positioning (anchor below-right of the
+ * cell) and mounts it only while open.
+ *
+ * Accessibility: a non-modal `role="dialog"` named by its title
+ * (`aria-labelledby`). Focus moves in on mount (to the close button), Escape or
+ * a click outside calls `onClose`, Tab can leave, and focus returns to the
+ * opener when it unmounts.
  */
-export function CellHistoryPopover({ title, subtitle, children, onClose, className }: CellHistoryPopoverProps) {
+export const CellHistoryPopover = forwardRef<HTMLDivElement, CellHistoryPopoverProps>(function CellHistoryPopover(
+  { title, subtitle, children, onClose, closeLabel = 'Close', autoFocus = true, className, ...rest },
+  ref,
+) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useOverlay({ open: autoFocus, onClose, containerRef, modal: false });
   return (
-    <div role="dialog" aria-label={typeof title === 'string' ? title : 'Value history'} className={cx('scalar-cell-history', className)}>
+    <div
+      ref={composeRefs(containerRef, ref)}
+      role="dialog"
+      aria-labelledby={titleId}
+      className={cx('scalar-cell-history', className)}
+      {...rest}
+    >
       <div className="scalar-cell-history__header">
         <div>
-          <div className="scalar-cell-history__title">{title}</div>
+          <div id={titleId} className="scalar-cell-history__title">{title}</div>
           {subtitle && <div className="scalar-cell-history__subtitle">{subtitle}</div>}
         </div>
-        <ButtonIcon variant="tertiary" size="s" label="Close" onClick={onClose} icon={<Icon size="s" tone="inherit"><Close /></Icon>} />
+        <ButtonIcon variant="tertiary" size="s" label={closeLabel} onClick={onClose} icon={<Icon size="s" tone="inherit"><Close /></Icon>} />
       </div>
       <div className="scalar-cell-history__body">{children}</div>
     </div>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * Task Pill
@@ -376,7 +547,7 @@ export function CellHistoryPopover({ title, subtitle, children, onClose, classNa
 
 export type TaskPillTone = 'negative' | 'warning' | 'brand';
 
-export interface TaskPillProps {
+export interface TaskPillProps extends Omit<HTMLAttributes<HTMLElement>, 'onClick'> {
   /**
    * Accessible name, **required** — the glyph and count are not the name
    * ("3 overdue tasks", "Review requested"). Also the pill's tooltip text.
@@ -389,8 +560,7 @@ export interface TaskPillProps {
   /** Glyph, passed through `Icon`. Default Material `pending_actions`. */
   icon?: ReactNode;
   /** Makes the pill a button (open the task list). */
-  onClick?: () => void;
-  className?: string;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
 }
 
 /**
@@ -400,9 +570,13 @@ export interface TaskPillProps {
  * accessible name, so colour is never the only signal (R8).
  *
  * Dense grid furniture: 24px tall (Target/Dense), the documented exception to
- * the 44px target.
+ * the 44px target. The ref points at the root, a `<button>` with `onClick`,
+ * otherwise a `<span role="img">`.
  */
-export function TaskPill({ label, count, tone = 'warning', icon, onClick, className }: TaskPillProps) {
+export const TaskPill = forwardRef<HTMLElement, TaskPillProps>(function TaskPill(
+  { label, count, tone = 'warning', icon, onClick, className, ...rest },
+  ref,
+) {
   const cls = cx('scalar-task-pill', `scalar-task-pill--${tone}`, className);
   const body = (
     <>
@@ -411,8 +585,8 @@ export function TaskPill({ label, count, tone = 'warning', icon, onClick, classN
     </>
   );
   return onClick ? (
-    <button type="button" aria-label={label} title={label} onClick={onClick} className={cls}>{body}</button>
+    <button ref={ref as Ref<HTMLButtonElement>} type="button" aria-label={label} title={label} onClick={onClick} className={cls} {...(rest as ButtonHTMLAttributes<HTMLButtonElement>)}>{body}</button>
   ) : (
-    <span role="img" aria-label={label} title={label} className={cls}>{body}</span>
+    <span ref={ref} role="img" aria-label={label} title={label} className={cls} {...rest}>{body}</span>
   );
-}
+});

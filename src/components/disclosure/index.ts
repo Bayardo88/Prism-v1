@@ -1,5 +1,5 @@
 export { Accordion, AccordionItem } from './Accordion.js';
-export type { AccordionProps, AccordionItemProps } from './Accordion.js';
+export type { AccordionProps, AccordionItemProps, AccordionType, AccordionHeadingLevel } from './Accordion.js';
 export { Drawer } from './Drawer.js';
 export type { DrawerProps, DrawerSide } from './Drawer.js';
 export { WorkspaceDrawer, WorkspaceDrawerTab } from './WorkspaceDrawer.js';

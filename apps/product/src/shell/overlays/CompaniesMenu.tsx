@@ -42,6 +42,7 @@ export function CompaniesMenu({ company, onClose }: OverlayProps) {
   return (
     <Popover onClose={onClose} placement={{ left: '23%' }} label="Companies">
       <ComboboxPanel
+        autoFocus
         label="Companies"
         searchPlaceholder="Find a Company"
         query={query}

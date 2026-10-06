@@ -1,5 +1,5 @@
-export { Radio } from './Radio.js';
-export type { RadioProps } from './Radio.js';
+export { Radio, RadioGroup } from './Radio.js';
+export type { RadioProps, RadioGroupProps } from './Radio.js';
 export { Switch } from './Switch.js';
 export type { SwitchProps } from './Switch.js';
 export { CalendarDay } from './CalendarDay.js';

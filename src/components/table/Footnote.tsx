@@ -1,4 +1,4 @@
-import type { HTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 
 export interface FootnoteProps extends HTMLAttributes<HTMLElement> {
@@ -7,7 +7,11 @@ export interface FootnoteProps extends HTMLAttributes<HTMLElement> {
   currency?: string;
   /** Marks a figure a model produced. Takes Text/AI. */
   ai?: boolean;
-  /** Adds the hover affordance for a footnote that reveals its source. */
+  /**
+   * The footnote reveals its source: the marker becomes a `<button>` inside the
+   * `<sup>`, reachable by keyboard. `onClick`, `aria-label` and
+   * `aria-describedby` (point it at the note's id) go to that button.
+   */
   interactive?: boolean;
 }
 
@@ -17,15 +21,34 @@ export interface FootnoteProps extends HTMLAttributes<HTMLElement> {
  * Type is Overline/S: the smallest role in the system and the only one licensed
  * for a marker this size. Never set it below the 12px floor (rule R10) — the
  * previous 8px treatment has been raised.
+ *
+ * Accessibility: a static marker is plain text; to tie it to its note, give the
+ * note an `id` and set `aria-describedby` on an `interactive` footnote.
  */
-export function Footnote({ children, currency, ai, interactive, className, ...rest }: FootnoteProps) {
-  return (
-    <sup
-      className={cx('scalar-footnote', ai && 'scalar-footnote--ai', interactive && 'scalar-footnote--interactive', className)}
-      {...rest}
-    >
+export const Footnote = forwardRef<HTMLElement, FootnoteProps>(function Footnote(
+  { children, currency, ai, interactive, className, onClick, 'aria-label': ariaLabel, 'aria-describedby': describedBy, ...rest },
+  ref,
+) {
+  const content = (
+    <>
       {currency}
       {children}
+    </>
+  );
+  return (
+    <sup
+      ref={ref}
+      className={cx('scalar-footnote', ai && 'scalar-footnote--ai', interactive && 'scalar-footnote--interactive', className)}
+      {...(interactive ? null : { onClick, 'aria-label': ariaLabel, 'aria-describedby': describedBy })}
+      {...rest}
+    >
+      {interactive ? (
+        <button type="button" className="scalar-footnote__button" onClick={onClick} aria-label={ariaLabel} aria-describedby={describedBy}>
+          {content}
+        </button>
+      ) : (
+        content
+      )}
     </sup>
   );
-}
+});

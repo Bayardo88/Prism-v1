@@ -135,6 +135,7 @@ export function InformationRequest({ state, params }: ScreenProps) {
               {pickerOpen && (
                 <div ref={panelRef} style={{ position: 'absolute', bottom: '100%', left: 0, zIndex: zIndex.overlay }}>
                   <ComboboxPanel
+                    autoFocus
                     label="Responsible"
                     searchPlaceholder="Find a person"
                     items={responsibles

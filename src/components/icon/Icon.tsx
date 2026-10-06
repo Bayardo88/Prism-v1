@@ -14,19 +14,18 @@ export type IconTone =
 
 export interface IconProps extends Omit<SVGProps<SVGSVGElement>, 'children'> {
   /**
-   * The glyph, as SVG path content.
-   *
-   * Glyphs ship from the separate `SDS_Main icons` Figma library, which is not
-   * part of this package. Export the glyph you need and pass its path content
-   * here, or pass a full icon component via `as`.
+   * The glyph, as SVG body content: `<Icon><icons.Search /></Icon>` (the
+   * product set) or `<Icon><glyphs.Check /></Icon>` (structural aliases).
    */
   children?: ReactNode;
   /** Bound to Semantic: Sizing/Icon. Never hand-size an icon. */
   size?: IconSize;
   tone?: IconTone;
   /**
-   * An icon that carries meaning needs a label; one that repeats adjacent text
-   * does not and stays hidden from assistive technology (the default).
+   * Opt-in accessible name. Icons are decorative (`aria-hidden`) by default;
+   * one that carries meaning on its own needs a label, which switches it to
+   * `role="img"`. A consumer-supplied `aria-label` / `aria-labelledby` has the
+   * same effect.
    */
   label?: string;
 }
@@ -42,6 +41,7 @@ export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
   { children, size = 's', tone = 'secondary', label, className, ...rest },
   ref,
 ) {
+  const named = Boolean(label || rest['aria-label'] || rest['aria-labelledby']);
   return (
     <svg
       ref={ref}
@@ -49,11 +49,11 @@ export const Icon = forwardRef<SVGSVGElement, IconProps>(function Icon(
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      aria-hidden={label ? undefined : true}
-      role={label ? 'img' : undefined}
-      aria-label={label}
       focusable="false"
       {...rest}
+      aria-hidden={named ? undefined : true}
+      role={named ? 'img' : undefined}
+      aria-label={label ?? rest['aria-label']}
     >
       {children}
     </svg>

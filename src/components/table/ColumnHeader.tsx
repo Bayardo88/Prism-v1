@@ -1,15 +1,23 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 import { Icon } from '../icon/Icon.js';
-import { ArrowDown, ArrowUp } from '../icon/glyphs.js';
+import { ArrowDown, ArrowUp, Sort } from '../icon/glyphs.js';
 import { Tooltip } from '../core/Tooltip.js';
 
 export interface ColumnHeaderProps extends HTMLAttributes<HTMLDivElement> {
   children?: ReactNode;
   /** Right-aligns the label to sit over a numeric column. */
   numeric?: boolean;
-  /** Current sort direction, or `null` when this column is not the sort key. */
-  sort?: 'asc' | 'desc' | null;
+  /**
+   * Current sort direction, or `null`/`'none'` when this column is not the sort
+   * key. Accepts the `GridColumnHeader` vocabulary (`'ascending'` /
+   * `'descending'`) as well as `'asc'` / `'desc'`.
+   */
+  sort?: 'asc' | 'desc' | 'ascending' | 'descending' | 'none' | null;
+  /**
+   * Makes the header sortable: a native button inside the header carries the
+   * activation. Called with the direction to sort by next.
+   */
   onSortChange?: (next: 'asc' | 'desc') => void;
   /** Trailing controls — a filter menu, an action button. */
   actions?: ReactNode;
@@ -56,29 +64,35 @@ export interface ColumnHeaderProps extends HTMLAttributes<HTMLDivElement> {
  * Text/Secondary over a Stroke/Strong rule. Use one tone per grid.
  *
  * The header is sticky in use — render it outside the scroll container.
+ *
+ * Accessibility: the header is a `role="columnheader"` container; when sortable
+ * the sort control is a real `<button>` inside it (Enter / Space / click), so
+ * trailing `actions` buttons are separate controls and never trigger a sort.
+ * `aria-sort` is set on the header (`none` while sortable but unsorted).
  */
 export const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(function ColumnHeader(
   { children, numeric, sort, onSortChange, actions, grow: _grow, width: _width, span, tone = 'brand', kind = 'default', mark, label, tooltip, icon, input, action, className, style, ...rest },
   ref,
 ) {
   const sortable = Boolean(onSortChange);
+  const dir = sort === 'asc' || sort === 'ascending' ? 'asc' : sort === 'desc' || sort === 'descending' ? 'desc' : null;
+  const sortIcon = (
+    <Icon size="xs" tone="inherit">
+      {dir === 'asc' ? <ArrowUp /> : dir === 'desc' ? <ArrowDown /> : <Sort />}
+    </Icon>
+  );
+  const labelNode = <span className="scalar-column-header__label">{children}</span>;
+  const sortButton = (
+    <button type="button" className="scalar-column-header__sort-button" onClick={() => onSortChange?.(dir === 'asc' ? 'desc' : 'asc')}>
+      {labelNode}
+      {sortIcon}
+    </button>
+  );
   return (
     <div
       ref={ref}
       role="columnheader"
-      aria-sort={sort === 'asc' ? 'ascending' : sort === 'desc' ? 'descending' : sortable ? 'none' : undefined}
-      tabIndex={sortable ? 0 : undefined}
-      onClick={sortable ? () => onSortChange?.(sort === 'asc' ? 'desc' : 'asc') : undefined}
-      onKeyDown={
-        sortable
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onSortChange?.(sort === 'asc' ? 'desc' : 'asc');
-              }
-            }
-          : undefined
-      }
+      aria-sort={dir === 'asc' ? 'ascending' : dir === 'desc' ? 'descending' : sortable ? 'none' : undefined}
       className={cx(
         'scalar-column-header',
         numeric && 'scalar-column-header--numeric',
@@ -94,19 +108,18 @@ export const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(functi
       style={span && span > 1 ? { gridColumn: `span ${span}`, ...style } : style}
       {...rest}
     >
-      {tooltip ? (
+      {sortable ? (
+        tooltip ? <Tooltip content={tooltip} position="bottom">{sortButton}</Tooltip> : sortButton
+      ) : tooltip ? (
         <Tooltip content={tooltip} position="bottom">
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the Tooltip trigger must be keyboard-focusable (Tooltip contract) */}
           <span className="scalar-column-header__label" tabIndex={0}>{children}</span>
         </Tooltip>
       ) : (
-        <span className="scalar-column-header__label">{children}</span>
+        labelNode
       )}
+      {!sortable && dir && sortIcon}
       {label && <span className="scalar-column-header__tag">{label}</span>}
-      {sort && (
-        <Icon size="xs" tone="inherit">
-          {sort === 'asc' ? <ArrowUp /> : <ArrowDown />}
-        </Icon>
-      )}
       {icon && (
         <Icon size="xs" tone="inherit" className="scalar-column-header__icon">
           {icon}

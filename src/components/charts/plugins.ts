@@ -8,6 +8,8 @@ import type { ChartTokens } from './chartTokens.js';
 export interface DirectLabelOptions {
   tokens: ChartTokens;
   format: (value: number) => string;
+  /** Overrides `format` per mark (e.g. to force a sign on waterfall deltas). */
+  formatAt?: (datasetIndex: number, index: number, value: number) => string;
   /** Read the value for a bar. Waterfall labels its delta, not its end point. */
   valueAt?: (datasetIndex: number, index: number, raw: unknown) => number | null;
 }
@@ -26,7 +28,7 @@ export function directLabelsPlugin(opts: DirectLabelOptions): Plugin<'bar'> {
     id: 'scalarDirectLabels',
     afterDatasetsDraw(chart: Chart<'bar'>) {
       const { ctx } = chart;
-      const { tokens: t, format, valueAt } = opts;
+      const { tokens: t, format, formatAt, valueAt } = opts;
       ctx.save();
       ctx.font = `600 ${t.valueFontSize}px ${t.fontFamily}`;
       ctx.fillStyle = t.valueColor;
@@ -41,7 +43,7 @@ export function directLabelsPlugin(opts: DirectLabelOptions): Plugin<'bar'> {
           const value = valueAt ? valueAt(di, i, raw) : typeof raw === 'number' ? raw : null;
           if (value === null || value === undefined) return;
           const { x, y } = element.getProps(['x', 'y'], true);
-          ctx.fillText(format(value), x, y - 6);
+          ctx.fillText(formatAt ? formatAt(di, i, value) : format(value), x, y - 6);
         });
       });
       ctx.restore();

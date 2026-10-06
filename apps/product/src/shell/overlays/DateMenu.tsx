@@ -26,6 +26,7 @@ export function DateMenu({ company, onClose }: OverlayProps) {
   return (
     <Popover onClose={onClose} placement={{ left: '30.5%' }} label="Measurement date">
       <ComboboxPanel
+        autoFocus
         label="Measurement dates"
         searchPlaceholder="Find a Measurement Date"
         query={query}

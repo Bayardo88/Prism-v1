@@ -1,10 +1,9 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 
-export interface BodySlotProps {
+export interface BodySlotProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   /** Overrides the placeholder text. Default: "BODY-SLOT". */
   label?: ReactNode;
-  className?: string;
 }
 
 /**
@@ -14,17 +13,23 @@ export interface BodySlotProps {
  * never ships it: pass your content as the template's children and this
  * disappears. Matches the grey `BODY-SLOT` rectangle in the Figma frame
  * "Page Template · body space used for any component".
+ *
+ * It carries no role or accessible name: it is scaffolding, and announcing it
+ * would be noise. Its visible text already says what it is.
  */
-export function BodySlot({ label = 'BODY-SLOT', className }: BodySlotProps) {
+export const BodySlot = forwardRef<HTMLDivElement, BodySlotProps>(function BodySlot(
+  { label = 'BODY-SLOT', className, ...rest },
+  ref,
+) {
   return (
-    <div className={cx('scalar-body-slot', className)} data-body-slot-placeholder="" role="note" aria-label="Placeholder for page content">
+    <div ref={ref} className={cx('scalar-body-slot', className)} data-body-slot-placeholder="" {...rest}>
       <span className="scalar-body-slot__label">{label}</span>
       <span className="scalar-body-slot__hint">Replace this with the page content</span>
     </div>
   );
-}
+});
 
-export interface PageTemplateProps {
+export interface PageTemplateProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   /** Slot 1 — the application bar. Pass a `PrimaryMenu`. */
   navigation?: ReactNode;
   /** Slot 2 — the company header under the bar. Pass a `CompanyInfo` (with a `SecondaryMenu` as its children). */
@@ -44,7 +49,6 @@ export interface PageTemplateProps {
    * frame that renders its own full-height column.
    */
   fullHeight?: boolean;
-  className?: string;
 }
 
 /**
@@ -70,10 +74,17 @@ export interface PageTemplateProps {
  * other slots leave over and scrolls on its own, so the navigation above it and
  * the drawer below it stay put. Never restyle the slots from outside — change the
  * component you pass in.
+ *
+ * Landmarks: the body slot is the page's single `<main>`; the navigation and
+ * sub-navigation components you pass are expected to render their own
+ * `<nav>`/`<header>`. `ref` and native props land on the root element.
  */
-export function PageTemplate({ navigation, companyInfo, subNavigation, children, drawer, fullHeight = true, className }: PageTemplateProps) {
+export const PageTemplate = forwardRef<HTMLDivElement, PageTemplateProps>(function PageTemplate(
+  { navigation, companyInfo, subNavigation, children, drawer, fullHeight = true, className, ...rest },
+  ref,
+) {
   return (
-    <div className={cx('scalar-page-template', fullHeight && 'scalar-page-template--full', className)}>
+    <div ref={ref} {...rest} className={cx('scalar-page-template', fullHeight && 'scalar-page-template--full', className)}>
       {navigation}
       <div className="scalar-page-template__body">
         {companyInfo}
@@ -87,4 +98,4 @@ export function PageTemplate({ navigation, companyInfo, subNavigation, children,
       </div>
     </div>
   );
-}
+});

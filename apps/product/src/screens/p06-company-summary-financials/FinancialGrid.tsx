@@ -131,10 +131,12 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
               {slots.map((s, n) => {
                 const k = `c${n}`;
                 if (s.kind === 'label') {
-                  return (
-                    <RowLabelCell key={k} type={(r.type ?? 'line-item') as RowLabelType} expanded={r.expanded} onToggle={r.onToggle}>
-                      {r.labelContent ?? r.label}
-                    </RowLabelCell>
+                  const type = (r.type ?? 'line-item') as RowLabelType;
+                  const content = r.labelContent ?? r.label;
+                  return r.expanded !== undefined && r.onToggle ? (
+                    <RowLabelCell key={k} type={type} expanded={r.expanded} onToggle={r.onToggle}>{content}</RowLabelCell>
+                  ) : (
+                    <RowLabelCell key={k} type={type}>{content}</RowLabelCell>
                   );
                 }
                 if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;

@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useRef, type InputHTMLAttributes } from 'react';
-import { cx } from '../../utils/cx.js';
+import { forwardRef, useEffect, useMemo, useRef, type InputHTMLAttributes } from 'react';
+import { composeRefs, cx } from '../../utils/index.js';
 import { Icon } from '../icon/Icon.js';
 import { Check, Minus } from '../icon/glyphs.js';
 
@@ -10,36 +10,37 @@ export interface CheckboxItemProps extends Omit<InputHTMLAttributes<HTMLInputEle
   size?: ChoiceSize;
   /**
    * For a parent whose children are partly selected. A display state — never
-   * something the user selects directly.
+   * something the user selects directly. Exposed natively as "mixed".
    */
   indeterminate?: boolean;
-  /** Draws the error edge. */
+  /** Draws the error edge and sets `aria-invalid`. Point `aria-describedby` at the error text. */
   invalid?: boolean;
+  /** Lands on the drawn box `span`, not the `<input>` (which takes `ref` and every other native prop). */
+  className?: string;
 }
 
 /**
  * Checkbox Item — the checkbox control on its own.
  *
- * Accessibility: the drawn box is 16–24px but the target must reach 44px. Use
- * `Checkbox` when a label travels with it — that wrapper carries the target.
+ * Controlled (`checked` + `onChange`) or uncontrolled (`defaultChecked`), as a
+ * native checkbox. It has no label of its own: give it `aria-label` or
+ * `aria-labelledby`, or use `Checkbox`, whose wrapping label also carries the
+ * 44px target the drawn 16–24px box cannot reach.
  */
 export const CheckboxItem = forwardRef<HTMLInputElement, CheckboxItemProps>(function CheckboxItem(
   { size = 'm', indeterminate = false, invalid, className, ...rest },
   ref,
 ) {
-  const inner = useRef<HTMLInputElement>(null);
+  const inner = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     if (inner.current) inner.current.indeterminate = indeterminate;
   }, [indeterminate]);
+  const setRefs = useMemo(() => composeRefs<HTMLInputElement>(inner, ref), [ref]);
 
   return (
     <>
       <input
-        ref={(node) => {
-          (inner as { current: HTMLInputElement | null }).current = node;
-          if (typeof ref === 'function') ref(node);
-          else if (ref) (ref as { current: HTMLInputElement | null }).current = node;
-        }}
+        ref={setRefs}
         type="checkbox"
         className="scalar-choice-input"
         data-tone={invalid ? 'negative' : undefined}

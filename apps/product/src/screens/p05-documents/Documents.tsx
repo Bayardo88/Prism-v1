@@ -148,6 +148,7 @@ function AddFolderModal({ open, target, folders, pickerInitiallyOpen, onClose, o
           {pickerOpen && (
             <div ref={panelRef} style={{ paddingTop: space.xs }}>
               <ComboboxPanel
+                autoFocus
                 label="Parent folder"
                 searchPlaceholder="Find a Folder"
                 items={options}

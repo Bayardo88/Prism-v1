@@ -20,6 +20,7 @@ import {
   Textarea, Heading, Label, Toast, Typography, Tooltip, ToolSwitch, ValuationInfo, ValuationStatus, WaterfallChart,
   WorkspaceDrawer, WorkspaceDrawerTab, glyphs, icons,
   type ThemeMode, type ViewportMode, type ToolSwitchValue,
+  type TypeStep,
 } from '@scalar/design-system';
 import { Gallery } from './Gallery.js';
 
@@ -148,11 +149,12 @@ function TypeRamp({ data, viewport }: { data: TokenData; viewport: ViewportMode 
 
 function Typography_({ role, step }: { role: 'display' | 'heading' | 'text' | 'label' | 'link' | 'overline'; step: string }) {
   const sample = role === 'overline' ? 'SECTION LABEL' : 'The quick brown fox jumps over the lazy dog';
-  if (role === 'heading') return <Heading step={step}>{sample}</Heading>;
-  if (role === 'text') return <Text step={step}>{sample}</Text>;
-  if (role === 'label') return <Label step={step}>{sample}</Label>;
-  if (role === 'overline') return <Overline step={step}>{sample}</Overline>;
-  return <Typography variant={role} step={step}>{sample}</Typography>;
+  // `step` arrives as a plain string from the gallery table; the typed API checks it per role.
+  if (role === 'heading') return <Heading step={step as TypeStep<'heading'>}>{sample}</Heading>;
+  if (role === 'text') return <Text step={step as TypeStep<'text'>}>{sample}</Text>;
+  if (role === 'label') return <Label step={step as TypeStep<'label'>}>{sample}</Label>;
+  if (role === 'overline') return <Overline step={step as TypeStep<'overline'>}>{sample}</Overline>;
+  return <Typography variant={role} step={step as TypeStep<typeof role>}>{sample}</Typography>;
 }
 
 /* --------------------------------------------------------------- components */
@@ -267,7 +269,7 @@ function Components() {
           <Breadcrumb items={[{ label: 'Companies', href: '#' }, { label: 'Apple Inc.', href: '#' }, { label: 'Valuations' }]} />
           <Pagination page={page} pageCount={12} onPageChange={setPage} rowsPerPage={rows} onRowsPerPageChange={setRows} />
           <Stepper label="Progress" steps={[{ label: 'Upload', state: 'complete' }, { label: 'Map columns', state: 'current' }, { label: 'Review', state: 'upcoming' }, { label: 'Publish', state: 'error' }]} />
-          <Row_>{[1, 2, 3].map((n) => <PageItem key={n} page={n} current={n === 2} />)}<Step index={1} label="Single step" state="current" /></Row_>
+          <Row_>{[1, 2, 3].map((n) => <PageItem key={n} page={n} current={n === 2} />)}<ol className="scalar-stepper__list"><Step index={1} label="Single step" state="current" /></ol></Row_>
         </Block>
       </Part>
 
@@ -333,8 +335,8 @@ function Components() {
               <CardItem label="IRR" value="+25.8%" trend="up" /><CardItem label="MOIC" value="1.4x" /><CardItem label="NAV" value="-2.1%" trend="down" />
             </Card>
           </Row_>
-          <div className="pg-grid">{(['info', 'positive', 'warning', 'negative'] as const).map((s) => <Alert key={s} style={s} title={`${s} alert`}>What happened and what to do next.</Alert>)}</div>
-          <Row_>{(['info', 'positive', 'warning', 'negative'] as const).map((s) => <Toast key={s} style={s} onDismiss={() => {}}>{`${s} toast`}</Toast>)}</Row_>
+          <div className="pg-grid">{(['info', 'positive', 'warning', 'negative'] as const).map((s) => <Alert key={s} tone={s} title={`${s} alert`}>What happened and what to do next.</Alert>)}</div>
+          <Row_>{(['info', 'positive', 'warning', 'negative'] as const).map((s) => <Toast key={s} tone={s} onDismiss={() => {}}>{`${s} toast`}</Toast>)}</Row_>
           <Row_><ProgressBar value={40} label="Uploading" /><ProgressBar label="Working" />{(['text', 'title', 'circle', 'block'] as const).map((t) => <Skeleton key={t} type={t} />)}</Row_>
         </Block>
       </Part>

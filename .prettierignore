@@ -1,0 +1,7 @@
+dist
+node_modules
+src/tokens/generated.ts
+src/styles/*.css
+examples/build
+apps/product/build
+package-lock.json

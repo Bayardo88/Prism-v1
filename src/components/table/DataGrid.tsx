@@ -1,7 +1,10 @@
-import { Children, Fragment, isValidElement, type CSSProperties, type ReactElement, type ReactNode } from 'react';
+import { Children, Fragment, forwardRef, isValidElement, type HTMLAttributes, type ReactElement, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 
-export interface DataGridProps {
+/** A DataGrid must be named: pass `label`, or `aria-labelledby` pointing at a visible heading. */
+export type DataGridName = { label: string; 'aria-labelledby'?: string } | { label?: string; 'aria-labelledby': string };
+
+interface DataGridBaseProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'role'> {
   /**
    * The sticky header row. Render `ColumnHeader` / `GridColumnHeader` /
    * `AddColumnHeader` instances here — one per column. Each header's
@@ -12,7 +15,6 @@ export interface DataGridProps {
   groupHead?: ReactNode;
   /** The body rows. Render `Row` instances here (directly or in fragments). */
   children?: ReactNode;
-  label?: string;
   /**
    * Explicit column tracks, overriding the ones derived from `head`,
    * e.g. `['minmax(max-content, 2fr)', size.control.l]`.
@@ -20,12 +22,13 @@ export interface DataGridProps {
   columns?: string[];
   /**
    * Bound the grid's height: the body scrolls inside it and the header sticks
-   * to the grid's top. Without it the grid grows with its rows.
+   * to the grid's top. Without it the grid grows with its rows. The scrolling
+   * region is keyboard-focusable so it can be scrolled without a pointer.
    */
   maxHeight?: string;
-  className?: string;
-  style?: CSSProperties;
 }
+
+export type DataGridProps = DataGridBaseProps & DataGridName;
 
 /** Props a header cell may carry to size its column. */
 interface TrackProps {
@@ -69,8 +72,26 @@ export function columnTracks(head: ReactNode): string[] {
  *
  * Both cell models work inside it: `Cell` rows and the grid-pattern cells
  * (`RowLabelCell`, `GridValueCell`, `InCellControl`).
+ *
+ * **Table or grid? This is a table.** It renders `role="table"` with
+ * `row` / `columnheader` / `rowheader` / `cell` children, *not* `role="grid"`.
+ * The WAI-ARIA grid role promises a single tab stop, arrow-key movement between
+ * cells and Enter/F2 to edit — a model none of these cells implement, because
+ * the library draws editable-looking cells (`GridValueCell`, `InCellControl`)
+ * but never edits them: each is a plain native control (a `<button>`, or the
+ * consumer's own input) that sits in the normal Tab order and is activated
+ * with Enter / Space. Reading order and column/row header relationships come
+ * from the table roles, and sort state from `aria-sort` on the column header.
+ * If you build a genuinely editable spreadsheet on top of this, own the
+ * APG grid keyboard model (roving tabindex, arrows, Home/End, Enter/F2, Esc)
+ * and set `role="grid"` through your own wrapper — do not just pass it here.
+ *
+ * Accessibility: **a name is required** — `label` or `aria-labelledby`.
  */
-export function DataGrid({ head, groupHead, children, label, columns, maxHeight, className, style }: DataGridProps) {
+export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataGrid(
+  { head, groupHead, children, label, columns, maxHeight, className, style, ...rest },
+  ref,
+) {
   const tracks = columns ?? columnTracks(head);
   const gridStyle = {
     ...(tracks.length ? { gridTemplateColumns: tracks.join(' ') } : null),
@@ -78,7 +99,16 @@ export function DataGrid({ head, groupHead, children, label, columns, maxHeight,
     ...style,
   };
   return (
-    <div role="grid" aria-label={label} className={cx('scalar-grid', maxHeight && 'scalar-grid--bounded', className)} style={gridStyle}>
+    <div
+      ref={ref}
+      aria-label={label}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be keyboard-focusable (WCAG 2.1.1)
+      tabIndex={maxHeight ? 0 : undefined}
+      {...rest}
+      role="table"
+      className={cx('scalar-grid', maxHeight && 'scalar-grid--bounded', className)}
+      style={gridStyle}
+    >
       {groupHead && (
         <div role="row" className="scalar-grid__head scalar-grid__head--group">
           {groupHead}
@@ -92,4 +122,4 @@ export function DataGrid({ head, groupHead, children, label, columns, maxHeight,
       {children}
     </div>
   );
-}
+});

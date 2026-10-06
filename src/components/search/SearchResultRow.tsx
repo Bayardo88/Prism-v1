@@ -1,8 +1,8 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 import { prismBadgeLabel, type PrismType } from './prism.js';
 
-export interface SearchResultRowProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'title' | 'type'> {
+export interface SearchResultRowProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title' | 'type'> {
   /**
    * The PRISM contract. Moves as one piece: it sets the tile fill, the glyph
    * tint and the badge together. Never mix them — a row tinted Entity/Company
@@ -26,20 +26,22 @@ export interface SearchResultRowProps extends Omit<ButtonHTMLAttributes<HTMLButt
  * Semantic colour states what the result is. It never states whether the user
  * may open it.
  *
- * Accessibility: the row is 62px and clears Target/Minimum. Selection is
+ * Accessibility: an option in the Global Search listbox. Focus stays in the
+ * input (`aria-activedescendant`), so the row is a `div` with `tabIndex={-1}` —
+ * clickable, not a tab stop. The row is 62px and clears Target/Minimum. Selection is
  * carried by the 2px Stroke/Brand edge and the visible key hints as well as the
  * fill, so it survives greyscale and colour-vision deficiency (rule R8).
  */
-export const SearchResultRow = forwardRef<HTMLButtonElement, SearchResultRowProps>(function SearchResultRow(
+export const SearchResultRow = forwardRef<HTMLDivElement, SearchResultRowProps>(function SearchResultRow(
   { type, title, subtitle, icon, selected, hints, hideBadge, className, ...rest },
   ref,
 ) {
   return (
-    <button
+    <div
       ref={ref}
-      type="button"
       role="option"
-      aria-selected={selected}
+      aria-selected={!!selected}
+      tabIndex={-1}
       data-prism={type}
       className={cx('scalar-search-result', className)}
       {...rest}
@@ -51,6 +53,6 @@ export const SearchResultRow = forwardRef<HTMLButtonElement, SearchResultRowProp
       </span>
       {!hideBadge && <span className="scalar-search-result__badge">{prismBadgeLabel[type]}</span>}
       {selected && hints && <span className="scalar-search-result__hints">{hints}</span>}
-    </button>
+    </div>
   );
 });

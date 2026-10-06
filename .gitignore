@@ -4,3 +4,5 @@ dist
 .DS_Store
 examples/build
 apps/product/build
+storybook-static
+coverage
