@@ -31,7 +31,7 @@ let out = `/**
  * viewBox; they fill with currentColor, so Icon's tone tints them.
  * Google Material Symbols are licensed Apache-2.0.
  */
-import type { ReactElement } from 'react';
+import type { ReactElement, SVGProps } from 'react';
 
 const T = 'scale(0.025) translate(0 960)';
 
@@ -40,7 +40,7 @@ for (const n of names) {
   const svg = readFileSync(join(src, `${n}.svg`), 'utf8');
   const paths = [...svg.matchAll(/<path d="([^"]+)"/g)].map((m) => m[1]);
   const body = paths.map((d) => `<path d="${d}" />`).join('');
-  out += `/** Material Symbol \`${n}\` */\nexport const ${pascal(n)} = (): ReactElement => <g transform={T} fill="currentColor">${body}</g>;\n`;
+  out += `/** Material Symbol \`${n}\` */\nexport const ${pascal(n)} = (props: SVGProps<SVGGElement>): ReactElement => <g transform={T} fill="currentColor" {...props}>${body}</g>;\n`;
 }
 out += `\n/** Every icon name in this set, in Material's snake_case. */\nexport const materialIconNames = ${JSON.stringify(names)} as const;\n`;
 writeFileSync(join(root, 'src/components/icon/material.tsx'), out);

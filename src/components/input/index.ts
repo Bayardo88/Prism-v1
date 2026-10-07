@@ -6,3 +6,5 @@ export { Select } from './Select.js';
 export type { SelectProps } from './Select.js';
 export { FormField } from './FormField.js';
 export type { FormFieldProps } from './FormField.js';
+export { useFormField } from './FormFieldContext.js';
+export type { FormFieldContextValue } from './FormFieldContext.js';

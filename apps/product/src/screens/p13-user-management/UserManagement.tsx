@@ -8,7 +8,7 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   Button, ButtonIcon, Cell, ColumnHeader, ConfirmationDialog, DataGrid, FloatingLabelInput, Heading, Icon,
-  MenuPanel, PermissionMatrixRow, ProfileHeader, RoleSelector, Row, RowActionToolbar, SubmenuItem, Text,
+  MenuPanel, PermissionMatrix, PermissionMatrixRow, ProfileHeader, RoleSelector, Row, RowActionToolbar, SubmenuItem, Text,
   color, icons, size, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -93,10 +93,10 @@ export function UserManagement({ state }: ScreenProps) {
                 </div>
               )}
             </div>
-            <div role="grid" aria-label={`Permissions for ${current.email}`} style={{ maxHeight: '45vh', overflow: 'auto', border: `1px solid ${color.stroke.subtle}` }}>
+            <PermissionMatrix aria-label={`Permissions for ${current.email}`} style={{ maxHeight: '45vh', overflow: 'auto', border: `1px solid ${color.stroke.subtle}` }}>
               {matrixGroup('Funds', funds)}
               {matrixGroup('Companies', permissionCompanies)}
-            </div>
+            </PermissionMatrix>
           </section>
 
           {/* User list */}

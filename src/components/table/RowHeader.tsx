@@ -1,12 +1,13 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
+import { useControllableState } from '../../utils/useControllableState.js';
 import { Icon } from '../icon/Icon.js';
 import { CheckboxItem } from '../checkbox/CheckboxItem.js';
 
 /** What the row header holds. Drives the text colour and weight. */
 export type RowHeaderType = 'readable' | 'data' | 'input' | 'total' | 'divider';
 
-export interface RowHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'onChange'> {
+export interface RowHeaderBaseProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'onChange'> {
   /** The label — a name, a period, a figure. Plain text; do not pass a `Link`. */
   children?: ReactNode;
   /**
@@ -19,7 +20,10 @@ export interface RowHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   mark?: boolean;
   /** Figma `Bulk`: a leading checkbox for bulk actions. */
   bulk?: boolean;
+  /** Controlled state of the bulk checkbox. Omit to let it own its state. */
   checked?: boolean;
+  /** Initial state of the bulk checkbox when uncontrolled. */
+  defaultChecked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
   /** Accessible name of the bulk checkbox, e.g. "Select Apple Inc.". */
   selectLabel?: string;
@@ -31,9 +35,6 @@ export interface RowHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   groupEnd?: boolean;
   /** Figma `Icon`: a trailing 12px glyph (the expander "+"). Pass the glyph itself. */
   icon?: ReactNode;
-  /** Makes the trailing glyph a button. Needs `iconLabel`. */
-  onIconClick?: () => void;
-  iconLabel?: string;
   /** A superscript reference or currency marker. See `Footnote`. */
   footnote?: ReactNode;
   /**
@@ -44,6 +45,18 @@ export interface RowHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
   /** Columns this header spans inside a DataGrid. Default 1. */
   span?: number;
 }
+
+/** The trailing glyph is decorative, or a button — and a button must be named. */
+export type RowHeaderIconProps =
+  | { onIconClick?: undefined; iconLabel?: string }
+  | {
+      /** Makes the trailing glyph a button. */
+      onIconClick: () => void;
+      /** Accessible name of that button, e.g. "Expand Apple Inc.". Required with `onIconClick`. */
+      iconLabel: string;
+    };
+
+export type RowHeaderProps = RowHeaderBaseProps & RowHeaderIconProps;
 
 /**
  * Row Header — the first cell of a table row: its name.
@@ -57,14 +70,19 @@ export interface RowHeaderProps extends Omit<HTMLAttributes<HTMLDivElement>, 'ch
  * Use it for every row's first cell instead of a text link or a bare `Cell`.
  * Tokens: Background/Surface, 26px minimum height (Sizing/Row/Compact), padding
  * Spacing/2XS and /XS, Heading/S Light (Semi Bold for `total` and `divider`).
+ *
+ * Accessibility: `role="rowheader"` — use inside a `Row` of a `DataGrid`. The
+ * bulk checkbox, link and icon button are separate native controls, each a
+ * normal tab stop.
  */
 export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function RowHeader(
   {
-    children, type = 'readable', mark, bulk, checked, onCheckedChange, selectLabel, group, groupStart, groupEnd,
+    children, type = 'readable', mark, bulk, checked: checkedProp, defaultChecked, onCheckedChange, selectLabel, group, groupStart, groupEnd,
     icon, onIconClick, iconLabel, footnote, href, span, className, style, ...rest
   },
   ref,
 ) {
+  const [checked, setChecked] = useControllableState<boolean>(checkedProp, defaultChecked ?? false, onCheckedChange);
   return (
     <div
       ref={ref}
@@ -84,8 +102,8 @@ export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function Row
       {bulk && (
         <CheckboxItem
           size="s"
-          checked={checked ?? false}
-          onChange={(e) => onCheckedChange?.(e.target.checked)}
+          checked={checked}
+          onChange={(e) => setChecked(e.target.checked)}
           aria-label={selectLabel ?? 'Select row'}
         />
       )}

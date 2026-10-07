@@ -1,11 +1,11 @@
 export { ChartCanvas } from './ChartCanvas.js';
-export type { ChartCanvasProps, ChartDataTable } from './ChartCanvas.js';
+export type { ChartCanvasProps, ChartDataTable, ChartRootProps } from './ChartCanvas.js';
 export { ChartLegend, ChartLegendItem } from './ChartLegend.js';
 export type { ChartLegendProps, ChartLegendItemProps } from './ChartLegend.js';
 export { BarChart } from './BarChart.js';
-export type { BarChartProps } from './BarChart.js';
+export type { BarChartProps, BarChartType } from './BarChart.js';
 export { LineChart } from './LineChart.js';
-export type { LineChartProps } from './LineChart.js';
+export type { LineChartProps, LineChartType } from './LineChart.js';
 export { WaterfallChart } from './WaterfallChart.js';
 export type { WaterfallChartProps, WaterfallStep } from './WaterfallChart.js';
 export { DonutChart } from './DonutChart.js';

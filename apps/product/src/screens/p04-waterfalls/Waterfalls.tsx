@@ -48,6 +48,7 @@ export function Waterfalls({ state }: ScreenProps) {
   const picker = (
     <div ref={pickerRef}>
       <ComboboxPanel
+        autoFocus
         label="Companies"
         searchPlaceholder="Find a Company"
         items={shown.map((c) => ({ value: c.id, label: c.name }))}

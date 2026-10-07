@@ -1,11 +1,16 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
-import type { PrismScopeType } from './prism.js';
+import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
+import { prismBadgeLabel, type PrismScopeType } from './prism.js';
 
-export interface SearchScopeChipProps {
+export interface SearchScopeChipProps extends HTMLAttributes<HTMLSpanElement> {
   type: PrismScopeType;
   children?: ReactNode;
-  className?: string;
+  /**
+   * Screen-reader prefix that makes the scope audible. Default
+   * "Scoped to {Type}:" (e.g. "Scoped to Company:").
+   */
+  srLabel?: string;
 }
 
 /**
@@ -15,13 +20,18 @@ export interface SearchScopeChipProps {
  * and removed only by Backspace: a breadcrumb of where the search is pointed,
  * not a filter control the user clicks.
  *
- * Accessibility: the chip is not a button and takes no focus. If it is ever
- * made click-removable, the target must reach Target/Minimum.
+ * Accessibility: the chip is not a button and takes no focus. A visually hidden
+ * prefix ("Scoped to Company:") tells a screen reader what the chip means. If
+ * it is ever made click-removable, the target must reach Target/Minimum.
  */
-export function SearchScopeChip({ type, children, className }: SearchScopeChipProps) {
+export const SearchScopeChip = forwardRef<HTMLSpanElement, SearchScopeChipProps>(function SearchScopeChip(
+  { type, children, srLabel, className, ...rest },
+  ref,
+) {
   return (
-    <span className={cx('scalar-scope-chip', className)} data-prism={type}>
+    <span ref={ref} className={cx('scalar-scope-chip', className)} data-prism={type} {...rest}>
+      <VisuallyHidden>{srLabel ?? `Scoped to ${prismBadgeLabel[type]}:`} </VisuallyHidden>
       {children}
     </span>
   );
-}
+});

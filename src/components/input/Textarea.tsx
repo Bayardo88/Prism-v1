@@ -1,5 +1,6 @@
 import { forwardRef, type TextareaHTMLAttributes } from 'react';
 import { cx } from '../../utils/cx.js';
+import { mergeDescribedBy, useFormField } from './FormFieldContext.js';
 import type { FieldState } from './Input.js';
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -9,6 +10,8 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
    * this off rather than leaving the grip as decoration.
    */
   resizable?: boolean;
+  /** Lands on the `<textarea>` itself; `className` lands on the wrapper. */
+  controlClassName?: string;
 }
 
 /**
@@ -19,13 +22,17 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
  * Size the default height to the expected answer. A three-line box invites
  * three lines; a box taller than the answer needs reads as a demand for more.
  *
- * Pair with `FormField` for a label and helper text.
+ * Pair with `FormField` for a label, helper/error text and `required`; inside
+ * one it is wired automatically. Standalone, pass `aria-label` and your own
+ * `aria-describedby` (e.g. a character counter). `ref` and native props land on
+ * the `<textarea>`; `className` on the wrapper.
  */
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { state = 'default', resizable = true, className, disabled, ...rest },
+  { state, resizable = true, className, controlClassName, disabled, id, required, ...rest },
   ref,
 ) {
-  const resolved = disabled ? 'disabled' : state;
+  const field = useFormField();
+  const resolved = disabled ? 'disabled' : state ?? field?.state ?? 'default';
   return (
     <div
       className={cx('scalar-field', 'scalar-field--textarea', className)}
@@ -34,10 +41,13 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
     >
       <textarea
         ref={ref}
-        className="scalar-field__control"
+        className={cx('scalar-field__control', controlClassName)}
+        {...rest}
+        id={id ?? field?.id}
+        required={required ?? (field?.required || undefined)}
         disabled={resolved === 'disabled'}
         aria-invalid={resolved === 'error' || undefined}
-        {...rest}
+        aria-describedby={mergeDescribedBy(rest['aria-describedby'], field)}
       />
     </div>
   );

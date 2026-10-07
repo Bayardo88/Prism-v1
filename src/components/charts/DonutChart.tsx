@@ -1,8 +1,10 @@
 import type { ChartConfiguration } from 'chart.js';
-import { ChartCanvas } from './ChartCanvas.js';
+import { forwardRef } from 'react';
+import { ChartCanvas, type ChartRootProps } from './ChartCanvas.js';
 import { ChartLegend } from './ChartLegend.js';
 import { baseChartOptions } from './chartSetup.js';
 import { donutCenterPlugin } from './plugins.js';
+import { SERIES_COUNT } from './series.js';
 import type { ChartTokens } from './chartTokens.js';
 
 export interface DonutSlice {
@@ -10,7 +12,7 @@ export interface DonutSlice {
   value: number;
 }
 
-export interface DonutChartProps {
+export interface DonutChartProps extends ChartRootProps {
   /** Eight slices is the ceiling. Past that, sort descending and fold the tail. */
   slices: DonutSlice[];
   /** The figure held in the middle. */
@@ -22,8 +24,9 @@ export interface DonutChartProps {
    */
   focusedIndex?: number;
   title: string;
+  /** Formats the Value column of the screen-reader table. Defaults to the raw number. */
+  format?: (value: number) => string;
   height?: number;
-  className?: string;
 }
 
 /**
@@ -36,9 +39,9 @@ export interface DonutChartProps {
  * Segments are separated by a 2px surface gap, and every slice is labelled with
  * its share in the legend, so identity never rests on colour.
  */
-export function DonutChart({
-  slices, total, caption, focusedIndex, title, height = 260, className,
-}: DonutChartProps) {
+export const DonutChart = forwardRef<HTMLElement, DonutChartProps>(function DonutChart({
+  slices, total, caption, focusedIndex, title, format = String, height = 260, ...rest
+}, ref) {
   const sum = slices.reduce((a, s) => a + s.value, 0) || 1;
   const share = (v: number) => `${Math.round((v / sum) * 100)}%`;
 
@@ -51,8 +54,8 @@ export function DonutChart({
           data: slices.map((s) => s.value),
           backgroundColor: slices.map((_, i) =>
             focusedIndex !== undefined && focusedIndex !== i
-              ? t.seriesSubtle[i % 8]
-              : t.series[i % 8],
+              ? t.seriesSubtle[i % SERIES_COUNT]
+              : t.series[i % SERIES_COUNT],
           ),
           // The 2px surface gap between segments.
           borderColor: t.surface,
@@ -69,16 +72,17 @@ export function DonutChart({
 
   return (
     <ChartCanvas
+      ref={ref}
+      {...rest}
       build={build}
       title={title}
       height={height}
-      className={className}
       table={{
         columns: ['Slice', 'Value', 'Share'],
-        rows: slices.map((s) => [s.label, s.value, share(s.value)]),
+        rows: slices.map((s) => [s.label, format(s.value), share(s.value)]),
       }}
     >
-      <ChartLegend labels={slices.map((s) => `${s.label} · ${share(s.value)}`)} />
+      <ChartLegend current={focusedIndex} labels={slices.map((s) => `${s.label} · ${share(s.value)}`)} />
     </ChartCanvas>
   );
-}
+});

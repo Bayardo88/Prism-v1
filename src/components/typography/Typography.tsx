@@ -1,6 +1,9 @@
-import { createElement, forwardRef, type ElementType, type HTMLAttributes, type ReactNode } from 'react';
+import { createElement, forwardRef, type ElementType, type HTMLAttributes, type ReactElement, type ReactNode, type Ref } from 'react';
 import { cx } from '../../utils/cx.js';
-import type { TypeRole, TypeWeight } from '../../tokens/index.js';
+import type { TypeRole, TypeWeight, typeSteps } from '../../tokens/index.js';
+
+/** The legal steps for a role, e.g. `TypeStep<'overline'>` is `'s' | 'm'`. */
+export type TypeStep<V extends TypeRole = TypeRole> = (typeof typeSteps)[V][number];
 
 export type TextTone =
   | 'primary' | 'secondary' | 'tertiary' | 'disabled' | 'inverse'
@@ -9,15 +12,19 @@ export type TextTone =
   | 'onBrand' | 'onPositive' | 'onNegative' | 'onWarning' | 'onAi' | 'onDisabled'
   | 'inherit';
 
-export interface TypographyProps extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
+export interface TypographyProps<V extends TypeRole = TypeRole> extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
   children?: ReactNode;
   /**
    * The type role. Each role exists so its metrics track its job.
    * Named `variant` rather than `role` so the DOM `role` attribute stays free.
    */
-  variant?: TypeRole;
-  /** The step within the role. The ramp has no step below 12px except `heading.xs` (10px, data-grid chrome only — rule R10). */
-  step?: string;
+  variant?: V;
+  /**
+   * The step within the role, checked against the role (`overline` has only `s`
+   * and `m`). The ramp has no step below 12px except `heading.xs` (10px,
+   * data-grid chrome only — rule R10).
+   */
+  step?: TypeStep<V>;
   /** Orthogonal to size: changing it never moves size or line-height (rule R7). */
   weight?: TypeWeight;
   tone?: TextTone;
@@ -39,8 +46,8 @@ export interface TypographyProps extends Omit<HTMLAttributes<HTMLElement>, 'colo
  * Never add `letterSpacing` on top of this: the Overline role carries the
  * +0.8px tracking, and setting it by hand detaches the step (rule R10).
  */
-export const Typography = forwardRef<HTMLElement, TypographyProps>(function Typography(
-  { children, variant = 'text', step = 'm', weight = 'regular', tone = 'primary', as, truncate, className, ...rest },
+const TypographyImpl = forwardRef<HTMLElement, TypographyProps>(function Typography(
+  { children, variant = 'text', step = 'm' as TypeStep, weight = 'regular', tone = 'primary', as, truncate, className, ...rest },
   ref,
 ) {
   const weightClass = weight === 'semiBold' ? 'semi-bold' : weight;
@@ -61,30 +68,60 @@ export const Typography = forwardRef<HTMLElement, TypographyProps>(function Typo
   );
 });
 
-/** Heading — Typography with `role="heading"` and a matching element default. */
-export const Heading = forwardRef<HTMLElement, Omit<TypographyProps, 'variant'> & { level?: 1 | 2 | 3 | 4 | 5 | 6 }>(
-  function Heading({ level = 2, step = 'xl', weight = 'semiBold', as, ...rest }, ref) {
-    return <Typography ref={ref} variant="heading" step={step} weight={weight} as={as ?? `h${level}`} {...rest} />;
-  },
-);
+/** Typography — generic over `variant` so `step` is checked against the role. */
+export const Typography = TypographyImpl as unknown as <V extends TypeRole = 'text'>(
+  props: TypographyProps<V> & { ref?: Ref<HTMLElement> },
+) => ReactElement | null;
+(Typography as { displayName?: string }).displayName = 'Typography';
 
-/** Text — the body role. */
-export const Text = forwardRef<HTMLElement, Omit<TypographyProps, 'variant'>>(function Text(props, ref) {
-  return <Typography ref={ref} variant="text" {...props} />;
-});
+export interface HeadingProps extends Omit<TypographyProps<'heading'>, 'variant'> {
+  /** Sets the default element (`h1`–`h6`). Document structure, not size. */
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+}
+export type TextProps = Omit<TypographyProps<'text'>, 'variant'>;
+export type LabelProps = Omit<TypographyProps<'label'>, 'variant'>;
+export type OverlineProps = Omit<TypographyProps<'overline'>, 'variant'>;
 
-/** Label — for form labels and compact UI furniture. */
-export const Label = forwardRef<HTMLElement, Omit<TypographyProps, 'variant'>>(function Label(
-  { as = 'label', weight = 'semiBold', step = 's', ...rest },
+/** Heading — the heading role; renders `<h{level}>` (no `role` attribute needed). */
+export const Heading = forwardRef<HTMLElement, HeadingProps>(function Heading(
+  { level = 2, step = 'xl', weight = 'semiBold', as, ...rest },
   ref,
 ) {
-  return <Typography ref={ref} variant="label" as={as} weight={weight} step={step} {...rest} />;
+  return <TypographyImpl ref={ref} variant="heading" step={step} weight={weight} as={as ?? `h${level}`} {...rest} />;
+});
+
+/** Text — the body role. */
+export const Text = forwardRef<HTMLElement, TextProps>(function Text(props, ref) {
+  return <TypographyImpl ref={ref} variant="text" {...props} />;
+});
+
+/**
+ * Label — compact UI furniture and form labels.
+ *
+ * Renders a `<label>` when `htmlFor` is given (so the association works) and a
+ * `<span>` otherwise; an orphan `<label>` labels nothing. Pass `as` to override.
+ */
+export const Label = forwardRef<HTMLElement, LabelProps>(function Label(
+  { as, htmlFor, weight = 'semiBold', step = 's', ...rest },
+  ref,
+) {
+  return (
+    <TypographyImpl
+      ref={ref}
+      variant="label"
+      as={as ?? (htmlFor ? 'label' : 'span')}
+      htmlFor={htmlFor}
+      weight={weight}
+      step={step}
+      {...rest}
+    />
+  );
 });
 
 /** Overline — the uppercase role. It owns its tracking; never add your own. */
-export const Overline = forwardRef<HTMLElement, Omit<TypographyProps, 'variant'>>(function Overline(
+export const Overline = forwardRef<HTMLElement, OverlineProps>(function Overline(
   { step = 's', weight = 'semiBold', tone = 'tertiary', ...rest },
   ref,
 ) {
-  return <Typography ref={ref} variant="overline" step={step} weight={weight} tone={tone} {...rest} />;
+  return <TypographyImpl ref={ref} variant="overline" step={step} weight={weight} tone={tone} {...rest} />;
 });

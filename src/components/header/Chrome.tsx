@@ -1,49 +1,59 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type MouseEventHandler, type ReactNode, type Ref } from 'react';
 import { cx } from '../../utils/cx.js';
 import { Icon } from '../icon/Icon.js';
 import { Add, MoreVert } from '../icon/material.js';
+import { LinkOrButton, type LinkOrButtonProps } from './LinkOrButton.js';
 
 /* ---------------------------------------------------------------------------
  * Tier 1 — Primary Menu
  * ------------------------------------------------------------------------ */
 
-export interface MainMenuItemProps {
+export interface MainMenuItemProps extends Omit<LinkOrButtonProps, 'children'> {
   children?: ReactNode;
   icon?: ReactNode;
-  /** The section the user is in. */
+  /** The section the user is in (`aria-current="page"`). */
   current?: boolean;
-  /** True while this item's dropdown is open. */
+  /**
+   * Set only for an item that opens a dropdown: it is then a disclosure button
+   * and carries `aria-expanded`. Leave undefined for a plain link. Pass
+   * `aria-controls` to name the panel.
+   */
   expanded?: boolean;
-  href?: string;
-  onClick?: () => void;
-  className?: string;
 }
 
 /** Main-Menu-horizontal-item — one item in the primary navigation. */
-export function MainMenuItem({ children, icon, current, expanded, href, onClick, className }: MainMenuItemProps) {
-  const Tag = href ? 'a' : 'button';
+export const MainMenuItem = forwardRef<HTMLElement, MainMenuItemProps>(function MainMenuItem(
+  { children, icon, current, expanded, className, asChild, ...rest },
+  ref,
+) {
   return (
-    <Tag
-      {...(href ? { href } : { type: 'button' as const })}
-      onClick={onClick}
+    <LinkOrButton
+      ref={ref}
+      asChild={asChild}
       aria-current={current ? 'page' : undefined}
       aria-expanded={expanded}
       className={cx('scalar-main-menu-item', className)}
+      {...rest}
     >
-      {icon}
-      {children}
-    </Tag>
+      {asChild ? children : <>{icon}{children}</>}
+    </LinkOrButton>
   );
-}
+});
 
-export interface PrimaryMenuProps {
+export interface PrimaryMenuProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   /** The Scalar mark. */
   logo?: ReactNode;
   /** MainMenuItem instances. */
   children?: ReactNode;
   /** Company switcher, search, notifications, avatar. */
   end?: ReactNode;
-  className?: string;
+  /** Accessible name of the primary `<nav>` landmark. Default "Primary". */
+  navLabel?: string;
+  /**
+   * Root element. `header` (default) is the page banner landmark; pass `div`
+   * when the page already has a banner (e.g. a PageTaskHeader) to avoid two.
+   */
+  as?: 'header' | 'div';
 }
 
 /**
@@ -55,115 +65,167 @@ export interface PrimaryMenuProps {
  * It spans the viewport, so it is one of the two components that legitimately
  * use a full-bleed width. Set the viewport type mode on `ScalarProvider` to
  * move it between breakpoints rather than hand-resizing type.
+ *
+ * Accessibility: a banner landmark containing a labelled `<nav>`; the current
+ * item carries `aria-current="page"`.
  */
-export function PrimaryMenu({ logo, children, end, className }: PrimaryMenuProps) {
+export const PrimaryMenu = forwardRef<HTMLElement, PrimaryMenuProps>(function PrimaryMenu(
+  { logo, children, end, navLabel = 'Primary', as: Root = 'header', className, ...rest },
+  ref,
+) {
   return (
-    <header className={cx('scalar-primary-menu', className)}>
+    <Root ref={ref as Ref<HTMLDivElement>} className={cx('scalar-primary-menu', className)} {...rest}>
       {logo}
-      <nav className="scalar-primary-menu__nav" aria-label="Primary">
+      <nav className="scalar-primary-menu__nav" aria-label={navLabel}>
         {children}
       </nav>
       {end && <div className="scalar-primary-menu__end">{end}</div>}
-    </header>
+    </Root>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * Tier 2 — Secondary Menu
  * ------------------------------------------------------------------------ */
 
-export interface SecondaryMenuItemProps {
-  children?: ReactNode;
+export interface SecondaryMenuItemProps extends LinkOrButtonProps {
+  /** The page the user is on (`aria-current="page"`). */
   current?: boolean;
-  href?: string;
-  onClick?: () => void;
-  className?: string;
 }
 
 /** One item in the second navigation tier. */
-export function SecondaryMenuItem({ children, current, href, onClick, className }: SecondaryMenuItemProps) {
-  const Tag = href ? 'a' : 'button';
+export const SecondaryMenuItem = forwardRef<HTMLElement, SecondaryMenuItemProps>(function SecondaryMenuItem(
+  { children, current, className, ...rest },
+  ref,
+) {
   return (
-    <Tag
-      {...(href ? { href } : { type: 'button' as const })}
-      onClick={onClick}
+    <LinkOrButton
+      ref={ref}
       aria-current={current ? 'page' : undefined}
       className={cx('scalar-secondary-menu-item', className)}
+      {...rest}
     >
       {children}
-    </Tag>
+    </LinkOrButton>
   );
+});
+
+export interface SecondaryMenuProps extends HTMLAttributes<HTMLElement> {
+  children?: ReactNode;
+  /** Accessible name of the `<nav>` landmark. Default "Secondary". */
+  label?: string;
 }
 
 /**
  * Secondary Menu — the second navigation tier, scoped to the selected company.
  *
  * Sits directly under Primary Menu and changes when the company changes.
+ * A labelled `<nav>` landmark.
  */
-export function SecondaryMenu({ children, className }: { children?: ReactNode; className?: string }) {
+export const SecondaryMenu = forwardRef<HTMLElement, SecondaryMenuProps>(function SecondaryMenu(
+  { children, label = 'Secondary', className, ...rest },
+  ref,
+) {
   return (
-    <nav className={cx('scalar-secondary-menu', className)} aria-label="Secondary">
+    <nav ref={ref} className={cx('scalar-secondary-menu', className)} aria-label={label} {...rest}>
       {children}
     </nav>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * Tier 3 — Tertiary Menu
  * ------------------------------------------------------------------------ */
 
-export interface TertiaryMenuItemProps {
-  children?: ReactNode;
+export interface TertiaryMenuItemProps extends LinkOrButtonProps {
   icon?: ReactNode;
+  /** The view the user is on (`aria-current="page"`). */
   current?: boolean;
   /** Combo tags shown beside the label. */
   tags?: ReactNode;
-  /** Show the kebab that opens the view's actions. Defaults to on for the current item. */
+  /** Show the kebab for the view's actions. Defaults to on for the current item. */
   menu?: boolean;
-  href?: string;
-  onClick?: () => void;
-  className?: string;
+  /**
+   * Makes the kebab a real, separately focusable button that opens the view's
+   * actions. Without it the kebab is a decorative affordance (`aria-hidden`).
+   */
+  onMenuClick?: MouseEventHandler<HTMLButtonElement>;
+  /** Accessible name of the kebab button. Default "View actions". */
+  menuLabel?: string;
 }
 
 /** Tertiary Menu Item — one item in the third navigation tier. */
-export function TertiaryMenuItem({ children, icon, current, tags, menu, href, onClick, className }: TertiaryMenuItemProps) {
-  const Tag = href ? 'a' : 'button';
-  return (
-    <Tag
-      {...(href ? { href } : { type: 'button' as const })}
-      onClick={onClick}
+export const TertiaryMenuItem = forwardRef<HTMLElement, TertiaryMenuItemProps>(function TertiaryMenuItem(
+  { children, icon, current, tags, menu, onMenuClick, menuLabel = 'View actions', className, asChild, ...rest },
+  ref,
+) {
+  const showKebab = menu ?? current;
+  const kebab = <Icon size="s" tone="inherit"><MoreVert /></Icon>;
+  const interactiveKebab = showKebab && onMenuClick;
+  const item = (
+    <LinkOrButton
+      ref={ref}
+      asChild={asChild}
       aria-current={current ? 'page' : undefined}
       className={cx('scalar-tertiary-menu-item', className)}
+      {...rest}
     >
-      {icon}
-      {children}
-      {tags}
-      {(menu ?? current) && <Icon size="s" tone="inherit"><MoreVert /></Icon>}
-    </Tag>
+      {asChild ? children : (
+        <>
+          {icon}
+          {children}
+          {tags}
+          {showKebab && !onMenuClick && kebab}
+        </>
+      )}
+    </LinkOrButton>
   );
-}
+  if (!interactiveKebab) return item;
+  return (
+    <span className="scalar-tertiary-menu-item-group">
+      {item}
+      <button
+        type="button"
+        className="scalar-tertiary-menu-item scalar-tertiary-menu-item--kebab"
+        aria-label={menuLabel}
+        aria-haspopup="menu"
+        onClick={onMenuClick}
+      >
+        {kebab}
+      </button>
+    </span>
+  );
+});
 
-/**
- * Tertiary Menu — the third navigation tier, scoped to the selected section.
- *
- * Three tiers is the limit. A fourth level belongs in the page body, not the
- * chrome.
- */
-export function TertiaryMenu({ children, onAdd, end, className }: {
+export interface TertiaryMenuProps extends Omit<HTMLAttributes<HTMLElement>, 'children'> {
   /** TertiaryMenuItem instances. */
   children?: ReactNode;
   /** Shows the + that adds a view; called when it is pressed. */
   onAdd?: () => void;
   /** The page toolbar on the right: AI tool, currency, table tools, primary action. */
   end?: ReactNode;
-  className?: string;
-}) {
+  /** Accessible name of the `<nav>` landmark. Default "Tertiary". */
+  label?: string;
+  /** Accessible name of the + button. Default "Add view". */
+  addLabel?: string;
+}
+
+/**
+ * Tertiary Menu — the third navigation tier, scoped to the selected section.
+ *
+ * Three tiers is the limit. A fourth level belongs in the page body, not the
+ * chrome. A labelled `<nav>` landmark.
+ */
+export const TertiaryMenu = forwardRef<HTMLElement, TertiaryMenuProps>(function TertiaryMenu(
+  { children, onAdd, end, label = 'Tertiary', addLabel = 'Add view', className, ...rest },
+  ref,
+) {
   return (
-    <nav className={cx('scalar-tertiary-menu', className)} aria-label="Tertiary">
+    <nav ref={ref} className={cx('scalar-tertiary-menu', className)} aria-label={label} {...rest}>
       <div className="scalar-tertiary-menu__items">
         {children}
         {onAdd && (
-          <button type="button" onClick={onAdd} aria-label="Add view" className="scalar-tertiary-menu-item">
+          <button type="button" onClick={onAdd} aria-label={addLabel} className="scalar-tertiary-menu-item">
             <Icon size="s" tone="inherit"><Add /></Icon>
           </button>
         )}
@@ -171,17 +233,19 @@ export function TertiaryMenu({ children, onAdd, end, className }: {
       {end && <div className="scalar-tertiary-menu__end">{end}</div>}
     </nav>
   );
-}
+});
 
 /* ---------------------------------------------------------------------------
  * Company info bar
  * ------------------------------------------------------------------------ */
 
-export interface CompanyInfoProps {
+export interface CompanyInfoProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   /** An Avatar instance, for a company with its own mark. */
   avatar?: ReactNode;
   /** The page or company title. */
   name: ReactNode;
+  /** Heading level of the title (default 1, the page title). `false` renders a plain span. */
+  titleLevel?: 1 | 2 | 3 | 4 | 5 | 6 | false;
   /** Ticker, sector and other metadata beside the name. */
   meta?: ReactNode;
   /** Badge beside the name, e.g. Draft. */
@@ -192,7 +256,6 @@ export interface CompanyInfoProps {
   children?: ReactNode;
   /** The page's selectors and actions, pinned right. */
   end?: ReactNode;
-  className?: string;
 }
 
 /**
@@ -201,12 +264,19 @@ export interface CompanyInfoProps {
  * Composed from Badge, FilterDropdown, SecondaryMenu, InformationLabel and
  * Selector. On a firm page it carries the page title; on a company it carries
  * the company name and its tab row.
+ *
+ * Accessibility: the title is a heading (level 1 by default) so the page has
+ * an outline; pass `titleLevel` when another heading already owns level 1.
  */
-export function CompanyInfo({ avatar, name, meta, status, filter, children, end, className }: CompanyInfoProps) {
+export const CompanyInfo = forwardRef<HTMLDivElement, CompanyInfoProps>(function CompanyInfo(
+  { avatar, name, titleLevel = 1, meta, status, filter, children, end, className, ...rest },
+  ref,
+) {
+  const Title = titleLevel === false ? 'span' : (`h${titleLevel}` as 'h1');
   return (
-    <div className={cx('scalar-company-info', className)}>
+    <div ref={ref} className={cx('scalar-company-info', className)} {...rest}>
       {avatar}
-      <span className="scalar-company-info__name">{name}</span>
+      <Title className="scalar-company-info__name">{name}</Title>
       {meta && <span className="scalar-company-info__meta">{meta}</span>}
       {status}
       {filter}
@@ -214,4 +284,4 @@ export function CompanyInfo({ avatar, name, meta, status, filter, children, end,
       {end && <div className="scalar-company-info__end">{end}</div>}
     </div>
   );
-}
+});

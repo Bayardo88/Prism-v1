@@ -219,7 +219,7 @@ export function Waterfall() {
 
         {overridden && (
           <Alert
-            style="warning"
+            tone="warning"
             title="Scenario mode active"
             actions={
               <Button variant="secondary" tone="warning" onClick={() => setScenarioKey('base')}>

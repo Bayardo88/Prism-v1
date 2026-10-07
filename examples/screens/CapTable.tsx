@@ -122,7 +122,7 @@ export function CapTable() {
           </div>
         </div>
 
-        <Alert style="warning" title="Option pool is unallocated">
+        <Alert tone="warning" title="Option pool is unallocated">
           900,000 shares sit in an unallocated pool. Confirm the allocation before
           this table is used for a 409A.
         </Alert>

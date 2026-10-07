@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
+import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
 import { Icon } from '../icon/Icon.js';
 import { Tooltip } from '../core/Tooltip.js';
 import { ArrowDropDown, CalendarMonth } from '../icon/material.js';
@@ -42,6 +43,11 @@ export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content
   groupEnd?: boolean;
   /** Columns this cell spans inside a DataGrid. Default 1. */
   span?: number;
+  /**
+   * With `state="error"`: why the value is wrong. Read out as part of the cell
+   * as hidden text, because the red tint alone never carries meaning (R8).
+   */
+  errorMessage?: string;
 }
 
 /**
@@ -51,9 +57,15 @@ export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content
  * Here Type and State are props and the booleans are optional slots.
  *
  * These cells use a 2px corner, which maps to Semantic: Radius/2XS.
+ *
+ * Accessibility: renders `role="cell"` and belongs inside a `Row` inside a
+ * `DataGrid` (an ARIA `table`). `error`, `draft` and `total` reach assistive
+ * technology as visually hidden text after the content — `aria-selected` is
+ * not valid on a table cell, so `selected` is visual only; mark the row with
+ * `Row selected` instead.
  */
 export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
-  { children, type = 'readable', state = 'default', numeric, footnote, icon, label, tooltip, trailingIcon, groupStart, groupEnd, span, className, style, ...rest },
+  { children, type = 'readable', state = 'default', numeric, footnote, icon, label, tooltip, trailingIcon, groupStart, groupEnd, span, errorMessage, className, style, ...rest },
   ref,
 ) {
   if (type === 'divider') {
@@ -63,9 +75,7 @@ export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
   return (
     <div
       ref={ref}
-      role="gridcell"
-      aria-selected={state === 'selected' || undefined}
-      aria-invalid={state === 'error' || undefined}
+      role="cell"
       className={cx(
         'scalar-cell',
         `scalar-cell--${type}`,
@@ -82,12 +92,16 @@ export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
       {icon}
       {tooltip ? (
         <Tooltip content={tooltip} position="bottom">
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the Tooltip trigger must be keyboard-focusable (Tooltip contract) */}
           <span className="scalar-cell__content" tabIndex={0}>{children}</span>
         </Tooltip>
       ) : (
         <span className="scalar-cell__content">{children}</span>
       )}
       {footnote}
+      {state === 'error' && <VisuallyHidden>{errorMessage ? `Error: ${errorMessage}` : 'Error'}</VisuallyHidden>}
+      {state === 'draft' && <VisuallyHidden>Draft</VisuallyHidden>}
+      {state === 'total' && <VisuallyHidden>Total</VisuallyHidden>}
       {label && <span className="scalar-cell__tag">{label}</span>}
       {trailingIcon && (
         <Icon size="xs" tone="primary" className="scalar-cell__trailing">

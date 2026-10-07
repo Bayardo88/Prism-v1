@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 import { ButtonIcon } from '../button/ButtonIcon.js';
 import { Icon } from '../icon/Icon.js';
 import { Check, Close, Document } from '../icon/glyphs.js';
 import { Typography } from '../typography/Typography.js';
 
-export interface DataReviewCardProps {
+export interface DataReviewCardProps extends Omit<HTMLAttributes<HTMLElement>, 'title' | 'onSelect'> {
   title: ReactNode;
   /** The document the value came from. */
   sourceFile?: ReactNode;
@@ -13,11 +13,21 @@ export interface DataReviewCardProps {
   quote?: ReactNode;
   /** Why the model believes the value. */
   rationale?: ReactNode;
+  /**
+   * Whether this card is the one being inspected. Controlled only: the parent
+   * owns which card is selected. Exposed as `aria-pressed` on the title button.
+   */
   selected?: boolean;
+  /**
+   * Makes the card selectable. The title becomes a real button (Enter / Space)
+   * whose hit area stretches over the whole card, so the mouse target is
+   * unchanged and the keyboard has a way in.
+   */
   onSelect?: () => void;
   onAccept?: () => void;
   onReject?: () => void;
-  className?: string;
+  /** Extra controls rendered after Accept / Reject in the title row. */
+  actions?: ReactNode;
 }
 
 /**
@@ -30,20 +40,37 @@ export interface DataReviewCardProps {
  * Accept and reject are Secondary icon buttons: the system has no soft-filled
  * icon button, so positive and negative read as a coloured outline rather than
  * the green and red fills used elsewhere.
+ *
+ * Accessibility: an `article`; selection is a toggle button (`aria-pressed`),
+ * not `aria-selected`, which is invalid on an article.
  */
-export function DataReviewCard({
-  title, sourceFile, quote, rationale, selected, onSelect, onAccept, onReject, className,
-}: DataReviewCardProps) {
+export const DataReviewCard = forwardRef<HTMLElement, DataReviewCardProps>(function DataReviewCard(
+  { title, sourceFile, quote, rationale, selected, onSelect, onAccept, onReject, actions, className, ...rest },
+  ref,
+) {
+  const heading = (
+    <Typography variant="text" step="m" weight="semiBold">
+      {title}
+    </Typography>
+  );
   return (
     <article
+      ref={ref}
       className={cx('scalar-data-review-card', className)}
-      aria-selected={selected}
-      onClick={onSelect}
+      data-selected={selected ? 'true' : undefined}
+      {...rest}
     >
       <header className="scalar-data-review-card__header">
-        <Typography variant="text" step="m" weight="semiBold">
-          {title}
-        </Typography>
+        {onSelect ? (
+          <button
+            type="button"
+            className="scalar-data-review-card__select"
+            aria-pressed={!!selected}
+            onClick={onSelect}
+          >
+            {heading}
+          </button>
+        ) : heading}
         <div className="scalar-data-review-card__actions">
           {onAccept && (
             <ButtonIcon
@@ -65,6 +92,7 @@ export function DataReviewCard({
               icon={<Icon size="s" tone="inherit"><Close /></Icon>}
             />
           )}
+          {actions}
         </div>
       </header>
 
@@ -81,4 +109,4 @@ export function DataReviewCard({
       )}
     </article>
   );
-}
+});

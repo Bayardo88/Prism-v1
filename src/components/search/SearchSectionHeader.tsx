@@ -1,11 +1,10 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 import { prismGroupLabel, type PrismType } from './prism.js';
 
-export interface SearchSectionHeaderProps {
+export interface SearchSectionHeaderProps extends HTMLAttributes<HTMLDivElement> {
   type: PrismType;
   children?: ReactNode;
-  className?: string;
 }
 
 /**
@@ -15,13 +14,17 @@ export interface SearchSectionHeaderProps {
  * alphabetically, and never interleave types beneath one header. The header's
  * type must match the type of every row under it.
  *
- * Accessibility: this label is the accessible name of the group. Keep it a
- * plain plural noun — "COMPANIES", not "3 RESULTS".
+ * Accessibility: give it an `id` and point the group's `aria-labelledby` at it —
+ * this label is the accessible name of the group. Keep it a plain plural noun —
+ * "COMPANIES", not "3 RESULTS".
  */
-export function SearchSectionHeader({ type, children, className }: SearchSectionHeaderProps) {
+export const SearchSectionHeader = forwardRef<HTMLDivElement, SearchSectionHeaderProps>(function SearchSectionHeader(
+  { type, children, className, ...rest },
+  ref,
+) {
   return (
-    <div className={cx('scalar-search-section-header', className)} data-prism={type} role="presentation">
+    <div ref={ref} className={cx('scalar-search-section-header', className)} data-prism={type} {...rest}>
       {children ?? prismGroupLabel[type]}
     </div>
   );
-}
+});

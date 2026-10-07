@@ -68,6 +68,7 @@ export function FinancialsSelectors({ company, initialVersionOpen = false }: { c
         open={open}
         popover={
           <ComboboxPanel
+            autoFocus
             label="Financials versions"
             items={items}
             value="primary"

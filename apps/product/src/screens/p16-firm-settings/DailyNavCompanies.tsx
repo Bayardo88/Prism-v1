@@ -55,7 +55,7 @@ function AlexandriaModal({ company, onClose }: { company: string; onClose: () =>
             leadingIcon={<Icon size="s" tone="secondary"><icons.Search /></Icon>}
           />
         </FormField>
-        <Alert style="info">No match in external company database. Try the company's legal or alternate name.</Alert>
+        <Alert tone="info">No match in external company database. Try the company's legal or alternate name.</Alert>
       </div>
     </Modal>
   );

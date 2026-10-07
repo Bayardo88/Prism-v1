@@ -17,7 +17,13 @@ export function useChartTokens(ref: RefObject<HTMLElement | null>): ChartTokens 
     const el = ref.current;
     if (!el) return;
 
-    const read = () => setTokens(resolveChartTokens(el));
+    // Keep the previous object when nothing resolved differently, so an unrelated
+    // attribute mutation does not tear down and rebuild the chart.
+    const read = () =>
+      setTokens((prev) => {
+        const next = resolveChartTokens(el);
+        return prev && next && JSON.stringify(prev) === JSON.stringify(next) ? prev : next;
+      });
     read();
 
     const observer = new MutationObserver(read);

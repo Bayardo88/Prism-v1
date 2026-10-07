@@ -1,11 +1,15 @@
 import type { ChartConfiguration } from 'chart.js';
-import { ChartCanvas } from './ChartCanvas.js';
+import { forwardRef } from 'react';
+import { ChartCanvas, type ChartRootProps } from './ChartCanvas.js';
 import { ChartLegend } from './ChartLegend.js';
 import { baseChartOptions, chartScaffold, type ChartGrid } from './chartSetup.js';
 import { directLabelsPlugin } from './plugins.js';
+import { SERIES_COUNT } from './series.js';
 import type { ChartTokens } from './chartTokens.js';
 
-export interface BarChartProps {
+export type BarChartType = 'grouped' | 'stacked';
+
+export interface BarChartProps extends ChartRootProps {
   categories: string[];
   /** One entry per series, each the length of `categories`. */
   series: Array<{ label: string; values: number[] }>;
@@ -15,14 +19,13 @@ export interface BarChartProps {
    * compare the middle segments, use small multiples: a stacked segment that
    * does not sit on the baseline cannot be compared by eye.
    */
-  type?: 'grouped' | 'stacked';
+  type?: BarChartType;
   grid?: ChartGrid;
   title: string;
   format?: (value: number) => string;
   /** The category axis name, used in the screen-reader table. */
   categoryLabel?: string;
   height?: number;
-  className?: string;
 }
 
 /**
@@ -36,10 +39,10 @@ export interface BarChartProps {
  * three or more series it also turns on direct labels, because the
  * Chart/Series ramp has not passed CVD validation.
  */
-export function BarChart({
+export const BarChart = forwardRef<HTMLElement, BarChartProps>(function BarChart({
   categories, series, type = 'grouped', grid = 'horizontal',
-  title, format = String, categoryLabel = 'Category', height = 240, className,
-}: BarChartProps) {
+  title, format = String, categoryLabel = 'Category', height = 240, ...rest
+}, ref) {
   const stacked = type === 'stacked';
 
   /**
@@ -68,7 +71,7 @@ export function BarChart({
         datasets: series.map((s, i) => ({
           label: s.label,
           data: s.values,
-          backgroundColor: t.series[i % 8],
+          backgroundColor: t.series[i % SERIES_COUNT],
           // Rounded tops only: the bar is anchored to the baseline. In a stack
           // only the topmost segment gets the radius.
           borderRadius: !stacked || i === series.length - 1 ? 4 : 0,
@@ -102,16 +105,17 @@ export function BarChart({
 
   return (
     <ChartCanvas
+      ref={ref}
+      {...rest}
       build={build}
       title={title}
       height={height}
-      className={className}
       table={{
         columns: [categoryLabel, ...series.map((s) => s.label)],
-        rows: categories.map((c, ci) => [c, ...series.map((s) => format(s.values[ci] ?? 0))]),
+        rows: categories.map((c, ci) => [c, ...series.map((s) => s.values[ci] === undefined ? '' : format(s.values[ci]))]),
       }}
     >
       <ChartLegend labels={series.map((s) => s.label)} />
     </ChartCanvas>
   );
-}
+});

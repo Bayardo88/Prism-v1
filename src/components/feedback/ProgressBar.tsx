@@ -1,6 +1,9 @@
+import { forwardRef, type HTMLAttributes } from 'react';
 import { cx } from '../../utils/cx.js';
 
-export interface ProgressBarProps {
+type ProgressName = { label: string; 'aria-labelledby'?: string } | { label?: string; 'aria-labelledby': string };
+
+export type ProgressBarProps = Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
   /**
    * Percentage complete, 0–100. Omit it for an indeterminate bar.
    *
@@ -8,21 +11,31 @@ export interface ProgressBarProps {
    * stalls at 90% destroys trust faster than an honest indeterminate one.
    */
   value?: number;
-  /** Names what is running. A bar alone says something is running, not what. */
-  label?: string;
-  className?: string;
-}
+} & ProgressName;
+// `label` names what is running; a bar alone says something is running, not what.
+// Pass `label` or `aria-labelledby` — the compiler requires one.
 
-/** Progress Bar — how far along a task is. */
-export function ProgressBar({ value, label, className }: ProgressBarProps) {
+/**
+ * Progress Bar — how far along a task is.
+ *
+ * `role="progressbar"` with `aria-valuemin/max/now`; indeterminate omits
+ * `aria-valuenow`. The sliding animation is switched off under
+ * prefers-reduced-motion.
+ */
+export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(function ProgressBar(
+  { value, label, className, ...rest },
+  ref,
+) {
   const indeterminate = value === undefined;
   const clamped = indeterminate ? 0 : Math.min(100, Math.max(0, value));
 
   return (
     <div
+      ref={ref}
       className={cx('scalar-progress', indeterminate && 'scalar-progress--indeterminate', className)}
-      role="progressbar"
       aria-label={label}
+      {...rest}
+      role="progressbar"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={indeterminate ? undefined : clamped}
@@ -30,4 +43,4 @@ export function ProgressBar({ value, label, className }: ProgressBarProps) {
       <div className="scalar-progress__fill" style={indeterminate ? undefined : { width: `${clamped}%` }} />
     </div>
   );
-}
+});

@@ -1,5 +1,7 @@
-import { forwardRef, useId, type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useId, type ButtonHTMLAttributes, type HTMLAttributes, type MouseEvent, type ReactNode, type Ref } from 'react';
 import { cx } from '../../utils/cx.js';
+import { useControllableState } from '../../utils/useControllableState.js';
+import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
 import { Icon } from '../icon/Icon.js';
 import { ChevronLeft, ChevronRight } from '../icon/glyphs.js';
 import { Select } from '../input/Select.js';
@@ -10,30 +12,48 @@ export interface PageItemProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   current?: boolean;
 }
 
-/** Page Item — one page number in a Pagination control. */
+/**
+ * Page Item — one page number in a Pagination control.
+ *
+ * The current page stays in the tab order and the accessibility tree: it is
+ * `aria-current="page"` + `aria-disabled`, not natively `disabled`, and
+ * activating it does nothing. Pass `disabled` to disable any other page.
+ */
 export const PageItem = forwardRef<HTMLButtonElement, PageItemProps>(function PageItem(
-  { page, current, className, type = 'button', ...rest },
+  { page, current, className, type = 'button', onClick, ...rest },
   ref,
 ) {
   return (
     <button
       ref={ref}
       type={type}
-      aria-current={current ? 'page' : undefined}
       aria-label={`Page ${page}`}
-      disabled={current || rest.disabled}
-      className={cx('scalar-page-item', className)}
       {...rest}
+      aria-current={current ? 'page' : undefined}
+      aria-disabled={current ? true : undefined}
+      onClick={(e: MouseEvent<HTMLButtonElement>) => { if (!current) onClick?.(e); }}
+      className={cx('scalar-page-item', className)}
     >
       {page}
     </button>
   );
 });
 
-export interface PaginationProps {
-  page: number;
+export interface PaginationProps extends Omit<HTMLAttributes<HTMLElement>, 'children' | 'onChange'> {
+  /** The page being viewed (controlled). Omit it and use `defaultPage` to let Pagination own it. */
+  page?: number;
+  /** Initial page when uncontrolled. Default 1. */
+  defaultPage?: number;
   pageCount: number;
-  onPageChange: (page: number) => void;
+  onPageChange?: (page: number) => void;
+  /** Accessible name of the landmark. Give each Pagination on a page its own. Default "Pagination". */
+  label?: string;
+  /** Accessible name of the previous button. Default "Previous page". */
+  previousLabel?: string;
+  /** Accessible name of the next button. Default "Next page". */
+  nextLabel?: string;
+  /** Builds the text announced when the page changes. Default "Page 2 of 9". */
+  statusText?: (page: number, pageCount: number) => string;
   /** How many pages to show either side of the current one. */
   siblingCount?: number;
   /**
@@ -46,7 +66,6 @@ export interface PaginationProps {
   onRowsPerPageChange?: (rows: number) => void;
   /** Visible label of that control. Default "Rows per page". */
   rowsPerPageLabel?: ReactNode;
-  className?: string;
 }
 
 /** Builds the page list, with `null` standing in for a skipped range. */
@@ -80,13 +99,23 @@ function buildRange(page: number, pageCount: number, siblings: number): Array<nu
  *
  * With `rowsPerPage` + `onRowsPerPageChange` it renders a labelled
  * rows-per-page `Select` at the start of the bar. Changing it is the caller's
- * cue to reset `page` to 1.
+ * cue to reset `page` to 1. `ref`, `className` and other native props land on
+ * the outer element (the `nav`, or the bar when rows-per-page is shown).
+ *
+ * `page` is controlled; omit it (use `defaultPage`) for uncontrolled use. A
+ * visually hidden status announces the page after each change.
  */
-export function Pagination({
-  page, pageCount, onPageChange, siblingCount = 1,
-  rowsPerPage, rowsPerPageOptions = [10, 25, 50, 100], onRowsPerPageChange, rowsPerPageLabel = 'Rows per page',
-  className,
-}: PaginationProps) {
+export const Pagination = forwardRef<HTMLElement, PaginationProps>(function Pagination(
+  {
+    page: pageProp, defaultPage = 1, pageCount, onPageChange, siblingCount = 1,
+    label = 'Pagination', previousLabel = 'Previous page', nextLabel = 'Next page',
+    statusText = (p, n) => `Page ${p} of ${n}`,
+    rowsPerPage, rowsPerPageOptions = [10, 25, 50, 100], onRowsPerPageChange, rowsPerPageLabel = 'Rows per page',
+    className, ...rest
+  },
+  ref,
+) {
+  const [page, setPage] = useControllableState(pageProp, defaultPage, onPageChange);
   const range = buildRange(page, pageCount, siblingCount);
   const rowsId = useId();
   const withRows = rowsPerPage != null && onRowsPerPageChange != null;
@@ -95,13 +124,18 @@ export function Pagination({
     : rowsPerPageOptions;
 
   const nav = (
-    <nav aria-label="Pagination" className={cx('scalar-pagination', !withRows && className)}>
+    <nav
+      ref={withRows ? undefined : ref}
+      aria-label={label}
+      className={cx('scalar-pagination', !withRows && className)}
+      {...(withRows ? {} : rest)}
+    >
       <button
         type="button"
         className="scalar-page-item"
-        aria-label="Previous page"
+        aria-label={previousLabel}
         disabled={page <= 1}
-        onClick={() => onPageChange(page - 1)}
+        onClick={() => setPage(page - 1)}
       >
         <Icon size="s" tone="inherit"><ChevronLeft /></Icon>
       </button>
@@ -110,25 +144,26 @@ export function Pagination({
         p === null ? (
           <span key={`gap-${i}`} className="scalar-pagination__ellipsis" aria-hidden>…</span>
         ) : (
-          <PageItem key={p} page={p} current={p === page} onClick={() => onPageChange(p)} />
+          <PageItem key={p} page={p} current={p === page} onClick={() => setPage(p)} />
         ),
       )}
 
       <button
         type="button"
         className="scalar-page-item"
-        aria-label="Next page"
+        aria-label={nextLabel}
         disabled={page >= pageCount}
-        onClick={() => onPageChange(page + 1)}
+        onClick={() => setPage(page + 1)}
       >
         <Icon size="s" tone="inherit"><ChevronRight /></Icon>
       </button>
+      <VisuallyHidden role="status">{statusText(page, pageCount)}</VisuallyHidden>
     </nav>
   );
 
   if (!withRows) return nav;
   return (
-    <div className={cx('scalar-pagination-bar', className)}>
+    <div ref={ref as Ref<HTMLDivElement>} className={cx('scalar-pagination-bar', className)} {...(rest as HTMLAttributes<HTMLDivElement>)}>
       <span className="scalar-pagination__rows">
         <label htmlFor={rowsId}>{rowsPerPageLabel}</label>
         <Select id={rowsId} value={rowsPerPage} onChange={(e) => onRowsPerPageChange(Number(e.target.value))}>
@@ -138,4 +173,4 @@ export function Pagination({
       {nav}
     </div>
   );
-}
+});

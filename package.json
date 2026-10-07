@@ -1,7 +1,7 @@
 {
   "name": "@scalar/design-system",
   "version": "1.1.0",
-  "description": "Scalar Design System \u2014 React component and design-token layer, generated from the Scalar_Design_System v1.1 Figma libraries.",
+  "description": "Scalar Design System — React component and design-token layer, generated from the Scalar_Design_System v1.1 Figma libraries.",
   "license": "UNLICENSED",
   "private": true,
   "type": "module",
@@ -40,7 +40,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint:tokens": "node scripts/lint-tokens.mjs",
     "gen:tokens": "node scripts/gen-tokens.mjs",
-    "verify": "npm run typecheck && npm run lint:tokens",
+    "verify": "npm run typecheck && npm run lint:tokens && npm run lint && npm test",
     "build:examples": "tsc -p examples/tsconfig.json",
     "build:product": "tsc -p apps/product/tsconfig.json",
     "product": "npm run build && npm run build:product && node scripts/serve.mjs",
@@ -48,19 +48,61 @@
     "product:catalog": "npm run build:product && node scripts/gen-product-catalog.mjs",
     "verify:product": "npm run build:product && npm run lint:tokens && node scripts/gen-product-catalog.mjs",
     "gen:icons": "node scripts/gen-icons.mjs",
-    "product:seed": "node apps/product/db/seed.mjs"
+    "product:seed": "node apps/product/db/seed.mjs",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format:check": "prettier --check src",
+    "storybook": "storybook dev -p 6006",
+    "build:storybook": "storybook build -o storybook-static",
+    "pack:smoke": "node scripts/pack-smoke.mjs",
+    "changeset": "changeset",
+    "size": "size-limit"
   },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
   },
   "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "@eslint/js": "^9.39.5",
     "@material-symbols/svg-400": "^0.47.5",
+    "@size-limit/file": "^14.1.0",
+    "@storybook/addon-a11y": "^10.6.1",
+    "@storybook/addon-docs": "^10.6.1",
+    "@storybook/react-vite": "^10.6.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
+    "@types/jest-axe": "^3.5.9",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "typescript": "^5.6.3"
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "jest-axe": "^11.0.0",
+    "jsdom": "^30.1.2",
+    "prettier": "^3.9.9",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "size-limit": "^14.1.0",
+    "storybook": "^10.6.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.71.1",
+    "vite": "^8.3.3",
+    "vitest": "^5.0.3"
   },
   "dependencies": {
     "chart.js": "^4.5.1"
-  }
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "size-limit": [
+    {
+      "path": "dist/styles/scalar.css",
+      "limit": "260 kB",
+      "gzip": true
+    }
+  ]
 }

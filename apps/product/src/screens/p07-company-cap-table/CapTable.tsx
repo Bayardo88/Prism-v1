@@ -25,6 +25,9 @@ function initial(state: string, company: Company): Security[] {
   return state === 'default' ? base : [newSecurity(), ...base];
 }
 
+// Prototype data: there is nothing to expand, but the row keeps the expandable affordance.
+const noop = () => {};
+
 export function CapTable({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
   const [securities, setSecurities] = useState<Security[]>(() => initial(state, company));
@@ -72,7 +75,11 @@ export function CapTable({ state, params }: ScreenProps) {
     stripe += 1;
     return (
       <Row key={label} zebra={stripe % 2 === 0} type={labelType === 'total' ? 'total' : undefined} aria-label={label}>
-        <RowLabelCell type={labelType} expanded={opts.expandable ? false : undefined}>{label}</RowLabelCell>
+        {opts.expandable ? (
+          <RowLabelCell type={labelType} expanded={false} onToggle={noop}>{label}</RowLabelCell>
+        ) : (
+          <RowLabelCell type={labelType}>{label}</RowLabelCell>
+        )}
         {securities.map((s) => <Fragment key={s.id}>{cell(s)}</Fragment>)}
         <GridColumnDivider type="pinned" />
         {total}

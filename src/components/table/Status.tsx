@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
 import { Icon } from '../icon/Icon.js';
 import { Check } from '../icon/glyphs.js';
@@ -9,7 +9,9 @@ export type ModalStatusState = 'draft' | 'review' | 'in-process-usa' | 'in-proce
 /** The commercial state of a deal — this tracks the deal. */
 export type ValuationStatusState = 'in-service' | 'awaiting-payment' | 'complete-deal' | 'cancelled';
 
-const modalTone: Record<ModalStatusState, string> = {
+type StatusTone = 'neutral' | 'warning' | 'negative' | 'brand' | 'document' | 'positive' | 'published';
+
+const modalTone: Record<ModalStatusState, StatusTone> = {
   draft: 'neutral',
   review: 'warning',
   'in-process-usa': 'negative',
@@ -29,7 +31,7 @@ const modalLabel: Record<ModalStatusState, string> = {
   published: 'Published',
 };
 
-const valuationTone: Record<ValuationStatusState, string> = {
+const valuationTone: Record<ValuationStatusState, StatusTone> = {
   'in-service': 'brand',
   'awaiting-payment': 'warning',
   'complete-deal': 'positive',
@@ -43,9 +45,17 @@ const valuationLabel: Record<ValuationStatusState, string> = {
   cancelled: 'Cancelled',
 };
 
-export interface StatusProps {
+export interface StatusProps extends HTMLAttributes<HTMLSpanElement> {
+  /** Overrides the default label for the state. */
   children?: ReactNode;
-  className?: string;
+}
+
+export interface ModalStatusProps extends StatusProps {
+  state: ModalStatusState;
+}
+
+export interface ValuationStatusProps extends StatusProps {
+  state: ValuationStatusState;
 }
 
 /**
@@ -58,14 +68,14 @@ export interface StatusProps {
  * state). It shares Complete's positive tint and is told apart by a leading
  * check glyph and its label.
  */
-export function ModalStatus({ state, children, className }: StatusProps & { state: ModalStatusState }) {
+export const ModalStatus = forwardRef<HTMLSpanElement, ModalStatusProps>(function ModalStatus({ state, children, className, ...rest }, ref) {
   return (
-    <span className={cx('scalar-status', `scalar-status--${modalTone[state]}`, className)}>
+    <span ref={ref} className={cx('scalar-status', `scalar-status--${modalTone[state]}`, className)} {...rest}>
       {state === 'published' && <Icon size="xs" tone="inherit"><Check /></Icon>}
       {children ?? modalLabel[state]}
     </span>
   );
-}
+});
 
 /**
  * Valuation Status — the commercial state of a deal.
@@ -73,10 +83,10 @@ export function ModalStatus({ state, children, className }: StatusProps & { stat
  * Distinct from ModalStatus: that one tracks the work, this one tracks the
  * deal. They can disagree, and both may appear on the same record.
  */
-export function ValuationStatus({ state, children, className }: StatusProps & { state: ValuationStatusState }) {
+export const ValuationStatus = forwardRef<HTMLSpanElement, ValuationStatusProps>(function ValuationStatus({ state, children, className, ...rest }, ref) {
   return (
-    <span className={cx('scalar-status', `scalar-status--${valuationTone[state]}`, className)}>
+    <span ref={ref} className={cx('scalar-status', `scalar-status--${valuationTone[state]}`, className)} {...rest}>
       {children ?? valuationLabel[state]}
     </span>
   );
-}
+});
