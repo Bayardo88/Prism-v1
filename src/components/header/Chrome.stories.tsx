@@ -5,8 +5,6 @@ import {
   CompanyDropdown, SearchBar, Notification, Badge, ComboTag, CurrencySelector, AITool, FilterDropdown, Selector, InformationLabel,
 } from './index.js';
 import { Avatar } from '../avatar/Avatar.js';
-import { Icon } from '../icon/Icon.js';
-import { Home, Dashboard, Description } from '../icon/material.js';
 
 /** The three navigation tiers and the company info bar. Each tier is a labelled `<nav>` landmark. */
 const meta = {
@@ -26,9 +24,9 @@ export const Primary: Story = {
     logo,
     children: (
       <>
-        <MainMenuItem href="#home" icon={<Icon size="s" tone="inherit"><Home /></Icon>}>Home</MainMenuItem>
-        <MainMenuItem href="#valuations" current icon={<Icon size="s" tone="inherit"><Dashboard /></Icon>}>Valuations</MainMenuItem>
-        <MainMenuItem href="#documents" icon={<Icon size="s" tone="inherit"><Description /></Icon>}>Documents</MainMenuItem>
+        <MainMenuItem href="#home">Home</MainMenuItem>
+        <MainMenuItem href="#valuations" current>Valuations</MainMenuItem>
+        <MainMenuItem href="#documents">Documents</MainMenuItem>
       </>
     ),
     end: (

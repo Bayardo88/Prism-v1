@@ -776,6 +776,7 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-column-header {
   display: flex;
   align-items: center;
+  font-family: var(--font-family-default);
   gap: var(--space-xs);
   height: var(--size-control-m);
   padding: 0 var(--space-m);
