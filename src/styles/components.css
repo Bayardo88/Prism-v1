@@ -562,7 +562,7 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
 .scalar-calendar-day--disabled { color: var(--color-text-disabled); cursor: not-allowed; }
 
 /* --- Tabs ------------------------------------------------------------------ */
-.scalar-tabs { display: flex; align-items: flex-end; gap: var(--space-2xs); border-bottom: 1px solid var(--color-stroke-divider); }
+.scalar-tabs { display: flex; align-items: flex-end; gap: var(--space-2xs); border-bottom: 1px solid var(--color-stroke-divider); max-width: 100%; overflow-x: auto; }
 .scalar-tab-item {
   position: relative;
   display: inline-flex;
@@ -634,7 +634,7 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-page-item:disabled { color: var(--color-text-disabled); cursor: not-allowed; }
 
 /* --- Stepper --------------------------------------------------------------- */
-.scalar-stepper { display: flex; align-items: center; gap: var(--space-s); }
+.scalar-stepper { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-s); }
 .scalar-stepper__list { display: flex; align-items: center; gap: var(--space-s); list-style: none; margin: 0; padding: 0; width: 100%; }
 .scalar-stepper__connector { flex: 1 1 auto; height: 1px; background: var(--color-stroke-divider); min-width: var(--space-xl); }
 .scalar-step { display: inline-flex; align-items: center; gap: var(--space-s); }
@@ -1306,13 +1306,13 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-chart__marker-ring { stroke: var(--color-bg-surface); stroke-width: 2; }
 
 /* Chart.js draws into this box; it owns the height, the canvas fills it. */
-.scalar-chart-canvas { position: relative; width: 100%; }
+.scalar-chart-canvas { position: relative; width: 100%; min-width: 0; }
 .scalar-chart-canvas > canvas { display: block; width: 100% !important; height: 100% !important; }
 
 .scalar-chart-legend { display: flex; flex-wrap: wrap; gap: var(--space-m); margin: 0; padding: 0; list-style: none; }
 .scalar-chart-legend-item { display: inline-flex; align-items: center; gap: var(--space-xs); font-family: var(--font-family-default); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); color: var(--color-text-primary); }
 .scalar-chart-legend-item__swatch { width: var(--space-m); height: var(--space-m); border-radius: var(--radius-2xs); flex: none; }
-.scalar-chart-figure { display: flex; flex-direction: column; gap: var(--space-m); }
+.scalar-chart-figure { position: relative; display: flex; flex-direction: column; gap: var(--space-m); min-width: 0; }
 
 /* =============================================================================
  * HEADER & MENUS — the application chrome.
