@@ -10,26 +10,29 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const reactMajor = process.env.REACT_MAJOR ?? '18';
 const work = mkdtempSync(join(tmpdir(), 'scalar-pack-'));
 const run = (cmd, cwd = work) => execSync(cmd, { cwd, stdio: 'inherit' });
 
-console.log(`› packing into ${work}`);
+console.log(`› packing into ${work} (React ${reactMajor})`);
 const out = execSync(`npm pack --pack-destination ${work} --silent`, { cwd: root }).toString().trim().split('\n').pop();
 const tarball = join(work, out);
 if (!existsSync(tarball)) throw new Error(`tarball not found: ${tarball}`);
 
 writeFileSync(join(work, 'package.json'), JSON.stringify({ name: 'consumer', private: true, type: 'module' }));
-run(`npm install --silent --no-audit --no-fund ${tarball} react@18 react-dom@18 @types/react@18 typescript@5`);
+run(`npm install --silent --no-audit --no-fund ${tarball} react@${reactMajor} react-dom@${reactMajor} @types/react@${reactMajor} typescript@5`);
 
 writeFileSync(join(work, 'app.tsx'), `
 import '@scalar/design-system/styles.css';
 import { ScalarProvider, Button, Modal, Tabs, TabItem } from '@scalar/design-system';
 import { color } from '@scalar/design-system/tokens';
+import { BarChart } from '@scalar/design-system/charts';
 export const App = () => (
   <ScalarProvider>
     <Button asChild><a href="/x">Go</a></Button>
     <Modal open onClose={() => {}} title="Hi">x</Modal>
     <Tabs label="Sections"><TabItem value="a">A</TabItem></Tabs>
+    <BarChart title="Revenue" categories={['Q1']} series={[{ label: 'A', values: [1] }]} />
   </ScalarProvider>
 );
 export const text = color.text.primary;
@@ -44,7 +47,7 @@ import { renderToString } from 'react-dom/server';
 import { ScalarProvider, Button } from '@scalar/design-system';
 const html = renderToString(createElement(ScalarProvider, null, createElement(Button, null, 'Save')));
 if (!html.includes('scalar-button')) throw new Error('SSR output missing the button');
-console.log('✓ server render ok');
+console.log('✓ server render ok (React ' + (await import('react')).version + ')');
 `);
 console.log('› server-rendering');
 run('node ssr.mjs');

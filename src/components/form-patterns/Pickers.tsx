@@ -11,7 +11,6 @@ import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
 import { Icon } from '../icon/Icon.js';
 import { ArrowDown, Check, ChevronDown, Edit, Error as ErrorGlyph, Search, Trash, Upload, ZoomOut } from '../icon/glyphs.js';
 import * as m from '../icon/material.js';
-import { CheckboxItem } from '../checkbox/CheckboxItem.js';
 import { ButtonIcon } from '../button/ButtonIcon.js';
 
 /* ---------------------------------------------------------------------------
@@ -54,7 +53,12 @@ export const ComboboxOption = forwardRef<HTMLDivElement, ComboboxOptionProps>(fu
       onClick={(e) => { onClick?.(e); if (!disabled && !e.defaultPrevented) onSelect?.(); }}
       className={cx('scalar-combobox-option', className)}
     >
-      {selection === 'multi' && <CheckboxItem size="s" checked={!!selected} disabled={disabled} readOnly tabIndex={-1} aria-hidden />}
+      {selection === 'multi' && (
+        // Drawn only: a real checkbox inside role="option" would nest interactive controls. aria-selected carries the state.
+        <span className="scalar-choice scalar-choice--s scalar-checkbox-box scalar-combobox-option__box" aria-hidden>
+          <Icon size="xs" tone="inherit"><Check /></Icon>
+        </span>
+      )}
       <span className="scalar-combobox-option__text">
         <span className="scalar-combobox-option__label">{children}</span>
         {detail && <span className="scalar-combobox-option__detail">{detail}</span>}

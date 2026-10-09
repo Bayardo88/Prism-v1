@@ -177,10 +177,22 @@ describe('Content, status, footnote', () => {
     expect(ref.current).toBe(screen.getByTestId('f'));
     expect(screen.queryByRole('button')).toBeNull();
     rerender(<Footnote interactive onClick={onClick} aria-label="Source note 1" aria-describedby="n1">1</Footnote>);
-    const btn = screen.getByRole('button', { name: 'Source note 1' });
+    const btn = screen.getByRole('button', { name: /Source note 1/ });
     btn.focus();
     await userEvent.keyboard('{Enter}');
     expect(onClick).toHaveBeenCalled();
     expect(btn).toHaveAttribute('aria-describedby', 'n1');
+  });
+});
+
+describe('Cell divider', () => {
+  it('a divider cell is aria-hidden, has no cell role and forwards props', () => {
+    const ref = createRef<HTMLDivElement>();
+    render(<Cell ref={ref} type="divider" className="x" data-testid="dv" />);
+    const el = screen.getByTestId('dv');
+    expect(ref.current).toBe(el);
+    expect(el).toHaveAttribute('aria-hidden', 'true');
+    expect(el).not.toHaveAttribute('role');
+    expect(el).toHaveClass('scalar-cell', 'scalar-cell--divider', 'x');
   });
 });

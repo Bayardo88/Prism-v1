@@ -89,3 +89,45 @@ describe('AIButton', () => {
     expect(screen.getByRole('link', { name: 'Link' })).toHaveClass('scalar-ai-button');
   });
 });
+
+describe('AIButton asChild and loading', () => {
+  it('asChild fires onClick, and is blocked with aria-disabled when disabled or loading', async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    const { rerender } = renderWithProvider(
+      <AIButton asChild onClick={onClick}><a href="#go">Generate</a></AIButton>,
+    );
+    const link = screen.getByRole('link');
+    expect(link).toHaveClass('scalar-ai-button');
+    expect(link).not.toHaveAttribute('aria-disabled');
+    await user.click(link);
+    expect(onClick).toHaveBeenCalledTimes(1);
+
+    rerender(<AIButton asChild disabled onClick={onClick}><a href="#go">Generate</a></AIButton>);
+    expect(screen.getByRole('link')).toHaveAttribute('aria-disabled', 'true');
+    await user.click(screen.getByRole('link'));
+    expect(onClick).toHaveBeenCalledTimes(1);
+
+    rerender(<AIButton asChild loading onClick={onClick}><a href="#go">Generate</a></AIButton>);
+    expect(screen.getByRole('link')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent('Loading');
+    await user.click(screen.getByRole('link'));
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+  it('shows the trailing icon only when not loading and can hide the mark', () => {
+    const { rerender } = renderWithProvider(
+      <AIButton showIcon={false} trailingIcon={<i data-testid="t" />}>Go</AIButton>,
+    );
+    expect(screen.getByTestId('t')).toBeInTheDocument();
+    rerender(<AIButton loading trailingIcon={<i data-testid="t" />}>Go</AIButton>);
+    expect(screen.queryByTestId('t')).toBeNull();
+    expect(screen.getByRole('button')).toHaveAttribute('aria-disabled', 'true');
+  });
+  it('non-loading click calls onClick; type defaults to button', async () => {
+    const onClick = vi.fn();
+    renderWithProvider(<AIButton onClick={onClick}>Go</AIButton>);
+    await userEvent.click(screen.getByRole('button', { name: 'Go' }));
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
+  });
+});

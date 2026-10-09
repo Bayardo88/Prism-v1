@@ -342,8 +342,9 @@ export const FirmSwitcherTile = forwardRef<HTMLButtonElement, FirmSwitcherTilePr
   ref,
 ) {
   return (
-    <button ref={ref} type={type} aria-label={name} aria-current={selected ? 'true' : undefined} className={cx('scalar-firm-tile', selected && 'scalar-firm-tile--selected', className)} {...rest}>
-      {logoSrc ? <img src={logoSrc} alt="" /> : <span className="scalar-firm-tile__initials" aria-hidden>{initials}</span>}
+    <button ref={ref} type={type} aria-label={logoSrc ? name : undefined} aria-current={selected ? 'true' : undefined} className={cx('scalar-firm-tile', selected && 'scalar-firm-tile--selected', className)} {...rest}>
+      {/* Initials are visible text, so the name must contain them: they stay in the accessible name beside the hidden full name. */}
+      {logoSrc ? <img src={logoSrc} alt="" /> : <><span className="scalar-firm-tile__initials">{initials}</span><VisuallyHidden>{` ${name}`}</VisuallyHidden></>}
     </button>
   );
 });

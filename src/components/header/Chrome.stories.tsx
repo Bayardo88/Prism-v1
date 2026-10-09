@@ -46,7 +46,7 @@ export const PrimaryWithDropdownItem: Story = {
     children: (
       <>
         <MainMenuItem href="#home">Home</MainMenuItem>
-        <MainMenuItem expanded aria-controls="valuations-menu">Valuations</MainMenuItem>
+        <MainMenuItem expanded>Valuations</MainMenuItem>
       </>
     ),
   },

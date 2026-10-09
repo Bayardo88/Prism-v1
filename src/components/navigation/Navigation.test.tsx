@@ -143,3 +143,39 @@ describe('Stepper', () => {
     expect(ref.current).toBe(screen.getByTestId('st'));
   });
 });
+
+describe('Pagination controls', () => {
+  it('Previous steps back, End buttons disable at the bounds, status announces', async () => {
+    const user = userEvent.setup();
+    const onPageChange = vi.fn();
+    renderWithProvider(<Pagination defaultPage={3} pageCount={3} onPageChange={onPageChange} />);
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('Page 3 of 3');
+    await user.click(screen.getByRole('button', { name: 'Previous page' }));
+    expect(onPageChange).toHaveBeenCalledWith(2);
+    expect(screen.getByRole('status')).toHaveTextContent('Page 2 of 3');
+  });
+  it('collapses long ranges with aria-hidden ellipses and custom statusText', () => {
+    const { container } = renderWithProvider(
+      <Pagination page={10} pageCount={20} onPageChange={() => {}} statusText={(p, n) => `${p}/${n}`} />,
+    );
+    expect(container.querySelectorAll('.scalar-pagination__ellipsis')).toHaveLength(2);
+    expect(container.querySelector('.scalar-pagination__ellipsis')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent('10/20');
+  });
+  it('rows-per-page select reports a number, adds a missing option, and routes ref/className to the bar', async () => {
+    const user = userEvent.setup();
+    const onRows = vi.fn();
+    const ref = createRef<HTMLElement>();
+    renderWithProvider(
+      <Pagination ref={ref} className="bar" data-testid="bar" page={1} pageCount={3} onPageChange={() => {}}
+        rowsPerPage={15} onRowsPerPageChange={onRows} rowsPerPageLabel="Per page" />,
+    );
+    expect(ref.current).toBe(screen.getByTestId('bar'));
+    expect(ref.current).toHaveClass('scalar-pagination-bar', 'bar');
+    const select = screen.getByLabelText('Per page');
+    expect(Array.from((select as HTMLSelectElement).options).map((o) => o.value)).toEqual(['10', '15', '25', '50', '100']);
+    await user.selectOptions(select, '50');
+    expect(onRows).toHaveBeenCalledWith(50);
+  });
+});

@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
+import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
 
 export interface FootnoteProps extends HTMLAttributes<HTMLElement> {
   children?: ReactNode;
@@ -43,8 +44,9 @@ export const Footnote = forwardRef<HTMLElement, FootnoteProps>(function Footnote
       {...rest}
     >
       {interactive ? (
-        <button type="button" className="scalar-footnote__button" onClick={onClick} aria-label={ariaLabel} aria-describedby={describedBy}>
+        <button type="button" className="scalar-footnote__button" onClick={onClick} aria-describedby={describedBy}>
           {content}
+          {ariaLabel && <VisuallyHidden>{` ${ariaLabel}`}</VisuallyHidden>}
         </button>
       ) : (
         content

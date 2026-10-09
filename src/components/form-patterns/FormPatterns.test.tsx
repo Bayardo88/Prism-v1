@@ -486,3 +486,201 @@ describe('ImageCropField', () => {
     expect(onZoom).toHaveBeenCalledWith(2);
   });
 });
+
+describe('Pickers coverage: ComboboxPanel', () => {
+  function Panel(props: { onSelect?: (v: string) => void; onEscape?: () => void; initial?: string; items?: typeof items }) {
+    const [q, setQ] = useState(props.initial ?? '');
+    return (
+      <ComboboxPanel
+        label="Companies" items={props.items ?? items} onSelect={props.onSelect ?? (() => {})}
+        query={q} onQueryChange={setQ} onEscape={props.onEscape} data-testid="panel"
+      />
+    );
+  }
+
+  it('clicking an option selects it; clicking a disabled option does not', async () => {
+    const onSelect = vi.fn();
+    renderWithProvider(<Panel onSelect={onSelect} />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('option', { name: /Alpha/ }));
+    expect(onSelect).toHaveBeenCalledWith('a');
+    await user.click(screen.getByRole('option', { name: /Beta/ }));
+    expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('arrows skip disabled options, stop at the ends, and Enter selects the active one', async () => {
+    const onSelect = vi.fn();
+    renderWithProvider(<Panel onSelect={onSelect} />);
+    const user = userEvent.setup();
+    const input = screen.getByRole('combobox');
+    input.focus();
+    await user.keyboard('{ArrowDown}');
+    expect(input.getAttribute('aria-activedescendant')).toBe(screen.getByRole('option', { name: /Gamma/ }).id);
+    await user.keyboard('{ArrowDown}');
+    expect(input.getAttribute('aria-activedescendant')).toBe(screen.getByRole('option', { name: /Gamma/ }).id);
+    await user.keyboard('{ArrowUp}');
+    expect(input.getAttribute('aria-activedescendant')).toBe(screen.getByRole('option', { name: /Alpha/ }).id);
+    await user.keyboard('{ArrowUp}');
+    expect(input.getAttribute('aria-activedescendant')).toBe(screen.getByRole('option', { name: /Alpha/ }).id);
+    await user.keyboard('{ArrowDown}{Enter}');
+    expect(onSelect).toHaveBeenLastCalledWith('c');
+  });
+
+  it('Enter does nothing on a disabled active option, and keys are ignored with no items', async () => {
+    const onSelect = vi.fn();
+    const disabledFirst = [{ value: 'x', label: 'Locked', disabled: true }];
+    const { unmount } = renderWithProvider(<Panel onSelect={onSelect} items={disabledFirst} />);
+    screen.getByRole('combobox').focus();
+    await userEvent.keyboard('{Enter}');
+    expect(onSelect).not.toHaveBeenCalled();
+    unmount();
+    renderWithProvider(<Panel onSelect={onSelect} items={[]} />);
+    screen.getByRole('combobox').focus();
+    await userEvent.keyboard('{ArrowDown}{Enter}');
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('Escape clears a non-empty query first and then calls onEscape; consumer onMouseDown still runs', async () => {
+    const onEscape = vi.fn();
+    renderWithProvider(<Panel onEscape={onEscape} initial="alp" />);
+    const input = screen.getByRole('combobox') as HTMLInputElement;
+    input.focus();
+    await userEvent.keyboard('{Escape}');
+    expect(input.value).toBe('');
+    expect(onEscape).toHaveBeenCalledTimes(1);
+
+    const onMouseDown = vi.fn();
+    renderWithProvider(<ComboboxOption onMouseDown={onMouseDown} data-testid="opt2">Two</ComboboxOption>);
+    const md = fireEvent.mouseDown(screen.getByTestId('opt2'));
+    expect(onMouseDown).toHaveBeenCalled();
+    expect(md).toBe(false); // default prevented so the input keeps focus
+  });
+});
+
+describe('Pickers coverage: SelectMenu type-ahead and blur', () => {
+  it('type-ahead cycles through matches, ignores no-match and non-printing keys, and resets after the timeout', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      renderWithProvider(
+        <SelectMenu label="Fruit">
+          <SelectMenuOption>Apple</SelectMenuOption>
+          <SelectMenuOption>Avocado</SelectMenuOption>
+          <SelectMenuOption>Banana</SelectMenuOption>
+        </SelectMenu>,
+      );
+      const lb = screen.getByRole('listbox');
+      const id = (n: string) => screen.getByRole('option', { name: n }).id;
+      lb.focus();
+      fireEvent.keyDown(lb, { key: 'b' });
+      expect(lb).toHaveAttribute('aria-activedescendant', id('Banana'));
+      fireEvent.keyDown(lb, { key: 'z' }); // "bz" matches nothing: active option stays
+      expect(lb).toHaveAttribute('aria-activedescendant', id('Banana'));
+      fireEvent.keyDown(lb, { key: 'Shift' }); // not a printable key
+      expect(lb).toHaveAttribute('aria-activedescendant', id('Banana'));
+      act(() => { vi.advanceTimersByTime(600); });
+      fireEvent.keyDown(lb, { key: 'a' });
+      expect(lb).toHaveAttribute('aria-activedescendant', id('Apple'));
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('blur to outside clears the active option and calls onBlur; focus moving inside keeps it', async () => {
+    const onBlur = vi.fn();
+    renderWithProvider(
+      <>
+        <SelectMenu label="L" onBlur={onBlur}>
+          <SelectMenuOption>One</SelectMenuOption>
+        </SelectMenu>
+        <button type="button">outside</button>
+      </>,
+    );
+    const user = userEvent.setup();
+    await user.tab();
+    const lb = screen.getByRole('listbox');
+    expect(lb).toHaveAttribute('aria-activedescendant');
+    await user.tab();
+    expect(onBlur).toHaveBeenCalled();
+    expect(lb).not.toHaveAttribute('aria-activedescendant');
+  });
+
+  it('an empty menu is focusable without activating anything', async () => {
+    renderWithProvider(<SelectMenu label="Empty">{null}</SelectMenu>);
+    await userEvent.setup().tab();
+    expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-activedescendant');
+  });
+});
+
+describe('Pickers coverage: Dropzone', () => {
+  const csv = new File(['x'], 'a.csv', { type: 'text/csv' });
+  const png = new File(['x'], 'b.png', { type: 'image/png' });
+  const drop = (el: HTMLElement, files: File[]) => fireEvent.drop(el, { dataTransfer: { files } });
+
+  it('browse button opens the native file picker', async () => {
+    const { container } = renderWithProvider(<Dropzone hint="h" onFiles={() => {}} />);
+    const input = container.querySelector('input[type=file]') as HTMLInputElement;
+    const click = vi.spyOn(input, 'click');
+    await userEvent.setup().click(screen.getByRole('button', { name: 'select a file' }));
+    expect(click).toHaveBeenCalled();
+  });
+
+  it('dropped files are filtered by accept (extension, mime, wildcard) and truncated unless multiple', () => {
+    const onFiles = vi.fn();
+    const { rerender } = renderWithProvider(<Dropzone hint="h" accept=".csv" onFiles={onFiles} data-testid="dz" />);
+    const dz = screen.getByTestId('dz');
+    drop(dz, [png, csv]);
+    expect(onFiles).toHaveBeenLastCalledWith([csv]);
+    drop(dz, [png]);
+    expect(onFiles).toHaveBeenCalledTimes(1);
+
+    rerender(<Dropzone hint="h" accept="image/*" onFiles={onFiles} data-testid="dz" />);
+    drop(screen.getByTestId('dz'), [csv, png]);
+    expect(onFiles).toHaveBeenLastCalledWith([png]);
+
+    rerender(<Dropzone hint="h" accept="text/csv, image/png" multiple onFiles={onFiles} data-testid="dz" />);
+    drop(screen.getByTestId('dz'), [csv, png]);
+    expect(onFiles).toHaveBeenLastCalledWith([csv, png]);
+
+    rerender(<Dropzone hint="h" onFiles={onFiles} data-testid="dz" />);
+    drop(screen.getByTestId('dz'), [csv, png]);
+    expect(onFiles).toHaveBeenLastCalledWith([csv]);
+  });
+
+  it('shows the over state on drag enter and removes it when the last drag leaves; consumer handlers still run', () => {
+    const handlers = { onDragEnter: vi.fn(), onDragOver: vi.fn(), onDragLeave: vi.fn(), onDrop: vi.fn() };
+    renderWithProvider(<Dropzone hint="h" onFiles={() => {}} data-testid="dz" {...handlers} />);
+    const dz = screen.getByTestId('dz');
+    fireEvent.dragEnter(dz);
+    fireEvent.dragEnter(dz);
+    expect(dz).toHaveClass('scalar-dropzone--over');
+    fireEvent.dragLeave(dz);
+    expect(dz).toHaveClass('scalar-dropzone--over');
+    fireEvent.dragOver(dz);
+    fireEvent.dragLeave(dz);
+    expect(dz).not.toHaveClass('scalar-dropzone--over');
+    drop(dz, []);
+    expect(handlers.onDragEnter).toHaveBeenCalledTimes(2);
+    expect(handlers.onDragOver).toHaveBeenCalled();
+    expect(handlers.onDragLeave).toHaveBeenCalledTimes(2);
+    expect(handlers.onDrop).toHaveBeenCalled();
+  });
+});
+
+describe('Pickers coverage: InlineEdit', () => {
+  it('ignores Enter while an IME composition is active, and a second finish is a no-op', async () => {
+    const onCommit = vi.fn();
+    renderWithProvider(<InlineEdit label="Name" placeholder="p" value="Old" onCommit={onCommit} />);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Name: Old. Edit' }));
+    const input = screen.getByRole('textbox', { name: 'Name' });
+    fireEvent.change(input, { target: { value: 'New' } });
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+    expect(onCommit).not.toHaveBeenCalled();
+    expect(screen.getByRole('textbox', { name: 'Name' })).toBeInTheDocument();
+    act(() => {
+      fireEvent.keyDown(input, { key: 'Enter' });
+      fireEvent.blur(input);
+    });
+    expect(onCommit).toHaveBeenCalledTimes(1);
+    expect(onCommit).toHaveBeenCalledWith('New');
+  });
+});

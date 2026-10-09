@@ -31,6 +31,8 @@ export const TextSteps: Story = {
   render: () => (<div>{(['2xl', 'xl', 'l', 'm', 's'] as const).map((step) => <Text key={step} step={step}>Body text {step}</Text>)}</div>),
 };
 export const Tones: Story = {
+  // Disabled text is exempt from WCAG contrast (1.4.3), but axe only knows that for real disabled controls.
+  parameters: { a11y: { config: { rules: [{ id: 'color-contrast', enabled: false }] } } },
   render: () => (
     <div>
       {(['primary', 'secondary', 'tertiary', 'disabled', 'brand', 'positive', 'warning', 'negative', 'ai'] as const).map((tone) => <Text key={tone} tone={tone}>{tone}</Text>)}

@@ -6,3 +6,4 @@ examples/build
 apps/product/build
 storybook-static
 coverage
+.netlify/

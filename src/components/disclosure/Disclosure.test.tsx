@@ -220,3 +220,48 @@ describe('WorkspaceDrawer', () => {
     expect(screen.getAllByRole('tab').filter((t) => t.tabIndex === 0)).toHaveLength(1);
   });
 });
+
+describe('Accordion toggling modes', () => {
+  it('single type collapses the open section when it is clicked again', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    renderWithProvider(
+      <Accordion type="single" defaultValue={['a']} onValueChange={onValueChange}>
+        <AccordionItem value="a" title="A">a</AccordionItem>
+        <AccordionItem value="b" title="B">b</AccordionItem>
+      </Accordion>,
+    );
+    await user.click(screen.getByRole('button', { name: 'A' }));
+    expect(onValueChange).toHaveBeenLastCalledWith([]);
+    expect(screen.getByRole('button', { name: 'A' })).toHaveAttribute('aria-expanded', 'false');
+  });
+  it('multiple type opens and closes sections independently, reporting the list', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    renderWithProvider(
+      <Accordion onValueChange={onValueChange}>
+        <AccordionItem value="a" title="A">a</AccordionItem>
+        <AccordionItem value="b" title="B">b</AccordionItem>
+      </Accordion>,
+    );
+    await user.click(screen.getByRole('button', { name: 'A' }));
+    await user.click(screen.getByRole('button', { name: 'B' }));
+    expect(onValueChange).toHaveBeenLastCalledWith(['a', 'b']);
+    await user.click(screen.getByRole('button', { name: 'A' }));
+    expect(onValueChange).toHaveBeenLastCalledWith(['b']);
+  });
+  it('controlled value drives expansion and does not change without the parent', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    renderWithProvider(
+      <Accordion value={['b']} onValueChange={onValueChange}>
+        <AccordionItem value="a" title="A">a</AccordionItem>
+        <AccordionItem value="b" title="B">b</AccordionItem>
+      </Accordion>,
+    );
+    expect(screen.getByRole('button', { name: 'B' })).toHaveAttribute('aria-expanded', 'true');
+    await user.click(screen.getByRole('button', { name: 'A' }));
+    expect(onValueChange).toHaveBeenCalledWith(['b', 'a']);
+    expect(screen.getByRole('button', { name: 'A' })).toHaveAttribute('aria-expanded', 'false');
+  });
+});

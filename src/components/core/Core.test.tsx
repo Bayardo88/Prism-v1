@@ -116,3 +116,42 @@ describe('EmptyState', () => {
     expect(screen.getByTestId('e')).toHaveAttribute('role', 'status');
   });
 });
+
+describe('Tooltip mouse and focus handlers', () => {
+  it('opens on hover/focus, closes on leave/blur, and calls consumer handlers', async () => {
+    const user = userEvent.setup();
+    const handlers = { onMouseEnter: vi.fn(), onMouseLeave: vi.fn(), onFocus: vi.fn(), onBlur: vi.fn() };
+    renderWithProvider(
+      <Tooltip content="Tip" data-testid="root" {...handlers}><button type="button">T</button></Tooltip>,
+    );
+    const tip = screen.getByRole('tooltip', { hidden: true });
+    expect(tip).toHaveAttribute('hidden');
+    await user.hover(screen.getByRole('button'));
+    expect(handlers.onMouseEnter).toHaveBeenCalled();
+    expect(tip).not.toHaveAttribute('hidden');
+    await user.unhover(screen.getByRole('button'));
+    expect(handlers.onMouseLeave).toHaveBeenCalled();
+    expect(tip).toHaveAttribute('hidden');
+    await user.tab();
+    expect(handlers.onFocus).toHaveBeenCalled();
+    expect(tip).not.toHaveAttribute('hidden');
+    await user.tab();
+    expect(handlers.onBlur).toHaveBeenCalled();
+    expect(tip).toHaveAttribute('hidden');
+  });
+  it('Escape closes an uncontrolled tooltip', async () => {
+    const user = userEvent.setup();
+    renderWithProvider(<Tooltip content="Tip"><button type="button">T</button></Tooltip>);
+    await user.tab();
+    const tip = screen.getByRole('tooltip');
+    await user.keyboard('{Escape}');
+    expect(tip).toHaveAttribute('hidden');
+  });
+  it('ignores other keys and a non-element trigger', async () => {
+    const onOpenChange = vi.fn();
+    renderWithProvider(<Tooltip open content="Tip" onOpenChange={onOpenChange}>{'plain text' as never}</Tooltip>);
+    await userEvent.keyboard('a');
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByText('plain text')).toBeInTheDocument();
+  });
+});

@@ -58,6 +58,44 @@ for (const file of ['src/styles/components.css', 'src/styles/base.css']) {
   }
 }
 
+/* --- R10: 12px type floor, focus visibility, overlay reflow ------------- */
+const tokenCss = strip(readFileSync(join(root, 'src/styles/tokens.css'), 'utf8'));
+for (const m of tokenCss.matchAll(/(--font-size-[a-z0-9-]+)\s*:\s*(\d+)px/g)) {
+  if (Number(m[2]) < 12) errors.push(`tokens.css: ${m[1]} is ${m[2]}px, below the 12px type floor (R10)`);
+}
+
+const componentCss = strip(readFileSync(join(root, 'src/styles/components.css'), 'utf8'));
+// Selectors that remove the native outline, with where the visible focus indicator
+// lives instead. A new `outline: none` must be added here with its replacement.
+const OUTLINE_REPLACEMENTS = {
+  '.scalar-field__control': '.scalar-field:focus-within',
+  '.scalar-cell__editor': '.scalar-cell--selected',
+  '.scalar-global-search__input': '.scalar-global-search__bar:focus-within',
+  '.scalar-modal-search__input': '.scalar-modal-search:focus-within',
+  '.scalar-data-review-card__select:focus-visible': '.scalar-data-review-card__select:focus-visible::after',
+  '.scalar-search-bar__input': '.scalar-search-bar:focus-within',
+  '.scalar-ai-tool__input': '.scalar-ai-tool:focus-within',
+  '.scalar-floating__control': '.scalar-floating__box:focus-within',
+  '.scalar-number-field__control': '.scalar-number-field:focus-within',
+  '.scalar-tag-input__entry': '.scalar-tag-input:focus-within',
+  '.scalar-copy-field__value': '.scalar-copy-field:focus-within',
+  '.scalar-combobox-panel__search input': '.scalar-combobox-panel__search:focus-within',
+  '.scalar-select-menu__list': '.scalar-select-menu__list:focus-visible',
+};
+for (const m of componentCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+  const selector = m[1].trim().replace(/\s+/g, ' ');
+  const body = m[2];
+  if (/(?:^|[;\s])outline\s*:\s*(?:none|0)\s*(?:;|$)/.test(body) && !selector.startsWith('@')) {
+    const replacement = OUTLINE_REPLACEMENTS[selector];
+    if (!replacement) errors.push(`components.css: "${selector}" removes the outline with no registered replacement focus indicator (WCAG 2.4.7) — add one and register it in scripts/lint-tokens.mjs`);
+    else if (!componentCss.includes(replacement)) errors.push(`components.css: "${selector}" relies on "${replacement}", which no longer exists`);
+  }
+  // A fixed overlay/panel width must be able to shrink with the viewport (WCAG 1.4.10 reflow).
+  if (/(?:^|[;\s])(?:min-)?width\s*:\s*\d{3,}px/.test(body) && !/max-width|min\(|clamp\(/.test(body) && !selector.startsWith('@')) {
+    if (!/\.scalar-kv-row/.test(selector)) errors.push(`components.css: "${selector}" has a fixed width >= 100px and no max-width — it will overflow narrow viewports`);
+  }
+}
+
 /* --- 2: every reference resolves ---------------------------------------- */
 const walk = (dir) =>
   readdirSync(dir).flatMap((entry) => {

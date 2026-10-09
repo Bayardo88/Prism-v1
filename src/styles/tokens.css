@@ -306,21 +306,21 @@
 
   /* --- Chart ------------------------------------------------------------ */
   --color-chart-series-1: #8e1242;
-  --color-chart-series-2: #808135;
-  --color-chart-series-3: #cb0000;
-  --color-chart-series-4: #046140;
-  --color-chart-series-5: #013e73;
-  --color-chart-series-6: #d26000;
-  --color-chart-series-7: #5826d6;
-  --color-chart-series-8: #0e7490;
-  --color-chart-series-1-subtle: #fce7f3;
-  --color-chart-series-2-subtle: #f3f3dd;
-  --color-chart-series-3-subtle: #ffc8c9;
-  --color-chart-series-4-subtle: #cef3e6;
-  --color-chart-series-5-subtle: #cde5fa;
-  --color-chart-series-6-subtle: #ffe0c4;
-  --color-chart-series-7-subtle: #dfcfff;
-  --color-chart-series-8-subtle: #cffafe;
+  --color-chart-series-2: #1b8cfc;
+  --color-chart-series-3: #968e23;
+  --color-chart-series-4: #1936c0;
+  --color-chart-series-5: #e05f8d;
+  --color-chart-series-6: #715c09;
+  --color-chart-series-7: #33786c;
+  --color-chart-series-8: #748156;
+  --color-chart-series-1-subtle: #edd9e1;
+  --color-chart-series-2-subtle: #dbedff;
+  --color-chart-series-3-subtle: #eeeddc;
+  --color-chart-series-4-subtle: #dadff5;
+  --color-chart-series-5-subtle: #fae5ed;
+  --color-chart-series-6-subtle: #e8e5d8;
+  --color-chart-series-7-subtle: #dee9e7;
+  --color-chart-series-8-subtle: #e9ebe4;
   --color-chart-positive: #007e17;
   --color-chart-negative: #cb0000;
   --color-chart-total: #0f172a;
@@ -521,21 +521,21 @@
 
   /* --- Chart ------------------------------------------------------------ */
   --color-chart-series-1: #f088bd;
-  --color-chart-series-2: #d3d392;
-  --color-chart-series-3: #ff686e;
-  --color-chart-series-4: #9ce8cd;
-  --color-chart-series-5: #3597ed;
-  --color-chart-series-6: #ffc790;
-  --color-chart-series-7: #a77fff;
-  --color-chart-series-8: #67e8f9;
-  --color-chart-series-1-subtle: #5f0c29;
-  --color-chart-series-2-subtle: #49491d;
-  --color-chart-series-3-subtle: #6c0003;
-  --color-chart-series-4-subtle: #046140;
-  --color-chart-series-5-subtle: #013e73;
-  --color-chart-series-6-subtle: #6f3300;
-  --color-chart-series-7-subtle: #2e1571;
-  --color-chart-series-8-subtle: #155e75;
+  --color-chart-series-2: #b4ef40;
+  --color-chart-series-3: #2c9f59;
+  --color-chart-series-4: #aa6aff;
+  --color-chart-series-5: #4fdb9f;
+  --color-chart-series-6: #f4c4ff;
+  --color-chart-series-7: #8fb93c;
+  --color-chart-series-8: #b57b8c;
+  --color-chart-series-1-subtle: #6e4d6c;
+  --color-chart-series-2-subtle: #57743d;
+  --color-chart-series-3-subtle: #235646;
+  --color-chart-series-4-subtle: #534285;
+  --color-chart-series-5-subtle: #316d61;
+  --color-chart-series-6-subtle: #6f6485;
+  --color-chart-series-7-subtle: #49603b;
+  --color-chart-series-8-subtle: #57485a;
   --color-chart-positive: #00b04f;
   --color-chart-negative: #ff2f3d;
   --color-chart-total: #f8fafc;
@@ -705,7 +705,7 @@
   --font-size-display-m: 48px;   --line-height-display-m: 52px;   --letter-spacing-display-m: -1.5px;
   --font-size-display-l: 56px;   --line-height-display-l: 60px;   --letter-spacing-display-l: -1.5px;
 
-  --font-size-heading-xs: 10px;  --line-height-heading-xs: 14px;  --letter-spacing-heading-xs: 0px;
+  --font-size-heading-xs: 12px;  --line-height-heading-xs: 16px;  --letter-spacing-heading-xs: 0px;
   --font-size-heading-s: 12px;   --line-height-heading-s: 16px;   --letter-spacing-heading-s: 0px;
   --font-size-heading-m: 14px;   --line-height-heading-m: 18px;   --letter-spacing-heading-m: 0px;
   --font-size-heading-l: 16px;   --line-height-heading-l: 20px;   --letter-spacing-heading-l: -0.2px;

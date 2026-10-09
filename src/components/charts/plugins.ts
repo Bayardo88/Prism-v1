@@ -17,11 +17,10 @@ export interface DirectLabelOptions {
 /**
  * Direct labels above every bar.
  *
- * Required, not decorative. The Chart/Series ramp has not passed CVD validation
- * (Series 2 and 3 separate by only ΔE 4.9 under deuteranopia), so any chart
- * using three or more series must carry direct labels as well as a legend. A
- * waterfall needs them unconditionally — it is read as arithmetic, not as a
- * shape, so the numbers are not optional.
+ * Identity should not rest on colour alone: charts with three or more series
+ * carry direct labels as well as a legend (the ramp itself is CVD-validated in
+ * CI). A waterfall needs them unconditionally — it is read as arithmetic, not
+ * as a shape, so the numbers are not optional.
  */
 export function directLabelsPlugin(opts: DirectLabelOptions): Plugin<'bar'> {
   return {

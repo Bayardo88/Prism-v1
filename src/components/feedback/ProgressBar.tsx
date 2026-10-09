@@ -40,7 +40,7 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(function
       aria-valuemax={100}
       aria-valuenow={indeterminate ? undefined : clamped}
     >
-      <div className="scalar-progress__fill" style={indeterminate ? undefined : { width: `${clamped}%` }} />
+      <div className="scalar-progress__fill" style={indeterminate ? undefined : { translate: `${clamped - 100}% 0` }} />
     </div>
   );
 });
