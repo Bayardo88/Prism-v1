@@ -73,6 +73,7 @@ npm run verify
 | `src/utils/` | Shared primitives: `Slot`, `useOverlay`, `useRovingFocus`, `useFieldIds`, … |
 | `docs/decisions/` | Architecture decisions (why in-house hooks, not Radix) |
 | `scripts/lint-tokens.mjs` | The token-contract linter |
+| `docs/navigation-3-tier-system.md` | The 3-tier navigation spec: tier scope, layout, per-screen configuration, rules. Read before building or editing any screen's nav chrome |
 | `docs/known-gaps.md` | Inherited gaps that are deliberate — read before "fixing" one |
 | `apps/product/` | The full Scalar product as a prototype — every Scalar-full-product Figma frame. Change it with the `scalar-product` skill; `npm run verify:product` must pass |
 

@@ -119,6 +119,7 @@ ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
 | **[docs/page-template.md](docs/page-template.md)** | **Building a screen?** The base template — navigation, body slot, drawer — and how to use it. Read before writing any page. |
 | [docs/tokens.md](docs/tokens.md) | The full token reference — every colour in Light and Dark, every scale, the type ramp in all three modes. Generated. |
 | [docs/components.md](docs/components.md) | Figma → React traceability. Which Figma component set each export came from, and where any two were merged. |
+| [docs/navigation-3-tier-system.md](docs/navigation-3-tier-system.md) | Logic and behaviour of the 3-tier navigation (Primary / Secondary / Tertiary) for devs and AI agents. Read before building or changing any screen's chrome. |
 | [docs/known-gaps.md](docs/known-gaps.md) | Inherited gaps that are deliberate, with the reason and the workaround. Read before "fixing" one. |
 
 ---
