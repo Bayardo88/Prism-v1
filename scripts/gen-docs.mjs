@@ -81,7 +81,7 @@ ${section('Stroke', '--color-stroke-', '`default`, `subtle` and `divider` are no
 ${section('Icon', '--color-icon-')}
 ${section('Overlay & shadow', '--color-overlay-')}
 ${section('Shadow', '--color-shadow-')}
-${section('Chart', '--color-chart-', '⚠️ Series 2 and Series 3 separate by only ΔE 4.9 under deuteranopia in Light. Charts using both must carry direct labels or texture.')}
+${section('Chart', '--color-chart-', 'Every pair separates by at least ΔE2000 6 under normal vision, deuteranopia, protanopia and tritanopia (enforced by `npm run lint:contrast`).')}
 
 ### PRISM
 

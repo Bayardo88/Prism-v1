@@ -1,5 +1,6 @@
-import { forwardRef, useEffect, useId, useRef, type HTMLAttributes, type ReactNode } from 'react';
-import { Chart, type ChartConfiguration, type Plugin } from 'chart.js';
+import { forwardRef, useId, useMemo, useRef, type HTMLAttributes, type ReactNode } from 'react';
+import type { ChartConfiguration, Plugin } from 'chart.js';
+import { Chart } from 'react-chartjs-2';
 import { composeRefs } from '../../utils/refs.js';
 import { cx } from '../../utils/cx.js';
 import { useLatestRef } from '../../utils/useLatestRef.js';
@@ -65,60 +66,45 @@ function delegatingPlugin(id: string, latest: { current: ChartConfiguration | nu
 /**
  * The canvas shell every Scalar chart is drawn in.
  *
- * Owns three things the individual charts should not each re-solve: the
- * Chart.js lifecycle, re-resolving tokens when the theme changes, and the
- * screen-reader fallback. Data and option changes update the live chart in
- * place (`chart.update()`); the instance is destroyed on unmount.
+ * Renders through `react-chartjs-2`, which owns the Chart.js lifecycle (create,
+ * in-place update on data/option change, destroy on unmount). This shell adds
+ * what the binding does not: re-resolving tokens when the theme changes (the
+ * chart is recreated, keyed on the token object) and the screen-reader fallback.
  */
 export const ChartCanvas = forwardRef<HTMLElement, ChartCanvasProps>(function ChartCanvas(
   { build, title, table, height = 240, children, className, ...rest },
   ref,
 ) {
   const hostRef = useRef<HTMLElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const chartRef = useRef<Chart | null>(null);
-  const appliedSig = useRef('');
   const tokens = useChartTokens(hostRef);
   const tableId = useId();
+  registerScalarCharts();
 
-  const config = tokens ? build(tokens) : null;
-  // Everything JSON can see: data, options, type and the formatted table. Formatters and
-  // plugin closures are functions, so the table (which carries formatted values) stands in for them.
-  const signature = config ? JSON.stringify([config.data, config.options, table]) : '';
+  const config = tokens ? (build(tokens) as ChartConfiguration) : null;
+  const latestConfig = useLatestRef<ChartConfiguration | null>(config);
   const chartType = config?.type;
-  const latestConfig = useLatestRef<ChartConfiguration | null>(config as ChartConfiguration | null);
-  const latestSignature = useLatestRef(signature);
+  const pluginIds = (config?.plugins ?? []).map((p) => p.id).join('|');
 
-  // Create: on first tokens, on theme change (tokens object), or on chart type change.
-  useEffect(() => {
-    const cfg = latestConfig.current;
-    if (!tokens || !cfg || !canvasRef.current) return;
-    registerScalarCharts();
-    const plugins = (cfg.plugins ?? []).map((p) => delegatingPlugin(p.id, latestConfig));
-    const chart = new Chart(canvasRef.current, { ...cfg, plugins });
-    chartRef.current = chart;
-    appliedSig.current = latestSignature.current;
-    return () => {
-      chart.destroy();
-      chartRef.current = null;
-    };
-  }, [tokens, chartType, latestConfig, latestSignature]);
-
-  // Update: data / options changed while the chart is alive.
-  useEffect(() => {
-    const chart = chartRef.current;
-    const cfg = latestConfig.current;
-    if (!chart || !cfg || appliedSig.current === signature) return;
-    appliedSig.current = signature;
-    chart.data = cfg.data;
-    chart.options = cfg.options ?? {};
-    chart.update();
-  }, [signature, latestConfig]);
+  // react-chartjs-2 applies plugins at creation only, so each is a stable delegate to the latest build.
+  const plugins = useMemo(() => (pluginIds ? pluginIds.split('|') : []).map((id) => delegatingPlugin(id, latestConfig)), [pluginIds, latestConfig]);
+  // A new token object (theme change) or chart type recreates the chart; data/option changes update it in place.
+  const generation = useMemo(() => Symbol(chartType), [tokens, chartType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <figure ref={composeRefs(hostRef, ref)} className={cx('scalar-chart-figure', className)} {...rest}>
       <div className="scalar-chart-canvas" style={{ height }}>
-        <canvas ref={canvasRef} role="img" aria-label={title} aria-describedby={table ? tableId : undefined} />
+        {config && (
+          <Chart
+            key={generation.toString()}
+            type={config.type}
+            data={config.data}
+            options={config.options}
+            plugins={plugins}
+            role="img"
+            aria-label={title}
+            aria-describedby={table ? tableId : undefined}
+          />
+        )}
       </div>
       {children}
       {table && (

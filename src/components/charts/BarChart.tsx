@@ -36,8 +36,8 @@ export interface BarChartProps extends ChartRootProps {
  * segments.
  *
  * Accessibility: always ships a legend and a screen-reader data table. With
- * three or more series it also turns on direct labels, because the
- * Chart/Series ramp has not passed CVD validation.
+ * three or more series it also turns on direct labels, so identity never rests
+ * on colour alone (the ramp itself is CVD-validated in CI).
  */
 export const BarChart = forwardRef<HTMLElement, BarChartProps>(function BarChart({
   categories, series, type = 'grouped', grid = 'horizontal',
@@ -48,9 +48,9 @@ export const BarChart = forwardRef<HTMLElement, BarChartProps>(function BarChart
   /**
    * Direct labels, and where they go.
    *
-   * Grouped: label every bar. Three or more series hits the unresolved
-   * Series 2/3 CVD clash, so identity cannot rest on the legend alone, and a
-   * label above a grouped bar lands on the page background where it is legible.
+   * Grouped: label every bar. With three or more series identity should not
+   * rest on colour and the legend alone, and a label above a grouped bar lands
+   * on the page background where it is legible.
    *
    * Stacked: label the column total only. A per-segment label sits on top of
    * the segment above it, which puts dark text on a dark fill — and there is no

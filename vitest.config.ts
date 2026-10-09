@@ -3,11 +3,19 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import { playwright } from '@vitest/browser-playwright';
-const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
+const dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
   test: {
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      // Generated glyph wrappers, tests, stories and barrels carry no logic of their own.
+      exclude: ['src/**/*.{test,stories}.{ts,tsx}', 'src/test/**', 'src/**/index.ts', 'src/components/icon/material.tsx', 'src/tokens/generated.ts', 'src/**/*.d.ts'],
+      // Ratchet: raise these when coverage rises, never lower them.
+      thresholds: { statements: 95, branches: 90, functions: 97, lines: 98 },
+    },
     projects: [
       {
         extends: true,
@@ -18,6 +26,7 @@ export default defineConfig({
           setupFiles: ['./src/test/setup.ts'],
           include: ['src/**/*.test.{ts,tsx}'],
           css: false,
+          testTimeout: 15000,
         },
       },
       {

@@ -184,3 +184,15 @@ describe('Content, status, footnote', () => {
     expect(btn).toHaveAttribute('aria-describedby', 'n1');
   });
 });
+
+describe('Cell divider', () => {
+  it('a divider cell is aria-hidden, has no cell role and forwards props', () => {
+    const ref = createRef<HTMLDivElement>();
+    render(<Cell ref={ref} type="divider" className="x" data-testid="dv" />);
+    const el = screen.getByTestId('dv');
+    expect(ref.current).toBe(el);
+    expect(el).toHaveAttribute('aria-hidden', 'true');
+    expect(el).not.toHaveAttribute('role');
+    expect(el).toHaveClass('scalar-cell', 'scalar-cell--divider', 'x');
+  });
+});

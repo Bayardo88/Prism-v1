@@ -1,0 +1,24 @@
+name: Release PR
+# Opens (or updates) a "Version Packages" PR from pending changesets. Publishing is
+# deliberately not automated: the package is private, so a maintainer tags the merge.
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - uses: changesets/action@v1
+        with:
+          version: npx changeset version
+          commit: 'chore: version packages'
+          title: 'chore: version packages'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

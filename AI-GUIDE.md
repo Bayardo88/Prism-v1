@@ -559,14 +559,12 @@ Rules:
 - Donut ceiling is 8 slices. It answers "what is the split", never "how did the
   split change" (that is a stacked bar over time).
 
-> ⚠️ **Open accessibility gap.** `Chart/Series` has not passed CVD validation in
-> Light mode: Series 2 and Series 3 separate by only ΔE 4.9 under deuteranopia
-> (floor is ΔE 6), and Series 3 shares its hex with `Chart/Negative`.
->
-> The shipped charts mitigate this **automatically** — `BarChart` turns direct
-> labels on at three or more series. If you build your own chart, you own that
-> obligation: add direct labels or texture, and `seriesAccessibilityWarning()`
-> is the programmatic guard.
+> **Colour-blind safety.** Every pair in `Chart/Series` separates by at least ΔE2000 6
+> under normal vision, deuteranopia, protanopia and tritanopia, in Light and Dark, and no
+> series equals `Chart/Negative`; `npm run lint:contrast` enforces it. Up to eight series
+> are safe; a ninth folds into "Other". `seriesAccessibilityWarning()` is the guard.
+> `BarChart` still turns direct labels on at three or more series so identity never rests
+> on colour alone.
 >
 > Stacked bars are the one exception, and deliberately so: a per-segment label
 > sits on top of the segment above it, putting dark text on a dark fill, and

@@ -6,28 +6,23 @@ do resolve it, fix it in Figma first and re-extract.
 
 ---
 
-## 1. Chart series have not passed CVD validation
+## 1. Chart series CVD validation — resolved in code, pending Figma
 
-**Severity: blocks shipping a chart without mitigation.**
+**Status (2026-10-09): resolved in the code layer.** The eight `Chart/Series` colours
+(and their `-subtle` fills) were re-stepped in `tokens.css` so every pair separates by at
+least **ΔE2000 6 under normal vision, deuteranopia, protanopia and tritanopia**, in both
+Light and Dark, all clear 3:1 against `Background/Surface`, and no series equals
+`Chart/Negative`. `scripts/lint-contrast.mjs` (part of `npm run verify`) enforces this, so a
+token edit that breaks it cannot merge. `seriesAccessibilityWarning()` now only warns past
+eight series.
 
-In Light mode, `Chart/Series 2` (`#808135`) and `Chart/Series 3` (`#cb0000`)
-separate by only **ΔE 4.9 under deuteranopia**, below the ΔE 6 floor. Separately,
-`Chart/Series 3` and `Chart/Negative` are the **same hex** in Light (`#cb0000`),
-so a categorical series and a semantic "bad" both read as the same red.
+**Still open — Figma and code now differ.** The Figma `Chart/Series` variables still hold
+the previous ramp. Update them from `tokens.css` (design sign-off needed: every chart
+changes colour), then re-extract. Until then, a chart built in Figma will not match code.
 
-**Mitigation, required today:** any chart using three or more series ships a
-legend **and** direct labels or texture. `BarChart` does this automatically.
-`seriesAccessibilityWarning()` in `src/components/charts/series.ts` is the
-programmatic guard for charts you build yourself.
-
-Stacked bars are a deliberate exception: a per-segment label sits on top of the
-segment above it, putting dark text on a dark fill, and the system has no
-per-series on-colour token to switch to. They label the column total instead and
-carry identity by stack order — a non-colour channel, stable across categories.
-A `Chart/Series N/On` ramp would remove the exception.
-
-**Real fix:** re-step the `Chart/Series` ramp in the v1.1 tokens file. Still
-outstanding as of 2026-09-21.
+Stacked bars still label the column total instead of per-segment values: there is no
+per-series on-colour token, so a segment label would put dark text on a dark fill. A
+`Chart/Series N/On` ramp would remove the exception.
 
 ---
 

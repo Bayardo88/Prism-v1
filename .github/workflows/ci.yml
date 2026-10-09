@@ -3,6 +3,9 @@ on:
   pull_request:
   push:
     branches: [main]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -11,9 +14,31 @@ jobs:
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci
+      # tsc + token lint + contrast/colour-blind gate + ESLint (a11y, hooks) + unit tests
       - run: npm run verify
+      # Coverage ratchet (thresholds live in vitest.config.ts)
+      - run: npm run test:coverage
       - run: npm run build
+      - run: npm run size
       - run: npm run verify:product
       - run: npm run build:storybook
       - run: npx playwright install --with-deps chromium
       - run: npm run test:stories
+      # WCAG 1.4.10: every story renders at 320px without horizontal scroll
+      - run: npm run check:reflow
+
+  consumer-smoke:
+    name: Consumer smoke (React ${{ matrix.react }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        react: ['18', '19']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - run: npm run pack:smoke
+        env:
+          REACT_MAJOR: ${{ matrix.react }}

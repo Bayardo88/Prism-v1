@@ -4,11 +4,11 @@
  * Assign series in order and never cycle. A ninth series folds into "Other" or
  * the chart becomes small multiples.
  *
- * KNOWN GAP — Chart/Series has not passed CVD validation in Light mode. Series 2
- * and Series 3 separate by only ΔE 4.9 under deuteranopia, below the ΔE 6 floor,
- * and Series 3 shares a hex with Chart/Negative (#cb0000 in Light). Until those
- * tokens are re-stepped, every chart using them MUST carry direct labels or
- * texture in addition to a legend. `assertSeriesAccessible` below is the guard.
+ * Colour-blind safety: every pair in the eight-step ramp separates by at least
+ * ΔE2000 6 under normal vision, deuteranopia, protanopia and tritanopia, in both
+ * Light and Dark. `scripts/lint-contrast.mjs` enforces this in CI, so a token
+ * change that breaks it cannot merge. Colour is still never the only channel in
+ * stacked bars (see BarChart) and every chart ships a legend and data table.
  */
 export const SERIES_COUNT = 8;
 
@@ -16,16 +16,15 @@ export const seriesColor = (i: number): string => `var(--color-chart-series-${(i
 export const seriesSubtleColor = (i: number): string => `var(--color-chart-series-${(i % SERIES_COUNT) + 1}-subtle)`;
 
 /**
- * Returns a warning when a chart's series selection hits the unresolved CVD
- * clash and the chart is not carrying direct labels. Call it from a chart's
- * own code rather than relying on reviewers to remember.
+ * Returns a warning when a chart asks for more series than the ramp can keep
+ * distinguishable. The ramp is CVD-validated up to `SERIES_COUNT` series; past
+ * that colours would cycle, so fold the tail into "Other" or use small multiples.
+ * `directLabels` is accepted for API compatibility and no longer changes the result.
  */
-export function seriesAccessibilityWarning(seriesCount: number, directLabels: boolean): string | null {
-  if (directLabels) return null;
-  // Series index 1 and 2 are Chart/Series 2 and 3 — the unresolved pair.
-  if (seriesCount >= 3) {
-    return 'Chart/Series 2 and 3 separate by only ΔE 4.9 under deuteranopia. ' +
-      'Add direct labels or texture, or reduce to two series.';
+export function seriesAccessibilityWarning(seriesCount: number, _directLabels?: boolean): string | null {
+  if (seriesCount > SERIES_COUNT) {
+    return `A chart with ${seriesCount} series exceeds the ${SERIES_COUNT}-step colour-blind-safe ramp. ` +
+      'Fold the smallest series into "Other" or use small multiples.';
   }
   return null;
 }

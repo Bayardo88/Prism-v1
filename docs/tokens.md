@@ -164,7 +164,7 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 
 ### Chart
 
-⚠️ Series 2 and Series 3 separate by only ΔE 4.9 under deuteranopia in Light. Charts using both must carry direct labels or texture.
+Every pair separates by at least ΔE2000 6 under normal vision, deuteranopia, protanopia and tritanopia (enforced by `npm run lint:contrast`).
 
 | Token | Light | Dark |
 |---|---|---|
@@ -173,21 +173,21 @@ On a filled surface always use an `on*` token — `text-primary` on a fill is a 
 | `--color-chart-negative` | `#cb0000` | `#ff2f3d` |
 | `--color-chart-positive` | `#007e17` | `#00b04f` |
 | `--color-chart-series-1` | `#8e1242` | `#f088bd` |
-| `--color-chart-series-1-subtle` | `#fce7f3` | `#5f0c29` |
-| `--color-chart-series-2` | `#808135` | `#d3d392` |
-| `--color-chart-series-2-subtle` | `#f3f3dd` | `#49491d` |
-| `--color-chart-series-3` | `#cb0000` | `#ff686e` |
-| `--color-chart-series-3-subtle` | `#ffc8c9` | `#6c0003` |
-| `--color-chart-series-4` | `#046140` | `#9ce8cd` |
-| `--color-chart-series-4-subtle` | `#cef3e6` | `#046140` |
-| `--color-chart-series-5` | `#013e73` | `#3597ed` |
-| `--color-chart-series-5-subtle` | `#cde5fa` | `#013e73` |
-| `--color-chart-series-6` | `#d26000` | `#ffc790` |
-| `--color-chart-series-6-subtle` | `#ffe0c4` | `#6f3300` |
-| `--color-chart-series-7` | `#5826d6` | `#a77fff` |
-| `--color-chart-series-7-subtle` | `#dfcfff` | `#2e1571` |
-| `--color-chart-series-8` | `#0e7490` | `#67e8f9` |
-| `--color-chart-series-8-subtle` | `#cffafe` | `#155e75` |
+| `--color-chart-series-1-subtle` | `#edd9e1` | `#6e4d6c` |
+| `--color-chart-series-2` | `#1b8cfc` | `#b4ef40` |
+| `--color-chart-series-2-subtle` | `#dbedff` | `#57743d` |
+| `--color-chart-series-3` | `#968e23` | `#2c9f59` |
+| `--color-chart-series-3-subtle` | `#eeeddc` | `#235646` |
+| `--color-chart-series-4` | `#1936c0` | `#aa6aff` |
+| `--color-chart-series-4-subtle` | `#dadff5` | `#534285` |
+| `--color-chart-series-5` | `#e05f8d` | `#4fdb9f` |
+| `--color-chart-series-5-subtle` | `#fae5ed` | `#316d61` |
+| `--color-chart-series-6` | `#715c09` | `#f4c4ff` |
+| `--color-chart-series-6-subtle` | `#e8e5d8` | `#6f6485` |
+| `--color-chart-series-7` | `#33786c` | `#8fb93c` |
+| `--color-chart-series-7-subtle` | `#dee9e7` | `#49603b` |
+| `--color-chart-series-8` | `#748156` | `#b57b8c` |
+| `--color-chart-series-8-subtle` | `#e9ebe4` | `#57485a` |
 | `--color-chart-total` | `#0f172a` | `#f8fafc` |
 
 
@@ -387,7 +387,7 @@ Values are `size/line-height` in px.
 
 | Step | Desktop (1440) | Desktop Large (1920) | Mobile (393) | Tracking |
 |---|---|---|---|---|
-| `xs` | 10px/14px | 12px/16px | 10px/14px | 0px |
+| `xs` | 12px/16px | 12px/16px | 12px/16px | 0px |
 | `s` | 12px/16px | 14px/18px | 12px/16px | 0px |
 | `m` | 14px/18px | 16px/20px | 14px/18px | 0px |
 | `l` | 16px/20px | 18px/24px | 16px/20px | -0.2px |

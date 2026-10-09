@@ -1,24 +1,9 @@
 import { vi } from 'vitest';
 
-// A canvas is not available in jsdom: replace Chart.js with a stub (as Charts.test.tsx does).
-vi.mock('chart.js', () => {
-  class Chart {
-    static register() {}
-    update = vi.fn();
-    destroy = vi.fn();
-    data: unknown;
-    options: unknown;
-    constructor(_canvas: unknown, config: { data: unknown; options: unknown }) {
-      this.data = config.data;
-      this.options = config.options;
-    }
-  }
-  const stub = class {};
-  return {
-    Chart,
-    ArcElement: stub, BarController: stub, BarElement: stub, CategoryScale: stub, DoughnutController: stub,
-    Filler: stub, LineController: stub, LineElement: stub, LinearScale: stub, PointElement: stub, Tooltip: stub,
-  };
+// A canvas is not available in jsdom: replace the react-chartjs-2 binding with a stub (as Charts.test.tsx does).
+vi.mock('react-chartjs-2', async () => {
+  const React = await import('react');
+  return { Chart: () => React.createElement('canvas') };
 });
 
 const { render } = await import('@testing-library/react');

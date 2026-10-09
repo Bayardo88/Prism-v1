@@ -3,36 +3,29 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { checkA11y } from '../../test/render.js';
 
-// A canvas is not available in jsdom: replace Chart.js with a recording stub.
-const instances: Array<{
-  config: { type: string; data: unknown; options: unknown };
-  data: unknown;
-  options: unknown;
-  update: ReturnType<typeof vi.fn>;
-  destroy: ReturnType<typeof vi.fn>;
-}> = [];
+// A canvas is not available in jsdom: replace the react-chartjs-2 binding with a recording stub.
+// (The binding owns the Chart.js instance; what Scalar owns is the props it is handed and when it is re-keyed.)
+const h = vi.hoisted(() => ({
+  mounts: [] as Array<Record<string, unknown>>,
+  renders: [] as Array<Record<string, unknown>>,
+  unmounts: 0,
+}));
 
-vi.mock('chart.js', () => {
-  class Chart {
-    static register() {}
-    config: { type: string; data: unknown; options: unknown };
-    data: unknown;
-    options: unknown;
-    update = vi.fn();
-    destroy = vi.fn();
-    constructor(_canvas: unknown, config: { type: string; data: unknown; options: unknown }) {
-      this.config = config;
-      this.data = config.data;
-      this.options = config.options;
-      instances.push(this as never);
-    }
-  }
-  const stub = class {};
-  return {
-    Chart,
-    ArcElement: stub, BarController: stub, BarElement: stub, CategoryScale: stub, DoughnutController: stub,
-    Filler: stub, LineController: stub, LineElement: stub, LinearScale: stub, PointElement: stub, Tooltip: stub,
+vi.mock('react-chartjs-2', async () => {
+  const React = await import('react');
+  const Chart = (props: Record<string, unknown>) => {
+    h.renders.push(props);
+    React.useEffect(() => {
+      h.mounts.push({});
+      return () => { h.unmounts += 1; };
+    }, []);
+    return React.createElement('canvas', {
+      role: props.role as string,
+      'aria-label': props['aria-label'] as string,
+      'aria-describedby': props['aria-describedby'] as string | undefined,
+    });
   };
+  return { Chart };
 });
 
 const { ChartCanvas } = await import('./ChartCanvas.js');
@@ -42,7 +35,8 @@ const { DonutChart } = await import('./DonutChart.js');
 const { WaterfallChart } = await import('./WaterfallChart.js');
 const { ChartLegend } = await import('./ChartLegend.js');
 
-beforeEach(() => { instances.length = 0; });
+beforeEach(() => { h.mounts.length = 0; h.renders.length = 0; h.unmounts = 0; });
+const lastData = () => (h.renders[h.renders.length - 1]!.data as { datasets: Array<{ data: number[] }> }).datasets[0]!.data;
 
 const cfg = (values: number[]) => () => ({
   type: 'bar' as const,
@@ -53,24 +47,26 @@ const cfg = (values: number[]) => () => ({
 describe('ChartCanvas', () => {
   it('creates one chart and destroys it on unmount', () => {
     const { unmount } = render(<ChartCanvas title="T" build={cfg([1, 2])} />);
-    expect(instances).toHaveLength(1);
+    expect(h.mounts).toHaveLength(1);
     unmount();
-    expect(instances[0]!.destroy).toHaveBeenCalledTimes(1);
+    expect(h.unmounts).toBe(1);
   });
 
   it('updates the live chart in place when data changes (no stale chart)', () => {
     const { rerender } = render(<ChartCanvas title="T" build={cfg([1, 2])} />);
-    const chart = instances[0]!;
-    expect(chart.update).not.toHaveBeenCalled();
+    expect(h.mounts).toHaveLength(1);
 
     rerender(<ChartCanvas title="T" build={cfg([5, 9])} />);
-    expect(instances).toHaveLength(1); // not recreated
-    expect(chart.update).toHaveBeenCalledTimes(1);
-    expect((chart.data as { datasets: Array<{ data: number[] }> }).datasets[0]!.data).toEqual([5, 9]);
+    expect(h.mounts).toHaveLength(1); // not recreated: same keyed instance
+    expect(h.unmounts).toBe(0);
+    expect(lastData()).toEqual([5, 9]);
+  });
 
-    // Same data again: no redundant update.
-    rerender(<ChartCanvas title="T" build={cfg([5, 9])} />);
-    expect(chart.update).toHaveBeenCalledTimes(1);
+  it('recreates the chart when the chart type changes', () => {
+    const { rerender } = render(<ChartCanvas title="T" build={cfg([1, 2])} />);
+    rerender(<ChartCanvas title="T" build={() => ({ ...cfg([1, 2])(), type: 'line' as const })} />);
+    expect(h.mounts).toHaveLength(2);
+    expect(h.unmounts).toBe(1);
   });
 
   it('forwards ref, className and data-testid; names the canvas and links the table', async () => {
@@ -106,9 +102,9 @@ describe('chart components', () => {
 
   it('BarChart redraws when its series change', () => {
     const { rerender } = render(<BarChart title="B" {...base} />);
-    const chart = instances[0]!;
     rerender(<BarChart title="B" {...base} series={[{ label: 'A', values: [9, 9] }]} />);
-    expect(chart.update).toHaveBeenCalled();
+    expect(h.mounts).toHaveLength(1);
+    expect(lastData()).toEqual([9, 9]);
   });
 
   it('Waterfall table signs deltas', () => {

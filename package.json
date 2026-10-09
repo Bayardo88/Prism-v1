@@ -39,8 +39,9 @@
     "build:css": "node scripts/build-css.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint:tokens": "node scripts/lint-tokens.mjs",
+    "lint:contrast": "node scripts/lint-contrast.mjs",
     "gen:tokens": "node scripts/gen-tokens.mjs",
-    "verify": "npm run typecheck && npm run lint:tokens && npm run lint && npm test",
+    "verify": "npm run typecheck && npm run lint:tokens && npm run lint:contrast && npm run lint && npm test",
     "build:examples": "tsc -p examples/tsconfig.json",
     "build:product": "tsc -p apps/product/tsconfig.json",
     "product": "npm run build && npm run build:product && node scripts/serve.mjs",
@@ -52,6 +53,7 @@
     "lint": "eslint src",
     "test": "vitest run --project unit",
     "test:coverage": "vitest run --project unit --coverage",
+    "check:reflow": "node scripts/check-reflow.mjs",
     "test:stories": "vitest run --project storybook",
     "test:watch": "vitest --project unit",
     "format:check": "prettier --check src",
@@ -80,11 +82,14 @@
     "@types/jest-axe": "^3.5.9",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@vitest/browser-playwright": "5.0.3",
+    "@vitest/coverage-v8": "5.0.3",
     "eslint": "^9.39.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "jest-axe": "^11.0.0",
     "jsdom": "^30.1.2",
+    "playwright": "latest",
     "prettier": "^3.9.9",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -93,13 +98,11 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.3",
-    "vitest": "^5.0.3",
-    "@vitest/browser-playwright": "5.0.3",
-    "@vitest/coverage-v8": "5.0.3",
-    "playwright": "latest"
+    "vitest": "^5.0.3"
   },
   "dependencies": {
-    "chart.js": "^4.5.1"
+    "chart.js": "^4.5.1",
+    "react-chartjs-2": "^5.3.1"
   },
   "engines": {
     "node": ">=18"
@@ -107,7 +110,7 @@
   "size-limit": [
     {
       "path": "dist/styles/scalar.css",
-      "limit": "260 kB",
+      "limit": "40 kB",
       "gzip": true
     }
   ]
