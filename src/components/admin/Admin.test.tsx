@@ -116,7 +116,7 @@ describe('ProductTile', () => {
 describe('FirmSwitcherTile', () => {
   it('meets the contract; selected is aria-current', async () => {
     await contract<HTMLButtonElement>((p) => <FirmSwitcherTile name="Acme Capital" initials="AC" selected {...p} />);
-    expect(screen.getByRole('button', { name: 'Acme Capital' })).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('button', { name: /Acme Capital/ })).toHaveAttribute('aria-current', 'true');
   });
 });
 

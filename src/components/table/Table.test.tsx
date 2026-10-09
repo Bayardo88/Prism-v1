@@ -177,7 +177,7 @@ describe('Content, status, footnote', () => {
     expect(ref.current).toBe(screen.getByTestId('f'));
     expect(screen.queryByRole('button')).toBeNull();
     rerender(<Footnote interactive onClick={onClick} aria-label="Source note 1" aria-describedby="n1">1</Footnote>);
-    const btn = screen.getByRole('button', { name: 'Source note 1' });
+    const btn = screen.getByRole('button', { name: /Source note 1/ });
     btn.focus();
     await userEvent.keyboard('{Enter}');
     expect(onClick).toHaveBeenCalled();

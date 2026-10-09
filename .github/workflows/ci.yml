@@ -14,3 +14,6 @@ jobs:
       - run: npm run verify
       - run: npm run build
       - run: npm run verify:product
+      - run: npm run build:storybook
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:stories

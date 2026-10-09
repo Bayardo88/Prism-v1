@@ -79,7 +79,7 @@ export const Combobox: Story = { render: () => <ComboDemo /> };
 export const ComboboxMulti: Story = { render: () => <ComboDemo multiple /> };
 export const ComboboxOptions: Story = {
   render: () => (
-    <div style={{ display: 'grid', gap: 'var(--space-2xs)' }}>
+    <div role="listbox" aria-label="Options" style={{ display: 'grid', gap: 'var(--space-2xs)' }}>
       <ComboboxOption detail="Fund III">Northwind</ComboboxOption>
       <ComboboxOption selected>Selected</ComboboxOption>
       <ComboboxOption active>Active</ComboboxOption>

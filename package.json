@@ -50,8 +50,10 @@
     "gen:icons": "node scripts/gen-icons.mjs",
     "product:seed": "node apps/product/db/seed.mjs",
     "lint": "eslint src",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "vitest run --project unit",
+    "test:coverage": "vitest run --project unit --coverage",
+    "test:stories": "vitest run --project storybook",
+    "test:watch": "vitest --project unit",
     "format:check": "prettier --check src",
     "storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build -o storybook-static",
@@ -70,6 +72,7 @@
     "@size-limit/file": "^14.1.0",
     "@storybook/addon-a11y": "^10.6.1",
     "@storybook/addon-docs": "^10.6.1",
+    "@storybook/addon-vitest": "^10.6.1",
     "@storybook/react-vite": "^10.6.1",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
@@ -90,7 +93,10 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.71.1",
     "vite": "^8.3.3",
-    "vitest": "^5.0.3"
+    "vitest": "^5.0.3",
+    "@vitest/browser-playwright": "5.0.3",
+    "@vitest/coverage-v8": "5.0.3",
+    "playwright": "latest"
   },
   "dependencies": {
     "chart.js": "^4.5.1"

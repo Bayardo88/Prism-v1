@@ -828,6 +828,8 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
   line-height: var(--line-height-text-s);
   min-width: 0;
 }
+/* Default state carries no outline; the other states keep their borders. */
+.scalar-cell:not(.scalar-cell--selected, .scalar-cell--error, .scalar-cell--draft, .scalar-cell--total, .scalar-cell--group-start, .scalar-cell--group-end) { border-right: 0; border-bottom: 0; }
 .scalar-cell--numeric { justify-content: flex-end; font-variant-numeric: tabular-nums; }
 .scalar-cell__content { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -1534,7 +1536,7 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-search-bar:focus-within { background: var(--color-bg-surface); color: var(--color-text-primary); }
 .scalar-search-bar__input { flex: none; width: 198px; padding: 0; border: 0; background: none; outline: none; color: inherit; font: inherit; font-size: var(--font-size-text-m); line-height: var(--line-height-text-m); }
 .scalar-search-bar__input::placeholder { color: inherit; opacity: 1; }
-.scalar-search-bar__shortcut { flex: none; opacity: 0.8; font-size: var(--font-size-overline-s); }
+.scalar-search-bar__shortcut { flex: none; opacity: 0.9; font-size: var(--font-size-overline-s); }
 
 /* Notification — a 32 x 32 well on Background/On Brand with the bell at 16 and
  * an unread dot at its top-right. Icon/On Brand Inactive holds 9.9:1 in Light
@@ -2150,6 +2152,8 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-combobox-option[data-active] { background: var(--color-bg-subtle); }
 .scalar-combobox-option[aria-selected='true'] { background: var(--color-bg-brand-subtle); color: var(--color-text-brand); }
 .scalar-combobox-option[aria-disabled='true'] { color: var(--color-text-disabled); background: transparent; cursor: not-allowed; }
+.scalar-combobox-option[aria-selected='true'] .scalar-combobox-option__box { background: var(--color-bg-brand); border-color: var(--color-bg-brand); }
+.scalar-combobox-option[aria-disabled='true'] .scalar-combobox-option__box { background: var(--color-bg-disabled); border-color: var(--color-stroke-disabled); }
 .scalar-combobox-option__text { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; }
 .scalar-combobox-option__label { font-size: var(--font-size-text-m); line-height: var(--line-height-text-m); }
 .scalar-combobox-option__detail { color: var(--color-text-secondary); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); }
