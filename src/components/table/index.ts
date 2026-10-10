@@ -14,3 +14,13 @@ export { ContentCell, Ledger } from './ContentCell.js';
 export type { ContentCellProps, ContentCellType, LedgerProps } from './ContentCell.js';
 export { DataGrid } from './DataGrid.js';
 export type { DataGridProps, DataGridName } from './DataGrid.js';
+export { Table } from './Table.js';
+export type { TableProps } from './Table.js';
+export {
+  selectionBorder, normalizeRange, cellSelection, rangeSelection, selectionRange, focusOf, cellState as deriveCellState,
+  columnLetter, a1, a1Range, formatValue, aggregate, cellMinWidth, columnMinWidth, titleMinWidth, headerFullWidth, clampWidth, effectiveWidth,
+  NO_SELECTION, TITLE_COLUMN_ID, ROW_HEIGHT, HEADER_HEIGHT,
+} from './tableModel.js';
+export type {
+  Selection, Range as TableRange, TableCellData, TableCellKind, TableCellState, TableCellSlots, TableColumnDef, TableRowDef, ValueFormat,
+} from './tableModel.js';

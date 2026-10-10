@@ -7,6 +7,7 @@ import * as RowHeaderStories from './RowHeader.stories.js';
 import * as StatusStories from './Status.stories.js';
 import * as FootnoteStories from './Footnote.stories.js';
 import * as DataGridStories from './DataGrid.stories.js';
+import * as TableStories from './Table.stories.js';
 
 const suites = {
   Cell: composeStories(CellStories),
@@ -15,6 +16,7 @@ const suites = {
   Status: composeStories(StatusStories),
   Footnote: composeStories(FootnoteStories),
   DataGrid: composeStories(DataGridStories),
+  Table: composeStories(TableStories),
 };
 
 describe('table stories', () => {

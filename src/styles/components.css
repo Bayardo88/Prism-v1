@@ -2776,3 +2776,94 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
 .scalar-valuation-info__picker { padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: var(--radius-xs); }
 .scalar-valuation-info__toggle:focus-visible,
 .scalar-valuation-info__picker:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 1px; }
+
+/* --- Table ------------------------------------------------------------------ */
+/*
+ * The one Prism table. Fixed-height rows (26px body, 40px header) on explicit
+ * column widths, so the selection overlay and the resize guide can be placed
+ * from data instead of measured. State never changes a cell's size: it changes
+ * fill, and ONE perimeter overlay draws the brand border.
+ */
+.scalar-table-wrap { display: flex; flex-direction: column; gap: var(--space-s); max-width: 100%; font-family: var(--font-family-default); }
+.scalar-table {
+  --table-chrome: var(--color-stroke-grid-rule);
+  --table-pressed: var(--color-stroke-default);
+  position: relative;
+  max-width: 100%;
+  overflow-x: auto;
+  background: var(--color-bg-surface);
+  user-select: none; /* a drag selects cells, never text */
+}
+.scalar-table .scalar-cell__editor { user-select: text; }
+.scalar-table__inner { position: relative; }
+.scalar-table__row { display: flex; box-sizing: border-box; }
+.scalar-table__sticky { position: sticky; z-index: 3; }
+.scalar-table__blank { background: var(--color-bg-surface); }
+.scalar-table__divider { background: var(--color-stroke-divider); }
+
+/* Headers: 40px, one line, truncating with a tooltip (title attribute). They never wrap. */
+.scalar-table .scalar-table__head { box-sizing: border-box; height: var(--size-row-header); min-width: 0; padding: 0 var(--space-s); border-right: 1px solid var(--color-stroke-subtle); }
+.scalar-table .scalar-column-header__label { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.scalar-table .scalar-column-header--selected { background: var(--color-bg-brand-subtle); color: var(--color-text-primary); box-shadow: inset 0 var(--space-s) 0 var(--color-stroke-brand); }
+.scalar-table .scalar-column-header--active { box-shadow: inset 0 var(--space-2xs) 0 var(--color-stroke-brand); }
+
+/* Title column: row labels, sticky on horizontal scroll. Never truncate (the minimum width guarantees it). */
+.scalar-table .scalar-table__title { box-sizing: border-box; height: var(--size-row-compact); min-height: 0; border-bottom: 1px solid var(--color-stroke-subtle); }
+.scalar-table .scalar-table__title .scalar-row-header__text { overflow: visible; text-overflow: clip; }
+.scalar-table .scalar-row-header--selected { background: var(--color-bg-brand-subtle); box-shadow: inset var(--space-s) 0 0 var(--color-stroke-brand); }
+.scalar-table .scalar-row-header--mark { border-left-color: var(--color-stroke-brand); }
+
+/* Cells: 26px, value right-aligned, Light, tabular. Type sets text colour; state sets fill. */
+.scalar-table .scalar-cell { box-sizing: border-box; height: var(--size-row-compact); min-height: 0; padding: var(--space-2xs); border: 0; border-radius: 0; font-weight: var(--font-weight-light); }
+.scalar-table .scalar-cell--input { cursor: text; }
+.scalar-table .scalar-cell__content { overflow: hidden; text-overflow: ellipsis; }
+.scalar-table .scalar-cell:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
+.scalar-table__cell--zebra:not(.scalar-cell--hover, .scalar-cell--pressed, .scalar-cell--selected, .scalar-cell--error) { background: var(--color-bg-row-stripe); }
+.scalar-cell--hover { background: var(--color-bg-subtle); }
+.scalar-cell--pressed { background: var(--table-pressed); }
+.scalar-table .scalar-cell--selected { outline-color: transparent; background: var(--color-bg-brand-subtle); }
+.scalar-table .scalar-cell--selected:focus-visible { outline-color: var(--color-stroke-focus); }
+.scalar-table__cell--total { font-weight: var(--font-weight-semi-bold); }
+.scalar-table__cell--draft { background: var(--color-bg-disabled); color: var(--color-text-on-disabled); }
+.scalar-table__row--total > * { border-top: 1px solid var(--color-stroke-strong); }
+.scalar-table__row--total > .scalar-row-header { border-bottom: 0; }
+.scalar-table__row--total > .scalar-table__divider { border-top: 0; }
+.scalar-table__select { appearance: none; padding: 0; }
+
+/* Formula mode: A1 coordinates. */
+.scalar-table__number,
+.scalar-table__letter {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--table-chrome);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-heading-xs);
+  line-height: var(--line-height-heading-xs);
+  font-weight: var(--font-weight-semi-bold);
+  border-right: 1px solid var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-bg-surface);
+}
+.scalar-table__number { position: sticky; left: 0; z-index: 3; }
+.scalar-table__letter { height: var(--size-row-compact); }
+.scalar-table__letter.scalar-table__sticky { z-index: 3; }
+
+/* Selection: one overlay on the rectangle's perimeter, never between cells. */
+.scalar-table__selection { position: absolute; z-index: 1; box-sizing: border-box; border-style: solid; border-color: var(--color-stroke-brand); pointer-events: none; }
+
+/* Column resize: an 8px hit area on the header's right edge, a 2px line on hover, a 2px guide while dragging. */
+.scalar-table__handle { position: absolute; top: 0; right: calc(var(--space-xs) * -1); z-index: 4; width: var(--space-s); height: 100%; cursor: col-resize; touch-action: none; }
+.scalar-table__handle::after { content: ''; position: absolute; top: 0; bottom: 0; left: var(--space-xs); width: 2px; margin-left: -1px; background: transparent; }
+.scalar-table__handle:hover::after,
+.scalar-table__handle:focus-visible::after { background: var(--color-stroke-brand); }
+.scalar-table__guide { position: absolute; top: 0; bottom: 0; z-index: 5; width: 2px; background: var(--color-stroke-brand); pointer-events: none; }
+
+.scalar-table__add { display: inline-flex; align-items: center; gap: var(--space-xs); padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; white-space: nowrap; }
+.scalar-table__add:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
+
+/* fx bar: the reference and the aggregates of the selection. */
+.scalar-table__fx { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-xs); min-height: 22px; font-size: var(--font-size-heading-xs); line-height: var(--line-height-heading-xs); font-weight: var(--font-weight-semi-bold); }
+.scalar-table__fx-label { color: var(--color-text-primary); }
+.scalar-table__fx-ref { color: var(--color-text-warning); }
+.scalar-table__fx-chip { padding-left: var(--space-xs); border-left: 2px solid var(--color-stroke-divider); color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }

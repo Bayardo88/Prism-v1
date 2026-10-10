@@ -136,6 +136,7 @@ control in three pieces; exactly one side is always selected, so a single
 | Footnote | Content | = `Footnote` | `table/Footnote.tsx` |
 | cell-icon/Dropdown, cell-icon/Calendar | — | glyphs only — drawn by `Cell`'s `icon` slot | — |
 | — | — | ＋ `DataGrid` | `table/DataGrid.tsx` |
+| Data Cell, Title Item Row, Column Header Workboard (Navigation V4 – Prism) | Type × Style | ＋ `Table` — composes `Cell`, `RowHeader`, `ColumnHeader` | `table/Table.tsx` |
 
 **Merge.** `Row-reading` and `Row-input` have the same anatomy — a mark bar, an
 optional bulk checkbox, the label, a trailing glyph. They are the **row header**:
@@ -374,6 +375,7 @@ repeating them per page would guarantee drift.
 | `Icon` | Sizing and tint wrapper. Enforces the re-tint that SDS_Main glyphs require. |
 | `icons` | The product icon set — Google Material Symbols (Outlined), generated from `icon/material-icons.json` by `npm run gen:icons`. Figma uses SDS_Main instead. |
 | `Typography` / `Heading` / `Text` / `Label` / `Overline` | The type ramp as components. Figma expresses this as 72 text styles. |
+| `Table` | The platform table: selection, resize, formula mode, keyboard and editing around `Cell` / `RowHeader` / `ColumnHeader`. |
 | `DataGrid` | The grid shell — a CSS grid whose column tracks come from the header cells, with a sticky header under `maxHeight`. |
 | `ChartCanvas` | Chart.js lifecycle, token re-resolution on theme change, and the screen-reader data table. |
 | `chartScaffold` / `baseChartOptions` | The Figma Chart Frame spec as Chart.js options. |

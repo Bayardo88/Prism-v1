@@ -9,7 +9,7 @@ import { ArrowDropDown, CalendarMonth } from '../icon/material.js';
 export type CellType = 'readable' | 'input' | 'data' | 'group' | 'divider';
 
 /** What has happened to the cell. */
-export type CellState = 'default' | 'selected' | 'error' | 'draft' | 'total';
+export type CellState = 'default' | 'hover' | 'pressed' | 'selected' | 'error' | 'draft' | 'total';
 
 export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content'> {
   children?: ReactNode;

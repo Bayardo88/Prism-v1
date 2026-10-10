@@ -54,6 +54,10 @@ export interface ColumnHeaderProps extends HTMLAttributes<HTMLDivElement> {
   input?: boolean;
   /** Figma `Action`: the header's action is engaged; draws the accent rule on the top and left edges. */
   action?: boolean;
+  /** Whole column selected: Brand-subtle fill and an 8px Stroke/Brand marker on top (Figma `selected top`). */
+  selected?: boolean;
+  /** The column of the active cell: a 2px Stroke/Brand rule across the top. */
+  active?: boolean;
 }
 
 /**
@@ -71,7 +75,7 @@ export interface ColumnHeaderProps extends HTMLAttributes<HTMLDivElement> {
  * `aria-sort` is set on the header (`none` while sortable but unsorted).
  */
 export const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(function ColumnHeader(
-  { children, numeric, sort, onSortChange, actions, grow: _grow, width: _width, span, tone = 'brand', kind = 'default', mark, label, tooltip, icon, input, action, className, style, ...rest },
+  { children, numeric, sort, onSortChange, actions, grow: _grow, width: _width, span, tone = 'brand', kind = 'default', mark, label, tooltip, icon, input, action, selected, active, className, style, ...rest },
   ref,
 ) {
   const sortable = Boolean(onSortChange);
@@ -103,6 +107,8 @@ export const ColumnHeader = forwardRef<HTMLDivElement, ColumnHeaderProps>(functi
         Boolean(tooltip) && 'scalar-column-header--tooltip',
         input && 'scalar-column-header--input',
         action && 'scalar-column-header--action',
+        selected && 'scalar-column-header--selected',
+        active && 'scalar-column-header--active',
         className,
       )}
       style={span && span > 1 ? { gridColumn: `span ${span}`, ...style } : style}

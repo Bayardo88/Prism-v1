@@ -235,7 +235,8 @@ Find the **intent**, not the shape.
 | Surface with nothing in it | `EmptyState` | a blank div |
 | Content not loaded yet (first load, known shape) | `Skeleton` | a spinner |
 | Progress of a task with a known total | `ProgressBar` (determinate) | indeterminate |
-| A dense grid of figures | `DataGrid` + `Row` + `Cell` | an HTML `<table>` |
+| A dense grid of figures, read-only | `DataGrid` + `Row` + `Cell` | an HTML `<table>` |
+| A spreadsheet-like table: selection, resize, formula view, editing | `Table` | a product-specific table or a fork of `Table` |
 | Explain the control under the pointer | `Tooltip` | placeholder text |
 | Search everything, from anywhere | `GlobalSearch` | a page filter |
 | Compare magnitude across categories | `BarChart` | a line chart |
@@ -432,6 +433,16 @@ wrapper inside the slot. Full guide: `docs/page-template.md`.
   is.
 - `FilterDropdown` shows **the value in force**, not the filter's name.
 - `Notification`'s dot means *unread*, not urgent, and carries no count.
+
+### Table
+
+**There is one table.** `Table` serves every product; differences come from `columns`, `rows` and `cells`, never from a variant or
+fork. `cell.kind` (`readable` / `editable` / `sourced` / `total` / `draft`) sets text colour only; fill is derived from selection and
+hover (error > selected > pressed > hover > zebra > default) and is never stored per cell. Rows are 26px, headers 40px, never
+auto-sized. Selection is one rectangle drawn as one overlay — do not hand-place per-cell borders. A column's minimum width is
+computed from the data over all rows (`columnMinWidth`), never from the DOM; values and row titles never truncate, header labels
+truncate with a tooltip. Pass `columnWidths` / `onColumnResize` only to control widths; otherwise they persist per `tableId`.
+Do not wrap header labels, and do not put `role="grid"` on `DataGrid`.
 
 ### Data grid
 
