@@ -367,11 +367,12 @@ so a glyph can differ between the two (known gap 4).
 ## Workboard (4)
 
 Ported from the Workboard prototype (`WORKBOARD_PROTOTYPE`, workboard-v2 Figma `mZ0cFiczRr3UCglYIO6Ot0`).
-Alias tones only — the proposed Blue / Pink / Cyan / Orange pill tokens were not adopted.
+Tones are the four status families (Brand, AI, Warning, Positive) plus the Workflow tone family
+(Blue, Pink, Cyan, Orange — `color.workflow.*`, code-first, known gap 13).
 
 | Figma | Variants | React | File |
 |---|---|---|---|
-| Action Tag | Tone × Urgency (4 × 3) | = `ActionTag` | `workboard/Workboard.tsx` |
+| Action Tag | Tone × Urgency (8 × 3) | = `ActionTag` | `workboard/Workboard.tsx` |
 | — (prototype `ActionsSelect`) | Tone × Urgency × Size | ＋ `ActionPill` | `workboard/Workboard.tsx` |
 | Due Pill | Urgency × Size | = `DueDatePill` | `workboard/Workboard.tsx` |
 | — (prototype `StatusDropdown`) | — | ＋ `StepMenu` + `StepMenuSection` / `StepMenuLink` / `StepMenuToggle` / `StepMenuAction` | `workboard/Workboard.tsx` |

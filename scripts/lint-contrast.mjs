@@ -52,6 +52,14 @@ const TEXT_PAIRS = [
   ['text-on-brand', 'bg-on-brand'], ['text-on-brand-muted', 'bg-on-brand'], ['text-on-brand-inactive', 'bg-on-brand'], ['text-on-brand-subtle', 'bg-on-brand'],
 ];
 const STROKES = ['control', 'focus', 'brand', 'positive', 'warning', 'negative', 'ai'];
+// Workflow tones (Workboard step colour, known gap 13): text on its tint and on-solid on solid at 4.5:1,
+// the stroke (the step's mark) at 3:1 on its tint and on the page and surface.
+const WORKFLOW_TONES = ['blue', 'pink', 'cyan', 'orange'];
+TEXT_PAIRS.push(...WORKFLOW_TONES.flatMap((t) => [
+  [`workflow-${t}-text`, `workflow-${t}-background`], [`workflow-${t}-on-solid`, `workflow-${t}-solid`],
+]));
+const WORKFLOW_STROKES = WORKFLOW_TONES.flatMap((t) =>
+  [`workflow-${t}-background`, 'bg-page', 'bg-surface'].map((bg) => [`workflow-${t}-stroke`, bg]));
 
 const lin=v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4;
 const rgb=h=>[1,3,5].map(i=>lin(parseInt(h.slice(i,i+2),16)/255));
@@ -76,6 +84,11 @@ for (const [mode, map] of Object.entries(modes)) {
   for (const s of STROKES) for (const bg of ['bg-page', 'bg-surface']) {
     const sc = get(`stroke-${s}`), bc = get(bg);
     if (sc && bc) need(mode, `stroke-${s} on ${bg}`, ratio(sc, bc), 3);
+  }
+  for (const [s, bg] of WORKFLOW_STROKES) {
+    const sc = get(s), bc = get(bg);
+    if (!sc || !bc) { failures.push(`${mode}: cannot resolve ${s} / ${bg}`); continue; }
+    need(mode, `${s} on ${bg}`, ratio(sc, bc), 3);
   }
   const surface = get('bg-surface');
   const series = [];

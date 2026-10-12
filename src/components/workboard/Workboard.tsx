@@ -15,11 +15,12 @@ import type { MenuBehaviourProps } from '../actions-menus/Menu.js';
  * ------------------------------------------------------------------------ */
 
 /**
- * The colour a workflow step wears. Only alias tones of the v1.1 semantic set:
- * the Workboard prototype's Blue / Pink / Cyan collapse to `brand` and Orange to
- * `warning` (workboard-v2 Figma, "Proposed Tokens" recommendation).
+ * The colour a workflow step wears. `brand`, `ai`, `warning` and `positive` are
+ * the v1.1 status families; `blue`, `pink`, `cyan` and `orange` are the
+ * Workflow tone family (`color.workflow.*`, known gap 13). A tone identifies
+ * the step, never its status — urgency is `DueUrgency`.
  */
-export type WorkflowTone = 'brand' | 'ai' | 'warning' | 'positive';
+export type WorkflowTone = 'brand' | 'ai' | 'warning' | 'positive' | 'blue' | 'pink' | 'cyan' | 'orange';
 
 /** Where a due date sits relative to today. `none` = no date set. */
 export type DueUrgency = 'none' | 'upcoming' | 'today' | 'overdue';
@@ -84,7 +85,7 @@ export interface ActionTagProps extends HTMLAttributes<HTMLSpanElement> {
  * acted on (calendar cards, timeline bars, history). The acting version is
  * `ActionPill`.
  *
- * Figma: workboard-v2 `Action Tag` (7 tones × 3 urgencies; here 4 alias tones).
+ * Figma: workboard-v2 `Action Tag` (tones × 3 urgencies).
  *
  * Accessibility: Today and Overdue append visually hidden words, so the urgency
  * never rests on colour alone (R8).
@@ -166,7 +167,8 @@ export interface ActionPillProps extends Omit<HTMLAttributes<HTMLDivElement>, 'c
  *
  * Tokens: per tone, Background/{Tone} Subtle + Text/{Tone} + Stroke/{Tone}
  * (upcoming), Background/{Tone} + Text/On {Tone} (today), Background/Negative +
- * Text/On Negative (overdue).
+ * Text/On Negative (overdue). Blue / Pink / Cyan / Orange take Workflow/{Tone}
+ * Background · Text · Stroke · Solid · On Solid.
  *
  * Accessibility: a `group` named by the step and its urgency, holding two
  * buttons: the tick and the caret (`aria-haspopup="menu"`, `aria-expanded`).

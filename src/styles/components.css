@@ -2880,6 +2880,10 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
 .scalar-wf--ai       { --wf-subtle: var(--color-bg-ai-subtle);       --wf-text: var(--color-text-ai);       --wf-stroke: var(--color-stroke-ai);       --wf-solid: var(--color-bg-ai);       --wf-on-solid: var(--color-text-on-ai); }
 .scalar-wf--warning  { --wf-subtle: var(--color-bg-warning-subtle);  --wf-text: var(--color-text-warning);  --wf-stroke: var(--color-stroke-warning);  --wf-solid: var(--color-bg-warning);  --wf-on-solid: var(--color-text-on-warning); }
 .scalar-wf--positive { --wf-subtle: var(--color-bg-positive-subtle); --wf-text: var(--color-text-positive); --wf-stroke: var(--color-stroke-positive); --wf-solid: var(--color-bg-positive); --wf-on-solid: var(--color-text-on-positive); }
+.scalar-wf--blue     { --wf-subtle: var(--color-workflow-blue-background); --wf-text: var(--color-workflow-blue-text); --wf-stroke: var(--color-workflow-blue-stroke); --wf-solid: var(--color-workflow-blue-solid); --wf-on-solid: var(--color-workflow-blue-on-solid); }
+.scalar-wf--pink     { --wf-subtle: var(--color-workflow-pink-background); --wf-text: var(--color-workflow-pink-text); --wf-stroke: var(--color-workflow-pink-stroke); --wf-solid: var(--color-workflow-pink-solid); --wf-on-solid: var(--color-workflow-pink-on-solid); }
+.scalar-wf--cyan     { --wf-subtle: var(--color-workflow-cyan-background); --wf-text: var(--color-workflow-cyan-text); --wf-stroke: var(--color-workflow-cyan-stroke); --wf-solid: var(--color-workflow-cyan-solid); --wf-on-solid: var(--color-workflow-cyan-on-solid); }
+.scalar-wf--orange   { --wf-subtle: var(--color-workflow-orange-background); --wf-text: var(--color-workflow-orange-text); --wf-stroke: var(--color-workflow-orange-stroke); --wf-solid: var(--color-workflow-orange-solid); --wf-on-solid: var(--color-workflow-orange-on-solid); }
 
 /* Shared face: upcoming = tinted outline, today = solid tone, overdue = solid red. */
 .scalar-action {

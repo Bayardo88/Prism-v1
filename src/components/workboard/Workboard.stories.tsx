@@ -9,7 +9,7 @@ import {
 
 /** Fixed "today" so the urgency colours never drift with the calendar. */
 const TODAY = '2026-10-12';
-const tones: WorkflowTone[] = ['brand', 'ai', 'warning', 'positive'];
+const tones: WorkflowTone[] = ['brand', 'ai', 'warning', 'positive', 'blue', 'pink', 'cyan', 'orange'];
 const urgencies: DueUrgency[] = ['upcoming', 'today', 'overdue'];
 
 const meta = {
@@ -29,11 +29,11 @@ type Story = StoryObj<typeof meta>;
 /* --- Workflow fixture: the valuation process, in prototype order ---------- */
 
 const PROCESS: { label: string; tone: WorkflowTone }[] = [
-  { label: 'Send engagement letter', tone: 'brand' },
-  { label: 'Request financials', tone: 'brand' },
+  { label: 'Send engagement letter', tone: 'pink' },
+  { label: 'Request financials', tone: 'blue' },
   { label: 'Draft valuation memo', tone: 'ai' },
-  { label: 'Prepare model', tone: 'warning' },
-  { label: 'Review model', tone: 'warning' },
+  { label: 'Prepare model', tone: 'orange' },
+  { label: 'Review model', tone: 'cyan' },
   { label: 'Deliver final report', tone: 'positive' },
 ];
 
@@ -98,7 +98,7 @@ export const Playground: Story = {};
 export const Interactive: Story = { render: () => <PillWithMenu /> };
 export const InteractiveGridSize: Story = { name: 'Interactive (grid size)', render: () => <PillWithMenu size="s" urgency="today" /> };
 
-/** Every alias tone at every urgency, both sizes. */
+/** Every tone — the four status families and the four Workflow tones — at every urgency, both sizes. */
 export const ToneByUrgency: Story = {
   render: () => (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, max-content)', gap: 'var(--space-s)', alignItems: 'center' }}>
@@ -159,7 +159,7 @@ export const DueDates: Story = {
 export const StepMenuOpen: Story = {
   name: 'Step Menu',
   render: () => (
-    <StepMenu label="Valuation status" steps={[...stepsAt(3).slice(0, 2), { id: 'x', label: 'Skip model (support provided)', tone: 'warning', state: 'skipped' }, ...stepsAt(3).slice(2)]}>
+    <StepMenu label="Valuation status" steps={[...stepsAt(3).slice(0, 2), { id: 'x', label: 'Skip model (support provided)', tone: 'orange', state: 'skipped' }, ...stepsAt(3).slice(2)]}>
       <StepMenuSection heading="Recurrent actions">
         <StepMenuLink ai>Draft client follow-up</StepMenuLink>
         <StepMenuLink href="#data-request">Open data request</StepMenuLink>

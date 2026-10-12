@@ -2,7 +2,7 @@
  * Source of truth: src/styles/tokens.css (extracted from Figma v1.1).
  */
 
-/** Every semantic colour token in the system. 180 tokens. */
+/** Every semantic colour token in the system. 200 tokens. */
 export type ColorToken =
   | '--color-bg-ai'
   | '--color-bg-ai-subtle'
@@ -183,7 +183,27 @@ export type ColorToken =
   | '--color-text-warning-pressed'
   | '--color-utility-neutral-background'
   | '--color-utility-neutral-primary'
-  | '--color-utility-neutral-text';
+  | '--color-utility-neutral-text'
+  | '--color-workflow-blue-background'
+  | '--color-workflow-blue-on-solid'
+  | '--color-workflow-blue-solid'
+  | '--color-workflow-blue-stroke'
+  | '--color-workflow-blue-text'
+  | '--color-workflow-cyan-background'
+  | '--color-workflow-cyan-on-solid'
+  | '--color-workflow-cyan-solid'
+  | '--color-workflow-cyan-stroke'
+  | '--color-workflow-cyan-text'
+  | '--color-workflow-orange-background'
+  | '--color-workflow-orange-on-solid'
+  | '--color-workflow-orange-solid'
+  | '--color-workflow-orange-stroke'
+  | '--color-workflow-orange-text'
+  | '--color-workflow-pink-background'
+  | '--color-workflow-pink-on-solid'
+  | '--color-workflow-pink-solid'
+  | '--color-workflow-pink-stroke'
+  | '--color-workflow-pink-text';
 
 /** Spacing, radius, sizing, breakpoint, elevation and motion tokens. */
 export type ScaleToken =
@@ -1200,6 +1220,86 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-product-documents-icon": {
       "light": "#d26000",
       "dark": "#ffac5c"
+    },
+    "--color-workflow-blue-background": {
+      "light": "#ced3fd",
+      "dark": "#050e61"
+    },
+    "--color-workflow-blue-text": {
+      "light": "#071592",
+      "dark": "#c2c9fb"
+    },
+    "--color-workflow-blue-stroke": {
+      "light": "#0a1cc2",
+      "dark": "#6d7bf8"
+    },
+    "--color-workflow-blue-solid": {
+      "light": "#0a1cc2",
+      "dark": "#6d7bf8"
+    },
+    "--color-workflow-blue-on-solid": {
+      "light": "#ffffff",
+      "dark": "#0f172a"
+    },
+    "--color-workflow-pink-background": {
+      "light": "#fce7f3",
+      "dark": "#5f0c29"
+    },
+    "--color-workflow-pink-text": {
+      "light": "#8e1242",
+      "dark": "#f6b7d9"
+    },
+    "--color-workflow-pink-stroke": {
+      "light": "#be185d",
+      "dark": "#f088bd"
+    },
+    "--color-workflow-pink-solid": {
+      "light": "#be185d",
+      "dark": "#f088bd"
+    },
+    "--color-workflow-pink-on-solid": {
+      "light": "#ffffff",
+      "dark": "#0f172a"
+    },
+    "--color-workflow-cyan-background": {
+      "light": "#cffafe",
+      "dark": "#164e63"
+    },
+    "--color-workflow-cyan-text": {
+      "light": "#155e75",
+      "dark": "#a5f3fc"
+    },
+    "--color-workflow-cyan-stroke": {
+      "light": "#0e7490",
+      "dark": "#67e8f9"
+    },
+    "--color-workflow-cyan-solid": {
+      "light": "#0e7490",
+      "dark": "#67e8f9"
+    },
+    "--color-workflow-cyan-on-solid": {
+      "light": "#ffffff",
+      "dark": "#0f172a"
+    },
+    "--color-workflow-orange-background": {
+      "light": "#ffe0c4",
+      "dark": "#3c1b00"
+    },
+    "--color-workflow-orange-text": {
+      "light": "#6f3300",
+      "dark": "#ffc790"
+    },
+    "--color-workflow-orange-stroke": {
+      "light": "#a04900",
+      "dark": "#ffac5c"
+    },
+    "--color-workflow-orange-solid": {
+      "light": "#a04900",
+      "dark": "#ffac5c"
+    },
+    "--color-workflow-orange-on-solid": {
+      "light": "#ffffff",
+      "dark": "#0f172a"
     }
   } as Record<ColorToken, { light: string; dark: string }>;
 

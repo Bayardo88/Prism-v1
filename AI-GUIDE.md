@@ -106,6 +106,7 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | A grid **table title**, column-group label or single-row column header | `color.text.gridHeader` | `text.primary` |
 | A **file type** badge (PDF, DOCX, XLSX…) | `color.file.<kind>.background` + `.text` | `bg.negative` for a PDF — a format is not a status |
 | A **product** tile or mark (Intelligence, Valuations, Waterfalls, Documents) | `color.product.<key>.background` + `.icon` | status tints, or the AI family for Waterfalls |
+| A Workboard **step** colour (Blue, Pink, Cyan, Orange) | `WorkflowTone` on `ActionPill` / `ActionTag`, or `color.workflow.<tone>.*` | a `--primitive-*` step (R1), or brand/warning standing in |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
 | A card or panel surface | `color.bg.surface` | `bg.page` |
 | A surface lifted above another surface | `color.bg.surfaceRaised` | a lighter hex |
@@ -504,8 +505,10 @@ Pending tasks in a grid row: tinted pill, glyph and optional count; `label` is
 the accessible name and tooltip ("3 overdue tasks"). Dense grid furniture (24px).
 
 **Workboard** — the Workboard prototype's workflow controls (`workboard/Workboard.tsx`).
-Tones are `WorkflowTone`: `'brand' | 'ai' | 'warning' | 'positive'` — alias tones only;
-the prototype's Blue / Pink / Cyan map to `brand` and Orange to `warning` (R1).
+Tones are `WorkflowTone`: `'brand' | 'ai' | 'warning' | 'positive' | 'blue' | 'pink' | 'cyan' | 'orange'`.
+The last four are the Workflow tone family (`color.workflow.<tone>.background · text · stroke · solid · onSolid`,
+code-first, known gap 13) — never build a step colour from a `--primitive-*` step (R1). A tone identifies the
+step; it is never status.
 Urgency is `DueUrgency`: `'none' | 'upcoming' | 'today' | 'overdue'` — upcoming is a
 tinted outline, today the solid tone, overdue solid Negative; Today and Overdue add
 hidden words (R8). `dueUrgency(iso, today?)`, `shiftIsoDate`, `formatIsoDate` derive it.

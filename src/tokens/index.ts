@@ -279,7 +279,31 @@ export const product = {
 
 export type ProductKey = keyof typeof product;
 
-export const color = { text, bg, stroke, icon, overlay, chart, prism, file, product } as const;
+const workflowTone = (t: string) => ({
+  background: v(`--color-workflow-${t}-background`),
+  text: v(`--color-workflow-${t}-text`),
+  stroke: v(`--color-workflow-${t}-stroke`),
+  solid: v(`--color-workflow-${t}-solid`),
+  onSolid: v(`--color-workflow-${t}-on-solid`),
+});
+
+/**
+ * Workflow tone — the extra step colours of the Workboard (`WorkflowTone`
+ * blue / pink / cyan / orange). Identity of a step, never status.
+ * `background` + `text` + `stroke` for the tinted pill, `solid` + `onSolid` for
+ * the filled "due today" pill (AA, Light and Dark). Code-first from the
+ * workboard-v2 proposed collection, pending the Scalar tokens library (known gap 13).
+ */
+export const workflow = {
+  blue: workflowTone('blue'),
+  pink: workflowTone('pink'),
+  cyan: workflowTone('cyan'),
+  orange: workflowTone('orange'),
+} as const;
+
+export type WorkflowColorKey = keyof typeof workflow;
+
+export const color = { text, bg, stroke, icon, overlay, chart, prism, file, product, workflow } as const;
 
 /* ---------------------------------------------------------------------------
  * Scales
@@ -418,6 +442,6 @@ export const typeSteps = {
 export const type = { style: typeStyle, steps: typeSteps, weight: fontWeight, family: fontFamily } as const;
 
 export const tokens = {
-  color, text, bg, stroke, icon, overlay, chart, prism, file, product,
+  color, text, bg, stroke, icon, overlay, chart, prism, file, product, workflow,
   space, radius, size, breakpoint, elevation, motion, zIndex, type,
 } as const;
