@@ -26,7 +26,10 @@ export const Sourced: Story = { args: { type: 'data' } };
 export const Group: Story = { args: { type: 'group', children: 'Operating expenses' } };
 export const Selected: Story = { args: { state: 'selected' } };
 export const Error: Story = { args: { state: 'error', errorMessage: 'Must be a positive number', children: '-4' } };
+/** An error cell only shows its red ring while it is selected. */
+export const ErrorSelected: Story = { args: { state: 'error', selected: true, errorMessage: 'Must be a positive number', children: '-4' } };
 export const Draft: Story = { args: { state: 'draft' } };
+/** Totals and sub-totals: the only cells that keep the outline. */
 export const Total: Story = { args: { state: 'total', numeric: true, children: '4,980,000' } };
 export const WithFootnote: Story = { args: { numeric: true, footnote: <Footnote currency="USD">1</Footnote> } };
 export const WithLabel: Story = { args: { children: 'FY2026', label: 'Projection' } };

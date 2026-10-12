@@ -829,8 +829,9 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
   line-height: var(--line-height-text-s);
   min-width: 0;
 }
-/* Default state carries no outline; the other states keep their borders. */
-.scalar-cell:not(.scalar-cell--selected, .scalar-cell--error, .scalar-cell--draft, .scalar-cell--total, .scalar-cell--group-start, .scalar-cell--group-end) { border-right: 0; border-bottom: 0; }
+/* Only Total (totals and sub-totals) and the group bracket edges keep the
+ * outline. Selected draws its own focus ring; Error and Draft are fill only. */
+.scalar-cell:not(.scalar-cell--total, .scalar-cell--group-start, .scalar-cell--group-end) { border-right: 0; border-bottom: 0; }
 .scalar-cell--numeric { justify-content: flex-end; font-variant-numeric: tabular-nums; }
 .scalar-cell__content { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -844,6 +845,8 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-cell--selected { outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
 .scalar-cell--error { background: var(--color-bg-negative-subtle); color: var(--color-text-negative); }
 .scalar-cell--draft { background: var(--color-bg-warning-subtle); }
+/* An error cell shows its red ring only while it is selected or focused. */
+.scalar-cell--error:is(.scalar-cell--selected, :focus-visible) { outline: 2px solid var(--color-stroke-negative); outline-offset: -2px; }
 .scalar-cell--total { background: var(--color-bg-subtle); font-weight: var(--font-weight-semi-bold); }
 .scalar-cell__editor { width: 100%; border: 0; background: none; color: inherit; font: inherit; outline: none; text-align: inherit; }
 
@@ -2823,6 +2826,7 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
 .scalar-cell--pressed { background: var(--table-pressed); }
 .scalar-table .scalar-cell--selected { outline-color: transparent; background: var(--color-bg-brand-subtle); }
 .scalar-table .scalar-cell--selected:focus-visible { outline-color: var(--color-stroke-focus); }
+.scalar-table .scalar-cell--error:is(.scalar-cell--selected, :focus-visible) { outline-color: var(--color-stroke-negative); }
 .scalar-table__cell--total { font-weight: var(--font-weight-semi-bold); }
 .scalar-table__cell--draft { background: var(--color-bg-disabled); color: var(--color-text-on-disabled); }
 .scalar-table__row--total > * { border-top: 1px solid var(--color-stroke-strong); }

@@ -19,6 +19,12 @@ export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content
    */
   type?: CellType;
   state?: CellState;
+  /**
+   * Draws the selection ring on top of any state. With `state="error"` the ring
+   * is red; an unselected error cell has no outline. `state="selected"` is the
+   * same as `selected` on a default cell.
+   */
+  selected?: boolean;
   /** Right-aligns and applies tabular figures. Use for every money column. */
   numeric?: boolean;
   /** A superscript reference or currency marker. See `Footnote`. */
@@ -65,7 +71,7 @@ export interface CellProps extends Omit<HTMLAttributes<HTMLDivElement>, 'content
  * `Row selected` instead.
  */
 export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
-  { children, type = 'readable', state = 'default', numeric, footnote, icon, label, tooltip, trailingIcon, groupStart, groupEnd, span, errorMessage, className, style, ...rest },
+  { children, type = 'readable', state = 'default', selected, numeric, footnote, icon, label, tooltip, trailingIcon, groupStart, groupEnd, span, errorMessage, className, style, ...rest },
   ref,
 ) {
   if (type === 'divider') {
@@ -80,6 +86,7 @@ export const Cell = forwardRef<HTMLDivElement, CellProps>(function Cell(
         'scalar-cell',
         `scalar-cell--${type}`,
         state !== 'default' && `scalar-cell--${state}`,
+        selected && state !== 'selected' && 'scalar-cell--selected',
         numeric && 'scalar-cell--numeric',
         Boolean(tooltip) && 'scalar-cell--tooltip',
         groupStart && 'scalar-cell--group-start',
