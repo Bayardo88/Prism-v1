@@ -1,0 +1,12 @@
+# Storybook for the Scalar Design System — https://scalar-prism-storybook.netlify.app
+# Production deploys from `main`; every pull request gets a deploy preview.
+
+[build]
+  command = "npm run build:storybook"
+  publish = "storybook-static"
+
+[build.environment]
+  # Vite 8 and Vitest 5 need Node >= 22.12 (package.json `engines` still says >= 18).
+  NODE_VERSION = "22"
+  # Storybook's build does not need Playwright's browsers; they are only for `npm run test:stories`.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
