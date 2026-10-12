@@ -233,3 +233,27 @@ The Figma files lagged behind the library they describe. As of 2026-10-05:
 If either number in Figma disagrees with the code layer again, the live
 variables and component sets win — re-extract and regenerate rather than
 editing the generated files.
+
+---
+
+## 13. Workflow tone tokens are code-first, pending the Figma library
+
+The Workboard's step colours Blue, Pink, Cyan and Orange have no family in
+`Scalar_Design_System-v1.1`. The prototype drew them from `--primitive-*`
+steps, which R1 forbids in a component. They are now the semantic family
+`--color-workflow-{blue|pink|cyan|orange}-{background|text|stroke|solid|on-solid}`
+(`color.workflow.*` in TypeScript), with Light and Dark values.
+
+Unlike every other semantic token, these values were **transcribed into code
+first**, from the workboard-v2 file (`mZ0cFiczRr3UCglYIO6Ot0`), local collection
+"Workboard: Action Pill (proposed)", Light/Dark. Mapping from that collection:
+`{Tone}/Upcoming/Background` → `background`, `/Upcoming/Text` → `text`,
+`/Upcoming/Mark` → `stroke`, `/Today/Background` → `solid`, `/Today/Text` →
+`on-solid`. Every pair is in the R13 contrast gate (`npm run lint:contrast`):
+text on its tint and on-solid on solid at 4.5:1, the stroke at 3:1 on its tint,
+the page and the surface — Light and Dark.
+
+**Until the collection is published to the Scalar tokens library**, the values
+in `tokens.css` are the reference. When it is published, re-transcribe from the
+library and regenerate as for any other token; if a value moves, the library
+wins. Do not add a fifth tone here — propose it in Figma first.

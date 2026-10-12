@@ -44,6 +44,8 @@ export interface RowHeaderBaseProps extends Omit<HTMLAttributes<HTMLDivElement>,
   href?: string;
   /** Columns this header spans inside a DataGrid. Default 1. */
   span?: number;
+  /** Whole row selected: Brand-subtle fill and an 8px Stroke/Brand marker on the left (Figma `Selected left`). */
+  selected?: boolean;
 }
 
 /** The trailing glyph is decorative, or a button — and a button must be named. */
@@ -78,7 +80,7 @@ export type RowHeaderProps = RowHeaderBaseProps & RowHeaderIconProps;
 export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function RowHeader(
   {
     children, type = 'readable', mark, bulk, checked: checkedProp, defaultChecked, onCheckedChange, selectLabel, group, groupStart, groupEnd,
-    icon, onIconClick, iconLabel, footnote, href, span, className, style, ...rest
+    icon, onIconClick, iconLabel, footnote, href, span, selected, className, style, ...rest
   },
   ref,
 ) {
@@ -91,6 +93,7 @@ export const RowHeader = forwardRef<HTMLDivElement, RowHeaderProps>(function Row
         'scalar-row-header',
         `scalar-row-header--${type}`,
         mark && 'scalar-row-header--mark',
+        selected && 'scalar-row-header--selected',
         group && 'scalar-row-header--group',
         groupStart && 'scalar-row-header--group-start',
         groupEnd && 'scalar-row-header--group-end',

@@ -1,0 +1,90 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as TableStories from '../../src/components/table/Table.stories';
+
+<Meta title="Data/Table/Prism Table spec" />
+
+# Prism Table — logic and behaviour
+
+One table component for the whole platform. Valuations, Waterfalls, Financials, Cap Table, Companies, Reports
+and the Workboard all render `Table`. Product differences come from `columns`, `rows`, `cells` and props —
+**never from a product-specific variant or fork.** Use `DataGrid` only for a static table with no selection.
+
+<Canvas of={TableStories.Interactive} />
+
+## Cells: kind is data, state is UI
+
+| Axis | Values | Drives |
+| --- | --- | --- |
+| `kind` | `readable` · `editable` · `sourced` · `total` · `draft` | Text colour only. State never changes it: an Editable cell stays blue when selected. |
+| state (derived) | `default` · `hover` · `pressed` · `selected` · error | Fill only. Derived from `selection` + hover, never stored per cell. |
+
+Fill precedence: **error > selected > pressed > hover > zebra > default.**
+
+Values are 12px Light, right-aligned, tabular figures, one line. Rows are 26px, headers 40px, and rows never auto-grow.
+Empty cells render blank — not `0`, not a dash. Only `editable` cells accept input; cells with `options` open a dropdown.
+
+| Format | Example | Rule |
+| --- | --- | --- |
+| `currency` | `$56,938` | 0 decimals |
+| `perShare` | `$773.55` | 2 decimals |
+| `percent` | `75.0%` | 1 decimal; values are percentage points (`75`) |
+| `rate` | `4.38%` | 2 decimals |
+| `multiple` | `4.00x` | 2 decimals + x |
+| `count` | `40.00` | 2 decimals |
+
+## Selection
+
+Selection is one rectangle per table. The brand border is drawn **once, on the perimeter**, by a single overlay —
+never per cell, never between cells — and cell size never shifts.
+
+<Canvas of={TableStories.RangeSelected} />
+
+| Mode | Trigger | Border | Markers |
+| --- | --- | --- | --- |
+| Cell | Click | 1px, all sides | 2px on its row title and column header |
+| Range | Drag, Shift+click, Shift+Arrow | 1px, outer edge | Same markers, for the **anchor** cell |
+| Column | Click a header, Ctrl/Cmd+Space | 2px left, right, bottom | 8px `selected top` on the header |
+| Row | Click a title, Shift+Space | 2px top, bottom, right | 8px `selected left` on the title |
+
+Clicking outside the table, or Esc, clears it — so selection is always scoped to one table.
+
+## Column resizing
+
+Every column can be resized, the title column included, but never below its **content minimum**: the width at which
+every value shows in full. The minimum is computed from the **data over all rows** (totals, collapsed rows, every page),
+not from the DOM, and floored at 48px. Maximum 600px.
+
+- Header labels do **not** set the minimum; they truncate with an ellipsis and a tooltip. Values and row titles never truncate.
+- Drag clamps at the minimum. Double-click the handle to auto-fit. Neighbours keep their width.
+- Widths persist per `tableId` + `columnId`, and a width below a new minimum grows to it.
+- The handle is a focusable `role="separator"`: Left/Right ±8px, Home = minimum.
+
+## Formula mode
+
+Letters across the top (the title column is `A`), row numbers down the left, and an fx bar under the table that holds the
+selection: the reference, then COUNT / SUM / AVG / MIN / MAX over the numeric selected cells, with period decimals.
+Each table has its own A1 origin, and the letter row is not numbered.
+
+<Canvas of={TableStories.FormulaMode} />
+
+## Keyboard
+
+| Key | Action |
+| --- | --- |
+| Tab | Into the table (one stop), on the last active cell |
+| Arrows · Shift+Arrows | Move · extend the range |
+| Ctrl/Cmd+Arrow | Jump to the edge of the data |
+| Ctrl/Cmd+Space · Shift+Space | Select the column · the row |
+| Enter · F2 | Edit an editable cell, or open its options |
+| Enter · Tab (editing) | Commit and move down · right |
+| Esc | Cancel an edit, then clear the selection |
+| Ctrl/Cmd+C | Copy the selection as tab-separated values |
+
+## Decisions that differ from the Figma spec
+
+- **`role="grid"`** here, `role="table"` on `DataGrid`. `Table` owns the grid keyboard model; `DataGrid` does not.
+- **Tokens are the v1.1 semantic ones**, not the legacy library's hex: Text/Editable `#0268c1` and Text/Sourced `#007e17`
+  already clear 4.5:1. `Brand/100` maps to `Background/Brand Subtle`, `Neutral/100` to `Background/Subtle`.
+- **12px floor (R10).** Headers and row titles are 12px, not the spec's 10px.
+- **One header component:** column headers use `ColumnHeader` (subtle tone) for every header, not Data Cell.
+- **fx reference:** a single cell shows its formula or data key; a range shows the A1 range. Orange/300 is replaced by `Text/Warning`, which passes contrast.

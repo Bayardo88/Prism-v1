@@ -106,6 +106,7 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | A grid **table title**, column-group label or single-row column header | `color.text.gridHeader` | `text.primary` |
 | A **file type** badge (PDF, DOCX, XLSX…) | `color.file.<kind>.background` + `.text` | `bg.negative` for a PDF — a format is not a status |
 | A **product** tile or mark (Intelligence, Valuations, Waterfalls, Documents) | `color.product.<key>.background` + `.icon` | status tints, or the AI family for Waterfalls |
+| A Workboard **step** colour (Blue, Pink, Cyan, Orange) | `WorkflowTone` on `ActionPill` / `ActionTag`, or `color.workflow.<tone>.*` | a `--primitive-*` step (R1), or brand/warning standing in |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
 | A card or panel surface | `color.bg.surface` | `bg.page` |
 | A surface lifted above another surface | `color.bg.surfaceRaised` | a lighter hex |
@@ -235,7 +236,8 @@ Find the **intent**, not the shape.
 | Surface with nothing in it | `EmptyState` | a blank div |
 | Content not loaded yet (first load, known shape) | `Skeleton` | a spinner |
 | Progress of a task with a known total | `ProgressBar` (determinate) | indeterminate |
-| A dense grid of figures | `DataGrid` + `Row` + `Cell` | an HTML `<table>` |
+| A dense grid of figures, read-only | `DataGrid` + `Row` + `Cell` | an HTML `<table>` |
+| A spreadsheet-like table: selection, resize, formula view, editing | `Table` | a product-specific table or a fork of `Table` |
 | Explain the control under the pointer | `Tooltip` | placeholder text |
 | Search everything, from anywhere | `GlobalSearch` | a page filter |
 | Compare magnitude across categories | `BarChart` | a line chart |
@@ -265,6 +267,15 @@ Find the **intent**, not the shape.
 | A label/value pair in a description list | `KeyValueRow` | a two-column `DataGrid` |
 | The open menu of a select / picker trigger (≤ ~8 options) | `SelectMenu` + `SelectMenuOption` | a hand-rolled list of `MenuItem`s |
 | Pending tasks on a grid row | `TaskPill` (`label` required) | a coloured dot or a bare `Badge` |
+| The step an item is on next, to tick off in place | `ActionPill` (+ `StepMenu` behind its caret) | a `SplitButton` or a coloured `Chip` |
+| Show a workflow step that cannot be acted on | `ActionTag` | an `ActionPill` with no handlers |
+| A due date nudged a day at a time | `DueDatePill` | an `Input type="date"` alone |
+| The deal behind a Workboard item (stage, company, contract, NET / DUE, owner) | `DealCard` | a hand-built `Card` with loose text |
+| Let a user pick their **own** colour (a status colour a firm sets) | `ColorPicker` | a native `<input type="color">`, or a picker for design tokens |
+| Dated work laid out by day, month or week | `WorkCalendar` (+ `PeriodToolbar`) | `DatePicker` — that chooses one date |
+| A rich task on a calendar day (status, tags, due, people, rush) | `CalendarTaskCard` as `renderEvent` | a `Card` inside a day cell |
+| Each item's current step across a date range | `WorkTimeline` (+ `PeriodToolbar`) | a `DataGrid` with coloured cells |
+| Today / previous / next and the range switch above a calendar or timeline | `PeriodToolbar` | loose `Button`s and a heading |
 | Frame and zoom an uploaded logo or avatar | `ImageCropField` (+ `Dropzone` for the upload) | an `<img>` with a native range input |
 
 ---
@@ -433,6 +444,16 @@ wrapper inside the slot. Full guide: `docs/page-template.md`.
 - `FilterDropdown` shows **the value in force**, not the filter's name.
 - `Notification`'s dot means *unread*, not urgent, and carries no count.
 
+### Table
+
+**There is one table.** `Table` serves every product; differences come from `columns`, `rows` and `cells`, never from a variant or
+fork. `cell.kind` (`readable` / `editable` / `sourced` / `total` / `draft`) sets text colour only; fill is derived from selection and
+hover (error > selected > pressed > hover > zebra > default) and is never stored per cell. Rows are 26px, headers 40px, never
+auto-sized. Selection is one rectangle drawn as one overlay — do not hand-place per-cell borders. A column's minimum width is
+computed from the data over all rows (`columnMinWidth`), never from the DOM; values and row titles never truncate, header labels
+truncate with a tooltip. Pass `columnWidths` / `onColumnResize` only to control widths; otherwise they persist per `tableId`.
+Do not wrap header labels, and do not put `role="grid"` on `DataGrid`.
+
 ### Data grid
 
 `DataGrid` · `Row` · `RowHeader` · `Cell` · `ColumnHeader` · `ContentCell` · `Footnote` ·
@@ -489,7 +510,43 @@ reads apart from Complete without relying on colour).
 Pending tasks in a grid row: tinted pill, glyph and optional count; `label` is
 the accessible name and tooltip ("3 overdue tasks"). Dense grid furniture (24px).
 
-**`Cell`** — `{ type?: 'readable'|'input'|'data'|'group'|'divider', state?: 'default'|'selected'|'error'|'draft'|'total', numeric?, footnote?, icon?, groupStart?, groupEnd? }`
+**Workboard** — the Workboard prototype's workflow controls (`workboard/Workboard.tsx`).
+Tones are `WorkflowTone`: `'brand' | 'ai' | 'warning' | 'positive' | 'blue' | 'pink' | 'cyan' | 'orange'`.
+The last four are the Workflow tone family (`color.workflow.<tone>.background · text · stroke · solid · onSolid`,
+code-first, known gap 13) — never build a step colour from a `--primitive-*` step (R1). A tone identifies the
+step; it is never status.
+Urgency is `DueUrgency`: `'none' | 'upcoming' | 'today' | 'overdue'` — upcoming is a
+tinted outline, today the solid tone, overdue solid Negative; Today and Overdue add
+hidden words (R8). `dueUrgency(iso, today?)`, `shiftIsoDate`, `formatIsoDate` derive it.
+
+- **`ActionPill`** — `{ label` **req**`, tone?, urgency?, size?: 's' | 'm', fullWidth?, onComplete?, completeOpensMenu?, onMenuToggle?, menuOpen?, paused?, done?, followUp?, pendingMs? }`.
+  The tick (circle + label) completes the step after a short strike-through; the caret opens the
+  `StepMenu`. `s` in a grid cell, `m` in a modal header. Clicks never bubble to the row.
+- **`ActionTag`** — `{ children, tone?, urgency?, size? }`. Read-only step (calendar cards, timelines).
+- **`DueDatePill`** — `{ value` **req** (ISO)`, onChange` **req**`, size?, withPicker?, today?, format?, placeholder? }`.
+  − / + move a day; `withPicker` adds a native date picker and a trailing calendar button.
+- **`StepMenu`** — `{ label` **req**`, steps` **req**`: { id, label, tone?, state: 'done' | 'next' | 'pending' | 'skipped', disabled? }[], onSelectStep?, locked?, progress?, onClose?, autoFocus? }`.
+  Menu surface only (APG menu keys). Add `StepMenuSection` › `StepMenuLink` (`ai?`, `href?`),
+  `StepMenuToggle` (`checked`, `onCheckedChange`), `StepMenuAction` (`action`, `tone?: 'destructive'`).
+- **`DealCard`** — `{ title` **req**`, headingLevel?, stage?, onStageClick?, stageExpanded?, company?, companyHref?, notice?, contract?, contractHref?, totals?: { label, value }[], owner?: { name, initials?, avatarSrc?, role? }, onEditOwner?, editOwnerLabel?, actions? }`.
+  A `Card` region. With `onStageClick` the stage is a `Selector` (the screen owns its menu); without it, a `Chip`.
+  Every part is optional except the title; it holds no data of its own.
+- **`ColorPicker`** — `{ label` **req**`, value` **req** (`#RRGGBB`)`, onApply` **req**`, onCancel` **req**`, onChange?, applyLabel?, cancelLabel? }`.
+  Hex `Input`, saturation × brightness square and hue track (both `role="slider"`, arrows / Shift / Page / Home / End),
+  Cancel / Apply; Escape cancels. The picked colour and `HUE_SPECTRUM` are **data**, set inline — never a token, and
+  never for choosing a design token. `hexToHsv` / `hsvToHex` are exported.
+- **`WorkCalendar`** — `{ label` **req**`, date` **req** (ISO in the period)`, events` **req**`: { id, date, label, tone?, urgency? }[], view?: 'month' | 'week', onEventClick?, renderEvent?, maxPerDay?, onShowMore?, today?, weekStartsOn?, locale? }`.
+  `role="grid"`, six week rows always. One tab stop; arrows / Home / End / Ctrl+Home/End between days, Enter or F2 into a
+  day's items (Up/Down between them), Escape or F2 back. `renderEvent(event, itemProps)` must spread `itemProps` onto its
+  focusable root. Without `onShowMore`, "+N more" is text, so pass it whenever a day can overflow.
+- **`CalendarTaskCard`** — `{ title` **req**`, status?, tags?, due?, today?, comments?, people?: { name, initials?, role? }[], rush?, rushLabel? }` + button attributes.
+  One button. An unparsable `due` shows "Invalid date" (Negative) rather than hiding it; `rush` adds the stamp and a Negative outline.
+- **`WorkTimeline`** — `{ label` **req**`, start` **req**`, days` **req**`, items` **req**`: { id, name, start, end, label, tone?, urgency? }[], nameHeader?, onItemClick?, today?, tickEvery?, format? }`.
+  `role="table"` (read-only bars). Every bar says its dates and whether it runs past the range; the optional row-name button opens the item.
+- **`PeriodToolbar`** — `{ title` **req**`, onPrevious` **req**`, onNext` **req**`, onToday?, views?, view?, onViewChange?, viewLabel?, actions?, previousLabel?, nextLabel? }`.
+  The title is a polite live region. Name previous / next by the unit ("Previous month").
+
+**`Cell`** — `{ type?: 'readable'|'input'|'data'|'group'|'divider', state?: 'default'|'selected'|'error'|'draft'|'total', selected?, numeric?, footnote?, icon?, groupStart?, groupEnd? }`
 
 `type` says **what the cell holds** and drives the text colour:
 `readable` → primary · `input` → editable (blue) · `data` → sourced (green).
@@ -584,6 +641,8 @@ Rules:
 `RowLabelCell` · `GridValueCell` · `InCellControl` · `ColumnGroupHeader` ·
 `GridColumnHeader` · `AddColumnHeader` · `CollapsedColumnRail` · `GridColumnDivider` · `TaskPill` ·
 `ChartHoverCard` · `CellHistoryPopover` ·
+`ActionPill` · `ActionTag` · `DueDatePill` · `StepMenu` (+ `StepMenuSection` · `StepMenuLink` · `StepMenuToggle` · `StepMenuAction`) ·
+`DealCard` · `ColorPicker` · `WorkCalendar` · `CalendarTaskCard` · `WorkTimeline` · `PeriodToolbar` ·
 `FileTypeBadge` (+ `fileKindOf`) · `FileRow` · `TreeItem` · `PageStepper` · `ZoomControl` ·
 `DocumentViewerHeader` · `ScrollHintPill` ·
 `Banner` · `Spinner` · `ProgressRing` · `DataFreshness` · `SaveState` ·

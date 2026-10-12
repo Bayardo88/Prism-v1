@@ -42,3 +42,4 @@ export * from './components/files/index.js';
 export * from './components/feedback-patterns/index.js';
 export * from './components/overlays/index.js';
 export * from './components/admin/index.js';
+export * from './components/workboard/index.js';

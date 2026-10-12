@@ -387,6 +387,33 @@
   --color-product-waterfalls-icon: #058355;
   --color-product-documents-background: #fff1e4;
   --color-product-documents-icon: #d26000;
+
+  /* --- Workflow tone (Workboard step colour; identity, never status) ---
+   * Code-first from workboard-v2 "Workboard: Action Pill (proposed)"
+   * (mZ0cFiczRr3UCglYIO6Ot0), pending the Scalar tokens library — known gap 13.
+   * Five slots per tone: background (subtle tint) + text + stroke (the mark),
+   * solid (the filled "due today" ground) + on-solid. Light aliases:
+   * {Hue} 100 / 700 / 600 / 600 / White (Cyan and Orange text 800, stroke 700). */
+  --color-workflow-blue-background: #ced3fd;
+  --color-workflow-blue-text: #071592;
+  --color-workflow-blue-stroke: #0a1cc2;
+  --color-workflow-blue-solid: #0a1cc2;
+  --color-workflow-blue-on-solid: #ffffff;
+  --color-workflow-pink-background: #fce7f3;
+  --color-workflow-pink-text: #8e1242;
+  --color-workflow-pink-stroke: #be185d;
+  --color-workflow-pink-solid: #be185d;
+  --color-workflow-pink-on-solid: #ffffff;
+  --color-workflow-cyan-background: #cffafe;
+  --color-workflow-cyan-text: #155e75;
+  --color-workflow-cyan-stroke: #0e7490;
+  --color-workflow-cyan-solid: #0e7490;
+  --color-workflow-cyan-on-solid: #ffffff;
+  --color-workflow-orange-background: #ffe0c4;
+  --color-workflow-orange-text: #6f3300;
+  --color-workflow-orange-stroke: #a04900;
+  --color-workflow-orange-solid: #a04900;
+  --color-workflow-orange-on-solid: #ffffff;
 }
 
 /* -----------------------------------------------------------------------------
@@ -602,6 +629,30 @@
   --color-product-waterfalls-icon: #6bdcb3;
   --color-product-documents-background: #3c1b00;
   --color-product-documents-icon: #ffac5c;
+
+  /* --- Workflow tone (see Light; known gap 13) ------------------------
+   * Dark aliases: {Hue} 800–900 tint, 200 text, 300 stroke + solid, Neutral 900
+   * on-solid. Blue text #c2c9fb is the proposed collection's own value. */
+  --color-workflow-blue-background: #050e61;
+  --color-workflow-blue-text: #c2c9fb;
+  --color-workflow-blue-stroke: #6d7bf8;
+  --color-workflow-blue-solid: #6d7bf8;
+  --color-workflow-blue-on-solid: #0f172a;
+  --color-workflow-pink-background: #5f0c29;
+  --color-workflow-pink-text: #f6b7d9;
+  --color-workflow-pink-stroke: #f088bd;
+  --color-workflow-pink-solid: #f088bd;
+  --color-workflow-pink-on-solid: #0f172a;
+  --color-workflow-cyan-background: #164e63;
+  --color-workflow-cyan-text: #a5f3fc;
+  --color-workflow-cyan-stroke: #67e8f9;
+  --color-workflow-cyan-solid: #67e8f9;
+  --color-workflow-cyan-on-solid: #0f172a;
+  --color-workflow-orange-background: #3c1b00;
+  --color-workflow-orange-text: #ffc790;
+  --color-workflow-orange-stroke: #ffac5c;
+  --color-workflow-orange-solid: #ffac5c;
+  --color-workflow-orange-on-solid: #0f172a;
 }
 
 

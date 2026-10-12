@@ -5,7 +5,7 @@
 > `anrnTIJKgu27zV224h7vON (Scalar_Design_System-v1.1)`.
 > **Do not hand-edit.** Run `npm run gen:tokens && node scripts/gen-docs.mjs`.
 
-- **180** semantic colour tokens (Light + Dark)
+- **200** semantic colour tokens (Light + Dark)
 - **142** primitive colour steps (reference only)
 - **60** scale, elevation and motion tokens
 - **80** typography tokens × 3 viewport modes
@@ -260,6 +260,33 @@ One tint + icon colour per Scalar product (Product Tile). Identity, not status; 
 | `--color-product-valuations-icon` | `#007e17` | `#31c37b` |
 | `--color-product-waterfalls-background` | `#e9faf4` | `#03402a` |
 | `--color-product-waterfalls-icon` | `#058355` | `#6bdcb3` |
+
+### Workflow tone
+
+The Workboard's extra step colours (`WorkflowTone` blue · pink · cyan · orange) — identity of a step, never status. `background` + `text` + `stroke` draw the tinted pill, `solid` + `on-solid` the filled "due today" pill. **Code-first** from the workboard-v2 proposed collection, pending publication to the Scalar tokens library (known gap 13).
+
+| Token | Light | Dark |
+|---|---|---|
+| `--color-workflow-blue-background` | `#ced3fd` | `#050e61` |
+| `--color-workflow-blue-on-solid` | `#ffffff` | `#0f172a` |
+| `--color-workflow-blue-solid` | `#0a1cc2` | `#6d7bf8` |
+| `--color-workflow-blue-stroke` | `#0a1cc2` | `#6d7bf8` |
+| `--color-workflow-blue-text` | `#071592` | `#c2c9fb` |
+| `--color-workflow-cyan-background` | `#cffafe` | `#164e63` |
+| `--color-workflow-cyan-on-solid` | `#ffffff` | `#0f172a` |
+| `--color-workflow-cyan-solid` | `#0e7490` | `#67e8f9` |
+| `--color-workflow-cyan-stroke` | `#0e7490` | `#67e8f9` |
+| `--color-workflow-cyan-text` | `#155e75` | `#a5f3fc` |
+| `--color-workflow-orange-background` | `#ffe0c4` | `#3c1b00` |
+| `--color-workflow-orange-on-solid` | `#ffffff` | `#0f172a` |
+| `--color-workflow-orange-solid` | `#a04900` | `#ffac5c` |
+| `--color-workflow-orange-stroke` | `#a04900` | `#ffac5c` |
+| `--color-workflow-orange-text` | `#6f3300` | `#ffc790` |
+| `--color-workflow-pink-background` | `#fce7f3` | `#5f0c29` |
+| `--color-workflow-pink-on-solid` | `#ffffff` | `#0f172a` |
+| `--color-workflow-pink-solid` | `#be185d` | `#f088bd` |
+| `--color-workflow-pink-stroke` | `#be185d` | `#f088bd` |
+| `--color-workflow-pink-text` | `#8e1242` | `#f6b7d9` |
 
 ---
 
