@@ -92,9 +92,9 @@ describe('ActionPill', () => {
 
   it('locks the tick when paused or done', () => {
     const { rerender } = render(<ActionPill label="Review" paused onComplete={() => undefined} />);
-    expect(screen.getByRole('button', { name: 'Process paused' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Review, process paused' })).toBeDisabled();
     rerender(<ActionPill label="Done" done onComplete={() => undefined} />);
-    expect(screen.getByRole('button', { name: 'Every step completed' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Done, every step completed' })).toBeDisabled();
   });
 });
 

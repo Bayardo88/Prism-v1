@@ -194,7 +194,8 @@ export const ActionPill = forwardRef<HTMLDivElement, ActionPillProps>(function A
   }, []);
 
   const canComplete = Boolean(onComplete || (completeOpensMenu && onMenuToggle)) && !done && !paused && !settling;
-  const tickLabel = done ? 'Every step completed' : paused ? 'Process paused' : completeLabel ?? `Mark ${label} complete`;
+  // The name always starts with the visible label (WCAG 2.5.3 Label in Name); the state follows it.
+  const tickLabel = done ? `${label}, every step completed` : paused ? `${label}, process paused` : completeLabel ?? `Mark ${label} complete`;
   const words = urgencyWords[urgency];
 
   const complete = (event: MouseEvent) => {

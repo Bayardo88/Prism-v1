@@ -3035,6 +3035,8 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
 .scalar-step-menu__step--next .scalar-step-menu__label { color: var(--wf-text); font-weight: var(--font-weight-semi-bold); }
 .scalar-step-menu__step:is(.scalar-step-menu__step--pending, .scalar-step-menu__step--skipped) { box-shadow: inset 3px 0 0 var(--color-stroke-subtle), inset 0 0 0 1px var(--color-stroke-subtle); color: var(--color-text-disabled); }
 .scalar-step-menu__step:is(.scalar-step-menu__step--pending, .scalar-step-menu__step--skipped) .scalar-step-menu__mark { color: var(--color-text-disabled); }
+/* A skipped step can still be picked (it rewinds), so unlike a pending step it is not exempt from 4.5:1. */
+.scalar-step-menu__step--skipped:not(:disabled) { color: var(--color-text-tertiary); }
 .scalar-step-menu__step--skipped .scalar-step-menu__label { text-decoration: line-through; text-decoration-skip-ink: none; }
 .scalar-step-menu__label { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .scalar-step-menu__item {
@@ -3154,6 +3156,8 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
   min-height: calc(var(--size-control-l) * 2);
   padding: var(--space-xs);
   box-sizing: border-box;
+  position: relative; /* contains its visually hidden text, so the clip below holds */
+  overflow: hidden; /* a narrow day clips its cards rather than widening the grid (WCAG 1.4.10) */
   color: var(--color-text-primary);
 }
 .scalar-work-calendar--week .scalar-work-calendar__day { min-height: calc(var(--size-control-l) * 7); }
@@ -3213,6 +3217,8 @@ button.scalar-work-calendar__more { color: var(--color-text-link); text-decorati
   font-size: var(--font-size-text-s);
   line-height: var(--line-height-text-s);
   text-align: left;
+  position: relative;
+  overflow: hidden;
   cursor: pointer;
 }
 .scalar-task-card:hover { background: var(--color-bg-subtle); }

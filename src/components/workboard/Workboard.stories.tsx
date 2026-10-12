@@ -101,7 +101,7 @@ export const InteractiveGridSize: Story = { name: 'Interactive (grid size)', ren
 /** Every tone — the four status families and the four Workflow tones — at every urgency, both sizes. */
 export const ToneByUrgency: Story = {
   render: () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, max-content)', gap: 'var(--space-s)', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-s)', alignItems: 'center' }}>
       {tones.flatMap((tone) =>
         urgencies.map((urgency) => (
           <ActionPill key={`${tone}-${urgency}`} label={`${tone} · ${urgency}`} tone={tone} urgency={urgency} onComplete={() => undefined} onMenuToggle={() => undefined} />
@@ -128,7 +128,7 @@ export const PendingUndo: Story = { args: { pendingMs: 8000, onComplete: () => u
 export const Tags: Story = {
   name: 'Action Tag',
   render: () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, max-content)', gap: 'var(--space-s)' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-s)' }}>
       {tones.flatMap((tone) => urgencies.map((u) => <ActionTag key={`${tone}-${u}`} tone={tone} urgency={u}>{`${tone} · ${u}`}</ActionTag>))}
     </div>
   ),
@@ -143,7 +143,7 @@ function DueDemo({ size, start, withPicker }: { size: 's' | 'm'; start: string; 
 export const DueDates: Story = {
   name: 'Due Date Pill',
   render: () => (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, max-content)', gap: 'var(--space-m)', alignItems: 'center' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-m)', alignItems: 'center' }}>
       <DueDemo size="m" start="2026-10-15" withPicker />
       <DueDemo size="m" start={TODAY} withPicker />
       <DueDemo size="m" start="2026-10-08" withPicker />
