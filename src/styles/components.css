@@ -2871,3 +2871,190 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
 .scalar-table__fx-label { color: var(--color-text-primary); }
 .scalar-table__fx-ref { color: var(--color-text-warning); }
 .scalar-table__fx-chip { padding-left: var(--space-xs); border-left: 2px solid var(--color-stroke-divider); color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
+
+/* --- Workboard: Action Tag / Action Pill / Due Date Pill / Step Menu --------
+ * Ported from the Workboard prototype. Tones are alias tones only (R1): each
+ * sets five component-local slots from the v1.1 semantic set.
+ * ------------------------------------------------------------------------- */
+.scalar-wf--brand    { --wf-subtle: var(--color-bg-brand-subtle);    --wf-text: var(--color-text-brand);    --wf-stroke: var(--color-stroke-brand);    --wf-solid: var(--color-bg-brand);    --wf-on-solid: var(--color-text-on-brand); }
+.scalar-wf--ai       { --wf-subtle: var(--color-bg-ai-subtle);       --wf-text: var(--color-text-ai);       --wf-stroke: var(--color-stroke-ai);       --wf-solid: var(--color-bg-ai);       --wf-on-solid: var(--color-text-on-ai); }
+.scalar-wf--warning  { --wf-subtle: var(--color-bg-warning-subtle);  --wf-text: var(--color-text-warning);  --wf-stroke: var(--color-stroke-warning);  --wf-solid: var(--color-bg-warning);  --wf-on-solid: var(--color-text-on-warning); }
+.scalar-wf--positive { --wf-subtle: var(--color-bg-positive-subtle); --wf-text: var(--color-text-positive); --wf-stroke: var(--color-stroke-positive); --wf-solid: var(--color-bg-positive); --wf-on-solid: var(--color-text-on-positive); }
+
+/* Shared face: upcoming = tinted outline, today = solid tone, overdue = solid red. */
+.scalar-action {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: middle;
+  background: var(--wf-subtle);
+  color: var(--wf-text);
+  box-shadow: inset 0 0 0 1px var(--wf-stroke);
+  font-family: var(--font-family-default);
+  font-weight: var(--font-weight-regular);
+}
+.scalar-action--m { gap: var(--space-xs); padding: var(--space-xs); border-radius: var(--radius-s); font-size: var(--font-size-text-m); line-height: var(--line-height-text-m); }
+.scalar-action--s { gap: var(--space-2xs); padding: var(--space-2xs) var(--space-xs); border-radius: var(--radius-xs); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); }
+.scalar-action--today { background: var(--wf-solid); color: var(--wf-on-solid); box-shadow: none; font-weight: var(--font-weight-semi-bold); }
+.scalar-action--overdue { background: var(--color-bg-negative); color: var(--color-text-on-negative); box-shadow: none; font-weight: var(--font-weight-semi-bold); }
+.scalar-action__label { position: relative; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* Pill: the tick (circle + label) is one button, the caret another. */
+.scalar-action-pill--full { display: flex; width: 100%; }
+.scalar-cell__content:has(> .scalar-action-pill--full) { flex: 1 1 auto; }
+.scalar-action-pill--follow-up { box-shadow: inset 0 0 0 1px currentColor; }
+.scalar-action-pill__complete,
+.scalar-action-pill__caret {
+  display: flex;
+  align-items: center;
+  padding: var(--space-none);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.scalar-action-pill__complete { flex: 1 1 auto; gap: inherit; min-width: 0; text-align: left; }
+.scalar-action-pill__caret { flex: none; margin-left: auto; }
+.scalar-action-pill__complete:disabled { cursor: default; }
+.scalar-action-pill__mark { flex: none; border-radius: var(--radius-full); transition: background-color var(--duration-fast) var(--easing-standard); }
+.scalar-action-pill__complete:not(:disabled):hover .scalar-action-pill__mark,
+.scalar-action-pill__caret:hover,
+.scalar-action-pill__caret[aria-expanded="true"] { background: color-mix(in srgb, currentColor 20%, transparent); }
+.scalar-action-pill__complete:focus-visible,
+.scalar-action-pill__caret:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 1px; }
+/* Ticking: the circle closes into a check, the label is struck through, then the next step arrives. */
+.scalar-action-pill__complete--settling .scalar-action-pill__mark { animation: scalar-action-settle 320ms cubic-bezier(0.2, 0.9, 0.3, 1.4); }
+.scalar-action-pill__complete--settling .scalar-action__label { opacity: 0.72; transition: opacity var(--duration-moderate) var(--easing-standard); }
+.scalar-action__label::after { content: ""; position: absolute; left: 0; right: 0; top: 52%; height: 1.5px; background: currentColor; transform: scaleX(0); transform-origin: left center; }
+.scalar-action-pill__complete--settling .scalar-action__label::after { animation: scalar-action-strike 240ms var(--easing-standard) forwards; }
+.scalar-action__label--arriving { animation: scalar-action-arrive 240ms var(--easing-decelerate); }
+/* Undo window: a tint drains right to left. */
+.scalar-action-pill__sweep { position: absolute; inset: 0; background: currentColor; opacity: 0.14; transform-origin: right center; animation: scalar-action-drain linear forwards; pointer-events: none; }
+@keyframes scalar-action-settle { 0% { transform: scale(0.72); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes scalar-action-strike { to { transform: scaleX(1); } }
+@keyframes scalar-action-arrive { from { opacity: 0; transform: translateY(5px); } }
+@keyframes scalar-action-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+/* Due Date Pill. */
+.scalar-due-pill {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  white-space: nowrap;
+  vertical-align: middle;
+  color: var(--color-text-primary);
+  font-family: var(--font-family-default);
+  font-weight: var(--font-weight-regular);
+}
+.scalar-due-pill--m { padding: var(--space-xs); border-radius: var(--radius-s); font-size: var(--font-size-text-m); line-height: var(--line-height-text-m); }
+.scalar-due-pill--s { padding: var(--space-2xs); border-radius: var(--radius-xs); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); }
+.scalar-due-pill--none .scalar-due-pill__date { color: var(--color-text-tertiary); }
+.scalar-due-pill--today { background: var(--color-bg-warning); color: var(--color-text-on-warning); font-weight: var(--font-weight-semi-bold); }
+.scalar-due-pill--overdue { background: var(--color-bg-negative); color: var(--color-text-on-negative); font-weight: var(--font-weight-semi-bold); }
+.scalar-due-pill__btn {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-none);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+.scalar-due-pill--m .scalar-due-pill__btn { width: var(--size-target-dense); height: var(--size-target-dense); }
+.scalar-due-pill--s .scalar-due-pill__btn { width: var(--size-icon-s); height: var(--size-icon-s); }
+.scalar-due-pill__btn:hover { background: color-mix(in srgb, currentColor 16%, transparent); }
+.scalar-due-pill__btn:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 1px; }
+.scalar-due-pill__calendar { margin-left: auto; }
+/* In a grid the nudges stay faint until the row is under the pointer or focus. */
+.scalar-due-pill--s:is(.scalar-due-pill--none, .scalar-due-pill--upcoming) .scalar-due-pill__nudge { opacity: 0.5; }
+[role="row"]:is(:hover, :focus-within) .scalar-due-pill__nudge,
+.scalar-due-pill__nudge:focus-visible { opacity: 1; }
+.scalar-due-pill__date { position: relative; display: flex; align-items: center; min-width: 0; padding: var(--space-none) var(--space-xs); border-radius: var(--radius-xs); overflow: hidden; text-overflow: ellipsis; }
+.scalar-due-pill__date:focus-within { outline: 2px solid var(--color-stroke-focus); outline-offset: 1px; }
+.scalar-due-pill__date input { position: absolute; inset: 0; width: 100%; height: 100%; padding: var(--space-none); border: 0; opacity: 0; cursor: pointer; }
+
+/* Step Menu. */
+.scalar-step-menu {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  width: 300px;
+  max-width: 100%;
+  padding: var(--space-s);
+  border-radius: var(--radius-s);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--elevation-overlay);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-default);
+  font-size: var(--font-size-text-s);
+  line-height: var(--line-height-text-s);
+}
+.scalar-step-menu:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
+.scalar-step-menu__heading { display: flex; align-items: center; gap: var(--space-s); padding-top: var(--space-xs); color: var(--color-text-tertiary); font-size: var(--font-size-label-m); line-height: var(--line-height-label-m); font-weight: var(--font-weight-semi-bold); white-space: nowrap; }
+.scalar-step-menu__heading:first-child { padding-top: var(--space-none); }
+.scalar-step-menu__progress { position: relative; flex: 1 1 0; height: 4px; border-radius: var(--radius-full); background: var(--color-bg-subtle); overflow: hidden; }
+.scalar-step-menu__progress-fill { position: absolute; top: 0; bottom: 0; left: 0; min-width: 4px; border-radius: inherit; background: var(--color-bg-brand); }
+.scalar-step-menu__section { display: contents; }
+.scalar-step-menu__step {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  width: 100%;
+  padding: var(--space-s);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--color-bg-surface-raised);
+  box-shadow: inset 3px 0 0 var(--wf-stroke), inset 0 0 0 1px var(--color-stroke-subtle);
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.scalar-step-menu__mark { flex: none; color: var(--wf-text); }
+.scalar-step-menu__step:not(:disabled):hover { background: var(--wf-subtle); }
+.scalar-step-menu__step:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
+.scalar-step-menu__step:disabled { cursor: default; }
+.scalar-step-menu__step--done .scalar-step-menu__label { color: var(--wf-text); }
+.scalar-step-menu__step--next { background: var(--wf-subtle); box-shadow: inset 3px 0 0 var(--wf-stroke), inset 0 0 0 1px var(--wf-stroke); }
+.scalar-step-menu__step--next .scalar-step-menu__label { color: var(--wf-text); font-weight: var(--font-weight-semi-bold); }
+.scalar-step-menu__step:is(.scalar-step-menu__step--pending, .scalar-step-menu__step--skipped) { box-shadow: inset 3px 0 0 var(--color-stroke-subtle), inset 0 0 0 1px var(--color-stroke-subtle); color: var(--color-text-disabled); }
+.scalar-step-menu__step:is(.scalar-step-menu__step--pending, .scalar-step-menu__step--skipped) .scalar-step-menu__mark { color: var(--color-text-disabled); }
+.scalar-step-menu__step--skipped .scalar-step-menu__label { text-decoration: line-through; text-decoration-skip-ink: none; }
+.scalar-step-menu__label { flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.scalar-step-menu__item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  width: 100%;
+  min-height: var(--size-target-dense);
+  padding: var(--space-xs) var(--space-s);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: none;
+  color: var(--color-text-primary);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+.scalar-step-menu__item:hover { background: var(--color-bg-subtle); }
+.scalar-step-menu__item:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
+.scalar-step-menu__item--ai .scalar-step-menu__label { color: var(--color-text-ai); }
+.scalar-step-menu__item[aria-checked="true"] .scalar-switch { background: var(--color-bg-brand); border-color: var(--color-bg-brand); }
+.scalar-step-menu__item[aria-checked="true"] .scalar-switch__knob { left: calc(100% - 2px); translate: -100% -50%; }
+.scalar-step-menu__action { flex: none; padding: var(--space-2xs) var(--space-s); border: 1px solid var(--color-stroke-control); border-radius: var(--radius-xs); color: var(--color-text-brand); font-weight: var(--font-weight-semi-bold); }
+.scalar-step-menu__item--destructive .scalar-step-menu__action { border-color: var(--color-stroke-negative); color: var(--color-text-negative); }
+.scalar-step-menu__item--destructive:hover { background: var(--color-bg-negative-subtle); }

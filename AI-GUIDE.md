@@ -266,6 +266,9 @@ Find the **intent**, not the shape.
 | A label/value pair in a description list | `KeyValueRow` | a two-column `DataGrid` |
 | The open menu of a select / picker trigger (≤ ~8 options) | `SelectMenu` + `SelectMenuOption` | a hand-rolled list of `MenuItem`s |
 | Pending tasks on a grid row | `TaskPill` (`label` required) | a coloured dot or a bare `Badge` |
+| The step an item is on next, to tick off in place | `ActionPill` (+ `StepMenu` behind its caret) | a `SplitButton` or a coloured `Chip` |
+| Show a workflow step that cannot be acted on | `ActionTag` | an `ActionPill` with no handlers |
+| A due date nudged a day at a time | `DueDatePill` | an `Input type="date"` alone |
 | Frame and zoom an uploaded logo or avatar | `ImageCropField` (+ `Dropzone` for the upload) | an `<img>` with a native range input |
 
 ---
@@ -500,7 +503,24 @@ reads apart from Complete without relying on colour).
 Pending tasks in a grid row: tinted pill, glyph and optional count; `label` is
 the accessible name and tooltip ("3 overdue tasks"). Dense grid furniture (24px).
 
-**`Cell`** — `{ type?: 'readable'|'input'|'data'|'group'|'divider', state?: 'default'|'selected'|'error'|'draft'|'total', numeric?, footnote?, icon?, groupStart?, groupEnd? }`
+**Workboard** — the Workboard prototype's workflow controls (`workboard/Workboard.tsx`).
+Tones are `WorkflowTone`: `'brand' | 'ai' | 'warning' | 'positive'` — alias tones only;
+the prototype's Blue / Pink / Cyan map to `brand` and Orange to `warning` (R1).
+Urgency is `DueUrgency`: `'none' | 'upcoming' | 'today' | 'overdue'` — upcoming is a
+tinted outline, today the solid tone, overdue solid Negative; Today and Overdue add
+hidden words (R8). `dueUrgency(iso, today?)`, `shiftIsoDate`, `formatIsoDate` derive it.
+
+- **`ActionPill`** — `{ label` **req**`, tone?, urgency?, size?: 's' | 'm', fullWidth?, onComplete?, completeOpensMenu?, onMenuToggle?, menuOpen?, paused?, done?, followUp?, pendingMs? }`.
+  The tick (circle + label) completes the step after a short strike-through; the caret opens the
+  `StepMenu`. `s` in a grid cell, `m` in a modal header. Clicks never bubble to the row.
+- **`ActionTag`** — `{ children, tone?, urgency?, size? }`. Read-only step (calendar cards, timelines).
+- **`DueDatePill`** — `{ value` **req** (ISO)`, onChange` **req**`, size?, withPicker?, today?, format?, placeholder? }`.
+  − / + move a day; `withPicker` adds a native date picker and a trailing calendar button.
+- **`StepMenu`** — `{ label` **req**`, steps` **req**`: { id, label, tone?, state: 'done' | 'next' | 'pending' | 'skipped', disabled? }[], onSelectStep?, locked?, progress?, onClose?, autoFocus? }`.
+  Menu surface only (APG menu keys). Add `StepMenuSection` › `StepMenuLink` (`ai?`, `href?`),
+  `StepMenuToggle` (`checked`, `onCheckedChange`), `StepMenuAction` (`action`, `tone?: 'destructive'`).
+
+**`Cell`** — `{ type?: 'readable'|'input'|'data'|'group'|'divider', state?: 'default'|'selected'|'error'|'draft'|'total', selected?, numeric?, footnote?, icon?, groupStart?, groupEnd? }`
 
 `type` says **what the cell holds** and drives the text colour:
 `readable` → primary · `input` → editable (blue) · `data` → sourced (green).
@@ -595,6 +615,7 @@ Rules:
 `RowLabelCell` · `GridValueCell` · `InCellControl` · `ColumnGroupHeader` ·
 `GridColumnHeader` · `AddColumnHeader` · `CollapsedColumnRail` · `GridColumnDivider` · `TaskPill` ·
 `ChartHoverCard` · `CellHistoryPopover` ·
+`ActionPill` · `ActionTag` · `DueDatePill` · `StepMenu` (+ `StepMenuSection` · `StepMenuLink` · `StepMenuToggle` · `StepMenuAction`) ·
 `FileTypeBadge` (+ `fileKindOf`) · `FileRow` · `TreeItem` · `PageStepper` · `ZoomControl` ·
 `DocumentViewerHeader` · `ScrollHintPill` ·
 `Banner` · `Spinner` · `ProgressRing` · `DataFreshness` · `SaveState` ·

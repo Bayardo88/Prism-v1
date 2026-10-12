@@ -364,6 +364,18 @@ so a glyph can differ between the two (known gap 4).
 
 ---
 
+## Workboard (4)
+
+Ported from the Workboard prototype (`WORKBOARD_PROTOTYPE`, workboard-v2 Figma `mZ0cFiczRr3UCglYIO6Ot0`).
+Alias tones only — the proposed Blue / Pink / Cyan / Orange pill tokens were not adopted.
+
+| Figma | Variants | React | File |
+|---|---|---|---|
+| Action Tag | Tone × Urgency (4 × 3) | = `ActionTag` | `workboard/Workboard.tsx` |
+| — (prototype `ActionsSelect`) | Tone × Urgency × Size | ＋ `ActionPill` | `workboard/Workboard.tsx` |
+| Due Pill | Urgency × Size | = `DueDatePill` | `workboard/Workboard.tsx` |
+| — (prototype `StatusDropdown`) | — | ＋ `StepMenu` + `StepMenuSection` / `StepMenuLink` / `StepMenuToggle` / `StepMenuAction` | `workboard/Workboard.tsx` |
+
 ## Added by the code layer
 
 These have no Figma counterpart. They exist because code needs them and
