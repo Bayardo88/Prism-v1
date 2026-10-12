@@ -364,11 +364,12 @@ so a glyph can differ between the two (known gap 4).
 
 ---
 
-## Workboard (4)
+## Workboard (10)
 
 Ported from the Workboard prototype (`WORKBOARD_PROTOTYPE`, workboard-v2 Figma `mZ0cFiczRr3UCglYIO6Ot0`).
 Tones are the four status families (Brand, AI, Warning, Positive) plus the Workflow tone family
-(Blue, Pink, Cyan, Orange — `color.workflow.*`, code-first, known gap 13).
+(Blue, Pink, Cyan, Orange — `color.workflow.*`, code-first, known gap 13). Every component is prop-driven:
+none carries prototype data. Storybook: **Workboard** › Action Pill · Deal Card · Color Picker · Calendar · Timeline.
 
 | Figma | Variants | React | File |
 |---|---|---|---|
@@ -376,6 +377,11 @@ Tones are the four status families (Brand, AI, Warning, Positive) plus the Workf
 | — (prototype `ActionsSelect`) | Tone × Urgency × Size | ＋ `ActionPill` | `workboard/Workboard.tsx` |
 | Due Pill | Urgency × Size | = `DueDatePill` | `workboard/Workboard.tsx` |
 | — (prototype `StatusDropdown`) | — | ＋ `StepMenu` + `StepMenuSection` / `StepMenuLink` / `StepMenuToggle` / `StepMenuAction` | `workboard/Workboard.tsx` |
+| — (prototype `DealCard`) | — | ＋ `DealCard` — composes `Card`, `Selector`, `Link`, `Chip`, `Avatar`, `ButtonIcon` | `workboard/DealCard.tsx` |
+| — (prototype `v2/ui` `ColorPicker`) | — | ＋ `ColorPicker` — hex `Input`, saturation square + hue track (`role="slider"`), `Button` × 2 | `workboard/ColorPicker.tsx` |
+| — (prototype `v2/views` `CalendarView`) | Month · Week | ＋ `WorkCalendar` (`role="grid"`) + `CalendarTaskCard` (Models task card, TODO §1) | `workboard/WorkCalendar.tsx` |
+| — (prototype `v2/views` `TimelineView`) | Week · Month · Quarter | ＋ `WorkTimeline` (`role="table"`) | `workboard/WorkTimeline.tsx` |
+| — (prototype calendar / timeline view bar) | — | ＋ `PeriodToolbar` — composes `Button`, `ButtonIcon`, `SegmentedControl` | `workboard/WorkCalendar.tsx` |
 
 ## Added by the code layer
 

@@ -270,6 +270,12 @@ Find the **intent**, not the shape.
 | The step an item is on next, to tick off in place | `ActionPill` (+ `StepMenu` behind its caret) | a `SplitButton` or a coloured `Chip` |
 | Show a workflow step that cannot be acted on | `ActionTag` | an `ActionPill` with no handlers |
 | A due date nudged a day at a time | `DueDatePill` | an `Input type="date"` alone |
+| The deal behind a Workboard item (stage, company, contract, NET / DUE, owner) | `DealCard` | a hand-built `Card` with loose text |
+| Let a user pick their **own** colour (a status colour a firm sets) | `ColorPicker` | a native `<input type="color">`, or a picker for design tokens |
+| Dated work laid out by day, month or week | `WorkCalendar` (+ `PeriodToolbar`) | `DatePicker` — that chooses one date |
+| A rich task on a calendar day (status, tags, due, people, rush) | `CalendarTaskCard` as `renderEvent` | a `Card` inside a day cell |
+| Each item's current step across a date range | `WorkTimeline` (+ `PeriodToolbar`) | a `DataGrid` with coloured cells |
+| Today / previous / next and the range switch above a calendar or timeline | `PeriodToolbar` | loose `Button`s and a heading |
 | Frame and zoom an uploaded logo or avatar | `ImageCropField` (+ `Dropzone` for the upload) | an `<img>` with a native range input |
 
 ---
@@ -522,6 +528,23 @@ hidden words (R8). `dueUrgency(iso, today?)`, `shiftIsoDate`, `formatIsoDate` de
 - **`StepMenu`** — `{ label` **req**`, steps` **req**`: { id, label, tone?, state: 'done' | 'next' | 'pending' | 'skipped', disabled? }[], onSelectStep?, locked?, progress?, onClose?, autoFocus? }`.
   Menu surface only (APG menu keys). Add `StepMenuSection` › `StepMenuLink` (`ai?`, `href?`),
   `StepMenuToggle` (`checked`, `onCheckedChange`), `StepMenuAction` (`action`, `tone?: 'destructive'`).
+- **`DealCard`** — `{ title` **req**`, headingLevel?, stage?, onStageClick?, stageExpanded?, company?, companyHref?, notice?, contract?, contractHref?, totals?: { label, value }[], owner?: { name, initials?, avatarSrc?, role? }, onEditOwner?, editOwnerLabel?, actions? }`.
+  A `Card` region. With `onStageClick` the stage is a `Selector` (the screen owns its menu); without it, a `Chip`.
+  Every part is optional except the title; it holds no data of its own.
+- **`ColorPicker`** — `{ label` **req**`, value` **req** (`#RRGGBB`)`, onApply` **req**`, onCancel` **req**`, onChange?, applyLabel?, cancelLabel? }`.
+  Hex `Input`, saturation × brightness square and hue track (both `role="slider"`, arrows / Shift / Page / Home / End),
+  Cancel / Apply; Escape cancels. The picked colour and `HUE_SPECTRUM` are **data**, set inline — never a token, and
+  never for choosing a design token. `hexToHsv` / `hsvToHex` are exported.
+- **`WorkCalendar`** — `{ label` **req**`, date` **req** (ISO in the period)`, events` **req**`: { id, date, label, tone?, urgency? }[], view?: 'month' | 'week', onEventClick?, renderEvent?, maxPerDay?, onShowMore?, today?, weekStartsOn?, locale? }`.
+  `role="grid"`, six week rows always. One tab stop; arrows / Home / End / Ctrl+Home/End between days, Enter or F2 into a
+  day's items (Up/Down between them), Escape or F2 back. `renderEvent(event, itemProps)` must spread `itemProps` onto its
+  focusable root. Without `onShowMore`, "+N more" is text, so pass it whenever a day can overflow.
+- **`CalendarTaskCard`** — `{ title` **req**`, status?, tags?, due?, today?, comments?, people?: { name, initials?, role? }[], rush?, rushLabel? }` + button attributes.
+  One button. An unparsable `due` shows "Invalid date" (Negative) rather than hiding it; `rush` adds the stamp and a Negative outline.
+- **`WorkTimeline`** — `{ label` **req**`, start` **req**`, days` **req**`, items` **req**`: { id, name, start, end, label, tone?, urgency? }[], nameHeader?, onItemClick?, today?, tickEvery?, format? }`.
+  `role="table"` (read-only bars). Every bar says its dates and whether it runs past the range; the optional row-name button opens the item.
+- **`PeriodToolbar`** — `{ title` **req**`, onPrevious` **req**`, onNext` **req**`, onToday?, views?, view?, onViewChange?, viewLabel?, actions?, previousLabel?, nextLabel? }`.
+  The title is a polite live region. Name previous / next by the unit ("Previous month").
 
 **`Cell`** — `{ type?: 'readable'|'input'|'data'|'group'|'divider', state?: 'default'|'selected'|'error'|'draft'|'total', selected?, numeric?, footnote?, icon?, groupStart?, groupEnd? }`
 
@@ -619,6 +642,7 @@ Rules:
 `GridColumnHeader` · `AddColumnHeader` · `CollapsedColumnRail` · `GridColumnDivider` · `TaskPill` ·
 `ChartHoverCard` · `CellHistoryPopover` ·
 `ActionPill` · `ActionTag` · `DueDatePill` · `StepMenu` (+ `StepMenuSection` · `StepMenuLink` · `StepMenuToggle` · `StepMenuAction`) ·
+`DealCard` · `ColorPicker` · `WorkCalendar` · `CalendarTaskCard` · `WorkTimeline` · `PeriodToolbar` ·
 `FileTypeBadge` (+ `fileKindOf`) · `FileRow` · `TreeItem` · `PageStepper` · `ZoomControl` ·
 `DocumentViewerHeader` · `ScrollHintPill` ·
 `Banner` · `Spinner` · `ProgressRing` · `DataFreshness` · `SaveState` ·
