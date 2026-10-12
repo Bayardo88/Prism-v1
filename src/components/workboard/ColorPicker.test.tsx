@@ -44,7 +44,11 @@ describe('ColorPicker', () => {
     expect(plane).toHaveAttribute('aria-valuenow', '89');
     await userEvent.keyboard('{Home}{PageDown}');
     expect(plane).toHaveAttribute('aria-valuetext', 'Saturation 0%, brightness 89%');
-    expect(onChange).toHaveBeenLastCalledWith(hsvToHex({ h: 0, s: 0, v: 0.89 }));
+    await userEvent.keyboard('{ArrowRight}{ArrowUp}{PageUp}');
+    expect(plane).toHaveAttribute('aria-valuetext', 'Saturation 1%, brightness 100%');
+    await userEvent.keyboard('{End}');
+    expect(plane).toHaveAttribute('aria-valuenow', '100');
+    expect(onChange).toHaveBeenLastCalledWith(hsvToHex({ h: 0, s: 1, v: 1 }));
   });
 
   it('moves hue with the keyboard and clamps at the ends', async () => {
@@ -57,7 +61,35 @@ describe('ColorPicker', () => {
     expect(hue).toHaveAttribute('aria-valuetext', 'Hue 31°');
     await userEvent.keyboard('{End}');
     expect(hue).toHaveAttribute('aria-valuenow', '359');
+    await userEvent.keyboard('{PageDown}{Shift>}{ArrowDown}{/Shift}');
+    expect(hue).toHaveAttribute('aria-valuenow', '319');
+    await userEvent.keyboard('{ArrowUp}{Home}');
+    expect(hue).toHaveAttribute('aria-valuenow', '0');
+    await userEvent.keyboard('{End}');
     expect(screen.getByRole('textbox', { name: 'Hex colour' })).toHaveValue(hsvToHex({ h: 359, s: 1, v: 1 }).toUpperCase());
+  });
+
+  it('drags on the square and the hue track', () => {
+    const { onChange } = setup();
+    const box = { left: 0, top: 0, width: 200, height: 100, right: 200, bottom: 100, x: 0, y: 0, toJSON: () => ({}) };
+    const captured = new Set<number>();
+    for (const name of ['Saturation', 'Hue']) {
+      const el = screen.getByRole('slider', { name });
+      el.getBoundingClientRect = () => box as DOMRect;
+      el.setPointerCapture = (id: number) => { captured.add(id); };
+      el.hasPointerCapture = (id: number) => captured.has(id);
+    }
+    const plane = screen.getByRole('slider', { name: 'Saturation' });
+    fireEvent.pointerDown(plane, { pointerId: 1, clientX: 50, clientY: 25 });
+    expect(plane).toHaveAttribute('aria-valuetext', 'Saturation 25%, brightness 75%');
+    fireEvent.pointerMove(plane, { pointerId: 1, clientX: 400, clientY: -10 });
+    expect(plane).toHaveAttribute('aria-valuetext', 'Saturation 100%, brightness 100%');
+    fireEvent.pointerMove(plane, { pointerId: 2, clientX: 0, clientY: 0 });
+    expect(plane).toHaveAttribute('aria-valuenow', '100');
+    const hue = screen.getByRole('slider', { name: 'Hue' });
+    fireEvent.pointerDown(hue, { pointerId: 3, clientX: 100, clientY: 5 });
+    expect(hue).toHaveAttribute('aria-valuenow', '180');
+    expect(onChange).toHaveBeenLastCalledWith(hsvToHex({ h: 180, s: 1, v: 1 }));
   });
 
   it('takes a typed hex, flags an invalid one and reverts it on blur', async () => {

@@ -26,8 +26,9 @@ describe('parseIsoDate', () => {
 describe('WorkCalendar', () => {
   it('draws six weeks with one tab stop, forwards ref/className/testid and has no axe violations', async () => {
     const ref = createRef<HTMLDivElement>();
+    const onShowMore = vi.fn();
     const { container } = render(
-      <WorkCalendar ref={ref} className="x" data-testid="cal" label="Due this month" date={TODAY} today={TODAY} events={events} onShowMore={() => undefined} />,
+      <WorkCalendar ref={ref} className="x" data-testid="cal" label="Due this month" date={TODAY} today={TODAY} events={events} onShowMore={onShowMore} />,
     );
     expect(ref.current).toBe(screen.getByTestId('cal'));
     expect(ref.current).toHaveClass('scalar-work-calendar', 'x');
@@ -38,7 +39,8 @@ describe('WorkCalendar', () => {
     expect(tabStops).toHaveLength(1);
     expect(tabStops[0]).toHaveAttribute('aria-current', 'date');
     expect(tabStops[0]).toHaveTextContent('Monday, October 12, 2026, today, 2 items');
-    expect(screen.getByRole('button', { name: '+1 more' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: '+1 more' }));
+    expect(onShowMore).toHaveBeenCalledWith('2026-10-14');
     expect((await checkA11y(container)).violations).toEqual([]);
   });
 

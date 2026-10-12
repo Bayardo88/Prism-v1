@@ -1,6 +1,6 @@
 import { createRef } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { checkA11y } from '../../test/render.js';
 import {
@@ -64,7 +64,20 @@ describe('ActionPill', () => {
     act(() => { vi.advanceTimersByTime(600); });
     expect(onComplete).toHaveBeenCalledTimes(1);
     expect(onRow).not.toHaveBeenCalled();
+    expect(document.querySelector('.scalar-action__label--arriving')).not.toBeNull();
+    act(() => { vi.advanceTimersByTime(300); });
+    expect(document.querySelector('.scalar-action__label--arriving')).toBeNull();
     vi.useRealTimers();
+  });
+
+  it('completes at once under reduced motion', () => {
+    const original = window.matchMedia;
+    window.matchMedia = ((query: string) => ({ ...original(query), matches: query.includes('reduce') })) as typeof window.matchMedia;
+    const onComplete = vi.fn();
+    render(<ActionPill label="Review" onComplete={onComplete} />);
+    screen.getByRole('button', { name: 'Mark Review complete' }).click();
+    expect(onComplete).toHaveBeenCalledTimes(1);
+    window.matchMedia = original;
   });
 
   it('opens the menu from the caret, or from the tick at a fork', async () => {
@@ -97,6 +110,25 @@ describe('DueDatePill', () => {
     expect(onChange.mock.calls).toEqual([['2026-10-13'], ['2026-10-11']]);
     expect(screen.getByLabelText('Due date')).toHaveValue('2026-10-12');
     await expectNoViolations(container);
+  });
+
+  it('opens the native picker from the calendar button and takes its value, without bubbling', async () => {
+    const onChange = vi.fn();
+    const onRow = vi.fn();
+    render(
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- stands in for a clickable grid row
+      <div onClick={onRow}><DueDatePill value="2026-10-12" today="2026-10-12" onChange={onChange} withPicker /></div>,
+    );
+    const input = screen.getByLabelText('Due date') as HTMLInputElement;
+    const showPicker = vi.fn();
+    input.showPicker = showPicker;
+    await userEvent.click(screen.getByRole('button', { name: 'Pick a due date' }));
+    expect(showPicker).toHaveBeenCalledTimes(1);
+    expect(input).toHaveFocus();
+    await userEvent.click(input);
+    fireEvent.change(input, { target: { value: '2026-11-02' } });
+    expect(onChange).toHaveBeenLastCalledWith('2026-11-02');
+    expect(onRow).not.toHaveBeenCalled();
   });
 });
 

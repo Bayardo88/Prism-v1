@@ -58,6 +58,7 @@ describe('formatValue', () => {
     [4, 'multiple', '4.00x'],
     [40, 'count', '40.00'],
     [-1200, 'currency', '-$1,200'],
+    [2026, 'text', '2026'],
   ] as const)('%s as %s → %s', (v, f, out) => expect(formatValue(v, f)).toBe(out));
   it('renders empty cells blank, never 0 or a dash', () => {
     expect(formatValue(null, 'currency')).toBe('');
