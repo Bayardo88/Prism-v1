@@ -8,8 +8,8 @@ import { Close } from '../icon/glyphs.js';
 import { Scrim } from '../core/Scrim.js';
 import { Typography } from '../typography/Typography.js';
 
-/** Modal width: s 400 · m 560 (default) · l 800 · xl 1120. Never wider than the viewport. */
-export type ModalSize = 's' | 'm' | 'l' | 'xl';
+/** Modal width: s 400 · m 560 (default) · l 800 · xl 1120 · 2xl 1308. Never wider than the viewport. */
+export type ModalSize = 's' | 'm' | 'l' | 'xl' | '2xl';
 
 export interface ModalProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'> {
   open: boolean;
@@ -23,7 +23,7 @@ export interface ModalProps extends Omit<HTMLAttributes<HTMLDivElement>, 'title'
   /**
    * Width. `s` for a short confirm-style form, `m` (default) for most tasks,
    * `l` for a two-column form or a small table, `xl` for a grid or a document
-   * preview.
+   * preview, `2xl` for a record shown in full (the Workboard Valuation modal).
    */
   size?: ModalSize;
   /** `alertdialog` for a confirmation that interrupts the user. Default `dialog`. */

@@ -1,5 +1,5 @@
 import {
-  forwardRef, useEffect, useId, useState,
+  Fragment, forwardRef, useEffect, useId, useState,
   type AnchorHTMLAttributes, type ButtonHTMLAttributes, type HTMLAttributes, type LiHTMLAttributes, type OlHTMLAttributes, type ReactNode, type Ref,
 } from 'react';
 import { cx } from '../../utils/cx.js';
@@ -8,6 +8,7 @@ import { useRovingFocus } from '../../utils/useRovingFocus.js';
 import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
 import { Icon } from '../icon/Icon.js';
 import { ArrowLeft, ChevronDown, Clock, Link as LinkGlyph, List } from '../icon/glyphs.js';
+import { FormatListNumbered } from '../icon/material.js';
 import { Avatar } from '../avatar/Avatar.js';
 import { Chip } from '../chip/Chip.js';
 import { CheckboxItem } from '../checkbox/CheckboxItem.js';
@@ -416,17 +417,34 @@ export const CodeGrid = forwardRef<HTMLDivElement, CodeGridProps>(function CodeG
   );
 });
 
-export type RichTextFormat = 'bold' | 'italic' | 'underline' | 'list' | 'link';
+export type RichTextFormat = 'bold' | 'italic' | 'underline' | 'list' | 'numbered' | 'link';
 
 export interface RichTextToolbarProps extends Omit<HTMLAttributes<HTMLDivElement>, 'onToggle'> {
   active?: readonly RichTextFormat[];
   onToggle: (format: RichTextFormat) => void;
   /** Button names, for localisation. Defaults are English. */
   labels?: Partial<Record<RichTextFormat, string>>;
+  /**
+   * The buttons to show, in toolbar order. Default bold · italic · underline ·
+   * bulleted list · link. A separator falls between the text styles and the rest.
+   */
+  formats?: readonly RichTextFormat[];
 }
 
 const RTE_LABELS: Record<RichTextFormat, string> = {
-  bold: 'Bold', italic: 'Italic', underline: 'Underline', list: 'Bulleted list', link: 'Link',
+  bold: 'Bold', italic: 'Italic', underline: 'Underline', list: 'Bulleted list', numbered: 'Numbered list', link: 'Link',
+};
+
+const RTE_DEFAULT: readonly RichTextFormat[] = ['bold', 'italic', 'underline', 'list', 'link'];
+const RTE_INLINE: readonly RichTextFormat[] = ['bold', 'italic', 'underline'];
+
+const RTE_GLYPHS: Record<RichTextFormat, ReactNode> = {
+  bold: <span aria-hidden>B</span>,
+  italic: <span aria-hidden>I</span>,
+  underline: <span aria-hidden>U</span>,
+  list: <Icon size="s" tone="inherit"><List /></Icon>,
+  numbered: <Icon size="s" tone="inherit"><FormatListNumbered /></Icon>,
+  link: <Icon size="s" tone="inherit"><LinkGlyph /></Icon>,
 };
 
 /**
@@ -435,16 +453,18 @@ const RTE_LABELS: Record<RichTextFormat, string> = {
  * Home/End jump to the ends. Named "Formatting" unless you pass `aria-label`.
  */
 export const RichTextToolbar = forwardRef<HTMLDivElement, RichTextToolbarProps>(function RichTextToolbar(
-  { active = [], onToggle, labels, className, onKeyDown, ...rest },
+  { active = [], onToggle, labels, formats = RTE_DEFAULT, className, onKeyDown, ...rest },
   ref,
 ) {
   const roving = useRovingFocus({ orientation: 'horizontal', itemSelector: 'button' });
   const name = (f: RichTextFormat) => labels?.[f] ?? RTE_LABELS[f];
-  const btn = (f: RichTextFormat, glyph: ReactNode, first = false) => (
+  const btn = (f: RichTextFormat, first: boolean) => (
     <button key={f} type="button" tabIndex={first ? 0 : -1} aria-label={name(f)} aria-pressed={active.includes(f)} onClick={() => onToggle(f)} className={cx('scalar-rte__button', `scalar-rte__button--${f}`)}>
-      {glyph}
+      {RTE_GLYPHS[f]}
     </button>
   );
+  // The separator sits once, between the text styles and the block / link tools.
+  const split = formats.findIndex((f, i) => i > 0 && !RTE_INLINE.includes(f) && RTE_INLINE.includes(formats[i - 1]!));
   return (
     <div
       ref={ref}
@@ -454,12 +474,12 @@ export const RichTextToolbar = forwardRef<HTMLDivElement, RichTextToolbarProps>(
       {...rest}
       onKeyDown={(e) => { onKeyDown?.(e); roving.onKeyDown(e); }}
     >
-      {btn('bold', <span aria-hidden>B</span>, true)}
-      {btn('italic', <span aria-hidden>I</span>)}
-      {btn('underline', <span aria-hidden>U</span>)}
-      <span className="scalar-rte__sep" aria-hidden />
-      {btn('list', <Icon size="s" tone="inherit"><List /></Icon>)}
-      {btn('link', <Icon size="s" tone="inherit"><LinkGlyph /></Icon>)}
+      {formats.map((f, i) => (
+        <Fragment key={f}>
+          {i === split && <span className="scalar-rte__sep" aria-hidden />}
+          {btn(f, i === 0)}
+        </Fragment>
+      ))}
     </div>
   );
 });

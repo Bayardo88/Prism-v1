@@ -9,6 +9,7 @@ import { useOverlay } from '../../utils/useOverlay.js';
 import { useRovingFocus } from '../../utils/useRovingFocus.js';
 import { Icon } from '../icon/Icon.js';
 import { ChevronDown, Close, MoreVertical, Plus } from '../icon/glyphs.js';
+import { CheckCircle as CheckCircleGlyph } from '../icon/material.js';
 import { ButtonIcon } from '../button/ButtonIcon.js';
 import { MENU_ITEM_SELECTOR, normalizeTabStop, useMenuKeys, type MenuCloseReason } from './useMenuKeys.js';
 
@@ -279,8 +280,13 @@ export interface SegmentOption<V extends string = string> {
   label: string;
   /** Icon-only segment (list / calendar). `label` becomes its accessible name. */
   icon?: ReactNode;
+  /** A count after the label ("Valuation Notes (2)"). `outline` variant. */
+  count?: number;
   disabled?: boolean;
 }
+
+/** `track` (default) a raised segment on a subtle track; `outline` joined bordered segments, the selected one filled and checked. */
+export type SegmentedControlVariant = 'track' | 'outline';
 
 export interface SegmentedControlProps<V extends string = string>
   extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'defaultValue'> {
@@ -292,6 +298,15 @@ export interface SegmentedControlProps<V extends string = string>
   onChange?: (value: V) => void;
   /** Accessible name of the group ("View"). */
   label: string;
+  /** Default `track`. */
+  variant?: SegmentedControlVariant;
+  /**
+   * `outline` only: put a check before the selected label, so the selection
+   * never rests on the fill alone (R8). Default true.
+   */
+  checkSelected?: boolean;
+  /** Stretch the segments to fill the container. */
+  fullWidth?: boolean;
   className?: string;
 }
 
@@ -305,7 +320,9 @@ export interface SegmentedControlProps<V extends string = string>
  * enabled); arrow keys move focus and selection; Home/End jump.
  */
 function SegmentedControlImpl<V extends string = string>(
-  { options, value, defaultValue, onChange, label, className, ...rest }: SegmentedControlProps<V>,
+  {
+    options, value, defaultValue, onChange, label, variant = 'track', checkSelected = true, fullWidth, className, ...rest
+  }: SegmentedControlProps<V>,
   ref: Ref<HTMLDivElement>,
 ) {
   const firstEnabled = options.find((o) => !o.disabled)?.value;
@@ -318,7 +335,7 @@ function SegmentedControlImpl<V extends string = string>(
     onFocusItem: (el) => { const o = options.find((x) => x.value === el.dataset.value); if (o) setCurrent(o.value); },
   });
   return (
-    <div {...rest} ref={ref} role="radiogroup" tabIndex={-1} aria-label={label} onKeyDown={(e) => { rest.onKeyDown?.(e); roving.onKeyDown(e); }} className={cx('scalar-segmented', className)}>
+    <div {...rest} ref={ref} role="radiogroup" tabIndex={-1} aria-label={label} onKeyDown={(e) => { rest.onKeyDown?.(e); roving.onKeyDown(e); }} className={cx('scalar-segmented', variant === 'outline' && 'scalar-segmented--outline', fullWidth && 'scalar-segmented--full', className)}>
       {options.map((o) => {
         const on = o.value === current;
         return (
@@ -334,7 +351,11 @@ function SegmentedControlImpl<V extends string = string>(
             onClick={() => setCurrent(o.value)}
             className={cx('scalar-segment', o.icon != null && 'scalar-segment--icon')}
           >
+            {variant === 'outline' && checkSelected && on && o.icon == null && (
+              <Icon size="s" tone="inherit"><CheckCircleGlyph /></Icon>
+            )}
             {o.icon ?? o.label}
+            {o.count !== undefined && o.icon == null && <span className="scalar-segment__count">({o.count})</span>}
           </button>
         );
       })}

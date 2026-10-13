@@ -2,7 +2,7 @@
  * Source of truth: src/styles/tokens.css (extracted from Figma v1.1).
  */
 
-/** Every semantic colour token in the system. 200 tokens. */
+/** Every semantic colour token in the system. 205 tokens. */
 export type ColorToken =
   | '--color-bg-ai'
   | '--color-bg-ai-subtle'
@@ -68,6 +68,11 @@ export type ColorToken =
   | '--color-data-version-background'
   | '--color-data-version-primary'
   | '--color-data-version-text'
+  | '--color-deal-background'
+  | '--color-deal-control'
+  | '--color-deal-subtle'
+  | '--color-deal-subtle-text'
+  | '--color-deal-text'
   | '--color-destination-page-background'
   | '--color-destination-page-primary'
   | '--color-destination-page-text'
@@ -1300,6 +1305,26 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-workflow-orange-on-solid": {
       "light": "#ffffff",
       "dark": "#0f172a"
+    },
+    "--color-deal-background": {
+      "light": "#08c581",
+      "dark": "#046140"
+    },
+    "--color-deal-text": {
+      "light": "#03402a",
+      "dark": "#e9faf4"
+    },
+    "--color-deal-subtle": {
+      "light": "#9ce8cd",
+      "dark": "#03402a"
+    },
+    "--color-deal-subtle-text": {
+      "light": "#046140",
+      "dark": "#9ce8cd"
+    },
+    "--color-deal-control": {
+      "light": "#6bdcb3",
+      "dark": "#058355"
     }
   } as Record<ColorToken, { light: string; dark: string }>;
 

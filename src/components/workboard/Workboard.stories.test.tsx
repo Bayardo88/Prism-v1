@@ -6,6 +6,8 @@ import * as DealCardStories from './DealCard.stories.js';
 import * as ColorPickerStories from './ColorPicker.stories.js';
 import * as WorkCalendarStories from './WorkCalendar.stories.js';
 import * as WorkTimelineStories from './WorkTimeline.stories.js';
+import * as StepAssignMenuStories from './StepAssignMenu.stories.js';
+import * as ValuationModalStories from './ValuationModal.stories.js';
 
 const suites = {
   Workboard: composeStories(WorkboardStories),
@@ -13,6 +15,8 @@ const suites = {
   ColorPicker: composeStories(ColorPickerStories),
   WorkCalendar: composeStories(WorkCalendarStories),
   WorkTimeline: composeStories(WorkTimelineStories),
+  StepAssignMenu: composeStories(StepAssignMenuStories),
+  ValuationModal: composeStories(ValuationModalStories),
 };
 
 describe('workboard stories', () => {

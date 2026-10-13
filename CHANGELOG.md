@@ -1,6 +1,13 @@
 # Changelog
 
 ## Unreleased
+- **Deal tokens** — `--color-deal-{background|text|subtle|subtle-text|control}` (`color.deal.*`), Light + Dark, aliasing the Teal
+  scale (Figma "Accent"), in the contrast gate. Added to the tokens file as *Semantic: Color › Deal/\** (known gap 14).
+- **Workboard Valuation modal** — `ValuationModal`, `ValuationSummary`, `ValuationPanel`, `FigureList`, `StepAssignMenu`,
+  `StatusTrigger`, `AssigneeCard`, `AssigneeAvatars`, `NoteCard`, `NoteComposer`, from the workboard Figma "Assign users form
+  Modal" (532:16434). `DealCard` gains `tone="deal"` and `contractAction`; `SegmentedControl` gains `variant="outline"`, `count`
+  and `fullWidth`; `RichTextToolbar` gains `formats` and a Numbered list; `Modal` gains `size="2xl"` (1308px). The small
+  checkbox box now uses Radius/XS, as Figma CheckboxItem S does.
 - **Workflow tone tokens** — `--color-workflow-{blue|pink|cyan|orange}-{background|text|stroke|solid|on-solid}` (`color.workflow.*`),
   Light + Dark, in the contrast gate. `WorkflowTone` gains `blue | pink | cyan | orange`. Code-first from the workboard-v2 proposed
   collection, pending the Scalar tokens library (known gap 13).

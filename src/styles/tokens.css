@@ -414,6 +414,17 @@
   --color-workflow-orange-stroke: #a04900;
   --color-workflow-orange-solid: #a04900;
   --color-workflow-orange-on-solid: #ffffff;
+
+  /* --- Deal (Workboard Deal card fill; identity of the deal, never status) ---
+   * Semantic: Color › Deal/* (VariableID:664:2–6), from the workboard Deal card
+   * (tuFpgEHX8w3BDI40U0FUwV 536:23937, "Accent" = Teal) — known gap 14.
+   * White on Teal 500 is 2.25:1, so the ink is Teal 900 (5.3:1).
+   * Light aliases: Teal 500 / 900 · 200 / 800 · 300. */
+  --color-deal-background: #08c581;
+  --color-deal-text: #03402a;
+  --color-deal-subtle: #9ce8cd;
+  --color-deal-subtle-text: #046140;
+  --color-deal-control: #6bdcb3;
 }
 
 /* -----------------------------------------------------------------------------
@@ -653,6 +664,14 @@
   --color-workflow-orange-stroke: #ffac5c;
   --color-workflow-orange-solid: #ffac5c;
   --color-workflow-orange-on-solid: #0f172a;
+
+  /* --- Deal (see Light; known gap 14) ---------------------------------
+   * Dark aliases: Teal 800 / 50 · 900 / 200 · 700. */
+  --color-deal-background: #046140;
+  --color-deal-text: #e9faf4;
+  --color-deal-subtle: #03402a;
+  --color-deal-subtle-text: #9ce8cd;
+  --color-deal-control: #058355;
 }
 
 
