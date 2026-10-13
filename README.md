@@ -90,23 +90,22 @@ page) · [`docs/product/screen-catalog.md`](docs/product/screen-catalog.md) (gen
 
 ## Building screens with it
 
-The repo ships two Claude skills, versioned with the design system:
-
-| Skill | Use it to |
-|---|---|
-| **`scalar-product`** | create a new product page, edit an existing one, or prototype a flow in `apps/product` — reusing its screens, chrome and components |
-| **`scalar-screen`** | build a standalone screen in `examples/screens` and push it back into Figma as library instances |
+Use the **`scalar-forge`** Claude skill, from
+[prism-builder-pro](https://github.com/Bayardo88/prism-builder-pro). It creates and
+edits product pages, prototypes flows in `apps/product`, builds standalone screens
+in `examples/screens`, and pushes screens back into Figma as library instances. It
+always builds on `main`, reuses the existing screens, chrome and components, and
+uses each component the way its [Storybook](https://scalar-prism-storybook.netlify.app)
+story does. It replaces the retired `scalar-product` and `scalar-screen` skills.
 
 ```
-/scalar-product  add a "Scenario compare" tab to the company Waterfall
-/scalar-screen   cap table page for a portfolio company
+/scalar-forge  add a "Scenario compare" tab to the company Waterfall
+/scalar-forge  cap table page for a portfolio company
 ```
-
-To make them available outside this repo:
 
 ```bash
-ln -sfn "$PWD/.claude/skills/scalar-product" ~/.claude/skills/scalar-product
-ln -sfn "$PWD/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
+git clone git@github.com:Bayardo88/prism-builder-pro.git
+cd prism-builder-pro && ./install.sh
 ```
 
 ## Documentation
