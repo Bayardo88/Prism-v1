@@ -58,6 +58,9 @@ const WORKFLOW_TONES = ['blue', 'pink', 'cyan', 'orange'];
 TEXT_PAIRS.push(...WORKFLOW_TONES.flatMap((t) => [
   [`workflow-${t}-text`, `workflow-${t}-background`], [`workflow-${t}-on-solid`, `workflow-${t}-solid`],
 ]));
+// Deal card (known gap 14): its ink on the fill and on the stage pill at 4.5:1, the ink as a glyph on the control at 3:1.
+TEXT_PAIRS.push(['deal-text', 'deal-background'], ['deal-subtle-text', 'deal-subtle']);
+const DEAL_GRAPHICS = [['deal-text', 'deal-control']];
 const WORKFLOW_STROKES = WORKFLOW_TONES.flatMap((t) =>
   [`workflow-${t}-background`, 'bg-page', 'bg-surface'].map((bg) => [`workflow-${t}-stroke`, bg]));
 
@@ -84,6 +87,11 @@ for (const [mode, map] of Object.entries(modes)) {
   for (const s of STROKES) for (const bg of ['bg-page', 'bg-surface']) {
     const sc = get(`stroke-${s}`), bc = get(bg);
     if (sc && bc) need(mode, `stroke-${s} on ${bg}`, ratio(sc, bc), 3);
+  }
+  for (const [g, bg] of DEAL_GRAPHICS) {
+    const gc = get(g), bc = get(bg);
+    if (!gc || !bc) { failures.push(`${mode}: cannot resolve ${g} / ${bg}`); continue; }
+    need(mode, `${g} on ${bg}`, ratio(gc, bc), 3);
   }
   for (const [s, bg] of WORKFLOW_STROKES) {
     const sc = get(s), bc = get(bg);

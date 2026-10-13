@@ -3,4 +3,4 @@ export type { MenuItemTone, MenuItemProps, MenuDividerProps, MenuBehaviourProps,
 export { useMenuKeys } from './useMenuKeys.js';
 export type { UseMenuKeysOptions, MenuCloseReason } from './useMenuKeys.js';
 export { SplitButton, Fab, SpeedDialItem, SpeedDial, SegmentedControl, ViewTab, ViewTabBar } from './Actions.js';
-export type { SplitButtonVariant, SplitButtonTone, SplitButtonProps, FabProps, SpeedDialItemProps, SpeedDialProps, SegmentOption, SegmentedControlProps, ViewTabProps, ViewTabBarProps } from './Actions.js';
+export type { SplitButtonVariant, SplitButtonTone, SplitButtonProps, FabProps, SpeedDialItemProps, SpeedDialProps, SegmentOption, SegmentedControlProps, SegmentedControlVariant, ViewTabProps, ViewTabBarProps } from './Actions.js';

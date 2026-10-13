@@ -26,7 +26,12 @@ export interface DealOwner {
   role?: ReactNode;
 }
 
+/** `default` a surface card; `deal` the filled card of the Valuation modal (Deal tokens). */
+export type DealCardTone = 'default' | 'deal';
+
 export interface DealCardProps extends Omit<HTMLAttributes<HTMLElement>, 'title'> {
+  /** Default `default`. */
+  tone?: DealCardTone;
   /** The deal's name. */
   title: ReactNode;
   /** The title's heading level. Default 3. */
@@ -48,6 +53,8 @@ export interface DealCardProps extends Omit<HTMLAttributes<HTMLElement>, 'title'
   contractHref?: string;
   /** Spoken before the contract. Default "Contract". */
   contractLabel?: string;
+  /** An action on the contract's row ("Send Final Invoice"). */
+  contractAction?: ReactNode;
   /** Figures in label / value pairs (NET, DUE). */
   totals?: DealTotal[];
   owner?: DealOwner;
@@ -73,11 +80,15 @@ const initialsOf = (name: string) =>
  *
  * Tokens: Background/Surface + Stroke/Default (the Card), Text/Secondary for the
  * notice and figure labels, Text/Primary semibold for the figures.
+ * `tone="deal"` (the Valuation modal's Deal card, Figma workboard 536:23937)
+ * fills it with Deal/Background (Teal 500) and turns every text, link and glyph
+ * to Deal/Text; the stage takes Deal/Subtle + Deal/Subtle Text and the owner's
+ * edit button Deal/Control.
  */
 export const DealCard = forwardRef<HTMLElement, DealCardProps>(function DealCard(
   {
-    title, headingLevel = 3, stage, onStageClick, stageExpanded, stageLabel = 'Deal stage', company, companyHref,
-    notice, contract, contractHref, contractLabel = 'Contract', totals, owner, onEditOwner,
+    tone = 'default', title, headingLevel = 3, stage, onStageClick, stageExpanded, stageLabel = 'Deal stage', company,
+    companyHref, notice, contract, contractHref, contractLabel = 'Contract', contractAction, totals, owner, onEditOwner,
     editOwnerLabel = 'Change owner', actions, className, ...rest
   },
   ref,
@@ -102,21 +113,24 @@ export const DealCard = forwardRef<HTMLElement, DealCardProps>(function DealCard
       title={title}
       headingLevel={headingLevel}
       tag={stageControl}
-      className={cx('scalar-deal-card', className)}
+      className={cx('scalar-deal-card', tone === 'deal' && 'scalar-deal-card--deal', className)}
       {...rest}
     >
       {company !== undefined && (
         <p className="scalar-deal-card__company">
-          {companyHref ? <Link href={companyHref} size="m">{company}</Link> : company}
+          {companyHref ? <Link href={companyHref} size={tone === 'deal' ? 'l' : 'm'}>{company}</Link> : company}
         </p>
       )}
       {notice !== undefined && <p className="scalar-deal-card__notice">{notice}</p>}
       {contract !== undefined && (
-        <p className="scalar-deal-card__contract">
-          <Icon size="s" tone="secondary"><m.Description /></Icon>
-          <VisuallyHidden>{contractLabel}: </VisuallyHidden>
-          {contractHref ? <Link href={contractHref} size="m">{contract}</Link> : contract}
-        </p>
+        <div className="scalar-deal-card__contract-row">
+          <p className="scalar-deal-card__contract">
+            <Icon size="s" tone={tone === 'deal' ? 'inherit' : 'secondary'}><m.Description /></Icon>
+            <VisuallyHidden>{contractLabel}: </VisuallyHidden>
+            {contractHref ? <Link href={contractHref} size={tone === 'deal' ? 's' : 'm'}>{contract}</Link> : contract}
+          </p>
+          {contractAction}
+        </div>
       )}
       {totals && totals.length > 0 && (
         <dl className="scalar-deal-card__totals">

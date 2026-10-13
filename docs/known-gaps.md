@@ -257,3 +257,38 @@ the page and the surface — Light and Dark.
 in `tokens.css` are the reference. When it is published, re-transcribe from the
 library and regenerate as for any other token; if a value moves, the library
 wins. Do not add a fifth tone here — propose it in Figma first.
+
+---
+
+## 14. Deal tokens: created in Figma, pending the library publish
+
+The Workboard Valuation modal fills its Deal card with `Accent/500` (workboard
+file `tuFpgEHX8w3BDI40U0FUwV`, node 536:23937). "Accent" there is the Teal
+primitive scale in `Scalar_Design_System-v1.1`, but no semantic token pointed at
+it, and R1 forbids a component reading `--primitive-teal-500`. The semantic
+family `--color-deal-{background|text|subtle|subtle-text|control}`
+(`color.deal.*` in TypeScript) now does, in Light and Dark:
+
+| Token | Light | Dark |
+|---|---|---|
+| `background` | Teal 500 `#08c581` | Teal 800 `#046140` |
+| `text` | Teal 900 `#03402a` | Teal 50 `#e9faf4` |
+| `subtle` | Teal 200 `#9ce8cd` | Teal 900 `#03402a` |
+| `subtle-text` | Teal 800 `#046140` | Teal 200 `#9ce8cd` |
+| `control` | Teal 300 `#6bdcb3` | Teal 700 `#058355` |
+
+**The card's ink is Teal 900, not white.** Figma draws the title, company, names
+and links white, but white on Teal 500 is 2.25:1, below AA even for large text,
+so it cannot pass the R13 gate. Teal 900 (5.3:1) is the colour Figma already uses
+for the card's notice and NET / DUE. `npm run lint:contrast` checks `text` on
+`background` and `subtle-text` on `subtle` at 4.5:1, and `text` as a glyph on
+`control` at 3:1, Light and Dark.
+
+**Status (2026-10-13):** the five variables exist in the tokens file
+(`anrnTIJKgu27zV224h7vON`, collection *Semantic: Color*) as `Deal/Background`,
+`Deal/Text`, `Deal/Subtle`, `Deal/Subtle Text` and `Deal/Control`
+(`VariableID:664:2`–`664:6`), aliasing the Teal steps above, with `WEB` code
+syntax `var(--color-deal-…)`. Their resolved values match `tokens.css` exactly.
+**Still open:** publish the library, then switch the workboard file's Deal card
+frames from `Accent/500` + white to `Deal/Background` + `Deal/Text`. Once
+published, the library wins: re-transcribe and regenerate as for any other token.

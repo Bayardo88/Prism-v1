@@ -107,6 +107,7 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | A **file type** badge (PDF, DOCX, XLSX…) | `color.file.<kind>.background` + `.text` | `bg.negative` for a PDF — a format is not a status |
 | A **product** tile or mark (Intelligence, Valuations, Waterfalls, Documents) | `color.product.<key>.background` + `.icon` | status tints, or the AI family for Waterfalls |
 | A Workboard **step** colour (Blue, Pink, Cyan, Orange) | `WorkflowTone` on `ActionPill` / `ActionTag`, or `color.workflow.<tone>.*` | a `--primitive-*` step (R1), or brand/warning standing in |
+| The Workboard **Deal** card's fill and everything on it | `DealCard tone="deal"`, or `color.deal.background` + `.text` (`.subtle` / `.subtleText` for a pill, `.control` for a button) | `bg.positive` (a deal is not a status), white text (2.25:1 on the fill), a `--primitive-teal-*` step (R1) |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
 | A card or panel surface | `color.bg.surface` | `bg.page` |
 | A surface lifted above another surface | `color.bg.surfaceRaised` | a lighter hex |
@@ -528,9 +529,21 @@ hidden words (R8). `dueUrgency(iso, today?)`, `shiftIsoDate`, `formatIsoDate` de
 - **`StepMenu`** — `{ label` **req**`, steps` **req**`: { id, label, tone?, state: 'done' | 'next' | 'pending' | 'skipped', disabled? }[], onSelectStep?, locked?, progress?, onClose?, autoFocus? }`.
   Menu surface only (APG menu keys). Add `StepMenuSection` › `StepMenuLink` (`ai?`, `href?`),
   `StepMenuToggle` (`checked`, `onCheckedChange`), `StepMenuAction` (`action`, `tone?: 'destructive'`).
-- **`DealCard`** — `{ title` **req**`, headingLevel?, stage?, onStageClick?, stageExpanded?, company?, companyHref?, notice?, contract?, contractHref?, totals?: { label, value }[], owner?: { name, initials?, avatarSrc?, role? }, onEditOwner?, editOwnerLabel?, actions? }`.
+- **`DealCard`** — `{ title` **req**`, tone?: 'default' | 'deal', headingLevel?, stage?, onStageClick?, stageExpanded?, company?, companyHref?, notice?, contract?, contractHref?, contractAction?, totals?: { label, value }[], owner?: { name, initials?, avatarSrc?, role? }, onEditOwner?, editOwnerLabel?, actions? }`.
   A `Card` region. With `onStageClick` the stage is a `Selector` (the screen owns its menu); without it, a `Chip`.
-  Every part is optional except the title; it holds no data of its own.
+  Every part is optional except the title; it holds no data of its own. `tone="deal"` is the Valuation modal's filled
+  card (Deal tokens, known gap 14); `contractAction` puts a button on the contract's row (Send Final Invoice).
+- **`ValuationModal`** — `Modal size="2xl"` with no header: `{ open, onClose, summary` **req**`, children, aria-label | aria-labelledby` **req** `}`.
+  `summary` is a **`ValuationSummary`** (`title?, tags?, status?, subject?, meta?, people?, figures?, aside?` — layout slots);
+  `children` are three **`ValuationPanel`**s (`title?, action?, footer?` — the footer is pinned so the panels' footers line up).
+- **`StepAssignMenu`** — `{ label` **req**`, steps` **req**`: { id, label, done?, assignees? }[], people` **req**`, onSelectStep?, onAssign?(stepId, ids), assigningStepId?, surface?: 'overlay' | 'inline', pickerDefaults? }`.
+  Each step ends in its assignees (**`AssigneeAvatars`**, folds past two into "+N") or an assign button; that button opens a
+  picker (removable chips, filter, Save, checklist). Escape closes the picker first. Open it from a **`StatusTrigger`**
+  (`{ value` **req**`, size?: 's' | 'l', assignees?, expanded?, fullWidth? }` — filled brand, `aria-haspopup`).
+- **`AssigneeCard`** — `{ roleLabel` **req**`, name` **req**`, emphasis?: 'lead' | 'outline' | 'default' | 'muted' | 'inverse', onEdit?, editLabel?, editPlacement?, children? }`.
+  One person on a valuation; a named group. **`FigureList`** (`items: { label, value }[]`, a `<dl>` of tiles),
+  **`NoteCard`** (`author, timestamp, dateTime?, onDelete?`) and **`NoteComposer`** (`RichTextToolbar` over a textarea, `onSave?`)
+  complete the modal.
 - **`ColorPicker`** — `{ label` **req**`, value` **req** (`#RRGGBB`)`, onApply` **req**`, onCancel` **req**`, onChange?, applyLabel?, cancelLabel? }`.
   Hex `Input`, saturation × brightness square and hue track (both `role="slider"`, arrows / Shift / Page / Home / End),
   Cancel / Apply; Escape cancels. The picked colour and `HUE_SPECTRUM` are **data**, set inline — never a token, and

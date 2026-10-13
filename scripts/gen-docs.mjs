@@ -103,6 +103,7 @@ ${Object.entries(t.color)
 ${section('File type', '--color-file-', 'Format identity for the File Type Badge — **never status**. A PDF is red because it is a PDF; never use `bg.negative` for it. `text` is the extension label on its own `background`.')}
 ${section('Product identity', '--color-product-', 'One tint + icon colour per Scalar product (Product Tile). Identity, not status; Waterfalls does not borrow the AI family. `icon` is graphic only — titles on the tint use `text-primary`.')}
 ${section('Workflow tone', '--color-workflow-', 'The Workboard\'s extra step colours (`WorkflowTone` blue · pink · cyan · orange) — identity of a step, never status. `background` + `text` + `stroke` draw the tinted pill, `solid` + `on-solid` the filled "due today" pill. **Code-first** from the workboard-v2 proposed collection, pending publication to the Scalar tokens library (known gap 13).')}
+${section('Deal', '--color-deal-', 'The Workboard Deal card (`DealCard tone="deal"`): `background` is its fill (Teal 500 in Light) and `text` the only ink on it — AA, where white is not. `subtle` + `subtle-text` draw a pill on the card (the stage), `control` fills a small button (edit owner). Identity of the deal, never status. Figma: *Semantic: Color › Deal/\\** (known gap 14).')}
 ---
 
 ## 2. Scales

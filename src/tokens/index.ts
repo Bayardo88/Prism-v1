@@ -303,7 +303,22 @@ export const workflow = {
 
 export type WorkflowColorKey = keyof typeof workflow;
 
-export const color = { text, bg, stroke, icon, overlay, chart, prism, file, product, workflow } as const;
+/**
+ * Deal — the Workboard Deal card's fill (Teal 500 in Light) and the ink that
+ * reads on it. `text` is the card's only text and icon colour (AA on
+ * `background`; white is not); `subtle` + `subtleText` draw a pill on the card
+ * (the deal stage); `control` fills a small button on it (edit owner). Identity
+ * of the deal, never status. Figma: Semantic: Color › Deal/* (known gap 14).
+ */
+export const deal = {
+  background: v('--color-deal-background'),
+  text: v('--color-deal-text'),
+  subtle: v('--color-deal-subtle'),
+  subtleText: v('--color-deal-subtle-text'),
+  control: v('--color-deal-control'),
+} as const;
+
+export const color = { text, bg, stroke, icon, overlay, chart, prism, file, product, workflow, deal } as const;
 
 /* ---------------------------------------------------------------------------
  * Scales
@@ -442,6 +457,6 @@ export const typeSteps = {
 export const type = { style: typeStyle, steps: typeSteps, weight: fontWeight, family: fontFamily } as const;
 
 export const tokens = {
-  color, text, bg, stroke, icon, overlay, chart, prism, file, product, workflow,
+  color, text, bg, stroke, icon, overlay, chart, prism, file, product, workflow, deal,
   space, radius, size, breakpoint, elevation, motion, zIndex, type,
 } as const;

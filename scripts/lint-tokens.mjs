@@ -81,6 +81,8 @@ const OUTLINE_REPLACEMENTS = {
   '.scalar-copy-field__value': '.scalar-copy-field:focus-within',
   '.scalar-combobox-panel__search input': '.scalar-combobox-panel__search:focus-within',
   '.scalar-select-menu__list': '.scalar-select-menu__list:focus-visible',
+  '.scalar-step-assign__search': '.scalar-step-assign__field:focus-within',
+  '.scalar-note-composer__input': '.scalar-note-composer__box:focus-within',
 };
 for (const m of componentCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
   const selector = m[1].trim().replace(/\s+/g, ' ');

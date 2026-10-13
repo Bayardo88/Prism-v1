@@ -5,7 +5,7 @@
 > `anrnTIJKgu27zV224h7vON (Scalar_Design_System-v1.1)`.
 > **Do not hand-edit.** Run `npm run gen:tokens && node scripts/gen-docs.mjs`.
 
-- **200** semantic colour tokens (Light + Dark)
+- **205** semantic colour tokens (Light + Dark)
 - **142** primitive colour steps (reference only)
 - **60** scale, elevation and motion tokens
 - **80** typography tokens × 3 viewport modes
@@ -287,6 +287,18 @@ The Workboard's extra step colours (`WorkflowTone` blue · pink · cyan · orang
 | `--color-workflow-pink-solid` | `#be185d` | `#f088bd` |
 | `--color-workflow-pink-stroke` | `#be185d` | `#f088bd` |
 | `--color-workflow-pink-text` | `#8e1242` | `#f6b7d9` |
+
+### Deal
+
+The Workboard Deal card (`DealCard tone="deal"`): `background` is its fill (Teal 500 in Light) and `text` the only ink on it — AA, where white is not. `subtle` + `subtle-text` draw a pill on the card (the stage), `control` fills a small button (edit owner). Identity of the deal, never status. Figma: *Semantic: Color › Deal/\** (known gap 14).
+
+| Token | Light | Dark |
+|---|---|---|
+| `--color-deal-background` | `#08c581` | `#046140` |
+| `--color-deal-control` | `#6bdcb3` | `#058355` |
+| `--color-deal-subtle` | `#9ce8cd` | `#03402a` |
+| `--color-deal-subtle-text` | `#046140` | `#9ce8cd` |
+| `--color-deal-text` | `#03402a` | `#e9faf4` |
 
 ---
 
