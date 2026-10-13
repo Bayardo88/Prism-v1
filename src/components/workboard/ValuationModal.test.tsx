@@ -117,7 +117,7 @@ describe('StepAssignMenu', () => {
     expect(screen.getByText('Draft').parentElement).toHaveTextContent('Draft, completed');
     expect(screen.getByText('Final').parentElement).toHaveTextContent('Final, not started');
     expect(screen.getByRole('button', { name: 'Assign people to Final' })).toHaveAttribute('aria-expanded', 'false');
-    expect(screen.getByRole('button', { name: 'Change people on Draft (assigned: James Hemingway)' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Change people on Draft, Assigned: James Hemingway' })).toBeInTheDocument();
     expect((await checkA11y(container)).violations).toEqual([]);
   });
 
@@ -142,7 +142,7 @@ describe('StepAssignMenu', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
     expect(onAssign).toHaveBeenCalledWith('draft', ['jj']);
     expect(screen.queryByRole('textbox')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Change people on Draft (assigned: Janis Joplin)' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Change people on Draft, Assigned: Janis Joplin' })).toBeInTheDocument();
   });
 
   it('closes the picker on Escape without saving, and says when nobody matches', async () => {

@@ -263,15 +263,16 @@ export const StepAssignMenu = forwardRef<HTMLDivElement, StepAssignMenuProps>(fu
                 className={cx('scalar-step-assign__assign', has && 'scalar-step-assign__assign--people')}
                 aria-expanded={open}
                 aria-controls={open ? `${pickerId}-${step.id}` : undefined}
-                aria-label={
-                  has
-                    ? `Change people on ${step.label} (assigned: ${(step.assignees ?? []).map((a) => a.name).join(', ')})`
-                    : `Assign people to ${step.label}`
-                }
+                // With people, the name comes from the content so the visible initials are part of it
+                // (WCAG 2.5.3): "Change people on Draft, Assigned: James Hemingway".
+                aria-label={has ? undefined : `Assign people to ${step.label}`}
                 onClick={() => setAssigning(open ? null : step.id)}
               >
                 {has ? (
-                  <AssigneeAvatars people={step.assignees ?? []} aria-hidden />
+                  <>
+                    <VisuallyHidden>{`Change people on ${step.label},`}</VisuallyHidden>{' '}
+                    <AssigneeAvatars people={step.assignees ?? []} />
+                  </>
                 ) : (
                   <>
                     <Icon size="s" tone="inherit"><m.Person /></Icon>

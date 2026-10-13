@@ -3356,6 +3356,9 @@ button.scalar-work-calendar__more { color: var(--color-text-link); text-decorati
 .scalar-assignee-card--inverse { background: var(--color-bg-inverse); color: var(--color-text-inverse); }
 .scalar-assignee-card--inverse .scalar-assignee-card__edit { background: transparent; box-shadow: inset 0 0 0 1px var(--color-stroke-strong); color: var(--color-icon-inverse); }
 .scalar-assignee-card--inverse .scalar-assignee-card__edit:hover:not(:disabled) { background: var(--color-bg-on-brand); color: var(--color-icon-inverse); }
+/* Controls placed in the inverse card (the Primary Contact's Notes) take its ink: Text/Brand is 3.2:1 on Background/Inverse. */
+.scalar-assignee-card--inverse .scalar-button--secondary { border-color: currentColor; color: var(--color-text-inverse); }
+.scalar-assignee-card--inverse .scalar-button--secondary:hover:not(:disabled) { background: var(--color-bg-on-brand); color: var(--color-text-inverse); }
 
 /* --- Status Trigger + Step Assign Menu (workboard/StepAssignMenu.tsx) ------- */
 .scalar-status-trigger {
