@@ -64,22 +64,23 @@ hand-write a colour, spacing value or font size.
 
 ## If you design screens
 
-Use the **`/scalar-screen`** skill. It builds a screen as React from this layer,
-verifies it, and can push it back into Figma as instances of the published
-library.
+Use the **`/scalar-forge`** skill. It builds a screen as React from this layer on
+`main`, using the components the way their Storybook stories do, verifies it, and
+can push it back into Figma as instances of the published library.
 
 ```
-/scalar-screen  cap table page for a portfolio company
+/scalar-forge  cap table page for a portfolio company
 ```
 
 Install it once:
 
 ```bash
 git clone https://github.com/Bayardo88/Prism-v1
-ln -sfn "$PWD/Prism-v1/.claude/skills/scalar-screen" ~/.claude/skills/scalar-screen
+git clone git@github.com:Bayardo88/prism-builder-pro.git
+cd prism-builder-pro && ./install.sh
 ```
 
-What you get back: a working React screen, checked in Light and Dark, plus a
+What you get back: a working React screen, checked in light mode (R14), plus a
 Figma frame assembled from real library components — not a redraw, so it
 re-themes and its variants can be swapped.
 

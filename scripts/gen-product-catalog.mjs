@@ -3,7 +3,7 @@
  * exactly one screen state, then writes the screen catalog:
  *
  *   docs/product/screen-catalog.md   — human-readable, one table per Figma page
- *   docs/product/screens.json        — machine-readable, read by the scalar-product skill
+ *   docs/product/screens.json        — machine-readable, read by the scalar-forge skill
  *
  * Run after `npm run build:product` (it imports the compiled registry):
  *   npm run product:catalog

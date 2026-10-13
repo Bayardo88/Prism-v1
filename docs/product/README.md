@@ -11,7 +11,7 @@ All 103 frames in that file are coded as a clickable React prototype in
 | This file | The platform: its areas, its chrome, how you move between pages, and the rules that apply everywhere |
 | [`pages/`](pages) | One document per Figma page. Each screen gets its purpose, how you get there, its states, the components it uses, and its behaviour rules |
 | [`screen-catalog.md`](screen-catalog.md) | Generated. Every Figma frame with its route, state, component and Figma link |
-| [`screens.json`](screens.json) | Generated. The same catalog in machine-readable form, read by the `scalar-product` skill |
+| [`screens.json`](screens.json) | Generated. The same catalog in machine-readable form, read by the `scalar-forge` skill |
 
 ## Run it
 
@@ -140,7 +140,7 @@ Search open") only sets `openMenu`.
 
 ## 6 · Changing a page
 
-Use the **`scalar-product`** skill (`.claude/skills/scalar-product/`). It
+Use the **`scalar-forge`** skill ([prism-builder-pro](https://github.com/Bayardo88/prism-builder-pro)). It
 covers creating a page, editing one and prototyping a flow, and it keeps the
 catalog and the Figma coverage check green. The check itself:
 
