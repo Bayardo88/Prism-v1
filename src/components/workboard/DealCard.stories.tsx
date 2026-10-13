@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../button/index.js';
 import { SelectMenu, SelectMenuOption } from '../form-patterns/index.js';
+import { Icon } from '../icon/Icon.js';
+import * as m from '../icon/material.js';
 import { DealCard } from './index.js';
 
 const meta = {
@@ -60,3 +62,29 @@ export const Minimal: Story = { args: { stage: undefined, company: undefined, no
 
 /** A stage with no handler reads as a Chip, not a dead button. */
 export const ReadOnly: Story = { args: { onEditOwner: undefined } };
+
+/**
+ * The Valuation modal's Deal card (workboard Figma 536:23937): `tone="deal"` fills it with Deal/Background
+ * (Teal 500) and draws everything on it in Deal/Text — white is 2.25:1 on the fill. `contractAction` puts
+ * Send Final Invoice on the contract's row.
+ */
+export const DealTone: Story = {
+  name: 'Deal tone (Valuation modal)',
+  args: {
+    tone: 'deal',
+    title: 'Deal',
+    stage: 'In Service',
+    onStageClick: () => undefined,
+    company: '7Learnings GmbH (409A)',
+    notice: 'NOTICE: Per Matt, no need to send an EL for this',
+    contract: 'Signed_EL',
+    contractAction: (
+      <Button variant="secondary" size="xs" trailingIcon={<Icon size="s" tone="inherit"><m.ReceiptLong /></Icon>}>
+        Send Final Invoice
+      </Button>
+    ),
+    totals: [{ label: 'NET', value: '$3,500' }, { label: 'DUE', value: '$3,500' }],
+    owner: { name: 'James Hemingway', role: 'EM' },
+  },
+  decorators: [(Story) => <div style={{ width: 'calc(var(--size-avatar-xl) * 3)' }}><Story /></div>],
+};

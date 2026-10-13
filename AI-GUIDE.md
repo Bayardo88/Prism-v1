@@ -9,7 +9,8 @@ contract is.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 462 design tokens · 168 components · Light + Dark · 3 type modes.
+- **Scale:** 487 design tokens · 168 Figma components plus the code-layer and Workboard families · Light + Dark · 3 type modes.
+- **Live components:** [Storybook](https://scalar-prism-storybook.netlify.app), built from `main` (every pull request gets a deploy preview).
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---
@@ -271,6 +272,12 @@ Find the **intent**, not the shape.
 | The step an item is on next, to tick off in place | `ActionPill` (+ `StepMenu` behind its caret) | a `SplitButton` or a coloured `Chip` |
 | Show a workflow step that cannot be acted on | `ActionTag` | an `ActionPill` with no handlers |
 | A due date nudged a day at a time | `DueDatePill` | an `Input type="date"` alone |
+| One valuation in full, opened from a Workboard row | `ValuationModal` (`ValuationSummary` + three `ValuationPanel`s) | a hand-built `Modal` body, or a `Drawer` |
+| Who works each step of a workflow, and assigning them | `StepAssignMenu`, opened from a `StatusTrigger` | `StepMenu` (that is the ActionPill caret menu, with no people) or a `SelectMenu` per step |
+| A person in a role on a valuation (Engagement Manager, Preparer…) | `AssigneeCard` | a `Card` with loose text |
+| Who is on something, as initials | `AssigneeAvatars` (folds past two into "+N") | a row of `Avatar`s with no names |
+| A valuation's key figures as tiles | `FigureList` | `KeyValueRow`s, or a `DataGrid` with one row |
+| A note thread with a composer | `NoteCard` + `NoteComposer` | a `Textarea` and a hand-built list |
 | The deal behind a Workboard item (stage, company, contract, NET / DUE, owner) | `DealCard` | a hand-built `Card` with loose text |
 | Let a user pick their **own** colour (a status colour a firm sets) | `ColorPicker` | a native `<input type="color">`, or a picker for design tokens |
 | Dated work laid out by day, month or week | `WorkCalendar` (+ `PeriodToolbar`) | `DatePicker` — that chooses one date |
@@ -656,6 +663,8 @@ Rules:
 `ChartHoverCard` · `CellHistoryPopover` ·
 `ActionPill` · `ActionTag` · `DueDatePill` · `StepMenu` (+ `StepMenuSection` · `StepMenuLink` · `StepMenuToggle` · `StepMenuAction`) ·
 `DealCard` · `ColorPicker` · `WorkCalendar` · `CalendarTaskCard` · `WorkTimeline` · `PeriodToolbar` ·
+`ValuationModal` · `ValuationSummary` · `ValuationPanel` · `FigureList` · `StepAssignMenu` · `StatusTrigger` ·
+`AssigneeCard` · `AssigneeAvatars` · `NoteCard` · `NoteComposer` ·
 `FileTypeBadge` (+ `fileKindOf`) · `FileRow` · `TreeItem` · `PageStepper` · `ZoomControl` ·
 `DocumentViewerHeader` · `ScrollHintPill` ·
 `Banner` · `Spinner` · `ProgressRing` · `DataFreshness` · `SaveState` ·
@@ -688,7 +697,13 @@ Rules:
   `ButtonIcon`. Pair with a `Dropzone` for the upload.
 - `ComboboxPanel` does not filter — pass the already-filtered `items`.
 - `GridValueCell state="error"` **requires** `errorMessage` (R8).
-- `SegmentedControl` always has exactly one selected option.
+- `SegmentedControl` always has exactly one selected option. `variant="outline"` draws joined bordered
+  segments (the Valuation modal's ARG | SLC | Is Waiting and its notes tabs); the selected one is filled,
+  semibold and checked (`checkSelected`, default on, so selection never rests on fill alone). Options take a
+  `count` ("Valuation Notes (2)"); `fullWidth` stretches the segments.
+- `RichTextToolbar formats` chooses the buttons and their order (default bold · italic · underline ·
+  bulleted list · link); `numbered` adds a numbered list. `NoteComposer` uses bold · italic · underline ·
+  bulleted · numbered.
 - `MenuItem tone="destructive"` goes last, after a `MenuDivider`. A
   `ConfirmationDialog`'s confirm label repeats the verb — never "OK".
 - `FileTypeBadge` colour is format identity (`color.file.*`), `ProductTile`
@@ -711,7 +726,8 @@ Rules:
   genuinely is unknown.
 - `Modal` traps focus, closes on Escape, returns focus to its trigger.
   `size`: `s` 400 (short confirm-style form) · `m` 560 (default) · `l` 800
-  (two-column form, small table) · `xl` 1120 (a grid or document preview);
+  (two-column form, small table) · `xl` 1120 (a grid or document preview) ·
+  `2xl` 1308 (a record shown in full — the Workboard `ValuationModal`);
   never wider than the viewport.
 - `WorkspaceDrawer` is **sticky to the bottom of the viewport** (or its nearest
   scroll container) at 40vh, 60vh when `expanded`. Render it as the last child

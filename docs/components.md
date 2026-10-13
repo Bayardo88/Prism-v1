@@ -56,7 +56,7 @@ Legend: **=** direct mapping · **⊕** several Figma sets merged into one expor
 
 | Figma | Variants | React | File |
 |---|---|---|---|
-| Checkbox Item | Status × Size | = `CheckboxItem` | `checkbox/CheckboxItem.tsx` |
+| Checkbox Item | Status × Size | = `CheckboxItem` (S takes Radius/XS, as in Figma 73:5692) | `checkbox/CheckboxItem.tsx` |
 | CheckBox | — | = `Checkbox` | `checkbox/Checkbox.tsx` |
 
 ## 08 · Form Controls (6)
@@ -214,7 +214,7 @@ direct labels, waterfall connectors, and the donut's centre total.
 | Column Title | State | = `ColumnTitle` | `modals/ColumnPicker.tsx` |
 | Search | State | = `ModalSearch` | `modals/ColumnPicker.tsx` |
 | Add_Column_Modal | State | ⊕ `Modal` + the three above | `modals/Modal.tsx` |
-| — | — | ＋ `Modal` (the reusable shell; `size` s · m · l · xl) | `modals/Modal.tsx` |
+| — | — | ＋ `Modal` (the reusable shell; `size` s · m · l · xl · 2xl) | `modals/Modal.tsx` |
 
 **Note.** `Add_Column_Modal` is an assembled screen in Figma, composed from
 Column Title, Column Item, Search and Button. In code it is that same
@@ -259,7 +259,7 @@ The product app wraps it as `shell/PageTemplate.tsx`. Guide: [page-template.md](
 | Speed Dial Item | State (3) | = `SpeedDialItem` | `actions-menus/Actions.tsx` |
 | Speed Dial | — | = `SpeedDial` | `actions-menus/Actions.tsx` |
 | Segment | Content × State (8) | ⊕ `SegmentedControl` (`options[]`) | `actions-menus/Actions.tsx` |
-| Segmented Control | Content × Items (4) | = `SegmentedControl` | `actions-menus/Actions.tsx` |
+| Segmented Control | Content × Items (4) | = `SegmentedControl` (＋ `variant="outline"`, `count`, `fullWidth`, from the workboard Valuation modal) | `actions-menus/Actions.tsx` |
 | View Tab | State (3) | = `ViewTab` | `actions-menus/Actions.tsx` |
 | View Tab Bar | — | = `ViewTabBar` | `actions-menus/Actions.tsx` |
 
@@ -353,7 +353,7 @@ provenance and in-cell editing. See known gap 8.
 | Firm Switcher Tile | State (3) | = `FirmSwitcherTile` | `admin/Admin.tsx` |
 | Page Task Header | — | = `PageTaskHeader` | `admin/Admin.tsx` |
 | Code Grid | — | = `CodeGrid` | `admin/Admin.tsx` |
-| Rich Text Toolbar | — | = `RichTextToolbar` | `admin/Admin.tsx` |
+| Rich Text Toolbar | — | = `RichTextToolbar` (＋ `formats`, `numbered`) | `admin/Admin.tsx` |
 | App Footer | — | = `AppFooter` | `admin/Admin.tsx` |
 
 **Glyphs.** These components render glyphs from `icon/glyphs.tsx` (Plus,
@@ -364,12 +364,15 @@ so a glyph can differ between the two (known gap 4).
 
 ---
 
-## Workboard (10)
+## Workboard (20)
 
-Ported from the Workboard prototype (`WORKBOARD_PROTOTYPE`, workboard-v2 Figma `mZ0cFiczRr3UCglYIO6Ot0`).
+Ported from the Workboard prototype (`WORKBOARD_PROTOTYPE`, workboard-v2 Figma `mZ0cFiczRr3UCglYIO6Ot0`) and,
+for the Valuation modal, from the workboard file `tuFpgEHX8w3BDI40U0FUwV` ("Assign users form Modal", 532:16434).
 Tones are the four status families (Brand, AI, Warning, Positive) plus the Workflow tone family
-(Blue, Pink, Cyan, Orange — `color.workflow.*`, code-first, known gap 13). Every component is prop-driven:
-none carries prototype data. Storybook: **Workboard** › Action Pill · Deal Card · Color Picker · Calendar · Timeline.
+(Blue, Pink, Cyan, Orange — `color.workflow.*`, code-first, known gap 13). The Deal card's fill and ink are the
+Deal tokens (`color.deal.*`, *Semantic: Color › Deal/\**, known gap 14). Every component is prop-driven:
+none carries prototype data. Storybook: **Workboard** › Action Pill · Deal Card · Color Picker · Calendar ·
+Timeline · Step Assign Menu · Valuation Modal · *Valuation Modal spec* (MDX).
 
 | Figma | Variants | React | File |
 |---|---|---|---|
@@ -382,6 +385,17 @@ none carries prototype data. Storybook: **Workboard** › Action Pill · Deal Ca
 | — (prototype `v2/views` `CalendarView`) | Month · Week | ＋ `WorkCalendar` (`role="grid"`) + `CalendarTaskCard` (Models task card, TODO §1) | `workboard/WorkCalendar.tsx` |
 | — (prototype `v2/views` `TimelineView`) | Week · Month · Quarter | ＋ `WorkTimeline` (`role="table"`) | `workboard/WorkTimeline.tsx` |
 | — (prototype calendar / timeline view bar) | — | ＋ `PeriodToolbar` — composes `Button`, `ButtonIcon`, `SegmentedControl` | `workboard/WorkCalendar.tsx` |
+| Main Container (536:23865 + 6 states) | 7 states | ＋ `ValuationModal` — `Modal size="2xl"`, no header | `workboard/ValuationModal.tsx` |
+| Valuation Container (536:23867) | — | ＋ `ValuationSummary` — layout slots: title · tags · status · subject · meta · people · figures · aside | `workboard/ValuationModal.tsx` |
+| Container ×3 (536:23966 · 24007 · 24051) | — | ＋ `ValuationPanel` — heading + action, content, pinned footer | `workboard/ValuationModal.tsx` |
+| Valuation Numbers (405:13342) | — | ＋ `FigureList` (`<dl>` of tiles) | `workboard/ValuationModal.tsx` |
+| Modal Status Dropdown (538:29138 … 538:29764) | 8 states | ＋ `StepAssignMenu` — steps, assignees or assign button, picker (chips · filter · Save · checklist) | `workboard/StepAssignMenu.tsx` |
+| Status "input" (536:23875 · 536:23415) | Size × assignees | ＋ `StatusTrigger` | `workboard/StepAssignMenu.tsx` |
+| "Valuation Lead" tiles (536:23901 · 23991 · 24037) | Emphasis (5) | ＋ `AssigneeCard` — lead · outline · default · muted · inverse | `workboard/Assignees.tsx` |
+| Avatar rows in the status menu (538:29694) | — | ＋ `AssigneeAvatars` (folds past two into "+N") | `workboard/Assignees.tsx` |
+| Notes Content Container (536:24061) | — | ＋ `NoteCard` | `workboard/ValuationNotes.tsx` |
+| Note Input Tools Container (536:24080) | — | ＋ `NoteComposer` — `RichTextToolbar` + textarea + Save | `workboard/ValuationNotes.tsx` |
+| Deal card (536:23937) | — | = `DealCard tone="deal"` (＋ `contractAction`) | `workboard/DealCard.tsx` |
 
 ## Added by the code layer
 

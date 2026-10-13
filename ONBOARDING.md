@@ -1,7 +1,7 @@
 # Scalar Design System — start here
 
 The design tokens and React components for the Scalar product, generated from
-the v1.1 Figma libraries. **462 tokens · 168 components · Light + Dark · three
+the v1.1 Figma libraries. **487 tokens · 168 Figma components (plus the code-layer and Workboard families) · Light + Dark · three
 type modes.**
 
 Pages are built *out of* this. They never re-specify colour, spacing or type.
@@ -146,6 +146,7 @@ or more series. If you build your own chart, that obligation is yours.
 | `docs/components.md` | Figma → React traceability. |
 | `docs/known-gaps.md` | Deliberate gaps. Read before "fixing" one. |
 | `examples/screens/CapTable.tsx` | A worked screen. |
+| [Storybook](https://scalar-prism-storybook.netlify.app) | Every component live, from `main`. Start with **Workboard › Valuation Modal spec** for the Workboard modal. |
 
 ## Changing a token
 
@@ -158,3 +159,29 @@ Token values live in Figma, not in this repo.
 
 Never hand-edit `tokens.json`, `generated.ts` or `docs/tokens.md` — all three
 are regenerated.
+
+## Adding a new token
+
+A new token starts in Figma too. This is how the Deal family (`Deal/*`,
+known gap 14) was added, and it is the pattern to follow:
+
+1. **Find the primitive.** A colour a design file calls by another name
+   (the workboard file's "Accent") is usually an existing primitive scale
+   (Teal). Never put a primitive in a component (R1).
+2. **Create the semantic variable** in the tokens file
+   (`anrnTIJKgu27zV224h7vON`), collection *Semantic: Color*, as
+   `Group/Name` with a Light and a Dark alias to primitive steps. Match the
+   existing variables: explicit scopes (fills, text or stroke — never all), a
+   `WEB` code syntax of `var(--color-group-name)`, and a description that says
+   what it is for, what to pair it with, its contrast and
+   "Resolves to: Light = … · Dark = …". The Figma MCP (`use_figma`) can do this.
+3. **Give every fill its ink.** A fill without an AA text colour is not a token
+   yet (R3, R13). White on Teal 500 is 2.25:1, so Deal pairs it with Teal 900.
+4. **Publish the library.**
+5. **Transcribe** into `src/styles/tokens.css` (Light and Dark blocks), add the
+   group to `src/tokens/index.ts` (`color.<group>`), give it a section in
+   `scripts/gen-docs.mjs`, and add its text/fill pairs to
+   `scripts/lint-contrast.mjs`. Then `npm run gen:tokens && node scripts/gen-docs.mjs && npm run verify`.
+6. **Document it:** a row in AI-GUIDE §2 (the colour railroad), the
+   CHANGELOG, and a known-gaps entry while any Figma frame still uses the old
+   value.
