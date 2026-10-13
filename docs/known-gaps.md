@@ -260,7 +260,7 @@ wins. Do not add a fifth tone here — propose it in Figma first.
 
 ---
 
-## 14. Deal tokens: created in Figma, pending the library publish
+## 14. Deal tokens: published; the workboard Deal frames still use the old fill
 
 The Workboard Valuation modal fills its Deal card with `Accent/500` (workboard
 file `tuFpgEHX8w3BDI40U0FUwV`, node 536:23937). "Accent" there is the Teal
@@ -289,6 +289,13 @@ for the card's notice and NET / DUE. `npm run lint:contrast` checks `text` on
 `Deal/Text`, `Deal/Subtle`, `Deal/Subtle Text` and `Deal/Control`
 (`VariableID:664:2`–`664:6`), aliasing the Teal steps above, with `WEB` code
 syntax `var(--color-deal-…)`. Their resolved values match `tokens.css` exactly.
-**Still open:** publish the library, then switch the workboard file's Deal card
-frames from `Accent/500` + white to `Deal/Background` + `Deal/Text`. Once
-published, the library wins: re-transcribe and regenerate as for any other token.
+The library was published the same day, so `Deal/*` is now a library token
+like any other: if a value moves in Figma, the library wins — re-transcribe and
+regenerate.
+
+**Still open (design):** the workboard file's Deal card frames
+(`tuFpgEHX8w3BDI40U0FUwV`, e.g. 536:23937) still draw `Accent/500` with white
+text. Switch them to `Deal/Background` + `Deal/Text` (and the stage pill to
+`Deal/Subtle` + `Deal/Subtle Text`, the edit button to `Deal/Control`). Until
+then code and Figma differ in the card's ink, deliberately: code is AA, the
+frames are not.

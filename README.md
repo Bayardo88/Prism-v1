@@ -1,8 +1,10 @@
 # Scalar Design System — React layer
 
-The code layer for the Scalar product: **462 design tokens** and **168
-components**, generated from the v1.1 Figma libraries, with Light/Dark theming
-and a three-mode type ramp.
+The code layer for the Scalar product: **487 design tokens** and the **168
+Figma components**, generated from the v1.1 Figma libraries, plus the code-layer
+and Workboard families (the Workboard Valuation modal among them), with
+Light/Dark theming and a three-mode type ramp. Every component is live in
+[Storybook](https://scalar-prism-storybook.netlify.app), built from `main`.
 
 This package is the single place Scalar product UI gets its colour, type,
 spacing and components from. Pages are built *out of* it; they never re-specify
@@ -120,6 +122,8 @@ cd prism-builder-pro && ./install.sh
 | [docs/components.md](docs/components.md) | Figma → React traceability. Which Figma component set each export came from, and where any two were merged. |
 | [docs/navigation-3-tier-system.md](docs/navigation-3-tier-system.md) | Logic and behaviour of the 3-tier navigation (Primary / Secondary / Tertiary) for devs and AI agents. Read before building or changing any screen's chrome. |
 | [docs/known-gaps.md](docs/known-gaps.md) | Inherited gaps that are deliberate, with the reason and the workaround. Read before "fixing" one. |
+| [Storybook](https://scalar-prism-storybook.netlify.app) | Every component and its states, live from `main`; each pull request gets a deploy preview. **Workboard › Valuation Modal spec** documents the Valuation modal, its seven Figma states, the step-assignment menu and the Deal tokens. |
+| [CHANGELOG.md](CHANGELOG.md) | What changed, newest first. |
 
 ---
 

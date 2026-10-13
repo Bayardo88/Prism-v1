@@ -1,0 +1,81 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as StepAssignStories from '../../src/components/workboard/StepAssignMenu.stories';
+import * as DealCardStories from '../../src/components/workboard/DealCard.stories';
+
+<Meta title="Workboard/Valuation Modal spec" />
+
+# Valuation Modal — structure, states and tokens
+
+One valuation in full, opened from a Workboard row. Built from the workboard Figma file
+(`tuFpgEHX8w3BDI40U0FUwV`, section **Assign users form Modal**, `532:16434`). Every colour, space and type
+value is a semantic token. The full modal renders in the **Workboard › Valuation Modal** stories (one per
+Figma state); this page explains how it is put together.
+
+## Anatomy
+
+| Region | Component | Notes |
+| --- | --- | --- |
+| Shell | `ValuationModal` | `Modal size="2xl"` (1308px), no header: name it with `aria-label`. Ground is Background/Subtle. |
+| Top panel | `ValuationSummary` | Layout slots only: `title` · `tags` · `status` · `subject` · `meta` · `people` · `figures` · `aside`. |
+| Status (header) | `StatusTrigger size="s"` | Filled brand trigger; shows who is on the status. The screen owns the menu. |
+| People row | `AssigneeCard` × 5 | `lead` (Engagement Manager) · `outline` (Valuation Leads) · `default` (Other Consultants). |
+| Figures | `FigureList` | Valuation Date · Fee · Net Value · Split · Booking Date, as a `<dl>`. |
+| Deal | `DealCard tone="deal"` | Deal tokens; `contractAction` holds Send Final Invoice. |
+| Lower panels | `ValuationPanel` × 3 | Heading + action, content, footer pinned so the three footers line up. |
+| Valued Entity | `Link`, `Chip`, `AssigneeCard` `inverse` / `muted` | Primary Contact (inverse, with Notes) and Sales Rep. |
+| Model | `SegmentedControl variant="outline"`, `StatusTrigger size="l"`, `StepAssignMenu surface="inline"`, `Input`, `EmptyState` | ARG · SLC · Is Waiting; the step list opens inline under Model Status. |
+| Notes | `SegmentedControl variant="outline" fullWidth`, `NoteCard`, `NoteComposer` | Tabs carry a `count`; the composer's toolbar is bold · italic · underline · bulleted · numbered. |
+
+## States
+
+| Figma frame | Story (Workboard › Valuation Modal) | What changes |
+| --- | --- | --- |
+| `536:23865` | Default | Model Status closed. |
+| `536:19922` | Model Status Open | Step list inline, each step with its assign button. |
+| `536:20963` | Assigning People | Picker open under Draft, filter focused. |
+| `536:21717` | People Chosen | Two chosen people as removable chips; header Status shows its people. |
+| `536:23253` | Steps Staffed | Avatars replace the assign buttons; "+N" past two. |
+| `532:18149` | Assigned | Both triggers carry their people. |
+| `461:8408` | No Model Support | SLC selected; `EmptyState` with Create Model Support. |
+
+## The step assignment menu
+
+Each step ends in its people or an assign button. The button opens a picker under the step: chosen people as
+removable chips, a filter, Save and a checklist. Escape closes the picker first, then the menu. Reached steps
+carry a checked mark and the brand label, and every step says its state in words (R8).
+
+<Canvas of={StepAssignStories.PartlyAssigned} />
+
+<Canvas of={StepAssignStories.PickerTwoChosen} />
+
+`StepAssignMenu` is not `StepMenu`. `StepMenu` is the menu behind an `ActionPill` caret in a grid row (steps,
+tools and actions, no people). Use `StepAssignMenu` where people are put on steps.
+
+## Deal tokens
+
+The Deal card is filled with Teal 500, the workboard file's "Accent". White on it is **2.25:1**, below AA even
+for large text, so everything on the card uses Deal/Text. Figma: *Semantic: Color › Deal/\** (published).
+
+<Canvas of={DealCardStories.DealTone} />
+
+| Token | Use | Light | Dark |
+| --- | --- | --- | --- |
+| <span style={{ display: 'inline-block', width: 'var(--size-icon-s)', height: 'var(--size-icon-s)', borderRadius: 'var(--radius-xs)', background: 'var(--color-deal-background)', verticalAlign: 'middle' }} /> `--color-deal-background` | The card's fill | Teal 500 `#08c581` | Teal 800 |
+| <span style={{ display: 'inline-block', width: 'var(--size-icon-s)', height: 'var(--size-icon-s)', borderRadius: 'var(--radius-xs)', background: 'var(--color-deal-text)', verticalAlign: 'middle' }} /> `--color-deal-text` | All text, links, glyphs and outlines on it (5.3:1) | Teal 900 `#03402a` | Teal 50 |
+| <span style={{ display: 'inline-block', width: 'var(--size-icon-s)', height: 'var(--size-icon-s)', borderRadius: 'var(--radius-xs)', background: 'var(--color-deal-subtle)', verticalAlign: 'middle' }} /> `--color-deal-subtle` | The stage pill | Teal 200 | Teal 900 |
+| <span style={{ display: 'inline-block', width: 'var(--size-icon-s)', height: 'var(--size-icon-s)', borderRadius: 'var(--radius-xs)', background: 'var(--color-deal-subtle-text)', verticalAlign: 'middle' }} /> `--color-deal-subtle-text` | Its label and chevron | Teal 800 | Teal 200 |
+| <span style={{ display: 'inline-block', width: 'var(--size-icon-s)', height: 'var(--size-icon-s)', borderRadius: 'var(--radius-xs)', background: 'var(--color-deal-control)', verticalAlign: 'middle' }} /> `--color-deal-control` | The owner's edit button | Teal 300 | Teal 700 |
+
+In TypeScript: `color.deal.background · text · subtle · subtleText · control`. The contrast gate
+(`npm run lint:contrast`) checks text on the fill and on the pill at 4.5:1 and the glyph on the control at 3:1.
+A deal is not a status: never use `bg.positive` for it.
+
+## Where Figma and code differ, on purpose
+
+- **12px floor (R10).** Figma's 10px chips and labels are 12px; 16px avatars are Avatar/XS (24px). Long role
+  names truncate in narrow cards, with the full text in a tooltip.
+- **Links** use `text.link` with a permanent underline (R8), not brand blue.
+- **Neutral fills** (Neutral 300–500 in Figma) are `bg.subtle` with a check icon or a control border; there is no
+  semantic neutral fill.
+- **Icons** are Material Symbols, matched by meaning (known gap 4).
+- **Deal card ink** is Deal/Text, not white, until the Figma frames move to the Deal tokens (known gap 14).

@@ -8,6 +8,13 @@
   Modal" (532:16434). `DealCard` gains `tone="deal"` and `contractAction`; `SegmentedControl` gains `variant="outline"`, `count`
   and `fullWidth`; `RichTextToolbar` gains `formats` and a Numbered list; `Modal` gains `size="2xl"` (1308px). The small
   checkbox box now uses Radius/XS, as Figma CheckboxItem S does.
+- **Documentation** — AI-GUIDE (§5 intents, §7 Modal 2xl, SegmentedControl outline, RichTextToolbar formats),
+  `docs/components.md` (Workboard 20, with Figma nodes), README / ONBOARDING (counts, Storybook, adding a new
+  token), known gap 14 (Deal published; frames pending) and a Storybook page, *Workboard › Valuation Modal spec*.
+- **Storybook MDX tables** — `remark-gfm` (dev dependency) is now wired into `@storybook/addon-docs`, so pipe tables in
+  the MDX spec pages render; the *Prism Table spec* page's tables were showing as raw text.
+- `StepAssignMenu`'s assign button names itself from its content, so the visible initials are part of its name
+  (WCAG 2.5.3); controls inside an inverse `AssigneeCard` take Text/Inverse.
 - **Workflow tone tokens** — `--color-workflow-{blue|pink|cyan|orange}-{background|text|stroke|solid|on-solid}` (`color.workflow.*`),
   Light + Dark, in the contrast gate. `WorkflowTone` gains `blue | pink | cyan | orange`. Code-first from the workboard-v2 proposed
   collection, pending the Scalar tokens library (known gap 13).
