@@ -1,0 +1,141 @@
+---
+description: Design system rules. Read before creating or changing any UI.
+alwaysApply: true
+---
+
+# Prism: design system instructions
+
+> Read this file before creating or modifying any UI. Follow it exactly. If something is missing, propose an addition instead of improvising.
+
+## 1. Design principles
+- **Clarity first.** Give content room to breathe.
+- **Consistency over novelty.** Reuse existing components and tokens before inventing anything.
+- **Personality:** professional, premium, modern.
+- **Accessible by default.** Every color pair, target size and focus state meets the baseline below.
+- **Explainable decisions.** Use semantic tokens so every style choice has a stated purpose.
+
+## 2. Color foundations
+- Brand: `#06B9A8` (scale 50–950: `--color-brand-50` … `--color-brand-950`); primary actions use an accessible shade of the brand hue.
+- Accent: `#F13028`
+- Neutral: cool tint, steps 0–1000.
+- Status hues: success, warning, danger, info (50–950 each).
+- Never use raw primitives in components; consume semantic colors.
+
+## 3. Semantic colors
+| Token | Light | Dark |
+|---|---|---|
+| `--color-bg-primary` | #FFFFFF | #101114 |
+| `--color-bg-secondary` | #F9FAFA | #1C1E22 |
+| `--color-bg-tertiary` | #F4F4F6 | #2E3138 |
+| `--color-bg-inverse` | #1C1E22 | #F9FAFA |
+| `--color-text-primary` | #1C1E22 | #F9FAFA |
+| `--color-text-secondary` | #454A54 | #CDD0D6 |
+| `--color-text-tertiary` | #5C6370 | #9AA0AC |
+| `--color-text-disabled` | #9AA0AC | #5C6370 |
+| `--color-text-inverse` | #FFFFFF | #101114 |
+| `--color-text-link` | #06B9A8 | #8DFBF1 |
+| `--color-border-default` | #E3E5E8 | #2E3138 |
+| `--color-border-strong` | #737B8C | #737B8C |
+| `--color-border-focus` | #21F8E3 | #8DFBF1 |
+| `--color-action-primary-default` | #07E3CE | #57FAEA |
+| `--color-action-primary-hover` | #06B9A8 | #8DFBF1 |
+| `--color-action-primary-active` | #059487 | #BFFDF7 |
+| `--color-action-primary-disabled` | #E3E5E8 | #2E3138 |
+| `--color-action-primary-text` | #000000 | #000000 |
+| `--color-action-secondary-default` | #F4F4F6 | #2E3138 |
+| `--color-action-secondary-hover` | #E3E5E8 | #454A54 |
+| `--color-action-destructive-default` | #D32E22 | #E7726A |
+| `--color-action-destructive-hover` | #A7241B | #EFA09A |
+| `--color-accent-default` | #DC170F | #F4635D |
+| `--color-accent-subtle` | #FBF4F3 | #3A100E |
+| `--color-feedback-success-bg` | #F4FBF7 | #123621 |
+| `--color-feedback-success-fg` | #158443 | #C6F6DA |
+| `--color-feedback-success-border` | #9AEFBD | #1BA755 |
+| `--color-feedback-success-solid` | #22D36C | #39DF7F |
+| `--color-feedback-warning-bg` | #FBF8F4 | #362A12 |
+| `--color-feedback-warning-fg` | #845F15 | #F6E6C6 |
+| `--color-feedback-warning-border` | #EFD29A | #A7781B |
+| `--color-feedback-warning-solid` | #D39822 | #DFA839 |
+| `--color-feedback-danger-bg` | #FBF4F4 | #361412 |
+| `--color-feedback-danger-fg` | #841D15 | #F6C9C6 |
+| `--color-feedback-danger-border` | #EFA09A | #A7241B |
+| `--color-feedback-danger-solid` | #D32E22 | #DF4539 |
+| `--color-feedback-info-bg` | #F4F7FB | #122336 |
+| `--color-feedback-info-fg` | #154984 | #C6DCF6 |
+| `--color-feedback-info-border` | #9AC2EF | #1B5DA7 |
+| `--color-feedback-info-solid` | #2275D3 | #3987DF |
+
+## 4. Typography
+- Families: heading **Inter**, body **Inter**, mono **JetBrains Mono**.
+- Base 16px, ratio ×1.333. Scale: xs 9px · sm 12px · md 16px · lg 21px · xl 28px · 2xl 38px · 3xl 51px · 4xl 67px.
+
+| Style | Size | Weight | Line height | Family |
+|---|---|---|---|---|
+| display | 67px | 700 | 1.2 | Inter |
+| heading.xl | 51px | 700 | 1.2 | Inter |
+| heading.lg | 38px | 600 | 1.2 | Inter |
+| heading.md | 28px | 600 | 1.35 | Inter |
+| heading.sm | 21px | 600 | 1.35 | Inter |
+| body.lg | 21px | 400 | 1.65 | Inter |
+| body.md | 16px | 400 | 1.5 | Inter |
+| body.sm | 12px | 400 | 1.5 | Inter |
+| label.md | 12px | 500 | 1.35 | Inter |
+| caption | 9px | 400 | 1.5 | Inter |
+| code | 12px | 400 | 1.5 | JetBrains Mono |
+
+## 5. Spacing
+- 8px grid. Scale: space.0=0px, space.1=8px, space.2=16px, space.3=24px, space.4=32px, space.5=40px, space.6=48px, space.8=64px, space.10=80px, space.12=96px, space.16=128px, space.20=160px, space.24=192px, space.0-5=4px, space.1-5=12px.
+- Component insets: sm 16px · md 24px · lg 32px (`--space-inset-md`).
+- Do not use values outside this scale.
+
+## 6. Radius
+- none: 0px (`--radius-none`)
+- sm: 8px (`--radius-sm`)
+- md: 12px (`--radius-md`)
+- lg: 16px (`--radius-lg`)
+- xl: 24px (`--radius-xl`)
+- full: 9999px (`--radius-full`)
+- Controls use `md`; cards and dialogs use `lg`; pills/avatars use `full`.
+
+## 7. Elevation
+- sm: `0 1px 2px rgba(16,24,40,0.06)`
+- md: `0 4px 8px -2px rgba(16,24,40,0.10), 0 2px 4px -2px rgba(16,24,40,0.06)`
+- lg: `0 12px 24px -6px rgba(16,24,40,0.14), 0 4px 8px -4px rgba(16,24,40,0.08)`
+- xl: `0 24px 48px -12px rgba(16,24,40,0.24)`
+- Cards: `sm`/`md`. Popovers/menus: `lg`. Modals: `xl`. Prefer borders over shadows for flat surfaces.
+
+## 8. Interaction states
+| State | Rule |
+|---|---|
+| Hover | primary → `--color-action-primary-hover` |
+| Active | primary → `--color-action-primary-active` |
+| Focus-visible | 2px outline `--color-border-focus`, 2px offset; never remove |
+| Disabled | `--color-action-primary-disabled` background, `--color-text-disabled` text, no pointer events |
+| Loading | keep width, show spinner, set `aria-busy` |
+| Motion | 150/300/500ms; honor `prefers-reduced-motion` |
+
+## 9. Component conventions
+- **Button:** height 44px (sm 36, lg 52), radius md, one primary per view; variants: primary, secondary, ghost, destructive.
+- **Input / Select:** height 44px, border `--color-border-strong`, label above, helper and error text below; error uses `--color-feedback-danger-fg` plus an icon (not color alone).
+- **Card:** `--color-bg-secondary` surface, 1px `--color-border-default`, radius lg, inset md.
+- **Table:** header `--color-bg-tertiary`, row dividers `--color-border-default`, numeric columns right-aligned.
+- **Badge:** feedback bg/fg tokens, radius full, never the only status indicator.
+- **Alert:** feedback bg/border/fg tokens, icon + text, `role="status"` or `role="alert"`.
+- Prefer composition over adding variants; a variant must carry real behavior or meaning.
+
+## 10. Accessibility rules
+- Baseline: **WCAG 2.2 AA**: text 4.5:1 (large 3:1), UI components and focus 3:1.
+- Touch targets ≥ 44×44px on mobile (current controls: 44px).
+- Full keyboard operability and visible focus. Every control has an accessible name.
+- Never convey meaning by color alone. Respect reduced motion.
+- Body text ≥ 16px.
+
+## 11. Naming conventions
+- JSON tokens: dot (`color.action.primary.default`). CSS: `--color-action-primary-default`. Figma: `color/action/primary/default`.
+- Props camelCase; icons kebab-case.
+
+## 12. Implementation guidance
+- Tokens: `design-tokens.json` (source) and `tokens.css` (variables). Import `tokens.css` once at the app root; set `data-theme="dark"` on the root for dark mode.
+- Never hard-code colors, spacing, radius, font sizes or shadows. Use `var(--color-text-primary)` etc.
+- Search existing components before creating new ones. Compose; do not copy and tweak.
+- When unsure, pick the closest existing token and leave a `TODO(design-system)` comment.
