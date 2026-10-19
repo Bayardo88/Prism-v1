@@ -282,6 +282,22 @@
       .caption { font: var(--type-caption-font); color: var(--color-text-secondary); }
       .code { font: var(--type-code-font); }
 
+      /* Longhands resolve on the element, so a subtree can supply the missing numbers. */
+      .t-display, .t-hx, .t-hl, .t-hm, .t-hs { font-family: var(--font-family-heading); }
+      .t-bl, .t-bm, .t-bs, .t-label, .t-caption { font-family: var(--font-family-body); }
+      .t-code { font-family: var(--font-family-mono); }
+      .t-display { font-size: var(--font-size-4xl); font-weight: var(--font-weight-bold); line-height: var(--font-lineHeight-tight); letter-spacing: var(--font-letterSpacing-tight); }
+      .t-hx { font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); line-height: var(--font-lineHeight-tight); }
+      .t-hl { font-size: var(--font-size-2xl); font-weight: var(--font-weight-semibold); line-height: var(--font-lineHeight-tight); }
+      .t-hm { font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); line-height: var(--font-lineHeight-snug); }
+      .t-hs { font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); line-height: var(--font-lineHeight-snug); }
+      .t-bl { font-size: var(--font-size-lg); font-weight: var(--font-weight-regular); line-height: var(--font-lineHeight-relaxed); }
+      .t-bm { font-size: var(--font-size-md); font-weight: var(--font-weight-regular); line-height: var(--font-lineHeight-normal); }
+      .t-bs { font-size: var(--font-size-sm); font-weight: var(--font-weight-regular); line-height: var(--font-lineHeight-normal); }
+      .t-label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); line-height: var(--font-lineHeight-snug); }
+      .t-caption { font-size: var(--font-size-xs); font-weight: var(--font-weight-regular); line-height: var(--font-lineHeight-normal); color: var(--color-text-secondary); }
+      .t-code { font-size: var(--font-size-sm); font-weight: var(--font-weight-regular); line-height: var(--font-lineHeight-normal); }
+
       .meta { margin-top: var(--space-1); color: var(--color-text-tertiary); font-family: var(--font-family-mono); font-size: var(--font-size-sm); }
 
       .row { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; }
@@ -618,35 +634,40 @@
 
       <section class="panel" id="type">
         <h2>Type, shipped CSS against the JSON</h2>
-        <p class="lede">Left column forces the empty variables to stay invalid. Right column writes the numeric values from <code>design-tokens.json</code> back onto the same shorthands. Sizes come from the CSS either way. Weights and line heights only appear on the right.</p>
+        <p class="lede">The generated composite, <code>font: var(--type-display-font)</code>, is resolved on <code>:root</code>. Because the weight and line-height variables are empty there, the whole shorthand is dropped and the sample stays at the browser default. The two columns below set size, weight, and line height as separate properties. The left column still reads the empty variables. The right column fills in the numbers from the JSON, which is what the toggle does for the sample screen.</p>
         <div class="specimen" data-theme="light">
+          <div class="scope" id="type-shorthand">
+            <p class="kicker">generated shorthand on :root</p>
+            <p class="display">Display</p>
+            <p class="meta" id="shorthand-measure"></p>
+          </div>
           <div class="type-grid">
             <div class="scope shipped-scope" id="type-shipped">
-              <p class="kicker">tokens.css as generated</p>
-              <p class="display">Display</p>
-              <p class="hx">Heading xl</p>
-              <p class="hl">Heading lg</p>
-              <p class="hm">Heading md</p>
-              <p class="hs">Heading sm</p>
-              <p class="bl">Body large keeps a long line so the line-height gap is visible across two lines of copy.</p>
-              <p class="bm">Body medium is the 16px reading size.</p>
-              <p class="label">Label medium</p>
-              <p class="caption">Caption at 9px</p>
-              <p class="code">code.sample()</p>
+              <p class="kicker">individual tokens, as generated</p>
+              <p class="t-display">Display</p>
+              <p class="t-hx">Heading xl</p>
+              <p class="t-hl">Heading lg</p>
+              <p class="t-hm">Heading md</p>
+              <p class="t-hs">Heading sm</p>
+              <p class="t-bl">Body large keeps a long line so the line-height gap is visible across two lines of copy.</p>
+              <p class="t-bm">Body medium is the 16px reading size.</p>
+              <p class="t-label">Label medium</p>
+              <p class="t-caption">Caption at 9px</p>
+              <p class="t-code">code.sample()</p>
               <p class="meta" data-measure="display"></p>
             </div>
             <div class="scope patched-scope" id="type-patched">
-              <p class="kicker">same shorthand, numbers restored</p>
-              <p class="display">Display</p>
-              <p class="hx">Heading xl</p>
-              <p class="hl">Heading lg</p>
-              <p class="hm">Heading md</p>
-              <p class="hs">Heading sm</p>
-              <p class="bl">Body large keeps a long line so the line-height gap is visible across two lines of copy.</p>
-              <p class="bm">Body medium is the 16px reading size.</p>
-              <p class="label">Label medium</p>
-              <p class="caption">Caption at 9px</p>
-              <p class="code">code.sample()</p>
+              <p class="kicker">same tokens, numbers restored</p>
+              <p class="t-display">Display</p>
+              <p class="t-hx">Heading xl</p>
+              <p class="t-hl">Heading lg</p>
+              <p class="t-hm">Heading md</p>
+              <p class="t-hs">Heading sm</p>
+              <p class="t-bl">Body large keeps a long line so the line-height gap is visible across two lines of copy.</p>
+              <p class="t-bm">Body medium is the 16px reading size.</p>
+              <p class="t-label">Label medium</p>
+              <p class="t-caption">Caption at 9px</p>
+              <p class="t-code">code.sample()</p>
               <p class="meta" data-measure="display"></p>
             </div>
           </div>
@@ -931,8 +952,11 @@
       }
 
       function measureType() {
+        const shorthand = getComputedStyle(document.querySelector("#type-shorthand .display"));
+        document.querySelector("#shorthand-measure").textContent =
+          `computed: ${shorthand.fontWeight} ${shorthand.fontSize} / ${shorthand.lineHeight}`;
         for (const scope of [document.querySelector("#type-shipped"), document.querySelector("#type-patched")]) {
-          const sample = scope.querySelector(".display");
+          const sample = scope.querySelector(".t-display");
           const cs = getComputedStyle(sample);
           scope.querySelector("[data-measure]").textContent =
             `computed display: ${cs.fontWeight} ${cs.fontSize} / ${cs.lineHeight} ${cs.fontFamily}`;
@@ -1042,9 +1066,9 @@
         const verdict = document.querySelector("#verdict");
         const inline = document.querySelector("#verdict-inline");
         verdict.classList.remove("ok");
-        const summary = `Not ready to ship. tokens.css drops ${empty.length} numeric tokens (font weight, line height, opacity, z-index), so the type shorthands do not paint. ${contrastFails} semantic pairs miss the WCAG ratio written in the rule file. Colors, spacing, radius, and shadows do resolve.`;
+        const summary = `Not ready to ship. tokens.css drops ${empty.length} numeric tokens (font weight, line height, opacity, z-index), so font: var(--type-display-font) never paints. In light mode the link is about 2.5:1 on white and the focus ring is about 1.4:1. Disabled text is also under 4.5:1; inactive text is often exempt. Colors, spacing, radius, and shadows do resolve.`;
         verdict.textContent = summary;
-        inline.textContent = " — not ready. Empty numeric tokens and contrast misses.";
+        inline.textContent = " — not ready. Empty numeric tokens, link, and focus ring.";
         measureType();
       }
 
