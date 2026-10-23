@@ -140,7 +140,7 @@ Search open") only sets `openMenu`.
 
 ## 6 · Changing a page
 
-Use the **`scalar-forge`** skill ([prism-builder-pro](https://github.com/Bayardo88/prism-builder-pro)). It
+Use the **[`scalar-forge`](https://github.com/Bayardo88/scalar-forge)** skill. It
 covers creating a page, editing one and prototyping a flow, and it keeps the
 catalog and the Figma coverage check green. The check itself:
 

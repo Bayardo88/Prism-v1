@@ -72,12 +72,19 @@ can push it back into Figma as instances of the published library.
 /scalar-forge  cap table page for a portfolio company
 ```
 
-Install it once:
+Install it once. In Claude Code:
+
+```
+/plugin marketplace add Bayardo88/scalar-forge
+/plugin install scalar-forge@scalar-forge
+```
+
+Or clone [scalar-forge](https://github.com/Bayardo88/scalar-forge) and run `./install.sh`.
+
+The skill builds inside this repo, so you also need a clone of it:
 
 ```bash
 git clone https://github.com/Bayardo88/Prism-v1
-git clone git@github.com:Bayardo88/prism-builder-pro.git
-cd prism-builder-pro && ./install.sh
 ```
 
 What you get back: a working React screen, checked in light mode (R14), plus a

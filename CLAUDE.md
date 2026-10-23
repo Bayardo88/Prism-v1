@@ -75,7 +75,7 @@ npm run verify
 | `scripts/lint-tokens.mjs` | The token-contract linter |
 | `docs/navigation-3-tier-system.md` | The 3-tier navigation spec: tier scope, layout, per-screen configuration, rules. Read before building or editing any screen's nav chrome |
 | `docs/known-gaps.md` | Inherited gaps that are deliberate — read before "fixing" one |
-| `apps/product/` | The full Scalar product as a prototype — every Scalar-full-product Figma frame. Change it with the `scalar-forge` skill (prism-builder-pro); `npm run verify:product` must pass |
+| `apps/product/` | The full Scalar product as a prototype — every Scalar-full-product Figma frame. Change it with the [`scalar-forge`](https://github.com/Bayardo88/scalar-forge) skill; `npm run verify:product` must pass |
 
 ## Deliberate decisions, not bugs
 

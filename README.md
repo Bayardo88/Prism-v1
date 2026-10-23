@@ -92,8 +92,7 @@ page) · [`docs/product/screen-catalog.md`](docs/product/screen-catalog.md) (gen
 
 ## Building screens with it
 
-Use the **`scalar-forge`** Claude skill, from
-[prism-builder-pro](https://github.com/Bayardo88/prism-builder-pro). It creates and
+Use the **[`scalar-forge`](https://github.com/Bayardo88/scalar-forge)** Claude skill. It creates and
 edits product pages, prototypes flows in `apps/product`, builds standalone screens
 in `examples/screens`, and pushes screens back into Figma as library instances. It
 always builds on `main`, reuses the existing screens, chrome and components, and
@@ -105,10 +104,14 @@ story does. It replaces the retired `scalar-product` and `scalar-screen` skills.
 /scalar-forge  cap table page for a portfolio company
 ```
 
-```bash
-git clone git@github.com:Bayardo88/prism-builder-pro.git
-cd prism-builder-pro && ./install.sh
+Install it in Claude Code:
+
 ```
+/plugin marketplace add Bayardo88/scalar-forge
+/plugin install scalar-forge@scalar-forge
+```
+
+Or clone [scalar-forge](https://github.com/Bayardo88/scalar-forge) and run `./install.sh`.
 
 ## Documentation
 
