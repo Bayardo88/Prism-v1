@@ -1161,5 +1161,50 @@
         "figmaUrl": null
       }
     ]
+  },
+  {
+    "id": "prototype.notifications-center",
+    "title": "Notifications Center (prototype)",
+    "figmaPage": "Prototype · notifications-center",
+    "route": "/prototypes/notifications-center/:companyId",
+    "summary": "See AI job results and teammates’ changes under the bell, filter them by scope, and jump to the source.",
+    "component": "NotificationsCenter",
+    "states": [
+      {
+        "key": "default",
+        "label": "Notifications — bell with unread (131:19540)",
+        "figmaNode": "proto:notifications-center:1",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "ai-processing",
+        "label": "Notifications — AI processing toast (130:2095)",
+        "figmaNode": "proto:notifications-center:2",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "inbox",
+        "label": "Notifications — panel open (1:5857)",
+        "figmaNode": "proto:notifications-center:3",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "filters",
+        "label": "Notifications — filter settings (130:3528)",
+        "figmaNode": "proto:notifications-center:4",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "empty",
+        "label": "Notifications — all caught up",
+        "figmaNode": "proto:notifications-center:5",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
   }
 ]
