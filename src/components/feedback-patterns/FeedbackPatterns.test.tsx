@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { checkA11y, renderWithProvider } from '../../test/render.js';
-import { Banner, DataFreshness, ProgressRing, SaveState, Spinner } from './index.js';
+import { AiOutline, Banner, DataFreshness, ProgressRing, SaveState, Spinner } from './index.js';
 
 const clean = async (c: Element) => expect((await checkA11y(c)).violations).toEqual([]);
 
@@ -83,5 +83,31 @@ describe('SaveState', () => {
     expect(ref.current).toHaveAttribute('role', 'status');
     rerender(<SaveState state="error" />);
     expect(screen.getByRole('alert')).toBeInTheDocument();
+  });
+});
+
+describe('AiOutline', () => {
+  it('passes axe, forwards ref/className/data-testid, animates only while active', async () => {
+    const ref = createRef<HTMLDivElement>();
+    const { container, rerender } = renderWithProvider(
+      <AiOutline ref={ref} className="x" data-testid="o"><p>Reading documents</p></AiOutline>,
+    );
+    await clean(container);
+    expect(ref.current).toBe(screen.getByTestId('o'));
+    expect(ref.current).toHaveClass('scalar-ai-outline', 'scalar-ai-outline--active', 'x');
+    rerender(<AiOutline ref={ref} active={false} data-testid="o"><p>Done</p></AiOutline>);
+    expect(ref.current).toHaveClass('scalar-ai-outline');
+    expect(ref.current).not.toHaveClass('scalar-ai-outline--active');
+  });
+  it('asChild puts the outline on the child element', async () => {
+    const ref = createRef<HTMLDivElement>();
+    const { container } = renderWithProvider(
+      <AiOutline asChild ref={ref}><article aria-label="AI processing" data-testid="a">Reading documents</article></AiOutline>,
+    );
+    await clean(container);
+    const article = screen.getByTestId('a');
+    expect(article.tagName).toBe('ARTICLE');
+    expect(article).toHaveClass('scalar-ai-outline', 'scalar-ai-outline--active');
+    expect(ref.current).toBe(article);
   });
 });

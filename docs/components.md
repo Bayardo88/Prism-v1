@@ -325,6 +325,7 @@ provenance and in-cell editing. See known gap 8.
 |---|---|---|---|
 | Banner | Style (5) | = `Banner` | `feedback-patterns/Status.tsx` |
 | Spinner | Size (3) | = `Spinner` | `feedback-patterns/Status.tsx` |
+| AI Outline | State (2) | ＋ `AiOutline` (`active`, `asChild`) — the AI gradient orbiting an outline while AI works (Figma `1753:95`, page 24; guide `docs/ai-outline.md`) | `feedback-patterns/AiOutline.tsx` |
 | Progress Ring | Value (5) | = `ProgressRing` (continuous `value` / `max`) | `feedback-patterns/Status.tsx` |
 | Data Freshness | State (3) | = `DataFreshness` | `feedback-patterns/Status.tsx` |
 | Save State | State (5) | = `SaveState` | `feedback-patterns/Status.tsx` |

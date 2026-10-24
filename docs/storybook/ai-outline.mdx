@@ -1,0 +1,45 @@
+import { Meta, Canvas } from '@storybook/addon-docs/blocks';
+import * as FeedbackPatternsStories from '../../src/components/feedback-patterns/FeedbackPatterns.stories';
+
+<Meta title="Feedback/AiOutline spec" />
+
+# AI Outline — the "AI is working" animation
+
+A 2px outline in the AI gradient (violet → blue → teal → pink). While AI works on the item, the colours
+orbit the outline **once every 6 seconds**, following every corner, with no seam. It stops under
+reduced motion. The full developer guide is `docs/ai-outline.md`.
+
+<Canvas of={FeedbackPatternsStories.AiOutlines} />
+
+## Use it
+
+| Situation | Code |
+| --- | --- |
+| A model is working on the item | `<AiOutline>…</AiOutline>` (or `active`) |
+| AI-made, nothing running | `<AiOutline active={false}>…</AiOutline>` |
+| Outline on your own card / article | `<AiOutline asChild><article>…</article></AiOutline>` |
+| A different fill inside | `style={{ '--ai-outline-fill': color.bg.subtle }}` (never `background`) |
+
+Always pair it with words or a `Spinner`: the outline is decorative and never says "working" on its own (R8).
+
+## How it moves
+
+| Value | |
+| --- | --- |
+| Technique | `conic-gradient(from var(--scalar-ai-outline-angle), …)` on the border box, the fill on the padding box |
+| Animated property | `--scalar-ai-outline-angle`, registered with `@property` as `<angle>`, 0° → 360° |
+| Duration · easing | 6s · linear · infinite |
+| Reduced motion | `animation: none`: the coloured outline stays and only the motion stops |
+| Fallback | Without `@property` support the outline renders still |
+
+## Tokens
+
+| Token | Light | Dark | Figma |
+| --- | --- | --- | --- |
+| `--color-gradient-ai-violet` | `#a614ff` | `#c668ff` | Gradient/AI/Violet |
+| `--color-gradient-ai-blue` | `#0268c1` | `#3597ed` | Gradient/AI/Blue |
+| `--color-gradient-ai-teal` | `#0891b2` | `#22d3ee` | Gradient/AI/Teal |
+| `--color-gradient-ai-pink` | `#be185d` | `#ea589e` | Gradient/AI/Pink |
+
+They share values with the AI fill and three PRISM primaries, but they are **not PRISM** (R11).
+Each stop clears 3:1 on page and surface in Light and Dark. Never use them for text.

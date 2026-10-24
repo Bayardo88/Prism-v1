@@ -2,7 +2,7 @@
  * Source of truth: src/styles/tokens.css (extracted from Figma v1.1).
  */
 
-/** Every semantic colour token in the system. 205 tokens. */
+/** Every semantic colour token in the system. 209 tokens. */
 export type ColorToken =
   | '--color-bg-ai'
   | '--color-bg-ai-subtle'
@@ -94,6 +94,10 @@ export type ColorToken =
   | '--color-file-text-text'
   | '--color-file-word-background'
   | '--color-file-word-text'
+  | '--color-gradient-ai-blue'
+  | '--color-gradient-ai-pink'
+  | '--color-gradient-ai-teal'
+  | '--color-gradient-ai-violet'
   | '--color-icon-ai'
   | '--color-icon-brand'
   | '--color-icon-brand-hover'
@@ -1325,6 +1329,22 @@ export const colorValues: Record<ColorToken, { light: string; dark: string }> =
     "--color-deal-control": {
       "light": "#6bdcb3",
       "dark": "#058355"
+    },
+    "--color-gradient-ai-violet": {
+      "light": "#a614ff",
+      "dark": "#c668ff"
+    },
+    "--color-gradient-ai-blue": {
+      "light": "#0268c1",
+      "dark": "#3597ed"
+    },
+    "--color-gradient-ai-teal": {
+      "light": "#0891b2",
+      "dark": "#22d3ee"
+    },
+    "--color-gradient-ai-pink": {
+      "light": "#be185d",
+      "dark": "#ea589e"
     }
   } as Record<ColorToken, { light: string; dark: string }>;
 

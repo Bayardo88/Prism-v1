@@ -425,6 +425,19 @@
   --color-deal-subtle: #9ce8cd;
   --color-deal-subtle-text: #046140;
   --color-deal-control: #6bdcb3;
+
+  /* --- Gradient: AI (the stops of the "AI is working" outline; graphic only) ---
+   * Semantic: Color › Gradient/AI/* (VariableID:677:2–5, published 2026-10-23),
+   * written in code first — known gap 15. They alias AI/Brand/Cyan/Pink 600 (Light)
+   * and 400 (Dark) in Primitive: Color.
+   * The stops reuse the values of the AI fill and three PRISM primaries, but
+   * are their own tokens: PRISM states what an item is (R11) and must not be
+   * borrowed for decoration. Order round the outline: violet → blue → teal → pink.
+   * Light values = bg.ai · Entity/Company · Data/Measurement Date · Destination/Page primary. */
+  --color-gradient-ai-violet: #a614ff;
+  --color-gradient-ai-blue: #0268c1;
+  --color-gradient-ai-teal: #0891b2;
+  --color-gradient-ai-pink: #be185d;
 }
 
 /* -----------------------------------------------------------------------------
@@ -672,6 +685,13 @@
   --color-deal-subtle: #03402a;
   --color-deal-subtle-text: #9ce8cd;
   --color-deal-control: #058355;
+
+  /* --- Gradient: AI (see Light; known gap 15) --------------------------
+   * Dark values = the same four sources in Dark. */
+  --color-gradient-ai-violet: #c668ff;
+  --color-gradient-ai-blue: #3597ed;
+  --color-gradient-ai-teal: #22d3ee;
+  --color-gradient-ai-pink: #ea589e;
 }
 
 

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Banner, DataFreshness, ProgressRing, SaveState, Spinner } from './index.js';
+import { expect } from 'storybook/test';
+import { AiOutline, Banner, DataFreshness, ProgressRing, SaveState, Spinner } from './index.js';
 import { Button } from '../button/Button.js';
 
 const meta = {
@@ -71,4 +72,29 @@ export const SaveStates: StoryObj<typeof SaveState> = {
       <SaveState state="saved">Saved to Q3 review</SaveState>
     </div>
   ),
+};
+
+/**
+ * The AI working outline: the gradient (violet → blue → teal → pink) orbits
+ * the outline every 6s while `active`, and holds still once the work is done.
+ * Always pair it with words or a Spinner (R8). `play` checks that the active
+ * outline turns and the still one does not.
+ */
+export const AiOutlines: StoryObj<typeof AiOutline> = {
+  name: 'AiOutline',
+  render: () => (
+    <div style={{ display: 'grid', gap: 'var(--space-l)', maxWidth: 360 }}>
+      <AiOutline data-testid="active" style={{ padding: 'var(--space-m)' }}>
+        <Spinner size="s" label="Reading Annual Report 2026.pdf…" />
+      </AiOutline>
+      <AiOutline active={false} data-testid="still" style={{ padding: 'var(--space-m)' }}>
+        Annual Report 2026.pdf has been analyzed and categorized.
+      </AiOutline>
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    await expect(canvas.getByTestId('active').getAnimations()).toHaveLength(reduce ? 0 : 1);
+    await expect(canvas.getByTestId('still').getAnimations()).toHaveLength(0);
+  },
 };

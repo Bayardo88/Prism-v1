@@ -318,7 +318,22 @@ export const deal = {
   control: v('--color-deal-control'),
 } as const;
 
-export const color = { text, bg, stroke, icon, overlay, chart, prism, file, product, workflow, deal } as const;
+/**
+ * Gradient — the stops of the AI working outline (`AiOutline`), in order round
+ * the outline: violet → blue → teal → pink. Graphic only (≥ 3:1 on page and
+ * surface); never text, never status, and not PRISM, whose values two of them
+ * share (R11). Figma: Semantic: Color › Gradient/AI/* (known gap 15).
+ */
+export const gradient = {
+  ai: {
+    violet: v('--color-gradient-ai-violet'),
+    blue: v('--color-gradient-ai-blue'),
+    teal: v('--color-gradient-ai-teal'),
+    pink: v('--color-gradient-ai-pink'),
+  },
+} as const;
+
+export const color = { text, bg, stroke, icon, overlay, chart, prism, file, product, workflow, deal, gradient } as const;
 
 /* ---------------------------------------------------------------------------
  * Scales
