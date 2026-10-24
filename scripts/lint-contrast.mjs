@@ -61,6 +61,9 @@ TEXT_PAIRS.push(...WORKFLOW_TONES.flatMap((t) => [
 // Deal card (known gap 14): its ink on the fill and on the stage pill at 4.5:1, the ink as a glyph on the control at 3:1.
 TEXT_PAIRS.push(['deal-text', 'deal-background'], ['deal-subtle-text', 'deal-subtle']);
 const DEAL_GRAPHICS = [['deal-text', 'deal-control']];
+// AI gradient stops (known gap 15): each is drawn as a 2px outline, so each needs 3:1 on page and surface.
+const GRADIENT_AI_STROKES = ['violet', 'blue', 'teal', 'pink'].flatMap((h) =>
+  ['bg-page', 'bg-surface'].map((bg) => [`gradient-ai-${h}`, bg]));
 const WORKFLOW_STROKES = WORKFLOW_TONES.flatMap((t) =>
   [`workflow-${t}-background`, 'bg-page', 'bg-surface'].map((bg) => [`workflow-${t}-stroke`, bg]));
 
@@ -93,7 +96,7 @@ for (const [mode, map] of Object.entries(modes)) {
     if (!gc || !bc) { failures.push(`${mode}: cannot resolve ${g} / ${bg}`); continue; }
     need(mode, `${g} on ${bg}`, ratio(gc, bc), 3);
   }
-  for (const [s, bg] of WORKFLOW_STROKES) {
+  for (const [s, bg] of [...WORKFLOW_STROKES, ...GRADIENT_AI_STROKES]) {
     const sc = get(s), bc = get(bg);
     if (!sc || !bc) { failures.push(`${mode}: cannot resolve ${s} / ${bg}`); continue; }
     need(mode, `${s} on ${bg}`, ratio(sc, bc), 3);

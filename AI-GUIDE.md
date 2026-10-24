@@ -9,7 +9,7 @@ contract is.
 - **Source of truth:** `Scalar_Design_System-v1.1` (tokens, Figma file
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
-- **Scale:** 487 design tokens · 168 Figma components plus the code-layer and Workboard families · Light + Dark · 3 type modes.
+- **Scale:** 491 design tokens · 168 Figma components plus the code-layer and Workboard families · Light + Dark · 3 type modes.
 - **Live components:** [Storybook](https://scalar-prism-storybook.netlify.app), built from `main` (every pull request gets a deploy preview).
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
@@ -107,6 +107,7 @@ Never pick a colour by eye. Find the row that matches the **job**.
 | A grid **table title**, column-group label or single-row column header | `color.text.gridHeader` | `text.primary` |
 | A **file type** badge (PDF, DOCX, XLSX…) | `color.file.<kind>.background` + `.text` | `bg.negative` for a PDF — a format is not a status |
 | A **product** tile or mark (Intelligence, Valuations, Waterfalls, Documents) | `color.product.<key>.background` + `.icon` | status tints, or the AI family for Waterfalls |
+| The outline of an item **AI is working on** | `AiOutline`, or `color.gradient.ai.*` (violet → blue → teal → pink) | PRISM tokens, even where the values match (R11), or a hand-built gradient |
 | A Workboard **step** colour (Blue, Pink, Cyan, Orange) | `WorkflowTone` on `ActionPill` / `ActionTag`, or `color.workflow.<tone>.*` | a `--primitive-*` step (R1), or brand/warning standing in |
 | The Workboard **Deal** card's fill and everything on it | `DealCard tone="deal"`, or `color.deal.background` + `.text` (`.subtle` / `.subtleText` for a pill, `.control` for a button) | `bg.positive` (a deal is not a status), white text (2.25:1 on the fill), a `--primitive-teal-*` step (R1) |
 | A status **tint** (pill, badge, alert ground) | `color.bg.*Subtle` + matching `color.text.*` | a saturated fill with 12px white text |
@@ -214,6 +215,7 @@ Find the **intent**, not the shape.
 | Navigate somewhere | `Link` | `Button` |
 | Run an action with an unambiguous glyph only | `ButtonIcon` (`label` required) | `Button` with no text |
 | Start a generative action | `AIButton` / `AITool` | a purple `Button` |
+| Show that AI is working on an item (card, notification) | `AiOutline` + words or a `Spinner` | a hand-made gradient border, or the outline alone (R8) |
 | Ask for one short value | `FormField` + `Input` | a bare `Input` |
 | Ask for long free text | `FormField` + `Textarea` | a tall `Input` |
 | Pick one of **≤7** options | `Radio` group | `Select` |
@@ -722,6 +724,10 @@ Rules:
 `GlobalSearch` · `SearchResultRow` · `SearchSectionHeader` · `SearchScopeChip` · `KeyHint`
 
 - `Skeleton` must match the layout it replaces. Under 300ms, show nothing.
+- **`AiOutline`** — `{ active?: boolean (default true), asChild? }` + div attributes. A 2px outline in
+  `color.gradient.ai.*`. While `active` the colours orbit it every 6s; `active={false}` holds it still; reduced
+  motion stops it. It paints `--ai-outline-fill` (default `bg.surface`) inside, so don't set a background on it.
+  Decorative: pair it with words or a `Spinner` (R8). Full guide: [docs/ai-outline.md](docs/ai-outline.md).
 - `ProgressBar` with no `value` is indeterminate — use it only when the total
   genuinely is unknown.
 - `Modal` traps focus, closes on Escape, returns focus to its trigger.

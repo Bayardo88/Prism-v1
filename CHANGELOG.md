@@ -1,6 +1,17 @@
 # Changelog
 
 ## Unreleased
+- **AI gradient tokens** — `--color-gradient-ai-{violet|blue|teal|pink}` (`color.gradient.ai.*`), Light + Dark, the AI fill
+  plus the teal and pink (and blue) of Global Search, as their own tokens, not PRISM (R11). In the contrast gate at 3:1 on
+  page and surface. In Figma as *Semantic: Color › Gradient/AI/\** (published 2026-10-23; known gap 15).
+- **`AiOutline`** — a 2px outline in the AI gradient whose colours orbit it every 6s while AI works (`active`), following
+  the corners with no seam (`@property` angle on a conic gradient); still when inactive or under reduced motion. `asChild`
+  puts it on your own element. Story *Feedback › AiOutline* checks the motion in the browser; guide `docs/ai-outline.md`
+  and Storybook page *Feedback › AiOutline spec*. Figma: **AI Outline** (components file, page 24), plus the proposed
+  **Notification Item** and **Notification Panel** (page 25) behind the Notifications Center prototype.
+- **`Toast` dismiss button** — the × now takes the toast's ink (`--toast-ink`) instead of the main tone's brand ink, which
+  was 1:1 on the brand (info) fill and about 1.1:1 on an AI fill (R3). Hover and press darken the fill (`overlay.subtle`). New story
+  *Toast (dismissible)* checks the computed colour in the browser, because axe's contrast rule skips icon-only controls.
 - **Deal tokens** — `--color-deal-{background|text|subtle|subtle-text|control}` (`color.deal.*`), Light + Dark, aliasing the Teal
   scale (Figma "Accent"), in the contrast gate. Added to the tokens file as *Semantic: Color › Deal/\** (known gap 14).
 - **Workboard Valuation modal** — `ValuationModal`, `ValuationSummary`, `ValuationPanel`, `FigureList`, `StepAssignMenu`,

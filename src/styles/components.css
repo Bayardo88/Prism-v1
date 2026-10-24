@@ -270,6 +270,40 @@
 .scalar-ai-button:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 .scalar-ai-button:disabled { background: var(--color-bg-disabled); color: var(--color-text-on-disabled); cursor: not-allowed; }
 
+/* --- AI Outline ------------------------------------------------------------ */
+/* A 2px outline painted with the AI gradient (known gap 15). The fill sits on
+ * the padding box and a conic gradient on the border box, so only the outline
+ * shows colour. Turning the conic's start angle (a registered property, so it
+ * interpolates) makes the colours follow the outline round every corner; a
+ * full turn ends on its first frame, so the loop has no seam. */
+@property --scalar-ai-outline-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.scalar-ai-outline {
+  --scalar-ai-outline-angle: 0deg;
+  --ai-outline-fill: var(--color-bg-surface);
+  border: 2px solid transparent;
+  border-radius: var(--radius-m);
+  background:
+    linear-gradient(var(--ai-outline-fill), var(--ai-outline-fill)) padding-box,
+    conic-gradient(
+      from var(--scalar-ai-outline-angle),
+      var(--color-gradient-ai-violet),
+      var(--color-gradient-ai-blue),
+      var(--color-gradient-ai-teal),
+      var(--color-gradient-ai-pink),
+      var(--color-gradient-ai-violet)
+    ) border-box;
+}
+.scalar-ai-outline--active { animation: scalar-ai-outline-orbit 6s linear infinite; }
+@keyframes scalar-ai-outline-orbit { to { --scalar-ai-outline-angle: 360deg; } }
+/* base.css only zeroes transitions; the orbit is an animation, so stop it here. */
+@media (prefers-reduced-motion: reduce) {
+  .scalar-ai-outline--active { animation: none; }
+}
+
 /* --- Avatar ---------------------------------------------------------------- */
 .scalar-avatar {
   display: inline-flex;
@@ -700,6 +734,15 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-toast--warning  { --toast-bg: var(--color-bg-warning);  --toast-ink: var(--color-text-on-warning); }
 .scalar-toast--negative { --toast-bg: var(--color-bg-negative); --toast-ink: var(--color-text-on-negative); }
 .scalar-toast__body { flex: 1 1 auto; min-width: 0; font-family: var(--font-family-default); font-size: var(--font-size-text-m); line-height: var(--line-height-text-m); }
+/* The dismiss button sits on the toast's fill, so it takes the toast's ink (R3),
+ * not the main tone's brand ink, which vanishes on a brand fill. Hover darkens
+ * the fill rather than laying a light tint under light ink. */
+.scalar-toast .scalar-button {
+  --btn-ink: var(--toast-ink);
+  --btn-ink-hover: var(--toast-ink);
+  --btn-ink-pressed: var(--toast-ink);
+  --btn-tint: var(--color-overlay-subtle);
+}
 .scalar-toast-viewport {
   position: fixed;
   right: var(--space-xl);

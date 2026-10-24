@@ -6,7 +6,7 @@
  * The global menus are real and clickable on every screen — a Figma frame that
  * shows one open (e.g. "Home — Global Search open") just passes `openMenu`.
  */
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import {
   Avatar, CompanyDropdown, Icon, MainMenuItem,
   Notification, PrimaryMenu, ScalarProvider, SearchBar, Selector, Text, icons,
@@ -15,7 +15,23 @@ import {
 import { href } from '../router.js';
 import { routes } from '../routes.js';
 import { portfolioDate, user, type Company } from '../data/fixtures.js';
-import { overlays, type GlobalMenu } from './overlays/index.js';
+import { overlays, type GlobalMenu, type OverlayProps } from './overlays/index.js';
+
+/**
+ * Prototype hook: lets a prototype swap a global menu's surface, drive the
+ * bell's unread dot and know which menu is open, while composing a real screen
+ * unchanged. Product screens never provide it, so the defaults apply.
+ */
+export interface GlobalMenuOverrides {
+  menus?: Partial<Record<GlobalMenu, ComponentType<OverlayProps>>>;
+  /** The bell's unread dot. Default on. */
+  unread?: boolean;
+  /** Menu open on first render, when the screen passes none. */
+  openMenu?: GlobalMenu;
+  onMenuChange?: (menu: GlobalMenu | undefined) => void;
+}
+
+export const GlobalMenuOverridesContext = createContext<GlobalMenuOverrides>({});
 
 export type Area = 'home' | 'intelligence' | 'valuations' | 'waterfalls' | 'documents' | 'reports' | 'company' | 'settings';
 
@@ -34,14 +50,18 @@ export interface AppFrameProps {
 }
 
 export function AppFrame({ area, company, date, openMenu, overlay, children }: AppFrameProps) {
-  const [open, setOpen] = useState<GlobalMenu | undefined>(openMenu);
+  const overrides = useContext(GlobalMenuOverridesContext);
+  const initialMenu = openMenu ?? overrides.openMenu;
+  const [open, setOpen] = useState<GlobalMenu | undefined>(initialMenu);
   const [tool, setTool] = useState<ToolSwitchValue>('valuations');
-  useEffect(() => setOpen(openMenu), [openMenu]);
+  useEffect(() => setOpen(initialMenu), [initialMenu]);
+  const { onMenuChange } = overrides;
+  useEffect(() => onMenuChange?.(open), [open, onMenuChange]);
   // Closing Global Search hands focus back to the search bar, whose onFocus would reopen it.
   const closedAt = useRef(0);
 
   const toggle = (m: GlobalMenu) => () => setOpen((cur) => (cur === m ? undefined : m));
-  const Overlay = open ? overlays[open] : undefined;
+  const Overlay = open ? (overrides.menus?.[open] ?? overlays[open]) : undefined;
 
   return (
     <ScalarProvider mode="light" viewport="auto">
@@ -58,7 +78,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
                 readOnly
                 onFocus={() => { if (Date.now() - closedAt.current > 300) setOpen('search'); }}
               />
-              <Notification unread onClick={toggle('notifications')} />
+              <Notification unread={overrides.unread ?? true} onClick={toggle('notifications')} />
               <ToolSwitch value={tool} onChange={setTool} />
               <button
                 type="button"

@@ -5,7 +5,7 @@
 > `anrnTIJKgu27zV224h7vON (Scalar_Design_System-v1.1)`.
 > **Do not hand-edit.** Run `npm run gen:tokens && node scripts/gen-docs.mjs`.
 
-- **205** semantic colour tokens (Light + Dark)
+- **209** semantic colour tokens (Light + Dark)
 - **142** primitive colour steps (reference only)
 - **60** scale, elevation and motion tokens
 - **80** typography tokens × 3 viewport modes
@@ -299,6 +299,17 @@ The Workboard Deal card (`DealCard tone="deal"`): `background` is its fill (Teal
 | `--color-deal-subtle` | `#9ce8cd` | `#03402a` |
 | `--color-deal-subtle-text` | `#046140` | `#9ce8cd` |
 | `--color-deal-text` | `#03402a` | `#e9faf4` |
+
+### Gradient: AI
+
+The stops of the AI working outline (`AiOutline`), in order round the card: violet → blue → teal → pink. Graphic only (≥ 3:1 on page and surface), never text or status. They share values with the AI fill and three PRISM primaries but are separate tokens, because PRISM states what an item is (R11). Figma: *Semantic: Color › Gradient/AI/\** (known gap 15).
+
+| Token | Light | Dark |
+|---|---|---|
+| `--color-gradient-ai-blue` | `#0268c1` | `#3597ed` |
+| `--color-gradient-ai-pink` | `#be185d` | `#ea589e` |
+| `--color-gradient-ai-teal` | `#0891b2` | `#22d3ee` |
+| `--color-gradient-ai-violet` | `#a614ff` | `#c668ff` |
 
 ---
 

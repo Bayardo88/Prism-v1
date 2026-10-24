@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { createRef } from 'react';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -55,6 +57,21 @@ describe('Toast', () => {
     expect(vref.current).toHaveClass('v');
     await userEvent.setup().click(screen.getByRole('button', { name: 'Dismiss' }));
     expect(onDismiss).toHaveBeenCalled();
+  });
+  it('dismiss button takes the toast ink, not the brand ink', () => {
+    // jsdom can't resolve custom properties, so check the two halves: the
+    // button is a `.scalar-button` inside `.scalar-toast`, and the stylesheet
+    // points that pairing's ink at `--toast-ink`. The Toast (dismissible)
+    // story checks the computed colour in a real browser.
+    renderWithProvider(<Toast tone="info" onDismiss={() => undefined} data-testid="t">Hi</Toast>);
+    const button = screen.getByRole('button', { name: 'Dismiss' });
+    expect(button).toHaveClass('scalar-button');
+    expect(button.closest('.scalar-toast')).toBe(screen.getByTestId('t'));
+    const css = readFileSync(resolve(__dirname, '../../styles/components.css'), 'utf8');
+    const rule = css.match(/\.scalar-toast \.scalar-button \{([^}]*)\}/)?.[1] ?? '';
+    for (const prop of ['--btn-ink', '--btn-ink-hover', '--btn-ink-pressed']) {
+      expect(rule).toContain(`${prop}: var(--toast-ink);`);
+    }
   });
   it('legacy `style` string alias', () => {
     renderWithProvider(<Toast style="warning" data-testid="t">w</Toast>);

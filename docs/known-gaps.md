@@ -299,3 +299,46 @@ text. Switch them to `Deal/Background` + `Deal/Text` (and the stage pill to
 `Deal/Subtle` + `Deal/Subtle Text`, the edit button to `Deal/Control`). Until
 then code and Figma differ in the card's ink, deliberately: code is AA, the
 frames are not.
+
+---
+
+## 15. AI gradient tokens and `AiOutline` were written in code first
+
+Figma has `Gradient/AI` only as a paint style on `AIButton` and `AITool`, with
+no variables and no Dark counterpart (gap 5). The "AI is working" outline on
+notification cards (Notifications-center file `BbebfOi2JVBIYgQWaSj52G`) needed
+its colours as tokens, so the family
+`--color-gradient-ai-{violet|blue|teal|pink}` (`color.gradient.ai.*` in
+TypeScript) was **transcribed into code first**, Light and Dark:
+
+| Token | Light | Dark | Same value as |
+|---|---|---|---|
+| `violet` | `#a614ff` | `#c668ff` | `bg.ai` |
+| `blue` | `#0268c1` | `#3597ed` | PRISM `Entity/Company` primary |
+| `teal` | `#0891b2` | `#22d3ee` | PRISM `Data/Measurement Date` primary |
+| `pink` | `#be185d` | `#ea589e` | PRISM `Destination/Page` primary |
+
+They share values with PRISM but are **not** PRISM: PRISM states what an item
+is (R11) and must not be borrowed for decoration, so the gradient can move
+without touching Global Search. Each stop is drawn as a 2px stroke, so
+`npm run lint:contrast` checks it at 3:1 on page and surface, Light and Dark.
+
+`AiOutline` paints them as a conic gradient on the border box and turns the
+start angle (`@property --scalar-ai-outline-angle`, 6s linear, infinite), so the
+colours follow the outline. Reduced motion stops it. The motion is from
+`GOOGLE_AI_STUDIO_GRADIENT_INPUT_ANIMATION.md` (supplied with the
+Notifications Center prototype). Its outer glow is not built, because there is no
+glow token beyond the elevation ladder (R9).
+
+**Status (2026-10-23):** the four variables exist in the tokens file
+(`anrnTIJKgu27zV224h7vON`, *Semantic: Color*) as `Gradient/AI/Violet`, `Blue`,
+`Teal` and `Pink` (`VariableID:677:2`–`677:5`). They alias `AI`, `Brand`, `Cyan` and `Pink` 600 in Light
+and 400 in Dark, with `WEB` code syntax `var(--color-gradient-ai-…)`, and the library is
+published. Their values match `tokens.css` exactly, and they are documented on page *01 · Color*
+("v1.1 additions"). If a value moves in Figma, the library wins: re-transcribe and regenerate.
+The components file has **AI Outline** (`1753:95`, page *24 · Feedback Patterns*), with its
+angular stroke bound to the four variables.
+
+**Still open (design):** `Gradient/AI` the *paint style* on `AIButton` / `AITool` (gap 5) can now
+be rebuilt from these variables, which also gives it a Dark mode. The Workflow tones (gap 13) remain
+the only family that is code-first and not yet in the library.

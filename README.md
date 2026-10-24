@@ -1,6 +1,6 @@
 # Scalar Design System — React layer
 
-The code layer for the Scalar product: **487 design tokens** and the **168
+The code layer for the Scalar product: **491 design tokens** and the **168
 Figma components**, generated from the v1.1 Figma libraries, plus the code-layer
 and Workboard families (the Workboard Valuation modal among them), with
 Light/Dark theming and a three-mode type ramp. Every component is live in

@@ -104,6 +104,7 @@ ${section('File type', '--color-file-', 'Format identity for the File Type Badge
 ${section('Product identity', '--color-product-', 'One tint + icon colour per Scalar product (Product Tile). Identity, not status; Waterfalls does not borrow the AI family. `icon` is graphic only — titles on the tint use `text-primary`.')}
 ${section('Workflow tone', '--color-workflow-', 'The Workboard\'s extra step colours (`WorkflowTone` blue · pink · cyan · orange) — identity of a step, never status. `background` + `text` + `stroke` draw the tinted pill, `solid` + `on-solid` the filled "due today" pill. **Code-first** from the workboard-v2 proposed collection, pending publication to the Scalar tokens library (known gap 13).')}
 ${section('Deal', '--color-deal-', 'The Workboard Deal card (`DealCard tone="deal"`): `background` is its fill (Teal 500 in Light) and `text` the only ink on it — AA, where white is not. `subtle` + `subtle-text` draw a pill on the card (the stage), `control` fills a small button (edit owner). Identity of the deal, never status. Figma: *Semantic: Color › Deal/\\** (known gap 14).')}
+${section('Gradient: AI', '--color-gradient-ai-', 'The stops of the AI working outline (`AiOutline`), in order round the card: violet → blue → teal → pink. Graphic only (≥ 3:1 on page and surface), never text or status. They share values with the AI fill and three PRISM primaries but are separate tokens, because PRISM states what an item is (R11). Figma: *Semantic: Color › Gradient/AI/\\** (known gap 15).')}
 ---
 
 ## 2. Scales

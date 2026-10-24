@@ -1,7 +1,7 @@
 # Scalar Design System — start here
 
 The design tokens and React components for the Scalar product, generated from
-the v1.1 Figma libraries. **487 tokens · 168 Figma components (plus the code-layer and Workboard families) · Light + Dark · three
+the v1.1 Figma libraries. **491 tokens · 168 Figma components (plus the code-layer and Workboard families) · Light + Dark · three
 type modes.**
 
 Pages are built *out of* this. They never re-specify colour, spacing or type.
