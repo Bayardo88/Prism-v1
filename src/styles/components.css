@@ -700,6 +700,15 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-toast--warning  { --toast-bg: var(--color-bg-warning);  --toast-ink: var(--color-text-on-warning); }
 .scalar-toast--negative { --toast-bg: var(--color-bg-negative); --toast-ink: var(--color-text-on-negative); }
 .scalar-toast__body { flex: 1 1 auto; min-width: 0; font-family: var(--font-family-default); font-size: var(--font-size-text-m); line-height: var(--line-height-text-m); }
+/* The dismiss button sits on the toast's fill, so it takes the toast's ink (R3),
+ * not the main tone's brand ink, which vanishes on a brand fill. Hover darkens
+ * the fill rather than laying a light tint under light ink. */
+.scalar-toast .scalar-button {
+  --btn-ink: var(--toast-ink);
+  --btn-ink-hover: var(--toast-ink);
+  --btn-ink-pressed: var(--toast-ink);
+  --btn-tint: var(--color-overlay-subtle);
+}
 .scalar-toast-viewport {
   position: fixed;
   right: var(--space-xl);

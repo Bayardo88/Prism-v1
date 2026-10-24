@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect } from 'storybook/test';
 import { Alert, ProgressBar, Skeleton, SkeletonGroup, Toast, ToastViewport } from './index.js';
 import { Button } from '../button/Button.js';
 
@@ -36,6 +37,31 @@ export const ToastStory: StoryObj<typeof Toast> = {
       <Toast tone="negative" onDismiss={() => undefined}>Upload failed</Toast>
     </ToastViewport>
   ),
+};
+
+/**
+ * Every tone with a dismiss button. The × sits on the toast's fill, so it takes
+ * the toast's ink. axe's contrast rule only reads text, so `play` checks the
+ * icon's computed colour against the toast's own.
+ */
+export const ToastDismissible: StoryObj<typeof Toast> = {
+  name: 'Toast (dismissible)',
+  render: () => (
+    <ToastViewport style={{ position: 'static' }}>
+      <Toast tone="positive" onDismiss={() => undefined}>Valuation published</Toast>
+      <Toast tone="info" onDismiss={() => undefined}>3 documents processing</Toast>
+      <Toast tone="warning" onDismiss={() => undefined}>Connection is slow</Toast>
+      <Toast tone="negative" onDismiss={() => undefined}>Upload failed</Toast>
+    </ToastViewport>
+  ),
+  play: async ({ canvas }) => {
+    const buttons = canvas.getAllByRole('button', { name: 'Dismiss' });
+    await expect(buttons).toHaveLength(4);
+    for (const button of buttons) {
+      const toast = button.closest('.scalar-toast')!;
+      await expect(getComputedStyle(button).color).toBe(getComputedStyle(toast).color);
+    }
+  },
 };
 
 export const ProgressDeterminate: StoryObj<typeof ProgressBar> = {
