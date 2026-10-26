@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import {
   AccordionItem, Button, Cell, Checkbox, ColumnHeader, CopyField, DataGrid, Heading, Icon, Input, Label,
-  Overline, Pagination, RepeatableRow, Row, Select, Text, Tooltip, color, icons, radius, space,
+  Overline, RepeatableRow, Row, Select, Text, Tooltip, color, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { FirmSettingsFrame, SectionRule, SidePanel, TwoColumn } from './FirmSettingsFrame.js';
@@ -21,9 +21,6 @@ export function Scim({ state }: ScreenProps) {
 
   const update = (id: number, patch: Partial<Mapping>) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
 
-  const [perPage, setPerPage] = useState(5);
-  const [page, setPage] = useState(1);
-  const revokedPages = Math.max(1, Math.ceil(scim.revoked.length / perPage));
 
   return (
     <FirmSettingsFrame tab="scim">
@@ -100,6 +97,7 @@ export function Scim({ state }: ScreenProps) {
               <AccordionItem title="Revoked Tokens" defaultOpen>
                 <DataGrid
                   label="Revoked tokens"
+                  pagination={{ defaultRowsPerPage: 5, rowsPerPageOptions: [5, 10, 25] }}
                   head={
                     <>
                       <ColumnHeader tone="subtle" grow={2}>Token Prefix</ColumnHeader>
@@ -108,7 +106,7 @@ export function Scim({ state }: ScreenProps) {
                     </>
                   }
                 >
-                  {scim.revoked.slice((page - 1) * perPage, page * perPage).map((t) => (
+                  {scim.revoked.map((t) => (
                     <Row key={t.prefix}>
                       <Cell>{t.prefix}</Cell>
                       <Cell numeric>{t.created}</Cell>
@@ -116,16 +114,6 @@ export function Scim({ state }: ScreenProps) {
                     </Row>
                   ))}
                 </DataGrid>
-                <div style={{ paddingTop: space.s }}>
-                  <Pagination
-                    page={page}
-                    pageCount={revokedPages}
-                    onPageChange={setPage}
-                    rowsPerPage={perPage}
-                    rowsPerPageOptions={[5, 10, 25]}
-                    onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
-                  />
-                </div>
               </AccordionItem>
             </div>
           </SidePanel>

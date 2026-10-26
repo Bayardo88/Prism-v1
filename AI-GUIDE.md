@@ -58,7 +58,7 @@ import { BarChart } from '@scalar/design-system/charts';
 
 ## 1. The hard rules
 
-These are the system's rules (R1–R13 from the Figma contract, plus R14 for code), restated for code. Breaking one is a
+These are the system's rules (R1–R13 from the Figma contract, plus R14 and R15 for code), restated for code. Breaking one is a
 bug, not a style preference.
 
 | # | Rule |
@@ -73,6 +73,7 @@ bug, not a style preference.
 | **R8** | **Colour alone never carries meaning.** Status needs an icon or words. Chart series need direct labels. Links need a permanent underline. |
 | **R9** | Elevation is a ladder: `raised` < `overlay` < `modal`. Shadow colours are token-bound and deepen automatically in Dark. |
 | **R14** | **Pages are always light mode**, even when the machine's system style is dark. `ScalarProvider` defaults to `mode="light"` and the stylesheet does not follow `prefers-color-scheme`. Never ship `mode="dark"`, never set `data-theme="dark"` on a page, never add your own dark styling. Dark exists for the library only. |
+| **R15** | **Every table paginates, and nothing turns it off.** `DataGrid` and `Table` render their own pagination bar — range ("26–50 of 137"), Rows per page (10 · 25 · 50 · 100) and the page buttons — under every table, even when all rows fit on one page. There is no `hidePagination` / `pagination={false}`; do not try to hide the bar with CSS, a wrapper or a `className`. Never place your own `Pagination` under a table, never slice rows yourself for client data, and never build a table by hand (`<table>`, `role="table"`) to get around it. Pass everything as children / `rows` and let the table page it; for server data pass `pagination={{ totalRows, page, onPageChange }}` with one page of rows. `npm run lint:tables` fails on a hand-placed `Pagination` or a hand-built table. |
 | **R10** | **Text floor is 12px** for everything a user reads. `heading.xs` (10px) is the single sanctioned exception, for data-grid chrome only — column headers and in-cell labels, never prose, form labels or helper text. Display is marketing-only. Uppercase labels use the Overline role, which owns the +0.8px tracking — never set `letterSpacing` yourself. |
 | **R11** | PRISM says what an item **represents** — never access, availability or permission. |
 | **R12** | 33 of the 78 type tokens are identical across all three modes. That is intentional. Do not "fix" them. |
@@ -230,7 +231,8 @@ Find the **intent**, not the shape.
 | Show the state of a **deal** | `ValuationStatus` | `ModalStatus` |
 | Switch between peer views of one thing | `Tabs` | `Stepper` |
 | Move through an ordered process | `Stepper` | `Tabs` |
-| Page through records | `Pagination` | `Tabs` |
+| Page through a table's rows | nothing — `DataGrid` / `Table` page themselves (R15) | a `Pagination` under the table |
+| Page through records that are not a table | `Pagination` | `Tabs` |
 | Show where the page sits in the hierarchy | `Breadcrumb` | a back button |
 | Message the user must act on | `Alert` (inline, persistent) | `Toast` |
 | Acknowledge something that already happened | `Toast` (transient) | `Alert` |
@@ -240,7 +242,7 @@ Find the **intent**, not the shape.
 | Surface with nothing in it | `EmptyState` | a blank div |
 | Content not loaded yet (first load, known shape) | `Skeleton` | a spinner |
 | Progress of a task with a known total | `ProgressBar` (determinate) | indeterminate |
-| A dense grid of figures, read-only | `DataGrid` + `Row` + `Cell` | an HTML `<table>` |
+| A dense grid of figures, read-only | `DataGrid` + `Row` + `Cell` (paginates itself, R15) | an HTML `<table>` |
 | A spreadsheet-like table: selection, resize, formula view, editing | `Table` | a product-specific table or a fork of `Table` |
 | Explain the control under the pointer | `Tooltip` | placeholder text |
 | Search everything, from anywhere | `GlobalSearch` | a page filter |
@@ -439,6 +441,8 @@ wrapper inside the slot. Full guide: `docs/page-template.md`.
   selected is a navigation bug, not a state.
 - The last `Breadcrumb` item is the current page: not a link, and it must not
   look like one.
+- **Never put `Pagination` under a `DataGrid` or `Table`** — they render their own
+  bar (R15). `Pagination` is for paged content that is not a table.
 - `Pagination` never *hides* Previous/Next — it disables them. Pass
   `rowsPerPage` + `onRowsPerPageChange` (and optionally `rowsPerPageOptions`,
   default 10 · 25 · 50 · 100) to render the labelled "Rows per page" Select at
@@ -464,6 +468,10 @@ computed from the data over all rows (`columnMinWidth`), never from the DOM; val
 truncate with a tooltip. Pass `columnWidths` / `onColumnResize` only to control widths; otherwise they persist per `tableId`.
 Do not wrap header labels, and do not put `role="grid"` on `DataGrid`.
 
+**`Table` always paginates (R15).** 25 rows a page by default; a group — a top-level row, its children and the total row that
+closes it — never splits across pages (`pageStarts`). Changing page clears the selection; A1 row numbers keep counting
+across pages; column minimums still come from every row. Configure it with `pagination` (`TablePaging`); nothing removes it.
+
 ### Data grid
 
 `DataGrid` · `Row` · `RowHeader` · `Cell` · `ColumnHeader` · `ContentCell` · `Footnote` ·
@@ -481,6 +489,22 @@ always fills exactly its header's column.
 | `width="…"` | that fixed track | an icon or checkbox column — pass a `size.*` token |
 | `span={n}` | n tracks | a header over several columns; body cells take `span` too |
 
+- **Pagination is built in and always shown (R15).** Pass every row as children:
+  the grid shows 25 a page, offers 10 · 25 · 50 · 100, and keeps trailing
+  `Row type="total"` rows under every page. `pagination` (`TablePaging`) only
+  configures it: `defaultRowsPerPage`, `rowsPerPageOptions`, controlled
+  `page` / `onPageChange` / `rowsPerPage` / `onRowsPerPageChange`, `label`.
+  **Server data:** add `totalRows` (the whole set) and pass only the current
+  page's rows — the grid then shows the children as they are. A `width` in
+  `style` sizes the grid and its bar together.
+
+  ```tsx
+  <DataGrid label="Companies" head={head}>{companies.map(toRow)}</DataGrid>             // client
+  <DataGrid label="Companies" head={head}
+    pagination={{ totalRows: total, page, onPageChange: setPage, rowsPerPage, onRowsPerPageChange: setRowsPerPage }}>
+    {pageOfCompanies.map(toRow)}
+  </DataGrid>                                                                           // server
+  ```
 - `columns` on `DataGrid` overrides the derived tracks entirely; `groupHead`
   takes a row of `ColumnGroupHeader`s (use their `span`) above `head`.
 - `maxHeight` bounds the grid: the body scrolls inside it and the header sticks
@@ -764,6 +788,8 @@ Rules:
 | `filter: brightness(0.9)` for hover | `bg.brandHover` |
 | `letterSpacing: '0.8px'` for uppercase | the `overline` role (R10) |
 | a `<table>` for a dense figure grid | `DataGrid` + `Row` + `Cell` |
+| `<Pagination>` under a `DataGrid` / `Table`, or `rows.slice(…)` to page client data | pass every row; the table pages itself (R15) |
+| hiding a table's pagination bar (a prop, CSS, a wrapper) | nothing — the bar is always shown, even on one page (R15) |
 | a `Button` that navigates | `Link` |
 | a `Link` that submits or deletes | `Button` |
 | `role="heading"` on `Typography` | `variant="heading"` — `role` is the DOM attribute |
@@ -794,6 +820,7 @@ Then check by hand:
 - [ ] It reads correctly in **both** Light and Dark.
 - [ ] No text below 12px (R10) — the only exception is `heading.xs` (10px) in data-grid column headers and in-cell labels.
 - [ ] Charts with ≥3 series carry direct labels.
+- [ ] Every table is a `DataGrid` or `Table` and shows its pagination bar; no hand-placed `Pagination` (R15, `npm run lint:tables`).
 
 ---
 

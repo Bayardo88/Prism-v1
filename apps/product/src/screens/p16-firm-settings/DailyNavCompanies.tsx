@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Alert, Button, Cell, CheckboxItem, Chip, ColumnHeader, DataGrid, FormField, Heading, Icon, Input, Link, Modal,
-  Pagination, Row, RowHeader, Text, icons, space,
+  Row, RowHeader, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
@@ -70,7 +70,6 @@ export function DailyNavCompanies({ state }: ScreenProps) {
 
   const all = useMemo(() => db.companies.all(), []);
   const { rows, total } = db.companies.page((page - 1) * perPage, perPage, all);
-  const pageCount = Math.max(1, Math.ceil(total / perPage));
 
   return (
     <FirmSettingsFrame
@@ -88,6 +87,7 @@ export function DailyNavCompanies({ state }: ScreenProps) {
       <DataGrid
         label="Daily NAV companies"
         columns={columns}
+        pagination={{ totalRows: total, page, onPageChange: setPage, rowsPerPage: perPage, onRowsPerPageChange: setPerPage }}
         head={
           <>
             <ColumnHeader>Company</ColumnHeader>
@@ -126,13 +126,6 @@ export function DailyNavCompanies({ state }: ScreenProps) {
           );
         })}
       </DataGrid>
-      <Pagination
-        page={page}
-        pageCount={pageCount}
-        onPageChange={setPage}
-        rowsPerPage={perPage}
-        onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
-      />
     </FirmSettingsFrame>
   );
 }

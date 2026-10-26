@@ -6,7 +6,7 @@ not an app.
 
 ## Before writing any code here
 
-Read **[AI-GUIDE.md](AI-GUIDE.md)**. It is the contract: the 13 hard rules,
+Read **[AI-GUIDE.md](AI-GUIDE.md)**. It is the contract: the hard rules (R1–R15),
 decision tables for colour / size / type / component, the full API, and an
 anti-pattern list. It applies to code in this repo and to any product UI built
 on it.
@@ -38,7 +38,13 @@ content, and the docked drawer. Read **[docs/page-template.md](docs/page-templat
 5. **Pages are always light mode**, even when the machine is set to dark.
    `ScalarProvider` defaults to `light`; never ship `mode="dark"` or follow the
    OS (rule R14 in AI-GUIDE).
-6. **Chart.js configs take resolved values, never `var(--…)` strings.** Canvas
+6. **Every table paginates, always** (rule R15 in AI-GUIDE). `DataGrid` and
+   `Table` render their own pagination bar on every table, even a one-page one,
+   and no prop hides it. Never put a `Pagination` under a table, never slice rows
+   yourself for client data, never hand-build a `<table>` / `role="table"`.
+   Server data: `pagination={{ totalRows, page, onPageChange }}`.
+   `npm run lint:tables` (part of `verify`) enforces it.
+7. **Chart.js configs take resolved values, never `var(--…)` strings.** Canvas
    cannot read CSS custom properties; `var()` renders transparent. Take values
    off the `ChartTokens` object from `useChartTokens`.
 

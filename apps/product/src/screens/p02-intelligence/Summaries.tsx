@@ -7,7 +7,7 @@
  * modal, and the global User Menu opened over it.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { CellHistoryPopover, LineChart, Pagination, Text, space } from '@scalar/design-system';
+import { CellHistoryPopover, LineChart, Text, space } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
 import { companyById } from '../../data/fixtures.js';
@@ -129,6 +129,7 @@ export function Summaries({ state }: ScreenProps) {
       <PageBody gap={space.m}>
         <PortfolioGrid
           label="Firm portfolio summary"
+          pagination={{ totalRows: ORDER.length, page, onPageChange: setPage, rowsPerPage: perPage, onRowsPerPageChange: setPerPage }}
           firstColumn="Firm Portfolio Summary"
           columns={summaryColumns}
           rows={rows}
@@ -157,16 +158,7 @@ export function Summaries({ state }: ScreenProps) {
             ),
           } : undefined}
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: space.l }}>
-          <Pagination
-            page={page}
-            pageCount={Math.ceil(ORDER.length / perPage)}
-            onPageChange={setPage}
-            rowsPerPage={perPage}
-            onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
-          />
-          <div style={{ marginLeft: 'auto' }}><PublishedNote /></div>
-        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}><PublishedNote /></div>
       </PageBody>
     </AppFrame>
   );

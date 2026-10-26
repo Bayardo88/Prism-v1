@@ -309,3 +309,25 @@ export function effectiveWidth(requested: number | undefined, fallback: number, 
 export function toTsv(grid: string[][]): string {
   return grid.map((row) => row.join('\t')).join('\n');
 }
+
+/**
+ * Where each page of a Table starts, for `rowsPerPage` rows a page. A group —
+ * a top-level row, the child rows under it and the total row that closes it —
+ * never splits across pages: a page closes early rather than strand rows from
+ * their group, and a group larger than a page gets a page of its own.
+ */
+export function pageStarts(rows: TableRowDef[], rowsPerPage: number): number[] {
+  const opensGroup = (row: TableRowDef) => row.level === 0 && row.kind !== 'total';
+  const starts: number[] = [];
+  let size = 0;
+  let i = 0;
+  while (i < rows.length) {
+    let end = i + 1;
+    while (end < rows.length && !opensGroup(rows[end]!)) end++;
+    const block = end - i;
+    if (starts.length === 0 || size + block > rowsPerPage) { starts.push(i); size = 0; }
+    size += block;
+    i = end;
+  }
+  return starts.length ? starts : [0];
+}

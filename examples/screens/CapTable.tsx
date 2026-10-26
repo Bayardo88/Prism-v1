@@ -9,7 +9,7 @@ import { useState } from 'react';
 import {
   Alert, Avatar, Breadcrumb, Button, Cell, ColumnHeader, CompanyInfo,
   CurrencySelector, DataGrid, DonutChart, Footnote, Heading, Icon,
-  InformationLabel, MainMenuItem, Notification, Pagination, PrimaryMenu,
+  InformationLabel, MainMenuItem, Notification, PrimaryMenu,
   Row, ScalarProvider, SearchBar, SecondaryMenu, SecondaryMenuItem, Selector,
   Text, TertiaryMenu, TertiaryMenuItem, ValuationStatus,
   glyphs, space,
@@ -48,7 +48,6 @@ const COL = {
 } as const;
 
 export function CapTable() {
-  const [page, setPage] = useState(1);
 
   const totalShares = SECURITIES.reduce((a, s) => a + s.shares, 0);
   const totalValue = SECURITIES.reduce((a, s) => a + s.value, 0);
@@ -169,14 +168,9 @@ export function CapTable() {
               </Row>
             </DataGrid>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: space.m }}>
-              <Text step="s" tone="tertiary">
-                <Footnote>1</Footnote> Series B shares include the 2025 secondary transfer.
-              </Text>
-              <div style={{ marginLeft: 'auto' }}>
-                <Pagination page={page} pageCount={4} onPageChange={setPage} />
-              </div>
-            </div>
+            <Text step="s" tone="tertiary">
+              <Footnote>1</Footnote> Series B shares include the 2025 secondary transfer.
+            </Text>
           </div>
 
           <DonutChart

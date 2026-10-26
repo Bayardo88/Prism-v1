@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Table, type TableProps } from './Table.js';
 import type { Selection, TableCellData } from './tableModel.js';
+import type { TableRowDef } from './tableModel.js';
 import { cells as sampleCells, columns, footnotes, rows } from './Table.fixtures.js';
 
 const base: TableProps = {
@@ -109,3 +110,20 @@ function StackedDemo(args: TableProps) {
 }
 
 export const Stacked: Story = { render: (args) => <StackedDemo {...args} /> };
+
+const manyRows: TableRowDef[] = Array.from({ length: 14 }, (_, g) => [
+  { id: `s${g}`, label: `Scenario ${g + 1}`, level: 0 as const, kind: 'default' as const, collapsible: true },
+  { id: `s${g}-a`, label: 'Common', level: 1 as const, kind: 'default' as const },
+  { id: `s${g}-b`, label: 'Preferred', level: 1 as const, kind: 'default' as const, zebra: true },
+  { id: `s${g}-t`, label: `Scenario ${g + 1} total`, level: 0 as const, kind: 'total' as const },
+]).flat();
+const manyCells: Record<string, TableCellData> = Object.fromEntries(
+  manyRows.flatMap((r, i) => columns.map((c, j) => [`${r.id}:${c.id}`, { id: `${r.id}.${c.id}`, kind: r.kind === 'total' ? 'total' : 'readable', value: (i + 1) * (j + 3) * 1250, format: 'currency' } as TableCellData])),
+);
+
+/**
+ * Every Table paginates (R15): 56 rows at 25 a page. A group — its header, child rows and closing total —
+ * never splits across pages, so page 1 ends at 24 rows. Row numbers in formula mode keep counting across pages.
+ */
+export const Paginated: Story = { args: { tableId: 'storybook-paged', title: 'Allocation scenarios', rows: manyRows, cells: manyCells, footnotes: undefined, formulaMode: true } };
+

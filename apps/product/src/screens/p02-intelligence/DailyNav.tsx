@@ -6,7 +6,7 @@
  */
 import { useMemo, useRef, useState } from 'react';
 import {
-  Chip, ContextMenu, DataFreshness, FloatingLabelInput, Icon, MenuItem, Pagination, SplitButton,
+  Chip, ContextMenu, DataFreshness, FloatingLabelInput, Icon, MenuItem, SplitButton,
   color, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -91,18 +91,12 @@ export function DailyNav({ state }: ScreenProps) {
         </div>
         <PortfolioGrid
           label="Daily NAV"
+          pagination={{ totalRows: ORDER.length, page, onPageChange: setPage, rowsPerPage: perPage, onRowsPerPageChange: setPerPage }}
           firstColumn="Company"
           columns={navColumns}
           groups={navGroups}
           rows={rows}
           scrollTo={state === 'default' ? undefined : 'caplight'}
-        />
-        <Pagination
-          page={page}
-          pageCount={Math.ceil(ORDER.length / perPage)}
-          onPageChange={setPage}
-          rowsPerPage={perPage}
-          onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
         />
       </PageBody>
     </AppFrame>

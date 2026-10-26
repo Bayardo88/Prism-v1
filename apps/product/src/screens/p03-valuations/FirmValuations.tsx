@@ -6,7 +6,7 @@
  */
 import { useMemo, useState } from 'react';
 import {
-  Button, Checkbox, Modal, ModalSearch, Overline, Pagination, TaskPill, Text, icons, space,
+  Button, Checkbox, Modal, ModalSearch, Overline, TaskPill, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
@@ -131,6 +131,7 @@ export function FirmValuations({ state }: ScreenProps) {
       <PageBody gap={space.m}>
         <PortfolioGrid
           label="Firm valuations"
+          pagination={{ totalRows: ORDER.length, page, onPageChange: setPage, rowsPerPage: perPage, onRowsPerPageChange: setPerPage }}
           firstColumn="Firm Portfolio Summary"
           columns={valuationColumns}
           rows={rows}
@@ -140,16 +141,7 @@ export function FirmValuations({ state }: ScreenProps) {
           addColumnLabel="Add Column"
           addColumnSelected={adding}
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: space.l }}>
-          <Pagination
-            page={page}
-            pageCount={Math.ceil(ORDER.length / perPage)}
-            onPageChange={setPage}
-            rowsPerPage={perPage}
-            onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
-          />
-          <div style={{ marginLeft: 'auto' }}><PublishedNote /></div>
-        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}><PublishedNote /></div>
       </PageBody>
     </AppFrame>
   );

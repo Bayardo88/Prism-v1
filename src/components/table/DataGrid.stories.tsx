@@ -9,8 +9,9 @@ import { Cell } from './Cell.js';
 import { ContentCell, Ledger } from './ContentCell.js';
 import { ModalStatus } from './Status.js';
 import { Footnote } from './Footnote.js';
+import type { TablePaging } from './TablePagination.js';
 
-type GridArgs = { label: string; head?: ReactNode; groupHead?: ReactNode; children?: ReactNode; columns?: string[]; maxHeight?: string };
+type GridArgs = { label: string; head?: ReactNode; groupHead?: ReactNode; children?: ReactNode; columns?: string[]; maxHeight?: string; pagination?: TablePaging };
 
 const meta = {
   title: 'Data/Table/DataGrid',
@@ -18,6 +19,17 @@ const meta = {
   tags: ['autodocs'],
   args: { label: 'Income statement' },
   decorators: [(Story) => <div style={{ width: 640 }}><Story /></div>],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          '**Every DataGrid paginates — there is no prop that hides the bar (AI-GUIDE R15).** The range, the rows-per-page ' +
+          'Select and the page buttons render under the grid even when every row fits on one page. By default the grid ' +
+          'slices its own children, 25 a page, and keeps trailing `Row type="total"` rows under every page. For rows that ' +
+          'arrive a page at a time, pass `pagination={{ totalRows, page, onPageChange }}`. Never place your own `Pagination` under a grid.',
+      },
+    },
+  },
 } satisfies Meta<GridArgs>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -108,3 +120,40 @@ export const ContentCells: Story = {
     </DataGrid>
   ),
 };
+
+const companies = Array.from({ length: 137 }, (_, i) => ({
+  name: `Portfolio company ${String(i + 1).padStart(3, '0')}`,
+  value: Math.round(((i * 7919) % 9000) + 1000) * 1000,
+}));
+
+/** Client paging: pass every row; the grid shows 25 a page and the bar reads "1–25 of 137". */
+export const Paginated: Story = {
+  render: (args) => (
+    <DataGrid {...args} label="Portfolio companies" head={<><ColumnHeader grow={2}>Company</ColumnHeader><ColumnHeader numeric>Fair value</ColumnHeader></>}>
+      {companies.map((c, i) => (
+        <Row key={c.name} zebra={i % 2 === 1}><RowHeader>{c.name}</RowHeader><Cell numeric>{c.value.toLocaleString()}</Cell></Row>
+      ))}
+      <Row type="total"><RowHeader type="total">Total</RowHeader><Cell numeric state="total">{companies.reduce((n, c) => n + c.value, 0).toLocaleString()}</Cell></Row>
+    </DataGrid>
+  ),
+};
+
+/** Server paging: the caller fetches one page and passes `totalRows`; the grid shows the children as they are. */
+export const ServerPaging: Story = {
+  render: function Render(args) {
+    const [page, setPage] = useState(1);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const slice = companies.slice((page - 1) * rowsPerPage, page * rowsPerPage);
+    return (
+      <DataGrid
+        {...args}
+        label="Portfolio companies"
+        pagination={{ totalRows: companies.length, page, onPageChange: setPage, rowsPerPage, onRowsPerPageChange: setRowsPerPage }}
+        head={<><ColumnHeader grow={2}>Company</ColumnHeader><ColumnHeader numeric>Fair value</ColumnHeader></>}
+      >
+        {slice.map((c, i) => <Row key={c.name} zebra={i % 2 === 1}><RowHeader>{c.name}</RowHeader><Cell numeric>{c.value.toLocaleString()}</Cell></Row>)}
+      </DataGrid>
+    );
+  },
+};
+

@@ -647,6 +647,11 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-pagination__rows { display: inline-flex; align-items: center; gap: var(--space-s); color: var(--color-text-secondary); font-family: var(--font-family-default); font-size: var(--font-size-label-s); line-height: var(--line-height-label-s); white-space: nowrap; }
 .scalar-pagination__rows .scalar-field { width: auto; }
 .scalar-pagination__ellipsis { color: var(--color-text-tertiary); padding-inline: var(--space-xs); font-family: var(--font-family-default); font-size: var(--font-size-text-s); }
+
+/* Table Pagination — the bar every DataGrid and Table renders under itself (R15). */
+.scalar-grid-frame { display: flex; flex-direction: column; gap: var(--space-s); min-width: 0; max-width: 100%; }
+.scalar-table-pagination { display: flex; align-items: center; justify-content: space-between; gap: var(--space-l); flex-wrap: wrap; padding-block: var(--space-xs); }
+.scalar-table-pagination__range { color: var(--color-text-secondary); font-family: var(--font-family-default); font-size: var(--font-size-label-s); line-height: var(--line-height-label-s); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .scalar-page-item {
   display: inline-flex;
   align-items: center;

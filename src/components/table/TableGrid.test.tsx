@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { checkA11y } from '../../test/render.js';
 import { Table, type TableProps } from './index.js';
@@ -129,7 +129,7 @@ describe('Table', () => {
     expect(onCommit).toHaveBeenCalledWith('W.A', '755');
     await userEvent.click(cellAt(0, 3));
     await userEvent.keyboard('{Enter}');
-    await userEvent.selectOptions(screen.getByRole('combobox'), 'CVM');
+    await userEvent.selectOptions(within(screen.getByRole('grid')).getByRole('combobox'), 'CVM');
     expect(onCommit).toHaveBeenLastCalledWith('ALLOC.METHOD', 'CVM');
   });
 
@@ -258,3 +258,37 @@ describe('Table', () => {
     });
   });
 });
+
+describe('Table pagination (R15)', () => {
+  const many: TableProps['rows'] = Array.from({ length: 12 }, (_, g) => [
+    { id: `g${g}`, label: `Group ${g + 1}`, level: 0 as const, kind: 'default' as const, collapsible: true },
+    { id: `g${g}a`, label: `Child ${g + 1}a`, level: 1 as const, kind: 'default' as const },
+    { id: `g${g}b`, label: `Child ${g + 1}b`, level: 1 as const, kind: 'default' as const },
+  ]).flat();
+
+  it('always renders the pagination bar, even when every row fits on one page', () => {
+    render(<Table {...base} />);
+    expect(screen.getByRole('navigation', { name: 'Valuation Summary pages' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeDisabled();
+  });
+
+  it('never splits a group across pages and keeps A1 numbering across pages', async () => {
+    render(<Table {...base} rows={many} cells={{}} formulaMode pagination={{ defaultRowsPerPage: 10 }} />);
+    // 10 rows a page, groups of 3 → 9 rows (3 groups) on page 1.
+    expect(screen.getAllByRole('row').filter((r) => r.querySelector('[role="rowheader"]'))).toHaveLength(9);
+    expect(screen.getByText('1–9 of 36')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(screen.getByText('Group 4')).toBeInTheDocument();
+    expect(screen.queryByText('Group 1')).not.toBeInTheDocument();
+    expect(screen.getByText('10–18 of 36')).toBeInTheDocument();
+  });
+
+  it('clears the selection when the page changes', async () => {
+    const onSelectionChange = vi.fn();
+    render(<Table {...base} rows={many} cells={{}} pagination={{ defaultRowsPerPage: 10 }} defaultSelection={{ mode: 'row', row: 0 }} onSelectionChange={onSelectionChange} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Next page' }));
+    expect(onSelectionChange).toHaveBeenLastCalledWith({ mode: 'none' });
+  });
+});
+

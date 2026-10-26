@@ -1,6 +1,16 @@
 # Changelog
 
 ## Unreleased
+- **Every table paginates — always (R15).** `DataGrid` and `Table` now render their own pagination bar
+  (`TablePagination`: range "26–50 of 137", Rows per page 10 · 25 · 50 · 100, page buttons) under every table, even when
+  all rows fit on one page. There is no prop that hides it. Client data: pass every row and the table slices it (25 a page;
+  DataGrid keeps trailing total rows under every page; Table keeps a group — header, children, closing total — on one page,
+  via `pageStarts`). Server data: `pagination={{ totalRows, page, onPageChange }}`. New `TablePaging` type, `usePageState`.
+  **Breaking for layouts:** DataGrid is now wrapped in `.scalar-grid-frame` (grid + bar); a `style.width` moves to the frame.
+  New `npm run lint:tables` (in `verify` and `verify:product`) fails on a hand-placed `Pagination` or a hand-built table.
+  Product: Daily NAV, Summaries, Firm Valuations, Daily NAV Companies and SCIM moved to the built-in bar; every other
+  product grid gains one. AI-GUIDE R15, CLAUDE.md, the Prism Table spec and new stories (*DataGrid › Paginated*,
+  *DataGrid › Server Paging*, *Table › Paginated*).
 - **AI gradient tokens** — `--color-gradient-ai-{violet|blue|teal|pink}` (`color.gradient.ai.*`), Light + Dark, the AI fill
   plus the teal and pink (and blue) of Global Search, as their own tokens, not PRISM (R11). In the contrast gate at 3:1 on
   page and surface. In Figma as *Semantic: Color › Gradient/AI/\** (published 2026-10-23; known gap 15).

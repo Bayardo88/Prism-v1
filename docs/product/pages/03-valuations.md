@@ -5,7 +5,7 @@ The firm-wide valuation tracker. Valuation analysts and reviewers use it to see 
 ## Screens
 
 ### Firm Valuations — `/valuations`
-A saved-view grid of every portfolio company (all 200 from `db`: the frame's companies first, then A–Z, 25 per page with `Pagination`) (views "Firm Valuations" and "Steven Valuation View"), ending in an **Add Column** header that opens the Add Columns picker. Company names open the company's Valuation Summary.
+A saved-view grid of every portfolio company (all 200 from `db`: the frame's companies first, then A–Z, 25 per page in the grid's built-in pagination bar (R15)) (views "Firm Valuations" and "Steven Valuation View"), ending in an **Add Column** header that opens the Add Columns picker. Company names open the company's Valuation Summary.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
@@ -13,7 +13,7 @@ A saved-view grid of every portfolio company (all 200 from `db`: the frame's com
 | scrolled-add-column | [Valuations — Grid scrolled to Add Column](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-16597) | 11:16597 | `#/valuations?state=scrolled-add-column` |
 | add-columns | [Valuations — Add Columns modal](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-1134) | 14:1134 | `#/valuations?state=add-columns` |
 
-Components used: AppFrame, FilterDropdown, ViewTabBar, ViewTab, ContextMenu, MenuItem, ButtonIcon, CurrencySelector, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, AddColumnHeader (selected while the picker is open), ModalStatus, TaskPill, Link, Pagination, Modal (size m), ModalSearch, Checkbox, Overline, Text, Button, Icon.
+Components used: AppFrame, FilterDropdown, ViewTabBar, ViewTab, ContextMenu, MenuItem, ButtonIcon, CurrencySelector, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, AddColumnHeader (selected while the picker is open), ModalStatus, TaskPill, Link, DataGrid's built-in pagination, Modal (size m), ModalSearch, Checkbox, Overline, Text, Button, Icon.
 
 Behaviour & rules:
 - Columns: Valuation Date, Process Management, Valuation Status, Valuation Approaches, Enterprise Value, Equity Value, Breakeven Exit Equity, Allocation Method, Current Fund Value, % Change from Previous. All calculated, read-only, from the company record (equity value, fair value, MOIC, valuation method, stage).

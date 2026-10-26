@@ -14,11 +14,13 @@ export { ContentCell, Ledger } from './ContentCell.js';
 export type { ContentCellProps, ContentCellType, LedgerProps } from './ContentCell.js';
 export { DataGrid } from './DataGrid.js';
 export type { DataGridProps, DataGridName } from './DataGrid.js';
+export { TablePagination, usePageState, DEFAULT_ROWS_PER_PAGE, ROWS_PER_PAGE_OPTIONS } from './TablePagination.js';
+export type { TablePaging, TablePaginationProps, PageState } from './TablePagination.js';
 export { Table } from './Table.js';
 export type { TableProps } from './Table.js';
 export {
   selectionBorder, normalizeRange, cellSelection, rangeSelection, selectionRange, focusOf, cellState as deriveCellState,
-  columnLetter, a1, a1Range, formatValue, aggregate, cellMinWidth, columnMinWidth, titleMinWidth, headerFullWidth, clampWidth, effectiveWidth,
+  columnLetter, a1, a1Range, pageStarts, formatValue, aggregate, cellMinWidth, columnMinWidth, titleMinWidth, headerFullWidth, clampWidth, effectiveWidth,
   NO_SELECTION, TITLE_COLUMN_ID, ROW_HEIGHT, HEADER_HEIGHT,
 } from './tableModel.js';
 export type {
