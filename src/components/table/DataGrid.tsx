@@ -1,6 +1,5 @@
-import { forwardRef, type HTMLAttributes, type ReactElement, type ReactNode } from 'react';
+import { Children, Fragment, forwardRef, isValidElement, type HTMLAttributes, type ReactElement, type ReactNode } from 'react';
 import { cx } from '../../utils/cx.js';
-import { TablePagination, flattenRows, usePageState, type TablePaging } from './TablePagination.js';
 
 /** A DataGrid must be named: pass `label`, or `aria-labelledby` pointing at a visible heading. */
 export type DataGridName = { label: string; 'aria-labelledby'?: string } | { label?: string; 'aria-labelledby': string };
@@ -27,13 +26,6 @@ interface DataGridBaseProps extends Omit<HTMLAttributes<HTMLDivElement>, 'childr
    * region is keyboard-focusable so it can be scrolled without a pointer.
    */
   maxHeight?: string;
-  /**
-   * How the grid pages. Optional because the grid always pages itself — there
-   * is no prop that hides the pagination bar (AI-GUIDE R15). Without it the
-   * grid shows 25 rows a page from its own children; pass `totalRows` (and
-   * `page` / `onPageChange`) when the rows come a page at a time from a server.
-   */
-  pagination?: TablePaging;
 }
 
 export type DataGridProps = DataGridBaseProps & DataGridName;
@@ -48,13 +40,12 @@ interface TrackProps {
   span?: number;
 }
 
-const flatten = flattenRows;
-
-/** A trailing run of `Row type="total"` rows: they stay under every page, not only the last. */
-function splitTotals(rows: ReactElement[]): [ReactElement[], ReactElement[]] {
-  let i = rows.length;
-  while (i > 0 && (rows[i - 1]!.props as { type?: string }).type === 'total') i--;
-  return [rows.slice(0, i), rows.slice(i)];
+function flatten(node: ReactNode): ReactElement[] {
+  return Children.toArray(node).flatMap((child) => {
+    if (!isValidElement(child)) return [];
+    if (child.type === Fragment) return flatten((child.props as { children?: ReactNode }).children);
+    return [child];
+  });
 }
 
 /**
@@ -95,58 +86,44 @@ export function columnTracks(head: ReactNode): string[] {
  * APG grid keyboard model (roving tabindex, arrows, Home/End, Enter/F2, Esc)
  * and set `role="grid"` through your own wrapper — do not just pass it here.
  *
- * **Every DataGrid paginates, and that cannot be switched off.** The
- * pagination bar (range, rows per page, pages) always renders under the grid,
- * even when every row fits on one page. By default the grid slices its own
- * children (25 a page); trailing `Row type="total"` rows stay under every page.
- * For server paging pass `pagination={{ totalRows, page, onPageChange }}` and
- * only the current page's rows. Never put your own `Pagination` under a grid.
+ * **Never paginated (AI-GUIDE R15).** It renders every row it is given; do
+ * not slice rows into pages or place a `Pagination` under it. Bound a long grid
+ * with `maxHeight` instead.
  *
  * Accessibility: **a name is required** — `label` or `aria-labelledby`.
  */
 export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataGrid(
-  { head, groupHead, children, label, columns, maxHeight, pagination, className, style, ...rest },
+  { head, groupHead, children, label, columns, maxHeight, className, style, ...rest },
   ref,
 ) {
-  const [body, totals] = splitTotals(flatten(children));
-  const paging = usePageState(pagination, body.length);
-  const server = pagination?.totalRows != null;
-  const pageRows = server ? body : body.slice(paging.from, paging.to);
-  const name = pagination?.label ?? `${label ?? 'Table'} pages`;
   const tracks = columns ?? columnTracks(head);
-  // A width sizes the grid AND its pagination bar, so it goes on the frame around both.
-  const { width, ...ownStyle } = style ?? {};
   const gridStyle = {
     ...(tracks.length ? { gridTemplateColumns: tracks.join(' ') } : null),
     ...(maxHeight ? { maxHeight, overflowY: 'auto' as const } : null),
-    ...ownStyle,
+    ...style,
   };
   return (
-    <div className="scalar-grid-frame" style={width !== undefined ? { width } : undefined}>
-      <div
-        ref={ref}
-        aria-label={label}
-        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be keyboard-focusable (WCAG 2.1.1)
-        tabIndex={maxHeight ? 0 : undefined}
-        {...rest}
-        role="table"
-        className={cx('scalar-grid', maxHeight && 'scalar-grid--bounded', className)}
-        style={gridStyle}
-      >
-        {groupHead && (
-          <div role="row" className="scalar-grid__head scalar-grid__head--group">
-            {groupHead}
-          </div>
-        )}
-        {head && (
-          <div role="row" className="scalar-grid__head">
-            {head}
-          </div>
-        )}
-        {pageRows}
-        {totals}
-      </div>
-      <TablePagination state={paging} label={name} rowsPerPageOptions={pagination?.rowsPerPageOptions} />
+    <div
+      ref={ref}
+      aria-label={label}
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a scrollable region must be keyboard-focusable (WCAG 2.1.1)
+      tabIndex={maxHeight ? 0 : undefined}
+      {...rest}
+      role="table"
+      className={cx('scalar-grid', maxHeight && 'scalar-grid--bounded', className)}
+      style={gridStyle}
+    >
+      {groupHead && (
+        <div role="row" className="scalar-grid__head scalar-grid__head--group">
+          {groupHead}
+        </div>
+      )}
+      {head && (
+        <div role="row" className="scalar-grid__head">
+          {head}
+        </div>
+      )}
+      {children}
     </div>
   );
 });

@@ -117,7 +117,7 @@ control in three pieces; exactly one side is always selected, so a single
 | Breadcrumb Item | State | ⊕ `Breadcrumb` (`items[]`) | `navigation/Breadcrumb.tsx` |
 | Breadcrumb | — | = `Breadcrumb` | `navigation/Breadcrumb.tsx` |
 | Page Item | State | = `PageItem` | `navigation/Pagination.tsx` |
-| Pagination | — | = `Pagination` (＋ `rowsPerPage` / `rowsPerPageOptions` / `onRowsPerPageChange` — a labelled rows-per-page Select). Not for tables: `DataGrid` / `Table` render `TablePagination` themselves (R15) | `navigation/Pagination.tsx` |
+| Pagination | — | = `Pagination` (＋ `rowsPerPage` / `rowsPerPageOptions` / `onRowsPerPageChange` — a labelled rows-per-page Select). **Never on a table (R15)** — tables show every row | `navigation/Pagination.tsx` |
 | Step | State | = `Step` | `navigation/Stepper.tsx` |
 | Stepper | — | = `Stepper` | `navigation/Stepper.tsx` |
 

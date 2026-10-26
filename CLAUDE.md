@@ -38,12 +38,10 @@ content, and the docked drawer. Read **[docs/page-template.md](docs/page-templat
 5. **Pages are always light mode**, even when the machine is set to dark.
    `ScalarProvider` defaults to `light`; never ship `mode="dark"` or follow the
    OS (rule R14 in AI-GUIDE).
-6. **Every table paginates, always** (rule R15 in AI-GUIDE). `DataGrid` and
-   `Table` render their own pagination bar on every table, even a one-page one,
-   and no prop hides it. Never put a `Pagination` under a table, never slice rows
-   yourself for client data, never hand-build a `<table>` / `role="table"`.
-   Server data: `pagination={{ totalRows, page, onPageChange }}`.
-   `npm run lint:tables` (part of `verify`) enforces it.
+6. **No table shows pagination** (rule R15 in AI-GUIDE). `DataGrid` and `Table`
+   render every row; never put a `Pagination` under a table, never slice rows
+   into pages, never add page state to a screen. Bound a long grid with
+   `maxHeight`. `npm run lint:tables` (part of `verify`) enforces it.
 7. **Chart.js configs take resolved values, never `var(--…)` strings.** Canvas
    cannot read CSS custom properties; `var()` renders transparent. Take values
    off the `ChartTokens` object from `useChartTokens`.

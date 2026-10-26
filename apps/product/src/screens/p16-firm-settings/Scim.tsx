@@ -97,7 +97,6 @@ export function Scim({ state }: ScreenProps) {
               <AccordionItem title="Revoked Tokens" defaultOpen>
                 <DataGrid
                   label="Revoked tokens"
-                  pagination={{ defaultRowsPerPage: 5, rowsPerPageOptions: [5, 10, 25] }}
                   head={
                     <>
                       <ColumnHeader tone="subtle" grow={2}>Token Prefix</ColumnHeader>

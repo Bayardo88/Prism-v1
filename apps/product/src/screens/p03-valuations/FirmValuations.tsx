@@ -1,7 +1,7 @@
 /**
  * Valuations (firm): every company's latest valuation in one configurable
  * grid — date, open process tasks, status, approaches and the headline values
- * — for all 200 companies in the database a page at a time, with saved views
+ * — for all 200 companies in the database in one grid (no pagination), with saved views
  * and an Add Columns picker at the end of the grid.
  */
 import { useMemo, useState } from 'react';
@@ -15,7 +15,7 @@ import { routes } from '../../routes.js';
 import { PortfolioGrid, type GridRow } from '../p02-intelligence/PortfolioGrid.js';
 import { ExportMenuItems, PortfolioHeader, PublishedNote, SavedViewsBar } from '../p02-intelligence/chrome.js';
 import { companyHref, StatusCell } from '../p02-intelligence/cells.js';
-import { PAGE_SIZE, columnCatalogue, inFrameOrder } from '../p02-intelligence/data.js';
+import { columnCatalogue, inFrameOrder } from '../p02-intelligence/data.js';
 import type { Company } from '../../data/fixtures.js';
 import { VALUATIONS_FRAME, tasksOf, valuationColumns, valuationValues } from './data.js';
 
@@ -96,10 +96,8 @@ export function FirmValuations({ state }: ScreenProps) {
   const [viewMenu, setViewMenu] = useState<string | undefined>();
   const [actions, setActions] = useState(false);
   const [adding, setAdding] = useState(state === 'add-columns');
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(PAGE_SIZE);
 
-  const rows: GridRow[] = useMemo(() => ORDER.slice((page - 1) * perPage, page * perPage).map((c) => ({
+  const rows: GridRow[] = useMemo(() => ORDER.map((c) => ({
     id: c.id,
     label: c.name,
     href: companyHref(c, routes.company.valuationSummary),
@@ -109,7 +107,7 @@ export function FirmValuations({ state }: ScreenProps) {
       process: <Tasks company={c} />,
       status: <StatusCell company={c} />,
     },
-  })), [page, perPage]);
+  })), []);
 
   return (
     <AppFrame area="valuations" overlay={<AddColumnsModal open={adding} onClose={() => setAdding(false)} />}>
@@ -131,7 +129,6 @@ export function FirmValuations({ state }: ScreenProps) {
       <PageBody gap={space.m}>
         <PortfolioGrid
           label="Firm valuations"
-          pagination={{ totalRows: ORDER.length, page, onPageChange: setPage, rowsPerPage: perPage, onRowsPerPageChange: setPerPage }}
           firstColumn="Firm Portfolio Summary"
           columns={valuationColumns}
           rows={rows}

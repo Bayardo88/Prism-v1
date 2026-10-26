@@ -46,12 +46,12 @@ Enable SCIM provisioning, map IdP groups to Scalar roles, manage the SCIM token.
 | Firm Settings — SCIM | [link](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-9854) | 14:9854 | `#/firm-settings/scim?state=default` |
 | Firm Settings — SCIM · Mapping added | [link](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-11037) | 14:11037 | `#/firm-settings/scim?state=mapping-added` |
 
-Components used: CopyField (plain and `secret`), Checkbox, Tooltip, Overline, RepeatableRow, Input, Select, Button, AccordionItem, DataGrid, ColumnHeader (`tone="subtle"`), Row, Cell, DataGrid's built-in pagination (rows per page), Icon (Material `help`, `arrow_forward`, `add`).
+Components used: CopyField (plain and `secret`), Checkbox, Tooltip, Overline, RepeatableRow, Input, Select, Button, AccordionItem, DataGrid, ColumnHeader (`tone="subtle"`), Row, Cell, Icon (Material `help`, `arrow_forward`, `add`).
 
 Behaviour & rules:
 - Mappings: Testers → Limited Viewer, Admins → Analyst, Auditors → Auditor; "Add mapping" appends an empty row (placeholder "e.g. Admins", role Analyst) — the Mapping added state.
 - Token is masked after its prefix; Rotate (tertiary) and Revoke (tertiary negative); "Generate new token" primary.
-- Revoked Tokens accordion lists scim_eExe2 with created / revoked timestamps; the grid's built-in pagination bar (R15) with rows-per-page 5 · 10 · 25, pages disabled at 1 of 1.
+- Revoked Tokens accordion lists scim_eExe2 with created / revoked timestamps; every token in one grid, no pagination (R15).
 
 ### Daily NAV Settings — `/firm-settings/daily-nav`
 
@@ -83,7 +83,7 @@ Per-company Daily NAV switch, threshold overrides and Alexandria profile link.
 | Firm Settings — Daily NAV Companies | [link](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-27576) | 19:27576 | `#/firm-settings/daily-nav-companies?state=default` |
 | Firm Settings — Daily NAV Companies · Alexandria link modal | [link](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-39149) | 19:39149 | `#/firm-settings/daily-nav-companies?state=alexandria-modal` |
 
-Components used: DataGrid (`columns`), ColumnHeader, Row (zebra), Cell (`type="input"`), Link, Chip, CheckboxItem, Input, Button, DataGrid's built-in pagination (rows per page), Modal (`size="m"`), FormField, Alert, Text, Heading, Icon (Material `search`).
+Components used: DataGrid (`columns`), ColumnHeader, Row (zebra), Cell (`type="input"`), Link, Chip, CheckboxItem, Input, Button, Modal (`size="m"`), FormField, Alert, Text, Heading, Icon (Material `search`).
 
 Behaviour & rules:
 - Company names link to that company's Daily NAV settings (`routes.company.dailyNavSettings`); "Edit firm defaults." links back to Daily NAV Settings.

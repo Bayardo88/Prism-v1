@@ -21,10 +21,10 @@ One row per portfolio company, ~30 columns wide: fund, investment dates, ownersh
 | user-menu | [User Menu — Open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-43157) | 19:43157 | `#/intelligence/summaries?state=user-menu` |
 | user-menu-firm-settings | [User Menu — Firm Settings expanded](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-43612) | 19:43612 | `#/intelligence/summaries?state=user-menu-firm-settings` |
 
-Components used: AppFrame, FilterDropdown, SecondaryMenu, SecondaryMenuItem, ViewTabBar, ViewTab, ContextMenu, MenuItem, MenuDivider, ButtonIcon, CurrencySelector, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, AddColumnHeader, CollapsedColumnRail, ModalStatus, Link, DataGrid's built-in pagination, CellHistoryPopover, LineChart, Modal (size l), FloatingLabelInput, ModalSearch, Checkbox, Overline, Label, Text, Button, Icon (Material `icons.*`), UserMenu, MenuSubItems.
+Components used: AppFrame, FilterDropdown, SecondaryMenu, SecondaryMenuItem, ViewTabBar, ViewTab, ContextMenu, MenuItem, MenuDivider, ButtonIcon, CurrencySelector, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, AddColumnHeader, CollapsedColumnRail, ModalStatus, Link, CellHistoryPopover, LineChart, Modal (size l), FloatingLabelInput, ModalSearch, Checkbox, Overline, Label, Text, Button, Icon (Material `icons.*`), UserMenu, MenuSubItems.
 
 Behaviour & rules:
-- **Rows come from the company database** (`db`, 200 companies): the companies drawn in the frame first, in frame order, then the rest A–Z, 25 per page in the grid's built-in pagination bar (R15; rows-per-page 10 · 25 · 50 · 100). Each name links to that company's own Summary.
+- **Rows come from the company database** (`db`, 200 companies): the companies drawn in the frame first, in frame order, then the rest A–Z, all in one grid with no pagination (R15). Each name links to that company's own Summary.
 - All figures are **calculated** summary values (read-only, Text/Primary) derived from the company record — fund, investment and last-round dates, ownership, as-of date, invested, fair value, MOIC (IRR from MOIC over the holding period), equity value, revenue (projections = LTM × 1.25ⁿ). Totals run over all 200 companies.
 - Value metrics (Realized / Unrealized / Total Value, IRR, MOIC, EV, Equity Value, Breakeven, Current Fund Value, % change, ARR multiple, DCF rate, approaches) show only when the record's valuation is **Final or Published**; otherwise they render as shaded Not-Applicable cells and Total Value reads "DRAFT". Valuation Status shows the record's workflow status (Draft · In Progress · In Review · Ready for Audit · Final · Published) as a ModalStatus.
 - The grid is a `DataGrid`: column tracks come from the headers (never narrower than the label), body rows are subgrids, zebra stripes. The first column is pinned (sticky) and the grid scrolls horizontally inside itself. Collapsed Column Rails ("+ 8 columns") count the columns hidden left and right and page the grid when clicked. The "Scrolled" frames are the same screen scrolled to Total Value, Total Insight Preference and the end.
@@ -47,7 +47,7 @@ Behaviour & rules:
 - Currency is per company and is a display label — it never implies a conversion.
 
 ### Daily NAV — `/intelligence/daily-nav`
-A daily mark for every company (all 200 from `db`, the frame's companies first, 25 per page in the grid's built-in pagination bar (R15)): its previous valuation, secondary-market prices (Caplight, Forge, Zanbato), public comp moves and a NAV status, with a Report split button. Reached from the Daily NAV tab; company names (where the company exists) open its Daily NAV settings; the page ⋮ links to Firm Settings → Daily NAV settings.
+A daily mark for every company (all 200 from `db`, the frame's companies first, all in one grid with no pagination (R15)): its previous valuation, secondary-market prices (Caplight, Forge, Zanbato), public comp moves and a NAV status, with a Report split button. Reached from the Daily NAV tab; company names (where the company exists) open its Daily NAV settings; the page ⋮ links to Firm Settings → Daily NAV settings.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
@@ -55,7 +55,7 @@ A daily mark for every company (all 200 from `db`, the frame's companies first, 
 | public-comps | [Daily NAV — Public comps & NAV status](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-50974) | 19:50974 | `#/intelligence/daily-nav?state=public-comps` |
 | report-menu | [Daily NAV — Report menu open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-53212) | 19:53212 | `#/intelligence/daily-nav?state=report-menu` |
 
-Components used: AppFrame, FilterDropdown, SecondaryMenu, FloatingLabelInput, DataFreshness, SplitButton, ContextMenu, MenuItem, DataGrid (groupHead), Row, ColumnGroupHeader, GridColumnHeader, RowLabelCell, GridValueCell, Chip, Icon, DataGrid's built-in pagination.
+Components used: AppFrame, FilterDropdown, SecondaryMenu, FloatingLabelInput, DataFreshness, SplitButton, ContextMenu, MenuItem, DataGrid (groupHead), Row, ColumnGroupHeader, GridColumnHeader, RowLabelCell, GridValueCell, Chip, Icon.
 
 Behaviour & rules:
 - Column groups: Previous Valuation (3) · Secondary Data (9) · Public Comp Value (3) · NAV Considerations (Status). The second and third frames are the same grid scrolled to Secondary Data.

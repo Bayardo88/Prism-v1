@@ -12,12 +12,11 @@ import { Cell } from './Cell.js';
 import { ColumnHeader } from './ColumnHeader.js';
 import { RowHeader, type RowHeaderIconProps } from './RowHeader.js';
 import { Footnote } from './Footnote.js';
-import { TablePagination, usePageState, type TablePaging } from './TablePagination.js';
 import {
   DEFAULT_COLUMN_WIDTH, DEFAULT_TITLE_WIDTH, DIVIDER_WIDTH, HEADER_HEIGHT, NO_SELECTION, NUMBER_COLUMN_WIDTH, RESIZE_STEP,
   ROW_HEIGHT, TITLE_COLUMN_ID, WIDTH_CEIL,
   a1, a1Range, aggregate, cellSelection, cellState, clampWidth, columnLetter, columnMinWidth, effectiveWidth, focusOf,
-  formatValue, headerFullWidth, measureText, pageStarts, rangeSelection, selectionRange, titleMinWidth, toTsv,
+  formatValue, headerFullWidth, measureText, rangeSelection, selectionRange, titleMinWidth, toTsv,
   type Selection, type TableCellData, type TableColumnDef, type TableRowDef,
 } from './tableModel.js';
 
@@ -48,13 +47,6 @@ export interface TableProps {
   onAddRow?: (rowId: string) => void;
   /** Footnote text by number; a cell's footnote points at it with `aria-describedby`. */
   footnotes?: Record<number, string>;
-  /**
-   * How the table pages. Optional because the table always pages itself —
-   * there is no prop that hides the pagination bar (AI-GUIDE R15). Default 25
-   * rows a page; a top-level row and its children always share a page. Pass
-   * `totalRows` when `rows` is already one page from a server.
-   */
-  pagination?: TablePaging;
   className?: string;
 }
 
@@ -100,10 +92,8 @@ function iconProps(control: { icon: ReactNode; label: string; run: () => void } 
  *
  * For a static, read-only table with no selection use `DataGrid`.
  *
- * **It always paginates** — the pagination bar renders under the table even
- * when every row fits on one page, and no prop removes it. A group (a
- * top-level row and its children) never splits across pages; A1 row numbers
- * keep counting across pages; changing page clears the selection.
+ * **Never paginated (AI-GUIDE R15)** — it shows every row; collapse groups
+ * rather than paging them, and never place a `Pagination` under it.
  *
  * State is derived, never stored per cell: fill comes from selection and hover,
  * text colour from `cell.kind` only. Fill precedence is error > selected >
@@ -119,7 +109,7 @@ function iconProps(control: { icon: ReactNode; label: string; run: () => void } 
 export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(props, ref) {
   const {
     tableId, title, columns, rows, cells, formulaMode, columnWidths, onColumnResize, onCellCommit, onAddColumn,
-    addColumnLabel = 'Add column', onAddRow, footnotes, pagination, className,
+    addColumnLabel = 'Add column', onAddRow, footnotes, className,
   } = props;
   const uid = useId();
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -139,19 +129,16 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(props
 
   /* ----------------------------------------------------- derived structure */
 
-  const paging = usePageState(pagination, rows.length, useCallback((n: number) => pageStarts(rows, n), [rows]));
-  const [pageFrom, pageTo] = pagination?.totalRows != null ? [0, rows.length] : [paging.from, paging.to];
-
   const visibleRows = useMemo(() => {
     const out: Array<{ row: TableRowDef; index: number }> = [];
     let hiding = false;
-    rows.slice(pageFrom, pageTo).forEach((row, i) => {
+    rows.forEach((row, index) => {
       if (row.level === 0) hiding = false;
-      if (!hiding) out.push({ row, index: pageFrom + i });
+      if (!hiding) out.push({ row, index });
       if (row.level === 0 && row.collapsible && collapsed.has(row.id)) hiding = true;
     });
     return out;
-  }, [rows, collapsed, pageFrom, pageTo]);
+  }, [rows, collapsed]);
 
   // Minimums come from DATA over ALL rows (collapsed ones included), never from the DOM.
   const mins = useMemo(() => {
@@ -235,15 +222,6 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(props
     window.addEventListener('mouseup', up);
     return () => window.removeEventListener('mouseup', up);
   }, []);
-
-  // A selection belongs to the page it was made on.
-  const shownPage = useRef(paging.page);
-  useEffect(() => {
-    if (shownPage.current === paging.page) return;
-    shownPage.current = paging.page;
-    setEditing(null);
-    setSelection(NO_SELECTION);
-  }, [paging.page, setSelection]);
 
   // Keep a selection valid when rows collapse or columns go away.
   useEffect(() => {
@@ -708,8 +686,6 @@ export const Table = forwardRef<HTMLDivElement, TableProps>(function Table(props
           )}
         </div>
       )}
-
-      <TablePagination state={paging} label={pagination?.label ?? `${title} pages`} rowsPerPageOptions={pagination?.rowsPerPageOptions} />
 
       {footnotes && (
         <VisuallyHidden>

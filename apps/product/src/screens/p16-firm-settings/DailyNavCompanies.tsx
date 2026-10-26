@@ -64,12 +64,9 @@ function AlexandriaModal({ company, onClose }: { company: string; onClose: () =>
 export function DailyNavCompanies({ state }: ScreenProps) {
   const [linking, setLinking] = useState<string | undefined>(state === 'alexandria-modal' ? 'ABC Co' : undefined);
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
   useEffect(() => setLinking(state === 'alexandria-modal' ? 'ABC Co' : undefined), [state]);
 
-  const all = useMemo(() => db.companies.all(), []);
-  const { rows, total } = db.companies.page((page - 1) * perPage, perPage, all);
+  const rows = useMemo(() => db.companies.all(), []);
 
   return (
     <FirmSettingsFrame
@@ -87,7 +84,6 @@ export function DailyNavCompanies({ state }: ScreenProps) {
       <DataGrid
         label="Daily NAV companies"
         columns={columns}
-        pagination={{ totalRows: total, page, onPageChange: setPage, rowsPerPage: perPage, onRowsPerPageChange: setPerPage }}
         head={
           <>
             <ColumnHeader>Company</ColumnHeader>

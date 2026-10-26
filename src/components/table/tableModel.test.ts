@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   a1, a1Range, aggregate, cellMinWidth, cellSelection, cellState, clampWidth, columnLetter, columnMinWidth, effectiveWidth, focusOf, formatValue,
-  pageStarts, rangeSelection, selectionBorder, selectionRange, titleMinWidth, type MeasureText, type TableCellData, type TableColumnDef, type TableRowDef,
+  rangeSelection, selectionBorder, selectionRange, titleMinWidth, type MeasureText, type TableCellData, type TableColumnDef, type TableRowDef,
 } from './tableModel.js';
 
 // 7px per character keeps widths exact and independent of any canvas.
@@ -104,26 +104,5 @@ describe('column minimum width', () => {
     expect(effectiveWidth(50, 150, 74)).toBe(74); // data changed: grows to the new minimum
     expect(effectiveWidth(300, 150, 74)).toBe(300);
     expect(effectiveWidth(undefined, 150, 74)).toBe(150);
-  });
-});
-
-describe('pageStarts', () => {
-  const row = (id: string, level: 0 | 1): TableRowDef => ({ id, label: id, level, kind: 'default' });
-  it('keeps a parent with its children', () => {
-    const rows = [row('a', 0), row('a1', 1), row('a2', 1), row('b', 0), row('b1', 1), row('c', 0)];
-    expect(pageStarts(rows, 4)).toEqual([0, 3]);
-    expect(pageStarts(rows, 6)).toEqual([0]);
-  });
-  it('gives a group larger than a page a page of its own', () => {
-    const rows = [row('a', 0), row('b', 0), row('b1', 1), row('b2', 1), row('b3', 1), row('c', 0)];
-    expect(pageStarts(rows, 2)).toEqual([0, 1, 5]);
-  });
-  it('keeps a closing total row with the group above it', () => {
-    const total = (id: string): TableRowDef => ({ id, label: id, level: 0, kind: 'total' });
-    const rows = [row('a1', 1), row('a2', 1), total('at'), row('b', 0), row('b1', 1), total('bt')];
-    expect(pageStarts(rows, 3)).toEqual([0, 3]);
-  });
-  it('returns one page for no rows', () => {
-    expect(pageStarts([], 25)).toEqual([0]);
   });
 });

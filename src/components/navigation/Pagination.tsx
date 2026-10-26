@@ -94,8 +94,9 @@ function buildRange(page: number, pageCount: number, siblings: number): Array<nu
  * hidden: a control that disappears moves everything beside it and costs the
  * user their aim.
  *
- * For a long grid people scan rather than navigate, consider infinite scroll;
- * pagination is for sets people cite by page.
+ * **Never under a table (AI-GUIDE R15).** No `DataGrid` or `Table` in the
+ * product is paginated — they show every row. This is for paged content that
+ * is not a table.
  *
  * With `rowsPerPage` + `onRowsPerPageChange` it renders a labelled
  * rows-per-page `Select` at the start of the bar. Changing it is the caller's

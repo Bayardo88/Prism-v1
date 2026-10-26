@@ -15,7 +15,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   AddColumnHeader, CollapsedColumnRail, ColumnGroupHeader, DataGrid, GridColumnHeader, GridValueCell,
-  Row, RowHeader, color, icons, zIndex, type SortDirection, type TablePaging, type ValueKind,
+  Row, RowHeader, color, icons, zIndex, type SortDirection, type ValueKind,
 } from '@scalar/design-system';
 
 export interface GridCol {
@@ -61,8 +61,6 @@ export interface PortfolioGridProps {
   /** Show the Collapsed Column Rails for hidden columns. */
   rails?: boolean;
   popover?: { row: string; col: string; content: ReactNode };
-  /** Passed to the DataGrid, which always renders the pagination bar (R15). */
-  pagination?: TablePaging;
 }
 
 /** The pinned first column sticks to the grid's left edge while it scrolls sideways. */
@@ -82,7 +80,7 @@ const numberOf = (v: ReactNode): number | null => {
 
 export function PortfolioGrid({
   label, firstColumn, columns, rows, total, groups, scrollTo, selectedCol, focused, onCellClick,
-  onAddColumn, addColumnLabel = 'Add column', addColumnSelected, rails, popover, pagination,
+  onAddColumn, addColumnLabel = 'Add column', addColumnSelected, rails, popover,
 }: PortfolioGridProps) {
   const outer = useRef<HTMLDivElement>(null);
   const [sort, setSort] = useState<{ key: string; dir: SortDirection }>({ key: '', dir: 'none' });
@@ -185,7 +183,6 @@ export function PortfolioGrid({
     <div ref={outer} style={{ position: 'relative', minWidth: 0 }}>
       <DataGrid
         label={label}
-        pagination={pagination}
         style={{ border: `1px solid ${color.stroke.divider}` }}
         groupHead={groups && (
           <>

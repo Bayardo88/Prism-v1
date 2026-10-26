@@ -11,24 +11,12 @@ and the Workboard all render `Table`. Product differences come from `columns`, `
 
 <Canvas of={TableStories.Interactive} />
 
-## Pagination — always on
+## No pagination
 
-**Every `Table` and every `DataGrid` paginates, and nothing turns it off** (AI-GUIDE R15). The bar — the visible range
-("26–50 of 137"), a Rows per page Select (10 · 25 · 50 · 100) and the page buttons — renders under the table even when
-every row fits on one page; Previous and Next are then disabled, never hidden. There is no `hidePagination`, no
-`pagination={false}`, and a hand-placed `Pagination` under a table fails `npm run lint:tables`.
-
-| Behaviour | Rule |
-| --- | --- |
-| Default | 25 rows a page; the table slices `rows` (or a DataGrid its children) itself |
-| Groups | A top-level row, its children and its closing total row share a page; a page closes early rather than split them |
-| Totals (DataGrid) | Trailing `Row type="total"` rows stay under every page |
-| Rows per page | Changing it goes back to page 1 |
-| Selection | Changing page clears the selection; A1 row numbers keep counting across pages |
-| Column widths | Minimums come from every row on every page, so columns do not jump between pages |
-| Server data | Pass `pagination={{ totalRows, page, onPageChange }}` and only the current page's rows |
-
-<Canvas of={TableStories.Paginated} />
+**No table shows pagination** (AI-GUIDE R15). `Table` and `DataGrid` render every row they are given. Never put a
+`Pagination` under a table, never split its rows into pages, and never add page or rows-per-page state to a screen.
+A long table stays one table: collapse groups (`Table`) or bound a `DataGrid` with `maxHeight`, so the body scrolls
+under a sticky header. `npm run lint:tables` fails on any `Pagination` in product code.
 
 ## Cells: kind is data, state is UI
 
