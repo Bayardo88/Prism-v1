@@ -1,12 +1,12 @@
 /**
  * Valuations (firm): every company's latest valuation in one configurable
  * grid — date, open process tasks, status, approaches and the headline values
- * — for all 200 companies in the database a page at a time, with saved views
+ * — for all 200 companies in the database in one grid (no pagination), with saved views
  * and an Add Columns picker at the end of the grid.
  */
 import { useMemo, useState } from 'react';
 import {
-  Button, Checkbox, Modal, ModalSearch, Overline, Pagination, TaskPill, Text, icons, space,
+  Button, Checkbox, Modal, ModalSearch, Overline, TaskPill, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
@@ -15,7 +15,7 @@ import { routes } from '../../routes.js';
 import { PortfolioGrid, type GridRow } from '../p02-intelligence/PortfolioGrid.js';
 import { ExportMenuItems, PortfolioHeader, PublishedNote, SavedViewsBar } from '../p02-intelligence/chrome.js';
 import { companyHref, StatusCell } from '../p02-intelligence/cells.js';
-import { PAGE_SIZE, columnCatalogue, inFrameOrder } from '../p02-intelligence/data.js';
+import { columnCatalogue, inFrameOrder } from '../p02-intelligence/data.js';
 import type { Company } from '../../data/fixtures.js';
 import { VALUATIONS_FRAME, tasksOf, valuationColumns, valuationValues } from './data.js';
 
@@ -96,10 +96,8 @@ export function FirmValuations({ state }: ScreenProps) {
   const [viewMenu, setViewMenu] = useState<string | undefined>();
   const [actions, setActions] = useState(false);
   const [adding, setAdding] = useState(state === 'add-columns');
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(PAGE_SIZE);
 
-  const rows: GridRow[] = useMemo(() => ORDER.slice((page - 1) * perPage, page * perPage).map((c) => ({
+  const rows: GridRow[] = useMemo(() => ORDER.map((c) => ({
     id: c.id,
     label: c.name,
     href: companyHref(c, routes.company.valuationSummary),
@@ -109,7 +107,7 @@ export function FirmValuations({ state }: ScreenProps) {
       process: <Tasks company={c} />,
       status: <StatusCell company={c} />,
     },
-  })), [page, perPage]);
+  })), []);
 
   return (
     <AppFrame area="valuations" overlay={<AddColumnsModal open={adding} onClose={() => setAdding(false)} />}>
@@ -140,16 +138,7 @@ export function FirmValuations({ state }: ScreenProps) {
           addColumnLabel="Add Column"
           addColumnSelected={adding}
         />
-        <div style={{ display: 'flex', alignItems: 'center', gap: space.l }}>
-          <Pagination
-            page={page}
-            pageCount={Math.ceil(ORDER.length / perPage)}
-            onPageChange={setPage}
-            rowsPerPage={perPage}
-            onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
-          />
-          <div style={{ marginLeft: 'auto' }}><PublishedNote /></div>
-        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}><PublishedNote /></div>
       </PageBody>
     </AppFrame>
   );

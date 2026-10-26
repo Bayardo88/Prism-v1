@@ -92,6 +92,9 @@ function iconProps(control: { icon: ReactNode; label: string; run: () => void } 
  *
  * For a static, read-only table with no selection use `DataGrid`.
  *
+ * **Never paginated (AI-GUIDE R15)** — it shows every row; collapse groups
+ * rather than paging them, and never place a `Pagination` under it.
+ *
  * State is derived, never stored per cell: fill comes from selection and hover,
  * text colour from `cell.kind` only. Fill precedence is error > selected >
  * pressed > hover > zebra > default.

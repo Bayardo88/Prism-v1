@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   Alert, Button, Cell, CheckboxItem, Chip, ColumnHeader, DataGrid, FormField, Heading, Icon, Input, Link, Modal,
-  Pagination, Row, RowHeader, Text, icons, space,
+  Row, RowHeader, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href } from '../../router.js';
@@ -64,13 +64,9 @@ function AlexandriaModal({ company, onClose }: { company: string; onClose: () =>
 export function DailyNavCompanies({ state }: ScreenProps) {
   const [linking, setLinking] = useState<string | undefined>(state === 'alexandria-modal' ? 'ABC Co' : undefined);
   const [enabled, setEnabled] = useState<Record<string, boolean>>({});
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(25);
   useEffect(() => setLinking(state === 'alexandria-modal' ? 'ABC Co' : undefined), [state]);
 
-  const all = useMemo(() => db.companies.all(), []);
-  const { rows, total } = db.companies.page((page - 1) * perPage, perPage, all);
-  const pageCount = Math.max(1, Math.ceil(total / perPage));
+  const rows = useMemo(() => db.companies.all(), []);
 
   return (
     <FirmSettingsFrame
@@ -126,13 +122,6 @@ export function DailyNavCompanies({ state }: ScreenProps) {
           );
         })}
       </DataGrid>
-      <Pagination
-        page={page}
-        pageCount={pageCount}
-        onPageChange={setPage}
-        rowsPerPage={perPage}
-        onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
-      />
     </FirmSettingsFrame>
   );
 }

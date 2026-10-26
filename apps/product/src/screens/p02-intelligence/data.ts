@@ -11,8 +11,6 @@ import type { GridCol } from './PortfolioGrid.js';
 import { companies, companyByName, db, num, pct, usd, type Company } from '../../data/fixtures.js';
 import { usDate, type ValuationWorkflowStatus } from '../../data/db.js';
 
-export const PAGE_SIZE = 25;
-
 /**
  * Companies in the order a frame shows them — the named ones first (the frame's
  * visible set), then the rest of the portfolio A–Z. Names not in the database

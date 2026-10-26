@@ -86,6 +86,10 @@ export function columnTracks(head: ReactNode): string[] {
  * APG grid keyboard model (roving tabindex, arrows, Home/End, Enter/F2, Esc)
  * and set `role="grid"` through your own wrapper — do not just pass it here.
  *
+ * **Never paginated (AI-GUIDE R15).** It renders every row it is given; do
+ * not slice rows into pages or place a `Pagination` under it. Bound a long grid
+ * with `maxHeight` instead.
+ *
  * Accessibility: **a name is required** — `label` or `aria-labelledby`.
  */
 export const DataGrid = forwardRef<HTMLDivElement, DataGridProps>(function DataGrid(

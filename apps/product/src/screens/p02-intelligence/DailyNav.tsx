@@ -1,12 +1,12 @@
 /**
  * Intelligence → Daily NAV: a daily mark for every company in the database
- * (a page at a time), set against its previous valuation, secondary-market
+ * (every row in one grid, no pagination), set against its previous valuation, secondary-market
  * prices and public comps, with a report the team validates, previews,
  * finalizes and sends.
  */
 import { useMemo, useRef, useState } from 'react';
 import {
-  Chip, ContextMenu, DataFreshness, FloatingLabelInput, Icon, MenuItem, Pagination, SplitButton,
+  Chip, ContextMenu, DataFreshness, FloatingLabelInput, Icon, MenuItem, SplitButton,
   color, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -16,7 +16,7 @@ import { navigate } from '../../router.js';
 import { PortfolioGrid, type GridRow } from './PortfolioGrid.js';
 import { PortfolioHeader, useDismiss } from './chrome.js';
 import { companyHref } from './cells.js';
-import { NAV_FRAME, PAGE_SIZE, inFrameOrder, navColumns, navGroups, previousValuation } from './data.js';
+import { NAV_FRAME, inFrameOrder, navColumns, navGroups, previousValuation } from './data.js';
 
 const DASH = '—';
 const ORDER = inFrameOrder(NAV_FRAME);
@@ -24,12 +24,10 @@ const ORDER = inFrameOrder(NAV_FRAME);
 export function DailyNav({ state }: ScreenProps) {
   const [reportMenu, setReportMenu] = useState(state === 'report-menu');
   const [actions, setActions] = useState(false);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(PAGE_SIZE);
   const menuRef = useRef<HTMLDivElement>(null);
   useDismiss(menuRef, reportMenu, () => setReportMenu(false));
 
-  const rows: GridRow[] = useMemo(() => ORDER.slice((page - 1) * perPage, page * perPage).map((c) => {
+  const rows: GridRow[] = useMemo(() => ORDER.map((c) => {
     const prev = previousValuation(c);
     return {
       id: c.id,
@@ -49,7 +47,7 @@ export function DailyNav({ state }: ScreenProps) {
         ),
       },
     };
-  }), [page, perPage]);
+  }), []);
 
   return (
     <AppFrame area="intelligence">
@@ -96,13 +94,6 @@ export function DailyNav({ state }: ScreenProps) {
           groups={navGroups}
           rows={rows}
           scrollTo={state === 'default' ? undefined : 'caplight'}
-        />
-        <Pagination
-          page={page}
-          pageCount={Math.ceil(ORDER.length / perPage)}
-          onPageChange={setPage}
-          rowsPerPage={perPage}
-          onRowsPerPageChange={(n) => { setPerPage(n); setPage(1); }}
         />
       </PageBody>
     </AppFrame>

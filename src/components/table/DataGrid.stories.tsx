@@ -18,6 +18,16 @@ const meta = {
   tags: ['autodocs'],
   args: { label: 'Income statement' },
   decorators: [(Story) => <div style={{ width: 640 }}><Story /></div>],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          '**No table shows pagination (AI-GUIDE R15).** A DataGrid renders every row it is given — never slice rows into ' +
+          'pages or put a `Pagination` under it. For a long grid use `maxHeight` (see *Bounded Height*): the body scrolls ' +
+          'inside the grid under a sticky header.',
+      },
+    },
+  },
 } satisfies Meta<GridArgs>;
 export default meta;
 type Story = StoryObj<typeof meta>;

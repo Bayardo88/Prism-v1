@@ -58,7 +58,7 @@ import { BarChart } from '@scalar/design-system/charts';
 
 ## 1. The hard rules
 
-These are the system's rules (R1–R13 from the Figma contract, plus R14 for code), restated for code. Breaking one is a
+These are the system's rules (R1–R13 from the Figma contract, plus R14 and R15 for code), restated for code. Breaking one is a
 bug, not a style preference.
 
 | # | Rule |
@@ -73,6 +73,7 @@ bug, not a style preference.
 | **R8** | **Colour alone never carries meaning.** Status needs an icon or words. Chart series need direct labels. Links need a permanent underline. |
 | **R9** | Elevation is a ladder: `raised` < `overlay` < `modal`. Shadow colours are token-bound and deepen automatically in Dark. |
 | **R14** | **Pages are always light mode**, even when the machine's system style is dark. `ScalarProvider` defaults to `mode="light"` and the stylesheet does not follow `prefers-color-scheme`. Never ship `mode="dark"`, never set `data-theme="dark"` on a page, never add your own dark styling. Dark exists for the library only. |
+| **R15** | **No table shows pagination.** `DataGrid` and `Table` render every row they are given, and nothing pages them: never put a `Pagination` (or `PageItem`) under or beside a table, never `slice` a table's rows into pages, and never add page / rows-per-page state to a screen. A long grid stays one grid — bound it with `DataGrid`'s `maxHeight` so the body scrolls under a sticky header. `npm run lint:tables` fails on any `Pagination` in product or example code. |
 | **R10** | **Text floor is 12px** for everything a user reads. `heading.xs` (10px) is the single sanctioned exception, for data-grid chrome only — column headers and in-cell labels, never prose, form labels or helper text. Display is marketing-only. Uppercase labels use the Overline role, which owns the +0.8px tracking — never set `letterSpacing` yourself. |
 | **R11** | PRISM says what an item **represents** — never access, availability or permission. |
 | **R12** | 33 of the 78 type tokens are identical across all three modes. That is intentional. Do not "fix" them. |
@@ -230,7 +231,7 @@ Find the **intent**, not the shape.
 | Show the state of a **deal** | `ValuationStatus` | `ModalStatus` |
 | Switch between peer views of one thing | `Tabs` | `Stepper` |
 | Move through an ordered process | `Stepper` | `Tabs` |
-| Page through records | `Pagination` | `Tabs` |
+| A long table | one `DataGrid` with every row (`maxHeight` to bound it) — **never paginated** (R15) | `Pagination`, or splitting the rows into pages |
 | Show where the page sits in the hierarchy | `Breadcrumb` | a back button |
 | Message the user must act on | `Alert` (inline, persistent) | `Toast` |
 | Acknowledge something that already happened | `Toast` (transient) | `Alert` |
@@ -439,6 +440,8 @@ wrapper inside the slot. Full guide: `docs/page-template.md`.
   selected is a navigation bug, not a state.
 - The last `Breadcrumb` item is the current page: not a link, and it must not
   look like one.
+- **No table is paginated (R15).** `Pagination` + `PageItem` stay in the library,
+  but never go under or beside a `DataGrid` / `Table`; `npm run lint:tables` fails on them in product code.
 - `Pagination` never *hides* Previous/Next — it disables them. Pass
   `rowsPerPage` + `onRowsPerPageChange` (and optionally `rowsPerPageOptions`,
   default 10 · 25 · 50 · 100) to render the labelled "Rows per page" Select at
@@ -463,6 +466,7 @@ auto-sized. Selection is one rectangle drawn as one overlay — do not hand-plac
 computed from the data over all rows (`columnMinWidth`), never from the DOM; values and row titles never truncate, header labels
 truncate with a tooltip. Pass `columnWidths` / `onColumnResize` only to control widths; otherwise they persist per `tableId`.
 Do not wrap header labels, and do not put `role="grid"` on `DataGrid`.
+**`Table` is never paginated (R15)** — it shows every row; collapse groups instead of paging them.
 
 ### Data grid
 
@@ -481,6 +485,9 @@ always fills exactly its header's column.
 | `width="…"` | that fixed track | an icon or checkbox column — pass a `size.*` token |
 | `span={n}` | n tracks | a header over several columns; body cells take `span` too |
 
+- **No pagination (R15).** A `DataGrid` shows every row it is given. Never slice
+  rows into pages or place a `Pagination` under it; for a long grid pass
+  `maxHeight` so the body scrolls inside it with the header sticky.
 - `columns` on `DataGrid` overrides the derived tracks entirely; `groupHead`
   takes a row of `ColumnGroupHeader`s (use their `span`) above `head`.
 - `maxHeight` bounds the grid: the body scrolls inside it and the header sticks
@@ -764,6 +771,7 @@ Rules:
 | `filter: brightness(0.9)` for hover | `bg.brandHover` |
 | `letterSpacing: '0.8px'` for uppercase | the `overline` role (R10) |
 | a `<table>` for a dense figure grid | `DataGrid` + `Row` + `Cell` |
+| a `Pagination` under a table, or `rows.slice(…)` into pages | every row in one grid; `maxHeight` for a long one (R15) |
 | a `Button` that navigates | `Link` |
 | a `Link` that submits or deletes | `Button` |
 | `role="heading"` on `Typography` | `variant="heading"` — `role` is the DOM attribute |
@@ -794,6 +802,7 @@ Then check by hand:
 - [ ] It reads correctly in **both** Light and Dark.
 - [ ] No text below 12px (R10) — the only exception is `heading.xs` (10px) in data-grid column headers and in-cell labels.
 - [ ] Charts with ≥3 series carry direct labels.
+- [ ] No table shows pagination — every row in one grid (R15, `npm run lint:tables`).
 
 ---
 

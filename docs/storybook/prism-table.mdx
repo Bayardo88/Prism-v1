@@ -11,6 +11,13 @@ and the Workboard all render `Table`. Product differences come from `columns`, `
 
 <Canvas of={TableStories.Interactive} />
 
+## No pagination
+
+**No table shows pagination** (AI-GUIDE R15). `Table` and `DataGrid` render every row they are given. Never put a
+`Pagination` under a table, never split its rows into pages, and never add page or rows-per-page state to a screen.
+A long table stays one table: collapse groups (`Table`) or bound a `DataGrid` with `maxHeight`, so the body scrolls
+under a sticky header. `npm run lint:tables` fails on any `Pagination` in product code.
+
 ## Cells: kind is data, state is UI
 
 | Axis | Values | Drives |

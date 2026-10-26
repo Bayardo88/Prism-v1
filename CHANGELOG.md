@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- **No table shows pagination (R15).** `DataGrid` and `Table` render every row and nothing pages them. Removed the
+  `Pagination` bars from Daily NAV, Summaries, Firm Valuations, Daily NAV Companies, SCIM Revoked Tokens and the Cap Table
+  example; those grids now list every row (Global Search's `?hl=` no longer pages to the row, it only scrolls to it).
+  New `npm run lint:tables` (in `verify` and `verify:product`) fails on any `Pagination` / `PageItem` in product or
+  example code; the Playground showcase is the one exception. `Pagination` stays in the library for non-table use.
+  Documented in AI-GUIDE R15, CLAUDE.md, the Prism Table spec, `docs/components.md` and the page docs.
 - **AI gradient tokens** — `--color-gradient-ai-{violet|blue|teal|pink}` (`color.gradient.ai.*`), Light + Dark, the AI fill
   plus the teal and pink (and blue) of Global Search, as their own tokens, not PRISM (R11). In the contrast gate at 3:1 on
   page and surface. In Figma as *Semantic: Color › Gradient/AI/\** (published 2026-10-23; known gap 15).
