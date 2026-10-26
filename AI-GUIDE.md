@@ -10,7 +10,7 @@ contract is.
   `anrnTIJKgu27zV224h7vON`) and `Scalar_Design_System-Components` (Figma file
   `Z4MtKOfkNEzhMYJzN1q3kR`).
 - **Scale:** 491 design tokens · 168 Figma components plus the code-layer and Workboard families · Light + Dark · 3 type modes.
-- **Live components:** [Storybook](https://scalar-prism-storybook.netlify.app), built from `main` (every pull request gets a deploy preview).
+- **Live components:** [Storybook](https://scalar-ds-storybook.netlify.app), deployed from `main`.
 - **Verify your work:** `npm run verify` (typecheck + token-contract lint).
 
 ---

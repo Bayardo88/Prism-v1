@@ -153,7 +153,7 @@ or more series. If you build your own chart, that obligation is yours.
 | `docs/components.md` | Figma → React traceability. |
 | `docs/known-gaps.md` | Deliberate gaps. Read before "fixing" one. |
 | `examples/screens/CapTable.tsx` | A worked screen. |
-| [Storybook](https://scalar-prism-storybook.netlify.app) | Every component live, from `main`. Start with **Workboard › Valuation Modal spec** for the Workboard modal. |
+| [Storybook](https://scalar-ds-storybook.netlify.app) | Every component live, from `main`. Start with **Workboard › Valuation Modal spec** for the Workboard modal. |
 
 ## Changing a token
 
