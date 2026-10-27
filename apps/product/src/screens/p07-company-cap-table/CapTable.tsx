@@ -6,7 +6,7 @@
  * States: default · new-column (a blank security added by "Add security") ·
  * security-type-menu (the Security Type picker open on that new column).
  */
-import { Fragment, useEffect, useState, type ReactNode } from 'react';
+import { Fragment, useState, type ReactNode } from 'react';
 import {
   DataGrid, Fab, GridColumnDivider, GridColumnHeader, GridValueCell, InCellControl, InlineEdit,
   Row, RowLabelCell, SelectMenu, SelectMenuOption, space, type RowLabelType, type ValueKind,
@@ -16,12 +16,16 @@ import { companyById, firm, num, usd, type Company } from '../../data/fixtures.j
 import { CapTableLayout } from './CapTableLayout.js';
 import { Anchor, pinnedTracks } from './Anchor.js';
 import { SECURITY_TYPES, newSecurity, securitiesFor, type Security } from './data.js';
+import { useValuationContext } from '../../domain/context.js';
+import { useEditor } from '../../domain/useEditor.js';
+import type { CapTableScenario } from '../../domain/model.js';
+import { fullyDiluted, liquidationPreference, sum } from '../../domain/illustrative-calcs.js';
 
 const pct = (v: number) => `${v.toFixed(1)}%`;
 const money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
-function initial(state: string, company: Company): Security[] {
-  const base = securitiesFor(company);
+function initial(state: string, company: Company, scenario: CapTableScenario): Security[] {
+  const base = securitiesFor(company, scenario);
   return state === 'default' ? base : [newSecurity(), ...base];
 }
 
@@ -30,14 +34,12 @@ const noop = () => {};
 
 export function CapTable({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [securities, setSecurities] = useState<Security[]>(() => initial(state, company));
-  const [menuFor, setMenuFor] = useState<string | null>(null);
-
-  useEffect(() => {
-    const next = initial(state, company);
-    setSecurities(next);
-    setMenuFor(state === 'security-type-menu' ? next[0]!.id : null);
-  }, [state, company.id]);
+  const { capTable, readOnly } = useValuationContext(company);
+  // P9: edits are tracked, guarded and saved through the shared editor cycle.
+  const ed = useEditor(() => initial(state, company, capTable.scenario), { readOnly });
+  const securities = ed.data;
+  const setSecurities = ed.update;
+  const [menuFor, setMenuFor] = useState<string | null>(state === 'security-type-menu' ? securities[0]!.id : null);
 
   const isNew = (s: Security) => s.id.startsWith('new-');
   const addSecurity = () => {
@@ -51,13 +53,14 @@ export function CapTable({ state, params }: ScreenProps) {
     setMenuFor(null);
   };
 
-  const totalShares = securities.reduce((a, s) => a + (s.sharesOutstanding ?? 0), 0);
-  const fd = (s: Security) => (s.sharesOutstanding ?? 0) * (s.conversionRate ?? 1);
-  const totalFd = securities.reduce((a, s) => a + fd(s), 0);
-  const lp = (s: Security) => (s.type === 'Preferred Stock' ? (s.sharesOutstanding ?? 0) * (s.originalIssuePrice ?? 0) : 0);
-  const totalLp = securities.reduce((a, s) => a + lp(s), 0);
-  const firmShares = securities.reduce((a, s) => a + s.firmShares, 0);
-  const firmLp = securities.reduce((a, s) => a + s.firmLiquidationPreference, 0);
+  // Illustrative prototype maths only (P6) — see domain/illustrative-calcs.ts.
+  const fd = fullyDiluted;
+  const lp = liquidationPreference;
+  const totalShares = sum(securities, (s) => s.sharesOutstanding ?? 0);
+  const totalFd = sum(securities, fd);
+  const totalLp = sum(securities, lp);
+  const firmShares = sum(securities, (s) => s.firmShares);
+  const firmLp = sum(securities, (s) => s.firmLiquidationPreference);
   const share = (x: number) => pct(totalFd ? (x / totalFd) * 100 : 0);
 
   const columns = pinnedTracks(securities.length);
@@ -97,7 +100,7 @@ export function CapTable({ state, params }: ScreenProps) {
   );
 
   return (
-    <CapTableLayout company={company} page="securities" currency>
+    <CapTableLayout company={company} page="securities" currency onSave={ed.save} saveState={ed.saveState} overlay={ed.guard.dialog}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: space.xl, paddingTop: space.l }}>
         <DataGrid
           label="Cap table"

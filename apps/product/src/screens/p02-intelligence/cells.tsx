@@ -4,6 +4,7 @@ import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
 import { statusView } from './data.js';
+import { workflowStatusOf } from '../../domain/context.js';
 
 /**
  * Where a company's row header goes (its Summary by default). Pass it to a
@@ -15,6 +16,6 @@ export function companyHref(company: Company, to: (id: string) => string = route
 
 /** The valuation workflow status as a ModalStatus (label and tint, R8). */
 export function StatusCell({ company }: { company: Company }) {
-  const v = statusView[company.valuationStatus];
+  const v = statusView[workflowStatusOf(company)];
   return <ModalStatus state={v.state}>{v.label}</ModalStatus>;
 }

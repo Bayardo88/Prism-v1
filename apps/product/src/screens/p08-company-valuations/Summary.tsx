@@ -15,6 +15,8 @@ import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
 import { ValuationsLayout } from './ValuationsLayout.js';
 import { allocationRowsFor, approachRowsFor } from './data.js';
+import { useValuationContext } from '../../domain/context.js';
+import { WeightingPanel } from './WeightingPanel.js';
 
 function Empty({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
   return (
@@ -36,6 +38,7 @@ const cell = (kind: ValueKind, v: string | undefined, key: string) => <GridValue
 
 export function Summary({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
+  const v = useValuationContext(company);
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => setMenuOpen(false), [state]);
   const openMenu = () => setMenuOpen(true);
@@ -87,7 +90,7 @@ export function Summary({ state, params }: ScreenProps) {
               </>
             }
           >
-            {approachRowsFor(company).map((r, i) => row(r.label, r.label, r.type,
+            {approachRowsFor(company, v.valuation).map((r, i) => row(r.label, r.label, r.type,
               [cell(r.type === 'total' ? 'total' : 'calculated', r.ev, 'ev'), cell(r.type === 'total' ? 'total' : 'calculated', r.equity, 'eq'),
                 cell(r.kind, r.waterfall, 'w'), cell(r.kind, r.opm, 'o'),
                 <GridValueCell key="add" />], 2, i % 2 === 1))}
@@ -115,11 +118,13 @@ export function Summary({ state, params }: ScreenProps) {
               </>
             }
           >
-            {allocationRowsFor(company).map((r, i) => row(`${i}-${r.label}`, r.label, r.type,
+            {allocationRowsFor(company, v.valuation, v.capTable.name).map((r, i) => row(`${i}-${r.label}`, r.label, r.type,
               [cell(r.kind, r.values[0], 'w'),
                 cell(r.kind, r.values[1], 'o'),
                 cell(r.type === 'total' ? 'total' : 'calculated', r.values[2], 'x')], 0, i % 2 === 1))}
           </DataGrid>
+
+          <WeightingPanel company={company} />
         </div>
       )}
     </ValuationsLayout>

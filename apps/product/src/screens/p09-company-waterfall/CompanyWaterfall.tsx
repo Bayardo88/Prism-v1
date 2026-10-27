@@ -17,6 +17,7 @@ import { CompanyActions } from '../p06-company-summary-financials/CompanyChrome.
 import { ScenarioGrid } from '../p04-waterfalls/ScenarioGrid.js';
 import { CreateViewModal, WATERFALL_DOCK, scenarioFor, waterfallDockPanels } from '../p04-waterfalls/shared.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
+import { BreakpointModeNote } from '../../shell/BreakpointModeNote.js';
 
 export function CompanyWaterfall({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
@@ -84,6 +85,7 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
         />
       }
     >
+      <BreakpointModeNote company={company} />
       <div style={{ display: 'flex', gap: space.m }}>
         <ScenarioGrid
           key={view}

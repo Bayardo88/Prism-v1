@@ -4,6 +4,7 @@
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import { WorkspaceDrawer, WorkspaceDrawerTab, color, space } from '@scalar/design-system';
+import { SheetsPanel } from './SheetsPanel.js';
 
 export interface DockTab {
   key: string;
@@ -42,7 +43,7 @@ export function WorkspaceDock({ tabs = DEFAULT_DOCK, open, children, panels }: {
     />
   ));
 
-  if (active) return <WorkspaceDrawer tabs={tabEls}>{panels?.[active] ?? children}</WorkspaceDrawer>;
+  if (active) return <WorkspaceDrawer tabs={tabEls}>{panels?.[active] ?? (active === 'sheets' ? <SheetsPanel /> : children)}</WorkspaceDrawer>;
 
   return (
     <div

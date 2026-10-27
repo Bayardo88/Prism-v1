@@ -9,6 +9,8 @@
 import type { RowLabelType, ValueKind } from '@scalar/design-system';
 import { db, num, type Company } from '../../data/fixtures.js';
 import { usDate } from '../../data/db.js';
+import type { FinancialScenario } from '../../domain/model.js';
+import { ABSENCE_LABEL } from '../../domain/display.js';
 
 /** One value cell. A bare string is a calculated figure. */
 export type GridValue = string | { v?: string; kind: ValueKind; focused?: boolean } | undefined;
@@ -46,7 +48,6 @@ export function periods(company: Company) {
   };
 }
 
-export const versions = [{ value: 'primary', label: 'Primary Financial Statement' }];
 
 /* --- Income Statement ------------------------------------------------------
  * Columns: FY Y-2 · FY Y-1 · FY Y | 3 projection years | LTM · NTM.
@@ -56,8 +57,9 @@ const IS_BASE = {
   revenue: 22118, cos: 3078, gross: 19041, opex: 6301, ebitda: 12739, dep: 2503, ebit: 10236, pretax: 10236, net: 10236,
 };
 
-export function incomeStatementRows(company: Company): GridRowDef[] {
-  const f = company.revenueLtm / REF.revenueLtm;
+/** The Downside Case financial version reads 20% lower, so a version switch visibly changes the figures. */
+export function incomeStatementRows(company: Company, scenario: FinancialScenario = 'base'): GridRowDef[] {
+  const f = (company.revenueLtm / REF.revenueLtm) * (scenario === 'downside' ? 0.8 : 1);
   const v = (n: number) => k$(n * f);
   const at = (fy: GridValue, ltm: GridValue): GridValue[] => [undefined, undefined, fy, undefined, undefined, undefined, ltm, undefined];
   const b = IS_BASE;
@@ -163,7 +165,8 @@ export function holdings(company: Company): HoldingRow[] {
   ].map((p) => ({ ...p, invested: p.invested * fi, shares: Math.round(p.shares * fi), own: p.own * fo }));
   const sum = (k: 'invested' | 'shares' | 'own') => positions.reduce((s, p) => s + p[k], 0);
   const row = (label: string, type: RowLabelType, d: string, inv: number, sh: number, own: number): HoldingRow => ({
-    label, type, values: [d, k$(inv), num.format(sh), num.format(sh), '', `${own.toFixed(1)}%`, '$0', '$0', '$0'],
+    // Nothing realised yet is a real $0; concluded and unrealised values need a concluded valuation (P5).
+    label, type, values: [d, k$(inv), num.format(sh), num.format(sh), ABSENCE_LABEL['not-entered'], `${own.toFixed(1)}%`, '$0' /* lint-allow: real-zero */, ABSENCE_LABEL['not-calculated'], ABSENCE_LABEL['not-calculated']],
   });
   return [
     { label: fund, type: 'group-header', values: [] },

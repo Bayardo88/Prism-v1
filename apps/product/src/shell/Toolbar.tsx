@@ -4,7 +4,7 @@
  * the page's primary action. Screens compose the ones they need.
  */
 import type { ReactNode } from 'react';
-import { AITool, Button, ButtonIcon, CurrencySelector, Icon, icons, space } from '@scalar/design-system';
+import { AITool, Button, ButtonIcon, CurrencySelector, Icon, SaveState, icons, space, type SaveStateValue } from '@scalar/design-system';
 
 /** The purple AI trigger. */
 export function ToolbarAi({ onClick }: { onClick?: () => void }) {
@@ -33,9 +33,15 @@ export function ToolbarKebab({ label = 'Page actions', onClick }: { label?: stri
   );
 }
 
-/** The green primary action with a dropdown caret: Save, Save Notes & Documents. */
-export function ToolbarSave({ children = 'Save', onClick, disabled }: { children?: ReactNode; onClick?: () => void; disabled?: boolean }) {
-  return (
+/**
+ * The green primary action with a dropdown caret: Save, Save Notes & Documents.
+ * With `state`, the save state sits beside it so the user knows whether edits
+ * are persisted (P9).
+ */
+export function ToolbarSave({ children = 'Save', onClick, disabled, state }: {
+  children?: ReactNode; onClick?: () => void; disabled?: boolean; state?: SaveStateValue;
+}) {
+  const button = (
     <Button
       size="xs"
       tone="positive"
@@ -46,5 +52,12 @@ export function ToolbarSave({ children = 'Save', onClick, disabled }: { children
     >
       {children}
     </Button>
+  );
+  if (!state) return button;
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s }}>
+      <SaveState state={state} />
+      {button}
+    </span>
   );
 }

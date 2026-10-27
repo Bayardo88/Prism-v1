@@ -27,4 +27,4 @@ createServer(async (req, res) => {
     res.writeHead(404, { 'content-type': 'text/plain' });
     res.end('not found');
   }
-}).listen(4178, () => console.log('serving on http://localhost:4178'));
+}).listen(Number(process.env.PORT) || 4178, function () { console.log(`serving on http://localhost:${this.address().port}`); });

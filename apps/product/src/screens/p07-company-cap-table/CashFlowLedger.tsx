@@ -6,9 +6,9 @@
  *
  * States: default · new-row ("Add Transaction" appends an editable row).
  */
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import {
-  Button, ButtonIcon, DataGrid, GridColumnHeader, GridValueCell, Heading, Icon, InCellControl,
+  Banner, Button, ButtonIcon, DataGrid, GridColumnHeader, GridValueCell, Heading, Icon, InCellControl,
   Row, RowLabelCell, SelectMenu, SelectMenuOption, Tooltip, icons,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -18,6 +18,10 @@ import { Anchor } from './Anchor.js';
 import {
   TRANSACTION_TYPES, cashFlowSummaryFor, entitiesFor, fundsFor, positionSecuritiesFor, transactionsFor, type Transaction,
 } from './data.js';
+import { useValuationContext } from '../../domain/context.js';
+import { useEditor } from '../../domain/useEditor.js';
+import { parseNumber, transactionDateIssue } from '../../domain/validation.js';
+import { EditCell } from '../../shell/EditCell.js';
 
 const money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 const draft = (): Transaction => ({ id: `new-${Math.random().toString(36).slice(2, 7)}`, amount: 0, type: 'Investment', draft: true });
@@ -28,9 +32,19 @@ type Field = 'type' | 'owner' | 'entity' | 'security';
 
 export function CashFlowLedger({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [rows, setRows] = useState<Transaction[]>(() => initial(state, company));
+  const ctx = useValuationContext(company);
+  const measurementIso = ctx.measurement.date;
+  // P7: a transaction cannot be dated after the measurement (DOC). Only the new row is editable.
+  const validate = useCallback((rs: Transaction[]) => rs.filter((r) => r.draft).flatMap((r) => {
+    const issue = r.date ? transactionDateIssue(r.date, measurementIso) : 'Enter the transaction date.';
+    return issue ? [{ label: `New transaction · Date: ${issue}` }] : [];
+  }), [measurementIso]);
+  const ed = useEditor(() => initial(state, company), { validate, readOnly: ctx.readOnly, initiallyDirty: state === 'new-row' });
+  const rows = ed.data;
+  const setRows = ed.update;
   const [menu, setMenu] = useState<{ id: string; field: Field } | null>(null);
-  useEffect(() => setRows(initial(state, company)), [state, company.id]);
+  const edit = (id: string, patch: Partial<Transaction>) => setRows((cur) => cur.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  const dateError = (r: Transaction) => (ed.showErrors ? (r.date ? transactionDateIssue(r.date, measurementIso) : 'Enter the transaction date.') : null);
 
   const options: Record<Field, readonly string[]> = {
     type: TRANSACTION_TYPES, owner: fundsFor(company), entity: entitiesFor(company), security: positionSecuritiesFor(company),
@@ -70,7 +84,8 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
   const signed = (v: number) => (v < 0 ? `-${usd.format(-v)}` : usd.format(v));
 
   return (
-    <CapTableLayout company={company} page="cash-flow-ledger">
+    <CapTableLayout company={company} page="cash-flow-ledger" onSave={ed.save} saveState={ed.saveState} overlay={ed.guard.dialog}>
+      {ed.showErrors && <Banner tone="negative" title="To save, correct the new transaction. A transaction cannot be dated after the measurement date." issues={ed.issues} />}
       <DataGrid
         label="Transactions"
         style={{ width: '72%', overflow: 'visible' }}
@@ -99,10 +114,12 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
         {rows.map((r, i) => (
           <Row key={r.id} zebra={i % 2 === 1} aria-label={r.draft ? 'New transaction' : `Transaction ${r.date} ${r.security}`}>
             {r.draft
-              ? <InCellControl type="date" label="Date of transaction">{r.date}</InCellControl>
+              ? <EditCell label="Date of transaction" placeholder="MM/DD/YYYY" value={r.date ?? ''} onCommit={(t) => edit(r.id, { date: t.trim() || undefined })} error={dateError(r)} readOnly={ctx.readOnly} />
               : <GridValueCell kind="sourced">{r.date}</GridValueCell>}
             <InCellControl type="currency" label="Transaction currency">USD</InCellControl>
-            <GridValueCell kind={r.draft ? 'editable' : 'sourced'}>{money2.format(r.amount)}</GridValueCell>
+            {r.draft
+              ? <EditCell label="Transaction amount" value={money2.format(r.amount)} onCommit={(t) => edit(r.id, { amount: parseNumber(t) ?? 0 })} readOnly={ctx.readOnly} />
+              : <GridValueCell kind="sourced">{money2.format(r.amount)}</GridValueCell>}
             <GridValueCell kind={r.draft ? 'editable' : 'sourced'}>{r.description?.toUpperCase()}</GridValueCell>
             {pick(r, 'type', 'Transaction type')}
             {pick(r, 'owner', 'Owner')}

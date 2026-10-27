@@ -6,9 +6,9 @@
  *
  * States: default · new-column ("Add Fund Ownership" appends a blank position).
  */
-import { Fragment, useEffect, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useState, type ReactNode } from 'react';
 import {
-  Chip, ContextMenu, DataGrid, GridColumnDivider, GridColumnHeader, GridValueCell, InCellControl,
+  Banner, Chip, Text, ContextMenu, DataGrid, GridColumnDivider, GridColumnHeader, GridValueCell, InCellControl,
   MenuItem, Row, RowLabelCell, SelectMenu, SelectMenuOption, SplitButton, color, space, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -18,6 +18,13 @@ import { Anchor, pinnedTracks } from './Anchor.js';
 import {
   entitiesFor, fundNameOf, fundsFor, positionSecuritiesFor, positionsFor, securitiesFor, type Position,
 } from './data.js';
+import { useValuationContext } from '../../domain/context.js';
+import { useEditor } from '../../domain/useEditor.js';
+import { parseNumber, transactionDateIssue } from '../../domain/validation.js';
+import { fullyDiluted, shareOf, sum } from '../../domain/illustrative-calcs.js';
+import { usFromIso } from '../../domain/model.js';
+import { ABSENCE_LABEL } from '../../domain/display.js';
+import { EditCell } from '../../shell/EditCell.js';
 
 const blank = (company: Company): Position => ({
   id: `new-${Math.random().toString(36).slice(2, 7)}`, security: '', entity: company.name,
@@ -26,6 +33,8 @@ const blank = (company: Company): Position => ({
 const initial = (state: string, company: Company) =>
   (state === 'new-column' ? [...positionsFor(company), blank(company)] : positionsFor(company));
 type Field = 'security' | 'entity' | 'fund';
+const NOT_ENTERED = ABSENCE_LABEL['not-entered'];
+const NOT_CALCULATED = ABSENCE_LABEL['not-calculated'];
 const num1 = new Intl.NumberFormat('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
 function FilterBand({ children }: { children: ReactNode }) {
@@ -43,27 +52,38 @@ function FilterBand({ children }: { children: ReactNode }) {
 
 export function FundOwnership({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
-  const [positions, setPositions] = useState<Position[]>(() => initial(state, company));
+  const ctx = useValuationContext(company);
+  const measurementIso = ctx.measurement.date;
+  // P7: a transaction cannot be dated after the measurement it is entered for (DOC).
+  const validate = useCallback((ps: Position[]) => ps.flatMap((p) => {
+    const issue = transactionDateIssue(p.investmentDate, measurementIso);
+    return issue ? [{ label: `${p.security || 'New position'} · Investment Date: ${issue}` }] : [];
+  }), [measurementIso]);
+  const ed = useEditor(() => initial(state, company), { validate, readOnly: ctx.readOnly });
+  const positions = ed.data;
+  const setPositions = ed.update;
   const [menu, setMenu] = useState<{ id: string; field: Field } | null>(null);
   const [addMenuOpen, setAddMenuOpen] = useState(false);
-  useEffect(() => setPositions(initial(state, company)), [state, company.id]);
+  const dateError = (p: Position) => (ed.showErrors ? transactionDateIssue(p.investmentDate, measurementIso) : null);
+  const setField = (id: string, patch: Partial<Position>) => setPositions((cur) => cur.map((p) => (p.id === id ? { ...p, ...patch } : p)));
 
   const options: Record<Field, string[]> = {
     security: positionSecuritiesFor(company), entity: entitiesFor(company), fund: fundsFor(company),
   };
-  const companyFd = securitiesFor(company).reduce((a, s) => a + (s.sharesOutstanding ?? 0) * (s.conversionRate ?? 1), 0);
-  const fdPct = (shares: number) => `${(companyFd ? (shares / companyFd) * 100 : 0).toFixed(1)}%`;
+  // Illustrative prototype maths (P6), against the Cap Table version this ownership is paired with.
+  const companyFd = sum(securitiesFor(company, ctx.capTable.scenario), fullyDiluted);
+  const fdPct = (shares: number) => `${shareOf(shares, companyFd).toFixed(1)}%`;
 
   const add = () => {
     setAddMenuOpen(false);
     if (!positions.some((p) => !p.security)) setPositions((cur) => [...cur, blank(company)]);
   };
   const choose = (id: string, field: Field, value: string) => {
-    setPositions((cur) => cur.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+    setField(id, { [field]: value });
     setMenu(null);
   };
 
-  const sum = (f: (p: Position) => number) => positions.reduce((a, p) => a + f(p), 0);
+  const total = (f: (p: Position) => number) => sum(positions, f);
   const v = (kind: ValueKind, value?: ReactNode) => <GridValueCell kind={kind}>{value}</GridValueCell>;
 
   const picker = (p: Position, field: Field, label: string) => {
@@ -103,6 +123,9 @@ export function FundOwnership({ state, params }: ScreenProps) {
       company={company}
       page="fund-ownership"
       currency
+      onSave={ed.save}
+      saveState={ed.saveState}
+      overlay={ed.guard.dialog}
       footer={
         <SplitButton
           variant="secondary"
@@ -121,6 +144,13 @@ export function FundOwnership({ state, params }: ScreenProps) {
         </SplitButton>
       }
     >
+      {ed.showErrors && (
+        <Banner tone="negative" title="To save, correct the highlighted dates. A transaction cannot be dated after the measurement date." issues={ed.issues} />
+      )}
+      {/* P4: Fund Ownership versions are paired 1:1 with Cap Table versions (DOC). */}
+      <Text step="s" tone="secondary">
+        {`${ctx.ownership.name} · paired with ${ctx.capTable.name} · measurement ${usFromIso(measurementIso)}`}
+      </Text>
       <FilterBand><Chip styleVariant="info" size="l">{fundNameOf(company)}</Chip></FilterBand>
       <FilterBand>
         {options.security.map((s) => <Chip key={s} styleVariant="info" size="l">{s}</Chip>)}
@@ -144,16 +174,40 @@ export function FundOwnership({ state, params }: ScreenProps) {
         {row('Security ID', () => v('calculated'), v('calculated'))}
         {row('Entity', (p) => picker(p, 'entity', 'Entity'), v('calculated'))}
         {row('Fund (or Entity)', (p) => picker(p, 'fund', 'Fund or entity'), v('calculated'))}
-        {row('Investment Date', (p) => v('editable', p.investmentDate), v('calculated'))}
-        {row('Invested Capital', (p) => v('editable', usd.format(p.investedCapital)), v('calculated', usd.format(sum((p) => p.investedCapital))))}
-        {row('Loan Value', () => v('calculated', usd.format(0)), v('calculated', usd.format(0)))}
-        {row('Shares', (p) => v('editable', num.format(p.shares)), v('calculated', num1.format(sum((p) => p.shares))))}
-        {row('Shares (as Converted)', (p) => v('calculated', num.format(p.sharesAsConverted)), v('calculated', num1.format(sum((p) => p.sharesAsConverted))))}
-        {row('Fully Diluted Ownership %', (p) => v('calculated', fdPct(p.sharesAsConverted)), v('calculated', fdPct(sum((p) => p.sharesAsConverted))))}
-        {row('Initial Liquidation Preference', (p) => v('calculated', usd.format(p.initialLiquidationPreference)), v('calculated', usd.format(sum((p) => p.initialLiquidationPreference))))}
-        {row('Liquidation Preference', () => v('calculated', usd.format(0)), v('calculated', usd.format(0)))}
-        {row('Cash Distributions', () => v('editable', usd.format(0)), v('calculated', usd.format(0)))}
-        {row('Proceeds from Sold Shares', () => v('editable', usd.format(0)), v('calculated', usd.format(0)))}
+        {row('Investment Date', (p) => (
+          <EditCell
+            label={`Investment date of ${p.security || 'new position'}`}
+            placeholder="MM/DD/YYYY"
+            value={p.investmentDate ?? ''}
+            onCommit={(t) => setField(p.id, { investmentDate: t.trim() || undefined })}
+            error={dateError(p)}
+            readOnly={ctx.readOnly}
+          />
+        ), v('calculated'))}
+        {row('Invested Capital', (p) => (
+          <EditCell
+            label={`Invested capital in ${p.security || 'new position'}`}
+            value={usd.format(p.investedCapital)}
+            onCommit={(t) => setField(p.id, { investedCapital: parseNumber(t) ?? 0 })}
+            readOnly={ctx.readOnly}
+          />
+        ), v('calculated', usd.format(total((p) => p.investedCapital))))}
+        {/* P5: values that are not entered or not calculated yet are never shown as $0. */}
+        {row('Loan Value', () => v('calculated', NOT_ENTERED), v('calculated', NOT_ENTERED))}
+        {row('Shares', (p) => (
+          <EditCell
+            label={`Shares of ${p.security || 'new position'}`}
+            value={num.format(p.shares)}
+            onCommit={(t) => setField(p.id, { shares: parseNumber(t) ?? 0, sharesAsConverted: parseNumber(t) ?? 0 })}
+            readOnly={ctx.readOnly}
+          />
+        ), v('calculated', num1.format(total((p) => p.shares))))}
+        {row('Shares (as Converted)', (p) => v('calculated', num.format(p.sharesAsConverted)), v('calculated', num1.format(total((p) => p.sharesAsConverted))))}
+        {row('Fully Diluted Ownership %', (p) => v('calculated', fdPct(p.sharesAsConverted)), v('calculated', fdPct(total((p) => p.sharesAsConverted))))}
+        {row('Initial Liquidation Preference', (p) => v('calculated', usd.format(p.initialLiquidationPreference)), v('calculated', usd.format(total((p) => p.initialLiquidationPreference))))}
+        {row('Liquidation Preference', () => v('calculated', NOT_CALCULATED), v('calculated', NOT_CALCULATED))}
+        {row('Cash Distributions', () => v('editable', NOT_ENTERED), v('calculated', NOT_ENTERED))}
+        {row('Proceeds from Sold Shares', () => v('editable', NOT_ENTERED), v('calculated', NOT_ENTERED))}
       </DataGrid>
     </CapTableLayout>
   );

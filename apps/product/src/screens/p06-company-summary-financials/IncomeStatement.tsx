@@ -4,6 +4,7 @@ import { companyById } from '../../data/fixtures.js';
 import { FinancialsPage } from './FinancialsPage.js';
 import { FinancialGrid, fy, range, type GridColumn } from './FinancialGrid.js';
 import { incomeStatementRows, performanceMetricRows, periods } from './data.js';
+import { useValuationContext } from '../../domain/context.js';
 
 type Periods = ReturnType<typeof periods>;
 
@@ -30,6 +31,7 @@ function widen<T extends { values?: unknown[] }>(rows: T[], extra: number): T[] 
 
 export function IncomeStatement({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
+  const { financial } = useValuationContext(company);
   const p = periods(company);
   const [projYears, setProjYears] = useState(() => range(p.year + 1, p.year + 3));
   const extra = projYears.length - 3;
@@ -43,7 +45,7 @@ export function IncomeStatement({ state, params }: ScreenProps) {
       notesOpen={state === 'notes-drawer'}
       onAddProjectionYear={() => setProjYears((ys) => [...ys, ys[ys.length - 1]! + 1])}
     >
-      <FinancialGrid title="Income Statement" columns={columns(p, projYears, true)} rows={widen(incomeStatementRows(company), extra)} />
+      <FinancialGrid title="Income Statement" columns={columns(p, projYears, true)} rows={widen(incomeStatementRows(company, financial.scenario), extra)} />
       <FinancialGrid title="Performance Metrics" columns={columns(p, projYears, false)} rows={widen(performanceMetricRows, extra)} />
     </FinancialsPage>
   );

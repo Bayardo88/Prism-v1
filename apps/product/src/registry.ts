@@ -24,8 +24,11 @@ import { screens as protoCompanyOverviewV2 } from './screens/prototypes/company-
 import { screens as protoReports } from './screens/prototypes/reports/index.js';
 import { screens as protoCompanyValuationsV2 } from './screens/prototypes/company-valuations-v2/index.js';
 import { screens as protoNotificationsCenter } from './screens/prototypes/notifications-center/index.js';
+import { screens as protoApproaches } from './screens/prototypes/approaches/index.js';
+import { screens as protoRespondentPortal } from './screens/prototypes/respondent-portal/index.js';
+import { screens as protoReportComposer } from './screens/prototypes/report-composer/index.js';
 
-export const allScreens: ScreenDef[] = [p01Home, p02Intelligence, p03Valuations, p04Waterfalls, p05Documents, p06CompanySummaryFinancials, p07CompanyCapTable, p08CompanyValuations, p09CompanyWaterfall, p10CompanyDocuments, p11CompanyOverviewSettings, p12Account, p13UserManagement, p14CompGroups, p15AuditLogs, p16FirmSettings, protoCompanyOverviewV2, protoCompanyValuationsV2, protoReports, protoNotificationsCenter].flat();
+export const allScreens: ScreenDef[] = [p01Home, p02Intelligence, p03Valuations, p04Waterfalls, p05Documents, p06CompanySummaryFinancials, p07CompanyCapTable, p08CompanyValuations, p09CompanyWaterfall, p10CompanyDocuments, p11CompanyOverviewSettings, p12Account, p13UserManagement, p14CompGroups, p15AuditLogs, p16FirmSettings, protoCompanyOverviewV2, protoCompanyValuationsV2, protoReports, protoNotificationsCenter, protoApproaches, protoRespondentPortal, protoReportComposer].flat();
 
 export interface Resolved {
   screen: ScreenDef;

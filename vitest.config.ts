@@ -18,6 +18,15 @@ export default defineConfig({
     },
     projects: [
       {
+        // The product prototype's domain layer (apps/product/src/domain): pure model,
+        // validation and display rules. `npm run test:product`.
+        test: {
+          name: 'product',
+          environment: 'node',
+          include: ['apps/product/src/**/*.test.ts'],
+        },
+      },
+      {
         extends: true,
         test: {
           name: 'unit',

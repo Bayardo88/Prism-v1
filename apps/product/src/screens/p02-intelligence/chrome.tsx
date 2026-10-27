@@ -92,12 +92,12 @@ export function PortfolioHeader({ title, tab, actionsOpen, onActionsOpen, action
   );
 }
 
-/** Excel / Bulk / PDF — the page actions on Summaries and Valuations. */
-export function ExportMenuItems() {
+/** Excel / Bulk / PDF — the page actions on Summaries and Valuations. `onBulk` opens Bulk Actions. */
+export function ExportMenuItems({ onBulk }: { onBulk?: () => void } = {}) {
   return (
     <>
       <MenuItem icon={<Icon size="s"><icons.TableView /></Icon>}>Excel Export</MenuItem>
-      <MenuItem icon={<Icon size="s"><icons.FactCheck /></Icon>}>Bulk Actions</MenuItem>
+      <MenuItem icon={<Icon size="s"><icons.FactCheck /></Icon>} onClick={onBulk}>{onBulk ? 'Bulk Actions: Update market date…' : 'Bulk Actions'}</MenuItem>
       <MenuItem icon={<Icon size="s"><icons.PictureAsPdf /></Icon>}>PDF Export</MenuItem>
     </>
   );

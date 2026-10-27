@@ -9,13 +9,15 @@
 import { createContext, useContext, useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import {
   Avatar, CompanyDropdown, Icon, MainMenuItem,
-  Notification, PrimaryMenu, ScalarProvider, SearchBar, Selector, Text, icons,
+  Notification, PrimaryMenu, ScalarProvider, SearchBar, Selector, icons,
   ToolSwitch, color, space, type ToolSwitchValue,
 } from '@scalar/design-system';
 import { href } from '../router.js';
 import { routes } from '../routes.js';
 import { portfolioDate, user, type Company } from '../data/fixtures.js';
 import { overlays, type GlobalMenu, type OverlayProps } from './overlays/index.js';
+import { useValuationContext } from '../domain/context.js';
+import { usFromIso } from '../domain/model.js';
 
 /**
  * Prototype hook: lets a prototype swap a global menu's surface, drive the
@@ -40,7 +42,7 @@ export interface AppFrameProps {
   area: Area;
   /** Set on company pages: the picker shows the company instead of "Companies". */
   company?: Company;
-  /** The Date selector value. Company pages show the company's as-of date. */
+  /** The Date selector value on firm pages. Company pages ignore it: they show the measurement in the company's valuation context. */
   date?: string;
   /** Open a global menu on first render — used by the Figma states that show one. */
   openMenu?: GlobalMenu;
@@ -103,12 +105,9 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
           <CompanyDropdown expanded={open === 'companies'} onClick={toggle('companies')}>
             {company ? company.name : 'Companies'}
           </CompanyDropdown>
-          <Selector
-            label="Measurement Date"
-            value={date ?? (company ? `Most Recent ${company.asOf}` : portfolioDate)}
-            expanded={open === 'date'}
-            onClick={toggle('date')}
-          />
+          {company
+            ? <CompanyMeasurement company={company} expanded={open === 'date'} onClick={toggle('date')} />
+            : <Selector label="Measurement Date" value={date ?? portfolioDate} expanded={open === 'date'} onClick={toggle('date')} />}
         </PrimaryMenu>
 
         <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
@@ -119,6 +118,17 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
       </div>
     </ScalarProvider>
   );
+}
+
+/**
+ * On company pages the Date selector shows the measurement in the company's
+ * valuation context (P1), so every company page agrees on it.
+ */
+function CompanyMeasurement({ company, expanded, onClick }: { company: Company; expanded: boolean; onClick: () => void }) {
+  const { measurement, model } = useValuationContext(company);
+  const latest = measurement.date === model.measurements[0]!.date;
+  const shown = usFromIso(measurement.date);
+  return <Selector label="Measurement Date" value={latest ? `Most Recent ${shown}` : shown} expanded={expanded} onClick={onClick} />;
 }
 
 /** Standard padded page body for firm-level screens. */

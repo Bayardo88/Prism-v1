@@ -11,5 +11,7 @@
     // map in index.html resolves it in the browser.
     "paths": { "@scalar/design-system": ["../../dist/index.d.ts"] }
   },
-  "include": ["src"]
+  "include": ["src"],
+  // Tests run under vitest (`npm run test:product`), never in the browser build.
+  "exclude": ["src/**/*.test.ts"]
 }

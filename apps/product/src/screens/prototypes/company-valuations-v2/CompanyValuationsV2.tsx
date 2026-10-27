@@ -10,6 +10,7 @@ import { routes } from '../../../routes.js';
 import { ValuationsLayout } from '../../p08-company-valuations/ValuationsLayout.js';
 import { approachRowsFor, conclusionsFor } from '../../p08-company-valuations/data.js';
 import { APPROACH_WEIGHTS, moic, moneyToNumber, versionsFor } from './data.js';
+import { ABSENCE_LABEL } from '../../../domain/display.js';
 
 /** $ in thousands — the unit the Valuations header is set to. */
 const k = (v: number) => usd.format(Math.round(v / 1000));
@@ -55,8 +56,8 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
             }
           >
             <CardItem label="Version" value={v.label} />
-            <CardItem label="Equity value ($ thousands)" value={empty ? '$0' : k(v.equityValue)} />
-            <CardItem label="Unrealized firm total ($ thousands)" value={empty ? '$0' : k(v.fairValue)} />
+            <CardItem label="Equity value ($ thousands)" value={empty ? ABSENCE_LABEL['not-calculated'] : k(v.equityValue)} />
+            <CardItem label="Unrealized firm total ($ thousands)" value={empty ? ABSENCE_LABEL['not-calculated'] : k(v.fairValue)} />
             <CardItem label="MOIC" value={empty ? '0.00x' : moic(v.fairValue, company.invested)} />
             <CardItem label="Fully diluted ownership" value={pct(company.ownershipPct)} />
           </Card>
@@ -91,8 +92,8 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
                 <RowHeader href={summary}>{x.label}</RowHeader>
                 <Cell>{x.date}</Cell>
                 <Cell><StatusBadge status={x.status} /></Cell>
-                <Cell numeric type="data">{i === 0 && empty ? '$0' : k(x.equityValue)}</Cell>
-                <Cell numeric type="data">{i === 0 && empty ? '$0' : k(x.fairValue)}</Cell>
+                <Cell numeric type="data">{i === 0 && empty ? ABSENCE_LABEL['not-calculated'] : k(x.equityValue)}</Cell>
+                <Cell numeric type="data">{i === 0 && empty ? ABSENCE_LABEL['not-calculated'] : k(x.fairValue)}</Cell>
               </Row>
             ))}
           </DataGrid>

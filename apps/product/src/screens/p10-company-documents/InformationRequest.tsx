@@ -12,7 +12,7 @@ import {
   color, icons, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { navigate } from '../../router.js';
+import { href, navigate } from '../../router.js';
 import { routes } from '../../routes.js';
 import { companyById } from '../../data/fixtures.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
@@ -62,9 +62,15 @@ export function InformationRequest({ state, params }: ScreenProps) {
           subtitle={`${company.name} · ${company.asOf}`}
           onBack={back}
           actions={
-            <Button variant="primary" disabled={!canSend} trailingIcon={<Icon size="s" tone="inherit"><icons.Send /></Icon>} onClick={back}>
-              Send
-            </Button>
+            <>
+              {/* Prototype: what the recipient sees from the request email (no Scalar login). */}
+              <Button variant="tertiary" asChild>
+                <a href={href(routes.prototypes.respondentPortal(`${company.id}-request`))}>Preview respondent page</a>
+              </Button>
+              <Button variant="primary" disabled={!canSend} trailingIcon={<Icon size="s" tone="inherit"><icons.Send /></Icon>} onClick={back}>
+                Send
+              </Button>
+            </>
           }
         />
 

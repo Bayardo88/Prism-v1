@@ -6,6 +6,7 @@
 import type { GridCol } from '../p02-intelligence/PortfolioGrid.js';
 import { num, pct, usd, type Company } from '../../data/fixtures.js';
 import { allocationOf, approachesOf, isPublished } from '../p02-intelligence/data.js';
+import { workflowStatusOf } from '../../domain/context.js';
 
 /** The companies drawn in the Valuations frames, in frame order (SpaceX and Perplexity are not in the database). */
 export const VALUATIONS_FRAME = [
@@ -33,7 +34,7 @@ export const valuationColumns: GridCol[] = [
  */
 export function tasksOf(c: Company): { documents: number; questions: number } | undefined {
   if (c.id === 'databricks') return { documents: 2, questions: 1 };
-  if (c.valuationStatus !== 'in-progress') return undefined;
+  if (workflowStatusOf(c) !== 'in-progress') return undefined;
   return { documents: 1 + (c.securities % 3), questions: c.founded % 3 };
 }
 

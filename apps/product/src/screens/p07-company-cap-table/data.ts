@@ -11,6 +11,8 @@
  */
 import { db, type Company } from '../../data/fixtures.js';
 import { usDate } from '../../data/db.js';
+import type { CapTableScenario } from '../../domain/model.js';
+import { illustrativeBreakpoints } from '../../domain/illustrative-calcs.js';
 
 export interface Security {
   id: string;
@@ -55,8 +57,20 @@ const ABC_SECURITIES: Security[] = [
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
-/** The securities of a company's cap table (Common first, then each preferred round). */
-export function securitiesFor(company: Company): Security[] {
+/**
+ * The securities of a company's cap table (Common first, then each preferred
+ * round). The `option-pool` scenario (the seeded Secondary Captable) adds an
+ * unissued option pool of 10% of the base shares, so switching Cap Table
+ * version visibly changes the securities, ownership and breakpoints.
+ */
+export function securitiesFor(company: Company, scenario: CapTableScenario = 'base'): Security[] {
+  const base = baseSecuritiesFor(company);
+  if (scenario === 'base') return base;
+  const pool = Math.round(base.reduce((a, s) => a + (s.sharesOutstanding ?? 0), 0) * 0.1);
+  return [...base, { id: 'option-pool', name: 'Unissued Options', type: 'Unissued Options', sharesOutstanding: pool, firmShares: 0, firmLiquidationPreference: 0 }];
+}
+
+function baseSecuritiesFor(company: Company): Security[] {
   if (company.id === 'abc-co') return ABC_SECURITIES;
   const pps = company.lastRound.pricePerShare;
   const total = Math.max(1_000_000, Math.round(company.equityValue / Math.max(pps, 0.01)));
@@ -174,32 +188,21 @@ export function cashFlowSummaryFor(company: Company): CashFlowLine[] {
   return [...byFund].map(([fund, investments]) => ({ fund, investments, proceeds: 0, netCostBasis: -investments, irr: 'N/A' }));
 }
 
-/** Calculated breakpoints: preferences first, then common catch-up to the top issue price, then pro rata. */
+/** Calculated breakpoints (illustrative — see domain/illustrative-calcs.ts). */
 export interface Breakpoint { range: string; price: string; bySecurity: string[]; total: string }
 
 const usd0 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const money = (v: number) => (v === Infinity ? 'Infinity' : usd0.format(v));
 
-export function breakpointsFor(company: Company): { securities: string[]; points: Breakpoint[] } {
-  const secs = securitiesFor(company);
-  const isPref = (s: Security) => s.type === 'Preferred Stock';
-  const lp = (s: Security) => (s.sharesOutstanding ?? 0) * (s.originalIssuePrice ?? 0);
-  const totalLp = secs.filter(isPref).reduce((a, s) => a + lp(s), 0);
-  const topPrice = Math.max(0, ...secs.filter(isPref).map((s) => s.originalIssuePrice ?? 0));
-  const catchUp = secs.filter((s) => !isPref(s)).reduce((a, s) => a + (s.sharesOutstanding ?? 0) * topPrice, 0);
-  const top = totalLp + catchUp;
+export function breakpointsFor(company: Company, scenario: CapTableScenario = 'base'): { securities: string[]; points: Breakpoint[] } {
+  const secs = securitiesFor(company, scenario);
   return {
     securities: secs.map((s) => s.name),
-    points: [
-      {
-        range: `${usd0.format(0)} to ${usd0.format(totalLp)}`, price: '$0.000',
-        bySecurity: secs.map((s) => usd0.format(isPref(s) ? lp(s) : 0)), total: usd0.format(totalLp),
-      },
-      {
-        range: `${usd0.format(totalLp)} to ${usd0.format(top)}`, price: `$${topPrice.toFixed(3)}`,
-        bySecurity: secs.map((s) => usd0.format(isPref(s) ? lp(s) : (s.sharesOutstanding ?? 0) * topPrice)),
-        total: usd0.format(top),
-      },
-      { range: `${usd0.format(top)} to Infinity`, price: 'Infinity', bySecurity: secs.map(() => 'Pro Rata'), total: 'Infinity' },
-    ],
+    points: illustrativeBreakpoints(secs).map((b) => ({
+      range: `${money(b.from)} to ${money(b.to)}`,
+      price: b.price === Infinity ? 'Infinity' : `$${b.price.toFixed(3)}`,
+      bySecurity: b.bySecurity.map((x) => (x === undefined ? 'Pro Rata' : usd0.format(x))),
+      total: b.to === Infinity ? 'Infinity' : usd0.format(b.bySecurity.reduce<number>((a, x) => a + (x ?? 0), 0)),
+    })),
   };
 }

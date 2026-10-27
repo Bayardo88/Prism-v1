@@ -6,14 +6,19 @@
  */
 import { useState, type ReactNode } from 'react';
 import {
-  Button, ButtonIcon, ComboboxPanel, ContextMenu, CurrencySelector, Icon, MenuItem, RichTextToolbar,
+  Button, ButtonIcon, ContextMenu, SaveState, CurrencySelector, Icon, MenuItem, RichTextToolbar,
   SegmentedControl, Selector, TertiaryMenuItem, Textarea, ViewTab, ViewTabBar, icons, space, zIndex,
   type RichTextFormat,
 } from '@scalar/design-system';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
-import { periods, versions } from './data.js';
+import { useValuationContext } from '../../domain/context.js';
+import { usFromIso } from '../../domain/model.js';
+import { VersionPicker } from '../../shell/VersionPicker.js';
+import { useEditor } from '../../domain/useEditor.js';
+import { openExport } from '../prototypes/export/state.js';
+import { openRollover } from '../prototypes/rollover/state.js';
 
 /** A trigger with an anchored popover. The trigger owns open state (AI-GUIDE §7). */
 function Anchored({ children, popover, open }: { children: ReactNode; popover: ReactNode; open: boolean }) {
@@ -36,9 +41,10 @@ export function CompanyActions({ company, initialOpen = false }: { company: Comp
       popover={
         <ContextMenu label={`${company.name} actions`}>
           <MenuItem icon={<Icon tone="inherit"><icons.Edit /></Icon>} href={href(routes.company.overview(company.id))}>Edit Company</MenuItem>
-          <MenuItem icon={<Icon tone="inherit"><icons.TableView /></Icon>} onClick={() => setOpen(false)}>Excel Export</MenuItem>
+          <MenuItem icon={<Icon tone="inherit"><icons.TableView /></Icon>} onClick={() => { setOpen(false); openExport(company.id); }}>Excel Export</MenuItem>
           <MenuItem icon={<Icon tone="inherit"><icons.PictureAsPdf /></Icon>} onClick={() => setOpen(false)}>PDF Export</MenuItem>
           <MenuItem icon={<Icon tone="inherit"><icons.Person /></Icon>} href={href(routes.company.dailyNavSettings(company.id))}>Edit Common Profile</MenuItem>
+          <MenuItem icon={<Icon tone="inherit"><icons.Event /></Icon>} onClick={() => { setOpen(false); openRollover(company.id); }}>Roll over to a new date…</MenuItem>
         </ContextMenu>
       }
     >
@@ -55,43 +61,16 @@ export function CompanyActions({ company, initialOpen = false }: { company: Comp
   );
 }
 
-/** Financials Date + Financials Version selectors; the version selector opens a searchable panel. */
+/**
+ * Financials Date + Financials Version selectors. The date is the measurement in
+ * the company's valuation context; the version picker switches the context (P1, P4).
+ */
 export function FinancialsSelectors({ company, initialVersionOpen = false }: { company: Company; initialVersionOpen?: boolean }) {
-  const p = periods(company);
-  const [open, setOpen] = useState(initialVersionOpen);
-  const [query, setQuery] = useState('');
-  const items = versions.filter((v) => v.label.toLowerCase().includes(query.toLowerCase()));
+  const { measurement } = useValuationContext(company);
   return (
     <>
-      <Selector surface="surface" icon="calendar" label="Financials Date" value={p.financialsDate} />
-      <Anchored
-        open={open}
-        popover={
-          <ComboboxPanel
-            autoFocus
-            label="Financials versions"
-            items={items}
-            value="primary"
-            query={query}
-            onQueryChange={setQuery}
-            searchPlaceholder="Find a Version"
-            onSelect={() => setOpen(false)}
-            footer={
-              <Button variant="secondary" leadingIcon={<Icon size="xs" tone="inherit"><icons.Add /></Icon>} onClick={() => setOpen(false)}>
-                Save as New Version
-              </Button>
-            }
-          />
-        }
-      >
-        <Selector
-          surface="surface"
-          label="Financials Version"
-          value={p.financialsVersion}
-          expanded={open}
-          onClick={() => setOpen((o) => !o)}
-        />
-      </Anchored>
+      <Selector surface="surface" icon="calendar" label="Financials Date" value={usFromIso(measurement.date)} />
+      <VersionPicker company={company} kind="financial" initialOpen={initialVersionOpen} />
     </>
   );
 }
@@ -126,10 +105,15 @@ export function CurrencyUnit({ unit = '($) Thousands' }: { unit?: string }) {
   return <CurrencySelector currency="USD">{unit}</CurrencySelector>;
 }
 
-/** Workspace → Notes: one note tab, Client / Internal audience, rich-text body. */
+/**
+ * Workspace → Notes: one note tab, Client / Internal audience, rich-text body.
+ * The note shows whether it is saved, with its own Save beside the body — a
+ * note was once lost because Save was not discoverable (UX-02, P9).
+ */
 export function NotesPanel() {
   const [audience, setAudience] = useState<'client' | 'internal'>('client');
   const [active, setActive] = useState<RichTextFormat[]>([]);
+  const ed = useEditor(() => 'jkhgkhjgkhj');
   const toggle = (f: RichTextFormat) => setActive((a) => (a.includes(f) ? a.filter((x) => x !== f) : [...a, f]));
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m }}>
@@ -145,7 +129,12 @@ export function NotesPanel() {
         />
       </div>
       <RichTextToolbar active={active} onToggle={toggle} />
-      <Textarea aria-label="Note 1" defaultValue="jkhgkhjgkhj" rows={6} />
+      <Textarea aria-label="Note 1" value={ed.data} onChange={(e) => { const t = e.currentTarget.value; ed.update(() => t); }} rows={6} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: space.s }}>
+        <SaveState state={ed.saveState} />
+        <Button size="s" variant="secondary" onClick={ed.save} disabled={!ed.dirty}>Save note</Button>
+      </div>
+      {ed.guard.dialog}
     </div>
   );
 }

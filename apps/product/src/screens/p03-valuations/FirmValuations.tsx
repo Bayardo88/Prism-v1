@@ -6,7 +6,7 @@
  */
 import { useMemo, useState } from 'react';
 import {
-  Button, Checkbox, Modal, ModalSearch, Overline, TaskPill, Text, icons, space,
+  Banner, Button, Checkbox, Modal, ModalSearch, Overline, TaskPill, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { AppFrame, PageBody } from '../../shell/AppFrame.js';
@@ -18,6 +18,8 @@ import { companyHref, StatusCell } from '../p02-intelligence/cells.js';
 import { columnCatalogue, inFrameOrder } from '../p02-intelligence/data.js';
 import type { Company } from '../../data/fixtures.js';
 import { VALUATIONS_FRAME, tasksOf, valuationColumns, valuationValues } from './data.js';
+import { BulkMarketDateModal } from '../prototypes/bulk-market-date/BulkMarketDateModal.js';
+import { usFromIso } from '../../domain/model.js';
 
 const ORDER = inFrameOrder(VALUATIONS_FRAME);
 /** Total columns the catalogue offers (the modal's "N of 140 available"). */
@@ -96,6 +98,8 @@ export function FirmValuations({ state }: ScreenProps) {
   const [viewMenu, setViewMenu] = useState<string | undefined>();
   const [actions, setActions] = useState(false);
   const [adding, setAdding] = useState(state === 'add-columns');
+  const [bulk, setBulk] = useState(false);
+  const [bulkDone, setBulkDone] = useState<{ count: number; date: string } | null>(null);
 
   const rows: GridRow[] = useMemo(() => ORDER.map((c) => ({
     id: c.id,
@@ -110,12 +114,20 @@ export function FirmValuations({ state }: ScreenProps) {
   })), []);
 
   return (
-    <AppFrame area="valuations" overlay={<AddColumnsModal open={adding} onClose={() => setAdding(false)} />}>
+    <AppFrame
+      area="valuations"
+      overlay={
+        <>
+          <AddColumnsModal open={adding} onClose={() => setAdding(false)} />
+          <BulkMarketDateModal open={bulk} onClose={() => setBulk(false)} onDone={setBulkDone} />
+        </>
+      }
+    >
       <PortfolioHeader
         title="Valuations"
         actionsOpen={actions}
         onActionsOpen={setActions}
-        actions={<ExportMenuItems />}
+        actions={<ExportMenuItems onBulk={() => { setActions(false); setBulk(true); }} />}
       />
       <SavedViewsBar
         views={['Firm Valuations', 'Steven Valuation View']}
@@ -127,6 +139,11 @@ export function FirmValuations({ state }: ScreenProps) {
         onEdit={() => setAdding(true)}
       />
       <PageBody gap={space.m}>
+        {bulkDone && (
+          <Banner tone="positive" title={`Market date updated to ${usFromIso(bulkDone.date)} for ${bulkDone.count} compan${bulkDone.count === 1 ? 'y' : 'ies'}`} onDismiss={() => setBulkDone(null)}>
+            Their measurements, versions and transactions are unchanged.
+          </Banner>
+        )}
         <PortfolioGrid
           label="Firm valuations"
           firstColumn="Firm Portfolio Summary"

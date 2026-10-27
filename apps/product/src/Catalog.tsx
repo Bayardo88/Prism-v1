@@ -3,11 +3,12 @@
  * route and state that renders it. This is the map of the product.
  */
 import {
-  Chip, DataGrid, Row, Cell, ColumnHeader, Heading, Link, Text, space,
+  Button, Chip, DataGrid, Row, Cell, ColumnHeader, Heading, Link, Text, space,
 } from '@scalar/design-system';
 import { AppFrame } from './shell/AppFrame.js';
 import { allScreens, examplePath } from './registry.js';
 import { href } from './router.js';
+import { valuation } from './domain/context.js';
 
 const FIGMA = 'https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=';
 
@@ -31,6 +32,10 @@ export function Catalog() {
             {allScreens.length} screens · {frames} Figma frames · {pages.length} Figma pages. Every row opens the
             exact state drawn in that frame.
           </Text>
+          <div style={{ display: 'flex', gap: space.s, alignItems: 'center' }}>
+            <Text step="s" tone="secondary">Measurements, versions, statuses and weights you change are kept for this browser session.</Text>
+            <Button size="s" variant="secondary" onClick={valuation.reset}>Reset prototype data</Button>
+          </div>
         </div>
 
         {pages.map((page) => {

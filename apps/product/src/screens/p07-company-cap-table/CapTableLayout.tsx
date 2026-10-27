@@ -4,16 +4,15 @@
  * (Cap Table · Fund Ownership · Breakpoint Analysis · Cash Flow Ledger) and the
  * Workspace dock.
  */
-import { useState, type ReactNode } from 'react';
-import {
-  ModalStatus, SelectMenu, SelectMenuOption, Selector, TertiaryMenuItem, zIndex,
-} from '@scalar/design-system';
+import type { ReactNode } from 'react';
+import { ModalStatus, TertiaryMenuItem, type SaveStateValue } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import { ToolbarAi, ToolbarCurrency, ToolbarKebab, ToolbarSave, ToolbarTableTools } from '../../shell/Toolbar.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
 import type { DockTab } from '../../shell/WorkspaceDock.js';
+import { VersionPicker } from '../../shell/VersionPicker.js';
 
 export type CapTablePage = 'securities' | 'fund-ownership' | 'breakpoints' | 'cash-flow-ledger';
 
@@ -38,16 +37,14 @@ export interface CapTableLayoutProps {
   /** Show Save (hidden while breakpoints are calculated — nothing to save). */
   save?: boolean;
   onSave?: () => void;
+  /** Shown beside Save (P9). */
+  saveState?: SaveStateValue;
   footer?: ReactNode;
   overlay?: ReactNode;
   children?: ReactNode;
 }
 
-const VERSIONS = ['Primary Captable'] as const;
-
-export function CapTableLayout({ company, page, currency, save = true, onSave, footer, overlay, children }: CapTableLayoutProps) {
-  const [versionOpen, setVersionOpen] = useState(false);
-  const [version, setVersion] = useState<string>(VERSIONS[0]);
+export function CapTableLayout({ company, page, currency, save = true, onSave, saveState, footer, overlay, children }: CapTableLayoutProps) {
   return (
     <CompanyLayout
       company={company}
@@ -57,24 +54,8 @@ export function CapTableLayout({ company, page, currency, save = true, onSave, f
       footer={footer}
       headerEnd={
         <>
-          <div style={{ position: 'relative' }}>
-            <Selector
-              surface="surface"
-              label="Cap Table Version"
-              value={version}
-              expanded={versionOpen}
-              onClick={() => setVersionOpen((o) => !o)}
-            />
-            {versionOpen && (
-              <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay }}>
-                <SelectMenu label="Cap table version">
-                  {VERSIONS.map((v) => (
-                    <SelectMenuOption key={v} selected={v === version} onSelect={() => { setVersion(v); setVersionOpen(false); }}>{v}</SelectMenuOption>
-                  ))}
-                </SelectMenu>
-              </div>
-            )}
-          </div>
+          {/* P4: picking a Cap Table version also selects its paired Fund Ownership version. */}
+          <VersionPicker company={company} kind="capTable" />
           <ModalStatus state="draft" />
           <ToolbarKebab label="Cap table actions" />
         </>
@@ -87,7 +68,7 @@ export function CapTableLayout({ company, page, currency, save = true, onSave, f
           <ToolbarAi />
           {currency && <ToolbarCurrency unit="($) Thousands" />}
           <ToolbarTableTools />
-          {save && <ToolbarSave onClick={onSave} />}
+          {save && <ToolbarSave onClick={onSave} state={saveState} />}
         </>
       }
     >

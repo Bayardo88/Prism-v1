@@ -10,8 +10,8 @@
  */
 import { useState, type ReactNode } from 'react';
 import {
-  AITool, ButtonIcon, ContextMenu, CurrencySelector, Icon, InformationLabel, MenuItem,
-  ModalStatus, Selector, SplitButton, TertiaryMenuItem, Text, icons, space, zIndex,
+  ButtonIcon, ContextMenu, Icon, InformationLabel, MenuItem,
+  ModalStatus, type SaveStateValue, TertiaryMenuItem, icons, space, zIndex,
 } from '@scalar/design-system';
 import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import { ToolbarAi, ToolbarCurrency, ToolbarKebab, ToolbarSave, ToolbarTableTools } from '../../shell/Toolbar.js';
@@ -20,15 +20,22 @@ import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import type { Company } from '../../data/fixtures.js';
 import { headlineFor } from './data.js';
+import { MarketDatePicker } from '../../shell/MarketDatePicker.js';
+import { VersionPicker } from '../../shell/VersionPicker.js';
+import { useValuationContext } from '../../domain/context.js';
+import { statusView } from '../p02-intelligence/data.js';
+import { ValuationActions } from './ValuationActions.js';
 
-export type ValuationTab = 'overview' | 'summary' | 'conclusions' | 'external-valuation' | 'specified-share-value' | 'backsolve';
+export type ValuationTab =
+  | 'overview' | 'summary' | 'conclusions' | 'external-valuation' | 'specified-share-value' | 'backsolve'
+  | 'public-comps' | 'transaction-comps';
 
 const TABS: Array<{ key: ValuationTab; label: string; to?: (id: string) => string }> = [
   { key: 'summary', label: 'Summary', to: routes.company.valuationSummary },
   { key: 'conclusions', label: 'Conclusions', to: routes.company.valuationConclusions },
-  // No Figma frame (and so no route) exists yet for these two approaches.
-  { key: 'external-valuation', label: 'External Valuation' },
-  { key: 'specified-share-value', label: 'Specified Share Value' },
+  // No Figma frame exists yet for these two approaches: they open the approach prototypes.
+  { key: 'external-valuation', label: 'External Valuation', to: routes.prototypes.approach('external-valuation') },
+  { key: 'specified-share-value', label: 'Specified Share Value', to: routes.prototypes.approach('specified-share-value') },
   { key: 'backsolve', label: 'Backsolve', to: routes.company.backsolve },
 ];
 
@@ -38,6 +45,14 @@ export const APPROACHES = [
   'External valuation', 'Future exit', 'Public comps', 'Transaction comps', 'Specified share values',
   'Calibration', 'Allocation scenario',
 ] as const;
+
+/** Add-approach items that open an approach prototype (no Figma frame yet). */
+const PROTOTYPE_APPROACH: Partial<Record<(typeof APPROACHES)[number], Parameters<typeof routes.prototypes.approach>[0]>> = {
+  'External valuation': 'external-valuation',
+  'Specified share values': 'specified-share-value',
+  'Public comps': 'public-comps',
+  'Transaction comps': 'transaction-comps',
+};
 
 const DOCK: DockTab[] = [
   { key: 'notes', label: 'Notes', count: 0 },
@@ -56,16 +71,20 @@ export interface ValuationsLayoutProps {
   /** Marks a tab as holding validation errors (icon + words, never colour alone). */
   errorTab?: ValuationTab;
   onSave?: () => void;
+  /** Shown beside Save (P9). */
+  saveState?: SaveStateValue;
   overlay?: ReactNode;
   children?: ReactNode;
 }
 
 export function ValuationsLayout({
-  company, tab, overviewHref, approachMenuOpen = false, onApproachMenuChange, errorTab, onSave, overlay, children,
+  company, tab, overviewHref, approachMenuOpen = false, onApproachMenuChange, errorTab, onSave, saveState, overlay, children,
 }: ValuationsLayoutProps) {
   const [values, setValues] = useState(false);
   const [dates, setDates] = useState(false);
   const headline = headlineFor(company);
+  const { valuation } = useValuationContext(company);
+  const status = statusView[valuation?.status ?? 'draft'];
 
   const addApproach = (
     <div style={{ position: 'relative' }}>
@@ -80,15 +99,19 @@ export function ValuationsLayout({
       {approachMenuOpen && (
         <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay, marginTop: space.xs }}>
           <ContextMenu label="Add approach" heading="Add approach">
-            {APPROACHES.map((a) => (
-              <MenuItem
-                key={a}
-                disabled={a === 'Backsolve'}
-                onClick={() => onApproachMenuChange?.(false)}
-              >
-                {a}
-              </MenuItem>
-            ))}
+            {APPROACHES.map((a) => {
+              const proto = PROTOTYPE_APPROACH[a];
+              return (
+                <MenuItem
+                  key={a}
+                  disabled={a === 'Backsolve'}
+                  href={proto ? href(routes.prototypes.approach(proto)(company.id)) : undefined}
+                  onClick={() => onApproachMenuChange?.(false)}
+                >
+                  {a}
+                </MenuItem>
+              );
+            })}
           </ContextMenu>
         </div>
       )}
@@ -119,8 +142,9 @@ export function ValuationsLayout({
           />
           {dates && (
             <>
-              <Selector surface="surface" label="Market Date" value={company.asOf} />
-              <Selector surface="surface" label="Version" value={`Version 1 - ${company.asOfIso}`} />
+              {/* P2: the market date is held apart from the measurement date. */}
+              <MarketDatePicker company={company} />
+              <VersionPicker company={company} kind="valuation" />
             </>
           )}
           <ButtonIcon
@@ -131,14 +155,9 @@ export function ValuationsLayout({
             onClick={() => setDates((v) => !v)}
             icon={<Icon size="s" tone="brand"><icons.HourglassEmpty /></Icon>}
           />
-          <ModalStatus state="final" />
-          <ModalStatus state="review">Ready for Audit</ModalStatus>
-          <ButtonIcon
-            variant="tertiary"
-            size="s"
-            label="Valuation actions"
-            icon={<Icon size="s" tone="inherit"><icons.MoreVert /></Icon>}
-          />
+          {/* P8: the version's own workflow status, not a drawn label. */}
+          <ModalStatus state={status.state}>{status.label}</ModalStatus>
+          <ValuationActions company={company} />
         </>
       }
       subNav={
@@ -164,7 +183,7 @@ export function ValuationsLayout({
           <ToolbarAi />
           <ToolbarCurrency />
           <ToolbarTableTools />
-          <ToolbarSave onClick={onSave} />
+          <ToolbarSave onClick={onSave} state={saveState} />
           <ToolbarKebab />
         </>
       }

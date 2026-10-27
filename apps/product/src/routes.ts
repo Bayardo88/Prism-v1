@@ -38,6 +38,13 @@ export const routes = {
     overview: c('overview'),
     dailyNavSettings: c('daily-nav-settings'),
   },
+  /** Prototypes with no Figma frame yet (see docs/product/domain-logic.md). */
+  prototypes: {
+    approach: (key: 'external-valuation' | 'specified-share-value' | 'public-comps' | 'transaction-comps') =>
+      (companyId: string) => `/prototypes/approach/${companyId}/${key}`,
+    respondentPortal: (requestId: string) => `/prototypes/respondent-portal/${requestId}`,
+    reportComposer: (companyId: string) => `/prototypes/report-composer/${companyId}`,
+  },
   account: {
     settings: '/account/settings',
     twoFactor: '/account/two-factor',

@@ -7,13 +7,16 @@
  */
 import type { ReactNode } from 'react';
 import {
-  Badge, CompanyInfo, SecondaryMenu, SecondaryMenuItem, TertiaryMenu, space,
+  Badge, Banner, Button, CompanyInfo, SecondaryMenu, SecondaryMenuItem, TertiaryMenu, space,
 } from '@scalar/design-system';
 import { AppFrame, type AppFrameProps } from './AppFrame.js';
 import { WorkspaceDock, type DockTab } from './WorkspaceDock.js';
 import { href } from '../router.js';
 import { routes } from '../routes.js';
 import type { Company } from '../data/fixtures.js';
+import { useValuationContext, valuation } from '../domain/context.js';
+import { RolloverDialog } from '../screens/prototypes/rollover/RolloverDialog.js';
+import { ExportDialog } from '../screens/prototypes/export/ExportDialog.js';
 
 export type CompanySection = 'summary' | 'financials' | 'cap-table' | 'valuations' | 'waterfall' | 'documents' | 'overview';
 
@@ -54,6 +57,7 @@ export function CompanyLayout({
   company, section, headerEnd, subNav, subNavEnd, subNavAdd, footer, dock, dockOpen, dockContent, dockPanels,
   openMenu, overlay, date, children,
 }: CompanyLayoutProps) {
+  const { readOnly } = useValuationContext(company);
   return (
     <AppFrame area="company" company={company} openMenu={openMenu} overlay={overlay} date={date}>
       <CompanyInfo name={company.name} status={<Badge>Draft</Badge>} end={headerEnd}>
@@ -73,8 +77,22 @@ export function CompanyLayout({
       )}
 
       <main style={{ flex: 1, padding: space.l, display: 'flex', flexDirection: 'column', gap: space.l }}>
-        {children}
+        {readOnly && (
+          <Banner
+            tone="neutral"
+            title="Read-only: you are viewing this company as an auditor"
+            action={<Button variant="secondary" size="s" onClick={() => valuation.setContext(company, { viewAs: 'analyst' })}>Return to analyst view</Button>}
+          >
+            Nothing on these pages can be changed in this view.
+          </Banner>
+        )}
+        {/* Auditor view (DOC): a disabled fieldset turns off every native control inside the page body. */}
+        <fieldset disabled={readOnly} style={{ border: 0, padding: 0, margin: 0, minWidth: 0, display: 'contents' }}>
+          {children}
+        </fieldset>
       </main>
+      <RolloverDialog company={company} />
+      <ExportDialog company={company} />
 
       {footer && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: space.s, padding: `${space.s} ${space.l}` }}>

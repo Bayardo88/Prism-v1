@@ -15,7 +15,7 @@
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, ConfirmationDialog, DataGrid, GridColumnDivider, GridColumnHeader, GridValueCell,
+  Banner, Button, DataGrid, GridColumnDivider, GridColumnHeader, GridValueCell,
   Icon, InCellControl, InlineEdit, Row, RowLabelCell, SelectMenu, SelectMenuOption, Tooltip, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -24,7 +24,13 @@ import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import { Anchor } from '../p07-company-cap-table/Anchor.js';
 import { ValuationsLayout } from './ValuationsLayout.js';
-import { ALLOCATION_METHODS, CAP_TABLES, targetSecuritiesFor } from './data.js';
+import { ALLOCATION_METHODS, targetSecuritiesFor } from './data.js';
+import { useDirtyGuard } from '../../domain/useDirtyGuard.js';
+import { useValuationContext } from '../../domain/context.js';
+import { parseNumber, weightIssue } from '../../domain/validation.js';
+import { pct1 } from '../../domain/display.js';
+import { EditCell } from '../../shell/EditCell.js';
+import { ABSENCE_LABEL } from '../../domain/display.js';
 
 interface Method { id: string; method: string; capTable: string; weight: number }
 interface Target { id: string; security?: string; shares?: number }
@@ -48,12 +54,11 @@ interface Model {
   dirty: boolean;
   showErrors: boolean;
   menu: string | null;
-  confirm: boolean;
 }
 
 function initial(state: string, company: Company): Model {
   const securities = targetSecuritiesFor(company);
-  const base: Model = { methods: one(), targets: [{ id: uid() }], dirty: false, showErrors: false, menu: null, confirm: false };
+  const base: Model = { methods: one(), targets: [{ id: uid() }], dirty: false, showErrors: false, menu: null };
   switch (state) {
     case 'duplicate-methods':
       return { ...base, methods: three(), dirty: true };
@@ -69,7 +74,6 @@ function initial(state: string, company: Company): Model {
         methods: three(),
         targets: [{ id: uid(), security: securities[securities.length - 1] }, { id: uid() }],
         dirty: true,
-        confirm: state === 'unsaved-confirm',
         showErrors: state === 'validation-banner',
       };
     default:
@@ -77,14 +81,16 @@ function initial(state: string, company: Company): Model {
   }
 }
 
-const money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
-const $0 = money2.format(0);
+/** Nothing is solved in the prototype, so every result reads "Not calculated" — never a placeholder $0 (P5). */
+const NOT_CALCULATED = ABSENCE_LABEL['not-calculated'];
 
 export function Backsolve({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
+  const ctx = useValuationContext(company);
+  // The measurement's own Cap Table versions (P1), not a fixed list.
+  const capTables = ctx.measurement.capTables.map((v) => v.name);
   const [m, setM] = useState<Model>(() => initial(state, company));
   const [approachMenu, setApproachMenu] = useState(state === 'add-approach-menu');
-  const [pending, setPending] = useState<string>(href(routes.company.valuationSummary(company.id)));
   const bottom = useRef<HTMLDivElement>(null);
   const top = useRef<HTMLDivElement>(null);
 
@@ -105,7 +111,9 @@ export function Backsolve({ state, params }: ScreenProps) {
   }, [m.methods]);
   const missingShares = m.targets.filter((t) => t.shares === undefined);
   const needsShares = (t: Target) => m.showErrors && t.shares === undefined;
-  const hasErrors = duplicates.size > 0 || missingShares.length > 0;
+  // P7: the allocation weightings total exactly 100% (DOC) — reported, never rescaled.
+  const weights = weightIssue(m.methods.map((x) => x.weight), 'Allocation weightings');
+  const hasErrors = duplicates.size > 0 || missingShares.length > 0 || weights !== null;
 
   const save = () => {
     if (hasErrors) {
@@ -116,32 +124,12 @@ export function Backsolve({ state, params }: ScreenProps) {
     }
   };
 
-  /* ---- unsaved-changes guard: any in-app link while dirty asks first ---- */
-  useEffect(() => {
-    if (!m.dirty) return;
-    const onClick = (e: MouseEvent) => {
-      const a = (e.target as Element | null)?.closest?.('a[href^="#"]');
-      if (!a) return;
-      const target = a.getAttribute('href')!;
-      if (target === window.location.hash) return;
-      e.preventDefault();
-      e.stopPropagation();
-      setPending(target);
-      update({ confirm: true });
-    };
-    const onUnload = (e: BeforeUnloadEvent) => e.preventDefault();
-    document.addEventListener('click', onClick, true);
-    window.addEventListener('beforeunload', onUnload);
-    return () => {
-      document.removeEventListener('click', onClick, true);
-      window.removeEventListener('beforeunload', onUnload);
-    };
-  }, [m.dirty]);
-
-  const leave = () => {
-    update({ dirty: false, confirm: false });
-    window.location.hash = pending.slice(1);
-  };
+  /* ---- unsaved-changes guard (P9): links, reloads and version switches ask first ---- */
+  const guard = useDirtyGuard(m.dirty, {
+    initiallyOpen: state === 'unsaved-confirm',
+    initialHref: href(routes.company.valuationSummary(company.id)),
+    onDiscard: () => update({ dirty: false }),
+  });
 
   /* ---- edits ---- */
   const toggleMenu = (key: string) => update((cur) => ({ menu: cur.menu === key ? null : key }));
@@ -213,7 +201,7 @@ export function Backsolve({ state, params }: ScreenProps) {
   const capTableCell = (x: Method) => {
     const key = `cap:${x.id}`;
     return (
-      <Anchor key={x.id} menu={menuOf(key, 'Cap table', CAP_TABLES, x.capTable, (v) => setMethod(x.id, { capTable: v }))}>
+      <Anchor key={x.id} menu={menuOf(key, 'Cap table', capTables, x.capTable, (v) => setMethod(x.id, { capTable: v }))}>
         <InCellControl type="select" label="Cap table selection" open={m.menu === key} onClick={() => toggleMenu(key)}>{x.capTable}</InCellControl>
       </Anchor>
     );
@@ -245,26 +233,18 @@ export function Backsolve({ state, params }: ScreenProps) {
       onApproachMenuChange={setApproachMenu}
       errorTab={banner ? 'backsolve' : undefined}
       onSave={save}
-      overlay={
-        <ConfirmationDialog
-          open={m.confirm}
-          destructive
-          title="Leave without saving?"
-          confirmLabel="Leave anyway"
-          cancelLabel="Stay on page"
-          onConfirm={leave}
-          onCancel={() => update({ confirm: false })}
-        >
-          Are you sure you want to continue? All changes will be lost if you leave this page without saving.
-        </ConfirmationDialog>
-      }
+      saveState={m.dirty ? 'unsaved' : 'no-changes'}
+      overlay={guard.dialog}
     >
       <div ref={top} style={{ display: 'flex', flexDirection: 'column', gap: space.xl }}>
         {banner && (
           <Banner
             tone="negative"
             title="To proceed, please correct the highlighted errors in the table cells or invalid characters in the approach names:"
-            issues={[{ label: APPROACH_NAME, onClick: () => top.current?.scrollIntoView({ block: 'start' }) }]}
+            issues={[
+              { label: APPROACH_NAME, onClick: () => top.current?.scrollIntoView({ block: 'start' }) },
+              ...(weights ? [{ label: weights.message }] : []),
+            ]}
           />
         )}
 
@@ -285,12 +265,22 @@ export function Backsolve({ state, params }: ScreenProps) {
             {methodRow('Allocation Method', 'subtotal', m.methods.map(methodCell), <GridValueCell kind="total" />)}
             {methodRow('Cap Table Selection', 'line-item', m.methods.map(capTableCell), <GridValueCell />)}
             {methodRow('Allocation Backsolve Weighting', 'line-item',
-              m.methods.map((x) => <GridValueCell key={x.id} kind="editable">{`${x.weight.toFixed(1)}%`}</GridValueCell>),
-              <GridValueCell>{`${totalWeight.toFixed(1)}%`}</GridValueCell>)}
+              m.methods.map((x) => (
+                <EditCell
+                  key={x.id}
+                  label={`${x.method} backsolve weighting`}
+                  value={pct1(x.weight)}
+                  onCommit={(t) => setMethod(x.id, { weight: parseNumber(t) ?? 0 })}
+                  error={m.showErrors && weights ? weights.message : null}
+                />
+              )),
+              <GridValueCell state={m.showErrors && weights ? 'error' : 'default'} errorMessage={m.showErrors && weights ? weights.message : undefined}>
+                {pct1(totalWeight)}
+              </GridValueCell>)}
             {methodRow('Present Share Values', 'subtotal',
               m.methods.map((x) => <GridValueCell key={x.id} kind="total" />), <GridValueCell kind="total" />)}
             {securities.map((s) => methodRow(s, 'child',
-              m.methods.map((x) => <GridValueCell key={x.id}>{$0}</GridValueCell>), <GridValueCell>{$0}</GridValueCell>))}
+              m.methods.map((x) => <GridValueCell key={x.id}>{NOT_CALCULATED}</GridValueCell>), <GridValueCell>{NOT_CALCULATED}</GridValueCell>))}
           </DataGrid>
           <Button
             variant="secondary"
@@ -333,16 +323,16 @@ export function Backsolve({ state, params }: ScreenProps) {
                       onCommit={(v) => setShares(t.id, v)}
                     />
                   </GridValueCell>
-                  <GridValueCell>{$0}</GridValueCell>
-                  <GridValueCell>{$0}</GridValueCell>
+                  <GridValueCell>{NOT_CALCULATED}</GridValueCell>
+                  <GridValueCell>{NOT_CALCULATED}</GridValueCell>
                 </Row>
               );
             })}
             <Row type="total" aria-label="Target Value">
               <RowLabelCell type="total">Target Value</RowLabelCell>
               <GridValueCell kind="total">{num.format(m.targets.reduce((a, t) => a + (t.shares ?? 0), 0))}</GridValueCell>
-              <GridValueCell kind="total">{$0}</GridValueCell>
-              <GridValueCell kind="editable">{$0}</GridValueCell>
+              <GridValueCell kind="total">{NOT_CALCULATED}</GridValueCell>
+              <GridValueCell kind="editable">{NOT_CALCULATED}</GridValueCell>
             </Row>
           </DataGrid>
           <Button
@@ -368,11 +358,11 @@ export function Backsolve({ state, params }: ScreenProps) {
           >
             <Row aria-label="Implied Equity Value">
               <RowLabelCell>Implied Equity Value</RowLabelCell>
-              <GridValueCell>{$0}</GridValueCell>
+              <GridValueCell>{NOT_CALCULATED}</GridValueCell>
             </Row>
             <Row aria-label="Enterprise Value" zebra>
               <RowLabelCell>Enterprise Value</RowLabelCell>
-              <GridValueCell>{$0}</GridValueCell>
+              <GridValueCell>{NOT_CALCULATED}</GridValueCell>
             </Row>
           </DataGrid>
           <Button variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>} disabled>

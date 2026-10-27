@@ -10,6 +10,8 @@
 import type { GridCol } from './PortfolioGrid.js';
 import { companies, companyByName, db, num, pct, usd, type Company } from '../../data/fixtures.js';
 import { usDate, type ValuationWorkflowStatus } from '../../data/db.js';
+import { workflowStatusOf } from '../../domain/context.js';
+import { isReported } from '../../domain/model.js';
 
 /**
  * Companies in the order a frame shows them — the named ones first (the frame's
@@ -23,7 +25,8 @@ export function inFrameOrder(names: string[]): Company[] {
 }
 
 /** Summary value metrics are published only once a valuation is final. */
-export const isPublished = (c: Company) => c.valuationStatus === 'final' || c.valuationStatus === 'published';
+/** Reported values (final or published) — read from the domain store so a publish on the company page shows here (P8). */
+export const isPublished = (c: Company) => isReported({ status: workflowStatusOf(c) });
 
 export const fundName = (c: Company) => db.funds.byId(c.fundId)?.name ?? c.fundId;
 const x = (v: number) => `${v.toFixed(2)}x`;

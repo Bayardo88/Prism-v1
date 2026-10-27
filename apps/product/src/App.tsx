@@ -9,6 +9,8 @@ import { useLocation, navigate } from './router.js';
 import { resolve, byFigmaNode, examplePath } from './registry.js';
 import { Catalog } from './Catalog.js';
 import { NotFound } from './NotFound.js';
+import { useContextKey } from './domain/context.js';
+import { companyById } from './data/fixtures.js';
 
 export function App() {
   const { path, query } = useLocation();
@@ -22,12 +24,16 @@ export function App() {
 
   useEffect(() => { window.scrollTo(0, 0); }, [path]);
 
+  const hit = path === '/catalog' || figma ? undefined : resolve(path, query.get('state'));
+  const companyId = hit?.params.companyId;
+  // The company's measurement + versions. Changing either remounts the screen, so
+  // its local edits start from the newly selected version — never the old one (P4).
+  const contextKey = useContextKey(companyId ? companyById(companyId) : undefined);
+
   if (path === '/catalog') return <Catalog />;
   if (figma) return null;
-
-  const hit = resolve(path, query.get('state'));
   if (!hit) return <NotFound path={path} />;
   const Screen = hit.screen.component;
   // key: remount on state change so local UI state starts from the frame.
-  return <Screen key={`${path}?${hit.state.key}`} state={hit.state.key} params={hit.params} />;
+  return <Screen key={`${path}?${hit.state.key}#${contextKey}`} state={hit.state.key} params={hit.params} />;
 }
