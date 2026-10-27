@@ -2,8 +2,9 @@
  * The wide, configurable portfolio grid shared by Intelligence (Summaries,
  * Schedule of Investments, Daily NAV) and the firm Valuations page.
  *
- * It is a `DataGrid` + `Row` of grid-pattern cells — Grid Column Header,
- * Column Group Header, Row Header, Grid Value Cell, Add Column Header —
+ * It is a `DataGrid` + `Row` of grid-pattern cells under the platform's one
+ * column header (`ColumnHeader`, AI-GUIDE R16) — Column Group Header,
+ * Row Header, Grid Value Cell, and `AddColumn` for the trailing header —
  * so column tracks come from the headers and body cells fill them. The local
  * wrapper exists only for behaviour the DataGrid does not own:
  *
@@ -14,9 +15,10 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
-  AddColumnHeader, CollapsedColumnRail, ColumnGroupHeader, DataGrid, GridColumnHeader, GridValueCell,
+  ButtonIcon, CollapsedColumnRail, ColumnGroupHeader, ColumnHeader, DataGrid, GridValueCell, Icon,
   Row, RowHeader, color, icons, zIndex, type SortDirection, type ValueKind,
 } from '@scalar/design-system';
+import { AddColumn } from '../../shell/AddColumn.js';
 
 export interface GridCol {
   key: string;
@@ -193,24 +195,25 @@ export function PortfolioGrid({
         )}
         head={
           <>
-            <GridColumnHeader grow={2} data-pin="head" style={pinBody} sort={dirOf('__label')} onSort={cycle('__label')}>
+            <ColumnHeader grow={2} data-pin="head" style={pinBody} sort={dirOf('__label')} onSortChange={cycle('__label')}>
               {firstColumn}
-            </GridColumnHeader>
+            </ColumnHeader>
             {columns.map((c) => (
-              <GridColumnHeader
+              <ColumnHeader
                 key={c.key}
                 data-head={c.key}
-                draggable
                 numeric={c.numeric}
                 selected={selectedCol === c.key}
                 sort={dirOf(c.key)}
-                onSort={cycle(c.key)}
-                onFilter={c.filter ? () => undefined : undefined}
+                onSortChange={cycle(c.key)}
+                actions={c.filter ? (
+                  <ButtonIcon variant="tertiary" size="xs" label={`Filter ${c.label}`} icon={<Icon size="s" tone="onBrand"><icons.FilterList /></Icon>} />
+                ) : undefined}
               >
                 {c.label}
-              </GridColumnHeader>
+              </ColumnHeader>
             ))}
-            {onAddColumn && <AddColumnHeader onClick={onAddColumn} selected={addColumnSelected}>{addColumnLabel}</AddColumnHeader>}
+            {onAddColumn && <AddColumn label={addColumnLabel} onClick={onAddColumn} open={addColumnSelected} />}
           </>
         }
       >

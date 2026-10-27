@@ -21,7 +21,7 @@ One row per portfolio company, ~30 columns wide: fund, investment dates, ownersh
 | user-menu | [User Menu — Open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-43157) | 19:43157 | `#/intelligence/summaries?state=user-menu` |
 | user-menu-firm-settings | [User Menu — Firm Settings expanded](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-43612) | 19:43612 | `#/intelligence/summaries?state=user-menu-firm-settings` |
 
-Components used: AppFrame, FilterDropdown, SecondaryMenu, SecondaryMenuItem, ViewTabBar, ViewTab, ContextMenu, MenuItem, MenuDivider, ButtonIcon, CurrencySelector, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, AddColumnHeader, CollapsedColumnRail, ModalStatus, Link, CellHistoryPopover, LineChart, Modal (size l), FloatingLabelInput, ModalSearch, Checkbox, Overline, Label, Text, Button, Icon (Material `icons.*`), UserMenu, MenuSubItems.
+Components used: AppFrame, FilterDropdown, SecondaryMenu, SecondaryMenuItem, ViewTabBar, ViewTab, ContextMenu, MenuItem, MenuDivider, ButtonIcon, CurrencySelector, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell, AddColumn (ColumnHeader kind="action-button"), CollapsedColumnRail, ModalStatus, Link, CellHistoryPopover, LineChart, Modal (size l), FloatingLabelInput, ModalSearch, Checkbox, Overline, Label, Text, Button, Icon (Material `icons.*`), UserMenu, MenuSubItems.
 
 Behaviour & rules:
 - **Rows come from the company database** (`db`, 200 companies): the companies drawn in the frame first, in frame order, then the rest A–Z, all in one grid with no pagination (R15). Each name links to that company's own Summary.
@@ -40,7 +40,7 @@ Every security the firm holds, grouped by company (from `db`: the frame's ABC Co
 |---|---|---|---|
 | default | [Schedule of Investments — By company](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-45879) | 19:45879 | `#/intelligence/schedule-of-investments` |
 
-Components used: AppFrame, FilterDropdown, SecondaryMenu, Heading, Link, CurrencySelector, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, ShowMoreRow.
+Components used: AppFrame, FilterDropdown, SecondaryMenu, Heading, Link, CurrencySelector, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell, ShowMoreRow.
 
 Behaviour & rules:
 - One grid per company: Type of Security, Investment Date, Invested Capital, Shares, CSE Shares, Share Value, Fully Diluted Ownership, Realized Value, Unrealized Equity, Total Value, with a Total row. Calculated, read-only values split from the company record: the securities (1–3, by the record's security count) share its invested capital, fair value and ownership; shares = invested ÷ last-round price.
@@ -55,7 +55,7 @@ A daily mark for every company (all 200 from `db`, the frame's companies first, 
 | public-comps | [Daily NAV — Public comps & NAV status](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-50974) | 19:50974 | `#/intelligence/daily-nav?state=public-comps` |
 | report-menu | [Daily NAV — Report menu open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-53212) | 19:53212 | `#/intelligence/daily-nav?state=report-menu` |
 
-Components used: AppFrame, FilterDropdown, SecondaryMenu, FloatingLabelInput, DataFreshness, SplitButton, ContextMenu, MenuItem, DataGrid (groupHead), Row, ColumnGroupHeader, GridColumnHeader, RowLabelCell, GridValueCell, Chip, Icon.
+Components used: AppFrame, FilterDropdown, SecondaryMenu, FloatingLabelInput, DataFreshness, SplitButton, ContextMenu, MenuItem, DataGrid (groupHead), Row, ColumnGroupHeader, ColumnHeader, RowLabelCell, GridValueCell, Chip, Icon.
 
 Behaviour & rules:
 - Column groups: Previous Valuation (3) · Secondary Data (9) · Public Comp Value (3) · NAV Considerations (Status). The second and third frames are the same grid scrolled to Secondary Data.

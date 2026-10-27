@@ -13,7 +13,7 @@
  */
 import { useMemo } from 'react';
 import {
-  Banner, Button, Card, DataGrid, GridColumnHeader, GridValueCell, Heading, Icon, Row, RowLabelCell, Switch, Text,
+  Banner, Button, Card, DataGrid, ColumnHeader, GridValueCell, Heading, Icon, Row, RowLabelCell, Switch, Text,
   icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
@@ -79,7 +79,7 @@ export function ReportComposer({ params }: ScreenProps) {
               <Text step="s" tone="secondary">An edit here changes what the client sees, not the valuation. Each override stays beside its source value.</Text>
               <DataGrid
                 label="Displayed figures"
-                head={<><GridColumnHeader grow={2}>Figure</GridColumnHeader><GridColumnHeader numeric>Source value</GridColumnHeader><GridColumnHeader numeric>Shown to client</GridColumnHeader><GridColumnHeader>Provenance</GridColumnHeader></>}
+                head={<><ColumnHeader grow={2}>Figure</ColumnHeader><ColumnHeader numeric>Source value</ColumnHeader><ColumnHeader numeric>Shown to client</ColumnHeader><ColumnHeader>Provenance</ColumnHeader></>}
               >
                 {figures.map((f, i) => (
                   <Row key={f.key} aria-label={f.label} zebra={i % 2 === 1}>

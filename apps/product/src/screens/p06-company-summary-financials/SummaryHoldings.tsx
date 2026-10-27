@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  DataGrid, GridColumnHeader, GridValueCell, Row, RowLabelCell, type SortDirection,
+  DataGrid, ColumnHeader, GridValueCell, Row, RowLabelCell, type SortDirection,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
@@ -51,9 +51,9 @@ export function SummaryHoldings({ params }: ScreenProps) {
         label="Summary holdings"
         head={
           <>
-            <GridColumnHeader grow={1.8}>Type of Security</GridColumnHeader>
+            <ColumnHeader grow={1.8}>Type of Security</ColumnHeader>
             {holdingsColumns.map((h, i) => (
-              <GridColumnHeader key={h} numeric sort={sort.col === i ? sort.dir : 'none'} onSort={() => cycle(i)}>{h}</GridColumnHeader>
+              <ColumnHeader key={h} numeric sort={sort.col === i ? sort.dir : 'none'} onSortChange={() => cycle(i)}>{h}</ColumnHeader>
             ))}
           </>
         }

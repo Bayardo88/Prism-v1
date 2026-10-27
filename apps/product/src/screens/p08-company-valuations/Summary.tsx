@@ -8,7 +8,7 @@
  */
 import { useEffect, useState, type ReactNode } from 'react';
 import {
-  AddColumnHeader, Button, Card, ColumnGroupHeader, DataGrid, EmptyState, GridColumnDivider, GridColumnHeader,
+  Button, Card, ColumnGroupHeader, DataGrid, EmptyState, GridColumnDivider, ColumnHeader,
   GridValueCell, Icon, Row, RowLabelCell, icons, space, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -17,6 +17,7 @@ import { ValuationsLayout } from './ValuationsLayout.js';
 import { allocationRowsFor, approachRowsFor } from './data.js';
 import { useValuationContext } from '../../domain/context.js';
 import { WeightingPanel } from './WeightingPanel.js';
+import { AddColumn } from '../../shell/AddColumn.js';
 
 function Empty({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
   return (
@@ -71,22 +72,22 @@ export function Summary({ state, params }: ScreenProps) {
             style={{ width: '80%' }}
             groupHead={
               <>
-                <GridColumnHeader>Valuation Summary</GridColumnHeader>
+                <ColumnHeader>Valuation Summary</ColumnHeader>
                 <ColumnGroupHeader span={2}>Approaches</ColumnGroupHeader>
                 <GridColumnDivider type="pinned" />
                 <ColumnGroupHeader span={2} styleVariant="emphasis">Allocation Scenarios</ColumnGroupHeader>
-                <AddColumnHeader onClick={openMenu} selected={menuOpen}>Add Allocation Scenario</AddColumnHeader>
+                <AddColumn label="Add Allocation Scenario" onClick={openMenu} open={menuOpen} popup="menu" />
               </>
             }
             head={
               <>
-                <GridColumnHeader>{''}</GridColumnHeader>
-                <GridColumnHeader numeric>Enterprise Value</GridColumnHeader>
-                <GridColumnHeader numeric>Equity Value</GridColumnHeader>
+                <ColumnHeader>{''}</ColumnHeader>
+                <ColumnHeader numeric>Enterprise Value</ColumnHeader>
+                <ColumnHeader numeric>Equity Value</ColumnHeader>
                 <GridColumnDivider type="pinned" />
-                <GridColumnHeader numeric>Waterfall</GridColumnHeader>
-                <GridColumnHeader numeric>OPM</GridColumnHeader>
-                <GridColumnHeader>{''}</GridColumnHeader>
+                <ColumnHeader numeric>Waterfall</ColumnHeader>
+                <ColumnHeader numeric>OPM</ColumnHeader>
+                <ColumnHeader>{''}</ColumnHeader>
               </>
             }
           >
@@ -102,7 +103,7 @@ export function Summary({ state, params }: ScreenProps) {
             style={{ width: '60%' }}
             groupHead={
               <>
-                <GridColumnHeader>Equity Allocation</GridColumnHeader>
+                <ColumnHeader>Equity Allocation</ColumnHeader>
                 <GridColumnDivider type="pinned" />
                 <ColumnGroupHeader span={2} styleVariant="emphasis">Allocation Scenarios</ColumnGroupHeader>
                 <ColumnGroupHeader span={1}>Weighted</ColumnGroupHeader>
@@ -110,11 +111,11 @@ export function Summary({ state, params }: ScreenProps) {
             }
             head={
               <>
-                <GridColumnHeader>{''}</GridColumnHeader>
+                <ColumnHeader>{''}</ColumnHeader>
                 <GridColumnDivider type="pinned" />
-                <GridColumnHeader numeric>Waterfall</GridColumnHeader>
-                <GridColumnHeader numeric>OPM</GridColumnHeader>
-                <GridColumnHeader numeric>Weighted Value</GridColumnHeader>
+                <ColumnHeader numeric>Waterfall</ColumnHeader>
+                <ColumnHeader numeric>OPM</ColumnHeader>
+                <ColumnHeader numeric>Weighted Value</ColumnHeader>
               </>
             }
           >

@@ -8,7 +8,7 @@
  */
 import { useCallback } from 'react';
 import {
-  Banner, DataGrid, Fab, Text, GridColumnHeader, GridValueCell, Row, RowLabelCell, Switch, type RowLabelType, type ValueKind,
+  Banner, DataGrid, Fab, Text, ColumnHeader, GridValueCell, Row, RowLabelCell, Switch, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
@@ -98,8 +98,8 @@ export function Breakpoints({ state, params }: ScreenProps) {
         style={{ width: `${Math.min(100, 22 + 13 * data.range.length)}%` }}
         head={
           <>
-            <GridColumnHeader grow={2}>{useCustom ? 'Custom Breakpoints' : 'Calculated Breakpoints'}</GridColumnHeader>
-            {data.range.map((_, i) => <GridColumnHeader key={i} numeric>{`Breakpoint ${i + 1}`}</GridColumnHeader>)}
+            <ColumnHeader grow={2}>{useCustom ? 'Custom Breakpoints' : 'Calculated Breakpoints'}</ColumnHeader>
+            {data.range.map((_, i) => <ColumnHeader key={i} numeric>{`Breakpoint ${i + 1}`}</ColumnHeader>)}
           </>
         }
       >

@@ -61,7 +61,7 @@ import { BarChart } from '@scalar/design-system/charts';
 
 ## 1. The hard rules
 
-These are the system's rules (R1–R13 from the Figma contract, plus R14 and R15 for code), restated for code. Breaking one is a
+These are the system's rules (R1–R13 from the Figma contract, plus R14–R16 for code), restated for code. Breaking one is a
 bug, not a style preference.
 
 | # | Rule |
@@ -77,6 +77,7 @@ bug, not a style preference.
 | **R9** | Elevation is a ladder: `raised` < `overlay` < `modal`. Shadow colours are token-bound and deepen automatically in Dark. |
 | **R14** | **Pages are always light mode**, even when the machine's system style is dark. `ScalarProvider` defaults to `mode="light"` and the stylesheet does not follow `prefers-color-scheme`. Never ship `mode="dark"`, never set `data-theme="dark"` on a page, never add your own dark styling. Dark exists for the library only. |
 | **R15** | **No table shows pagination.** `DataGrid` and `Table` render every row they are given, and nothing pages them: never put a `Pagination` (or `PageItem`) under or beside a table, never `slice` a table's rows into pages, and never add page / rows-per-page state to a screen. A long grid stays one grid — bound it with `DataGrid`'s `maxHeight` so the body scrolls under a sticky header. `npm run lint:tables` fails on any `Pagination` in product or example code. |
+| **R16** | **Every table uses the one column header, `ColumnHeader`.** `DataGrid` and `Table` heads are built from `ColumnHeader` (navy `brand` band by default; `tone="subtle"` for a table inside a card or modal). Never use `GridColumnHeader` or `AddColumnHeader` in product code — a sortable column is `ColumnHeader sort onSortChange`, a filter is its `actions`, an editable column is `input` + `icon`, and the trailing add-column header is the product's `AddColumn` (`ColumnHeader kind="action-button"`). Grid-pattern *cells* (`RowLabelCell`, `GridValueCell`, `ColumnGroupHeader`) stay. `npm run lint:tables` fails on the grid-pattern headers in product or example code. |
 | **R10** | **Text floor is 12px** for everything a user reads. `heading.xs` (10px) is the single sanctioned exception, for data-grid chrome only — column headers and in-cell labels, never prose, form labels or helper text. Display is marketing-only. Uppercase labels use the Overline role, which owns the +0.8px tracking — never set `letterSpacing` yourself. |
 | **R11** | PRISM says what an item **represents** — never access, availability or permission. |
 | **R12** | 33 of the 78 type tokens are identical across all three modes. That is intentional. Do not "fix" them. |
@@ -477,7 +478,7 @@ Do not wrap header labels, and do not put `role="grid"` on `DataGrid`.
 `Ledger` · `ModalStatus` · `ValuationStatus`
 
 **Column sizing is header-driven.** `DataGrid` is a CSS grid: each header cell
-in `head` (`ColumnHeader`, `GridColumnHeader`, `AddColumnHeader`) defines one
+in `head` (`ColumnHeader` — the one column header, R16) defines one
 column track, and every `Row` is a subgrid of those tracks, so a body cell
 always fills exactly its header's column.
 
@@ -519,7 +520,7 @@ always fills exactly its header's column.
 `bg.subtle`, `text.secondary`, a `stroke.strong` bottom rule — for a table inside
 a card or modal. Use it instead of restyling a header by hand; one tone per grid.
 
-**`GridColumnHeader`** also takes `trailing` and `editable` — an editable-date
+**`GridColumnHeader`** (library only — product tables use `ColumnHeader`, R16) also takes `trailing` and `editable` — an editable-date
 column: editable-blue label with a trailing calendar glyph.
 
 **`ModalStatus`** states: `draft` · `review` · `in-process-usa` · `in-process-arg` ·
@@ -775,6 +776,7 @@ Rules:
 | `letterSpacing: '0.8px'` for uppercase | the `overline` role (R10) |
 | a `<table>` for a dense figure grid | `DataGrid` + `Row` + `Cell` |
 | a `Pagination` under a table, or `rows.slice(…)` into pages | every row in one grid; `maxHeight` for a long one (R15) |
+| `GridColumnHeader` / `AddColumnHeader` in a table head | `ColumnHeader` (sort, `actions`, `input`); `AddColumn` for the trailing header (R16) |
 | a `Button` that navigates | `Link` |
 | a `Link` that submits or deletes | `Button` |
 | `role="heading"` on `Typography` | `variant="heading"` — `role` is the DOM attribute |
@@ -806,6 +808,7 @@ Then check by hand:
 - [ ] No text below 12px (R10) — the only exception is `heading.xs` (10px) in data-grid column headers and in-cell labels.
 - [ ] Charts with ≥3 series carry direct labels.
 - [ ] No table shows pagination — every row in one grid (R15, `npm run lint:tables`).
+- [ ] Every table head is `ColumnHeader` — no `GridColumnHeader` / `AddColumnHeader` (R16, `npm run lint:tables`).
 - [ ] Product screens: every value is bound to its context and none is a placeholder `$0` (§11, P1–P10, `npm run lint:product-logic`).
 
 ---

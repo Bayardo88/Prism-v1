@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  AccordionItem, Button, DataGrid, Fab, GridColumnHeader, GridValueCell, Icon, InlineEdit, InlinePicker, Row,
+  AccordionItem, Button, DataGrid, Fab, ColumnHeader, GridValueCell, Icon, InlineEdit, InlinePicker, Row,
   RowLabelCell, Scrim, SelectMenu, SelectMenuOption, SpeedDial, SpeedDialItem, Text, color, elevation, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -75,9 +75,9 @@ function GroupPanel({ group, onChange, onDelete }: {
                 label={`${group.name} comparable companies`}
                 head={
                   <>
-                    <GridColumnHeader grow={2}>Company</GridColumnHeader>
-                    <GridColumnHeader numeric>Symbol</GridColumnHeader>
-                    <GridColumnHeader numeric>Capital IQ ID</GridColumnHeader>
+                    <ColumnHeader grow={2}>Company</ColumnHeader>
+                    <ColumnHeader numeric>Symbol</ColumnHeader>
+                    <ColumnHeader numeric>Capital IQ ID</ColumnHeader>
                   </>
                 }
               >

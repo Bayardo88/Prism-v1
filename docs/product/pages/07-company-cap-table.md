@@ -23,7 +23,7 @@ Enter each security's terms (investment date, type, original issue price, shares
 | new-column | [Cap Table — New security column](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-18882) | 11:18882 | `#/companies/abc-co/cap-table/securities?state=new-column` |
 | security-type-menu | [Cap Table — Security Type menu open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-19396) | 11:19396 | `#/companies/abc-co/cap-table/securities?state=security-type-menu` |
 
-Components used: CompanyLayout (shell), TertiaryMenuItem, Selector (`surface="surface"`, Cap Table Version) + SelectMenu, ModalStatus, ButtonIcon (`icons.MoreVert`), CurrencySelector, SplitButton, DataGrid, Row (zebra / total), GridColumnHeader, InlineEdit, RowLabelCell, GridValueCell, InCellControl, GridColumnDivider, SelectMenu, SelectMenuOption, Fab.
+Components used: CompanyLayout (shell), TertiaryMenuItem, Selector (`surface="surface"`, Cap Table Version) + SelectMenu, ModalStatus, ButtonIcon (`icons.MoreVert`), CurrencySelector, SplitButton, DataGrid, Row (zebra / total), ColumnHeader, InlineEdit, RowLabelCell, GridValueCell, InCellControl, GridColumnDivider, SelectMenu, SelectMenuOption, Fab.
 
 Behaviour & rules:
 - Inputs are blue (`GridValueCell kind="editable"` / `InCellControl`): investment date, security type, original issue price, shares outstanding and conversion rate. Everything else is calculated. Totals are bold and have a rule.
@@ -40,7 +40,7 @@ Record each fund's position in each security: entity, fund, investment date, inv
 | default | [Fund Ownership — VIP Fund](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-24812) | 11:24812 | `#/companies/abc-co/cap-table/fund-ownership?state=default` |
 | new-column | [Fund Ownership — New ownership column](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10022) | 16:10022 | `#/companies/abc-co/cap-table/fund-ownership?state=new-column` |
 
-Components used: CapTableLayout, Chip, SplitButton (`menuPlacement="top"`), ContextMenu, MenuItem, DataGrid, Row, GridColumnHeader, InCellControl, SelectMenu, RowLabelCell, GridValueCell, GridColumnDivider.
+Components used: CapTableLayout, Chip, SplitButton (`menuPlacement="top"`), ContextMenu, MenuItem, DataGrid, Row, ColumnHeader, InCellControl, SelectMenu, RowLabelCell, GridValueCell, GridColumnDivider.
 
 Behaviour & rules:
 - Entity and Fund (or Entity) are in-cell selects. Investment date, invested capital, shares, cash distributions and proceeds are editable (blue). The other rows are calculated. The pinned Total sums the columns.
@@ -57,7 +57,7 @@ Shows the equity values at which each security starts to participate. By default
 | custom-3 | [Breakpoints — Custom (3)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-14358) | 19:14358 | `#/companies/abc-co/cap-table/breakpoints?state=custom-3` |
 | custom-4 | [Breakpoints — Custom (4 added)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-17438) | 19:17438 | `#/companies/abc-co/cap-table/breakpoints?state=custom-4` |
 
-Components used: CapTableLayout, Switch, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, Fab.
+Components used: CapTableLayout, Switch, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell, Fab.
 
 Behaviour & rules:
 - Calculated mode is read-only and computed from the cap table: preferences first, then the common catch-up to the highest issue price, then Pro Rata. For ABC Co that gives $0 → $1,112,233 → $90,001,121 → Infinity. There is one row per security. There is no Save in this mode.
@@ -71,7 +71,7 @@ Lists every transaction on the company's positions and rolls them up into a Cash
 | default | [Cash Flow Ledger — Transactions](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-19341) | 19:19341 | `#/companies/abc-co/cap-table/cash-flow-ledger?state=default` |
 | new-row | [Cash Flow Ledger — New transaction row](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-21138) | 19:21138 | `#/companies/abc-co/cap-table/cash-flow-ledger?state=new-row` |
 
-Components used: CapTableLayout, DataGrid, Row, GridColumnHeader (`trailing` help button), Tooltip, ButtonIcon (`icons.Help`), GridValueCell (sourced), InCellControl (date, currency, select), SelectMenu, Button, Heading, RowLabelCell.
+Components used: CapTableLayout, DataGrid, Row, ColumnHeader (`trailing` help button), Tooltip, ButtonIcon (`icons.Help`), GridValueCell (sourced), InCellControl (date, currency, select), SelectMenu, Button, Heading, RowLabelCell.
 
 Behaviour & rules:
 - Existing transactions are sourced from Fund Ownership, so they are shown in green (`kind="sourced"`) and are read-only.

@@ -15,8 +15,8 @@
  */
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  ColumnGroupHeader, DataGrid, Footnote, GridColumnDivider, GridColumnHeader, GridValueCell, Row, RowLabelCell,
-  color, size, zIndex, type RowLabelType, type ValueKind,
+  ColumnGroupHeader, DataGrid, Footnote, GridColumnDivider, ColumnHeader, GridValueCell, Row, RowLabelCell,
+  color, icons, size, zIndex, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { GridRowDef, GridValue } from './data.js';
 
@@ -109,15 +109,15 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
 
   const head = slots.map((s, n) => {
     const k = `h${n}`;
-    if (s.kind === 'label') return <GridColumnHeader key={k} grow={2.4}>{title}</GridColumnHeader>;
+    if (s.kind === 'label') return <ColumnHeader key={k} grow={2.4}>{title}</ColumnHeader>;
     if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
     if (s.kind === 'gutter') return blank(k);
     const c = s.col;
     return (
-      <GridColumnHeader key={k} numeric editable={c.editableDate} selected={c.selected} data-col={c.key}>
+      <ColumnHeader key={k} numeric input={c.editableDate} icon={c.editableDate ? <icons.CalendarToday /> : undefined} selected={c.selected} data-col={c.key}>
         {c.label}
         {c.footnote && <Footnote>[{c.footnote}]</Footnote>}
-      </GridColumnHeader>
+      </ColumnHeader>
     );
   });
 

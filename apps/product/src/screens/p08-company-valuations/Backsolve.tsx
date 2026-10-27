@@ -15,7 +15,7 @@
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, DataGrid, GridColumnDivider, GridColumnHeader, GridValueCell,
+  Banner, Button, DataGrid, GridColumnDivider, ColumnHeader, GridValueCell,
   Icon, InCellControl, InlineEdit, Row, RowLabelCell, SelectMenu, SelectMenuOption, Tooltip, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -255,10 +255,10 @@ export function Backsolve({ state, params }: ScreenProps) {
             style={{ width: `${Math.min(100, 24 + 16 * (n + 1))}%`, overflow: 'visible' }}
             head={
               <>
-                <GridColumnHeader>Backsolve</GridColumnHeader>
-                {m.methods.map((x) => <GridColumnHeader key={x.id}>{''}</GridColumnHeader>)}
+                <ColumnHeader>Backsolve</ColumnHeader>
+                {m.methods.map((x) => <ColumnHeader key={x.id}>{''}</ColumnHeader>)}
                 <GridColumnDivider type="pinned" />
-                <GridColumnHeader numeric>Backsolve Total</GridColumnHeader>
+                <ColumnHeader numeric>Backsolve Total</ColumnHeader>
               </>
             }
           >
@@ -298,10 +298,10 @@ export function Backsolve({ state, params }: ScreenProps) {
             style={{ width: '46%', overflow: 'visible' }}
             head={
               <>
-                <GridColumnHeader grow={1.6}>Security</GridColumnHeader>
-                <GridColumnHeader numeric>Shares</GridColumnHeader>
-                <GridColumnHeader numeric>Per Share Value</GridColumnHeader>
-                <GridColumnHeader numeric>Total Value</GridColumnHeader>
+                <ColumnHeader grow={1.6}>Security</ColumnHeader>
+                <ColumnHeader numeric>Shares</ColumnHeader>
+                <ColumnHeader numeric>Per Share Value</ColumnHeader>
+                <ColumnHeader numeric>Total Value</ColumnHeader>
               </>
             }
           >
@@ -351,8 +351,8 @@ export function Backsolve({ state, params }: ScreenProps) {
             style={{ width: '26%' }}
             head={
               <>
-                <GridColumnHeader grow={1.6}>Backsolve Summary</GridColumnHeader>
-                <GridColumnHeader>{''}</GridColumnHeader>
+                <ColumnHeader grow={1.6}>Backsolve Summary</ColumnHeader>
+                <ColumnHeader>{''}</ColumnHeader>
               </>
             }
           >

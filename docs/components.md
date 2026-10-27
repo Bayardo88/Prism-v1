@@ -303,7 +303,10 @@ The product app wraps it as `shell/PageTemplate.tsx`. Guide: [page-template.md](
 | Cell History Popover | — | = `CellHistoryPopover` (chart is a child) | `grid-patterns/Grid.tsx` |
 | — | — | ＋ `TaskPill` — pending-task pill in a grid row | `grid-patterns/Grid.tsx` |
 
-These sit **alongside** `Cell`, `Row` and `ColumnHeader`, not in place of them:
+These sit **alongside** `Cell`, `Row` and `ColumnHeader`, not in place of them.
+**Headers are the exception (R16):** product tables always use `ColumnHeader`; `GridColumnHeader` and
+`AddColumnHeader` stay in the library for Figma parity only, and the trailing add-column header is the
+product's `AddColumn` (`apps/product/src/shell/AddColumn.tsx`, a `ColumnHeader kind="action-button"`).
 use them for the financial-statement grids that need row hierarchy, value
 provenance and in-cell editing. See known gap 8.
 

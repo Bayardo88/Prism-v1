@@ -15,7 +15,7 @@ Positions held in the company, grouped by fund, with Fund Total and Firm Total r
 |---|---|---|---|
 | default | [Summary — Summary Holdings](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-9624) | 11:9624 | `#/companies/abc-co/summary?state=default` |
 
-Components used: CompanyLayout (PrimaryMenu, SecondaryMenu, TertiaryMenu), TertiaryMenuItem, CurrencySelector, ButtonIcon, ContextMenu, MenuItem, DataGrid, Row, GridColumnHeader (sortable), RowLabelCell (group-header band via `span`), GridValueCell, Material icons.
+Components used: CompanyLayout (PrimaryMenu, SecondaryMenu, TertiaryMenu), TertiaryMenuItem, CurrencySelector, ButtonIcon, ContextMenu, MenuItem, DataGrid, Row, ColumnHeader (sortable), RowLabelCell (group-header band via `span`), GridValueCell, Material icons.
 
 Behaviour & rules:
 - All figures are calculated (read-only), in USD with the ($) Thousands unit. The VIP FUND band is a `group-header` RowLabelCell. Fund Total is a subtotal and Firm Total is a total.
@@ -32,7 +32,7 @@ The P&L for FY 2022–2024 (actuals), three projection years (FY 2025–2027) an
 | actions-menu | [Financials — Company actions menu open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-12054) | 19:12054 | `#/companies/abc-co/financials/income-statement?state=actions-menu` |
 | notes-drawer | [Financials — Notes drawer open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-18159) | 19:18159 | `#/companies/abc-co/financials/income-statement?state=notes-drawer` |
 
-Components used: CompanyLayout (`dockPanels.notes`), TertiaryMenuItem, Selector (`surface="surface"`), ComboboxPanel, Button, ButtonIcon, ContextMenu, MenuItem, CurrencySelector, DataGrid (`groupHead`), Row (`zebra`), ColumnGroupHeader, GridColumnHeader (`editable`), GridColumnDivider, Footnote, RowLabelCell, GridValueCell, SplitButton (`menuPlacement="top"`), WorkspaceDrawer, ViewTabBar, ViewTab, SegmentedControl, RichTextToolbar, Textarea, Material icons (Edit, TableView, PictureAsPdf, Person, MoreVert, Add).
+Components used: CompanyLayout (`dockPanels.notes`), TertiaryMenuItem, Selector (`surface="surface"`), ComboboxPanel, Button, ButtonIcon, ContextMenu, MenuItem, CurrencySelector, DataGrid (`groupHead`), Row (`zebra`), ColumnGroupHeader, ColumnHeader (`editable`), GridColumnDivider, Footnote, RowLabelCell, GridValueCell, SplitButton (`menuPlacement="top"`), WorkspaceDrawer, ViewTabBar, ViewTab, SegmentedControl, RichTextToolbar, Textarea, Material icons (Edit, TableView, PictureAsPdf, Person, MoreVert, Add).
 
 Behaviour & rules:
 - Value provenance: FY 2024 figures pulled from the source document are **sourced** (green). LTM figures are **editable** (blue). Gross Profit, EBITDA, EBIT, Pretax Income and Net Income are calculated. Empty historical and projection cells are editable inputs.
@@ -70,7 +70,7 @@ Company-specific KPIs by period. The **KPIs** tertiary tab leads here.
 | row-added | [Financials — KPIs row added](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-40300) | 19:40300 | `#/companies/abc-co/financials/kpis?state=row-added` |
 | column-menu | [Financials — KPI column menu open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-41933) | 19:41933 | `#/companies/abc-co/financials/kpis?state=column-menu` |
 
-Components used: EmptyState, Heading, Button, FinancialGrid (GridColumnHeader `selected`, GridValueCell `focused`), ButtonIcon, ContextMenu, MenuItem, MenuDivider, Material icons (KeyboardArrowDown, ContentCopy, Delete, Add).
+Components used: EmptyState, Heading, Button, FinancialGrid (ColumnHeader `selected`, GridValueCell `focused`), ButtonIcon, ContextMenu, MenuItem, MenuDivider, Material icons (KeyboardArrowDown, ContentCopy, Delete, Add).
 
 Behaviour & rules:
 - Empty state: "No KPIs yet" with an **Add KPI Row** action. Each click adds one row whose label is an "ENTER DATA" placeholder.

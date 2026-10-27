@@ -8,7 +8,7 @@
  */
 import { useCallback, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, ButtonIcon, DataGrid, GridColumnHeader, GridValueCell, Heading, Icon, InCellControl,
+  Banner, Button, ButtonIcon, DataGrid, ColumnHeader, GridValueCell, Heading, Icon, InCellControl,
   Row, RowLabelCell, SelectMenu, SelectMenuOption, Tooltip, icons,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -91,23 +91,23 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
         style={{ width: '72%', overflow: 'visible' }}
         head={
           <>
-            <GridColumnHeader numeric grow={1.4}>Date of Transaction</GridColumnHeader>
-            <GridColumnHeader grow={0.4}>{''}</GridColumnHeader>
-            <GridColumnHeader numeric>Amount</GridColumnHeader>
-            <GridColumnHeader numeric>Description</GridColumnHeader>
-            <GridColumnHeader
+            <ColumnHeader numeric grow={1.4}>Date of Transaction</ColumnHeader>
+            <ColumnHeader grow={0.4}>{''}</ColumnHeader>
+            <ColumnHeader numeric>Amount</ColumnHeader>
+            <ColumnHeader numeric>Description</ColumnHeader>
+            <ColumnHeader
               numeric
-              trailing={
+              actions={
                 <Tooltip content="Investment, distribution or sale of shares — it sets how the amount enters the IRR.">
-                  <ButtonIcon variant="tertiary" size="s" label="About transaction types" icon={<Icon size="s" tone="inherit"><icons.Help /></Icon>} />
+                  <ButtonIcon variant="tertiary" size="s" label="About transaction types" icon={<Icon size="s" tone="onBrand"><icons.Help /></Icon>} />
                 </Tooltip>
               }
             >
               Type
-            </GridColumnHeader>
-            <GridColumnHeader numeric>Owner</GridColumnHeader>
-            <GridColumnHeader numeric>Entity</GridColumnHeader>
-            <GridColumnHeader numeric>Security</GridColumnHeader>
+            </ColumnHeader>
+            <ColumnHeader numeric>Owner</ColumnHeader>
+            <ColumnHeader numeric>Entity</ColumnHeader>
+            <ColumnHeader numeric>Security</ColumnHeader>
           </>
         }
       >
@@ -138,7 +138,7 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
         label="Cash flow summary"
         style={{ width: '50%' }}
         head={['Fund', 'Total Investments', 'Total Proceeds', 'Net Cost Basis', 'Gross IRR'].map((h) => (
-          <GridColumnHeader key={h} numeric>{h}</GridColumnHeader>
+          <ColumnHeader key={h} numeric>{h}</ColumnHeader>
         ))}
       >
         {summary.map((s, i) => (

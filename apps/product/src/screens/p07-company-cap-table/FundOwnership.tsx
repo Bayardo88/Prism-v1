@@ -8,7 +8,7 @@
  */
 import { Fragment, useCallback, useState, type ReactNode } from 'react';
 import {
-  Banner, Chip, Text, ContextMenu, DataGrid, GridColumnDivider, GridColumnHeader, GridValueCell, InCellControl,
+  Banner, Chip, Text, ContextMenu, DataGrid, GridColumnDivider, ColumnHeader, GridValueCell, InCellControl,
   MenuItem, Row, RowLabelCell, SelectMenu, SelectMenuOption, SplitButton, color, space, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -162,12 +162,12 @@ export function FundOwnership({ state, params }: ScreenProps) {
         style={{ width: `${Math.min(100, 24 + 13 * (positions.length + 1))}%`, overflow: 'visible' }}
         head={
           <>
-            <GridColumnHeader>{''}</GridColumnHeader>
+            <ColumnHeader>{''}</ColumnHeader>
             {positions.map((p) => (p.security
-              ? <GridColumnHeader key={p.id} numeric>{p.security}</GridColumnHeader>
+              ? <ColumnHeader key={p.id} numeric>{p.security}</ColumnHeader>
               : <Fragment key={p.id}>{picker(p, 'security', 'Security')}</Fragment>))}
             <GridColumnDivider type="pinned" />
-            <GridColumnHeader numeric>Total</GridColumnHeader>
+            <ColumnHeader numeric>Total</ColumnHeader>
           </>
         }
       >

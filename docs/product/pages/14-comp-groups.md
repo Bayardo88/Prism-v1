@@ -14,7 +14,7 @@ Lists every comp group as a collapsible panel: its name, previous versions, and 
 | Comp Groups — Add comp group speed dial open | [link](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-42969) | 19:42969 | `#/admin/comp-groups?state=speed-dial` |
 | Comp Groups — New transaction comp group | [link](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-45657) | 19:45657 | `#/admin/comp-groups?state=new-transaction` |
 
-Components used: AppFrame, PageHeader, Button, AccordionItem, DataGrid, Row, RowLabelCell, GridValueCell, GridColumnHeader, InlineEdit, InlinePicker, SelectMenu, SelectMenuOption, Fab, SpeedDial, SpeedDialItem, Scrim, Icon (Material `add`, `remove`), Text.
+Components used: AppFrame, PageHeader, Button, AccordionItem, DataGrid, Row, RowLabelCell, GridValueCell, ColumnHeader, InlineEdit, InlinePicker, SelectMenu, SelectMenuOption, Fab, SpeedDial, SpeedDialItem, Scrim, Icon (Material `add`, `remove`), Text.
 
 Behaviour & rules:
 - The group name is an `InlineEdit` (click to edit, Enter/blur commits, Escape cancels); an unnamed new group shows the "Enter name" prompt.

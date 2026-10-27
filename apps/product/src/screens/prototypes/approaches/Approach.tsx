@@ -16,7 +16,7 @@
  */
 import { useCallback, useMemo, useState, type ReactElement } from 'react';
 import {
-  Banner, Button, DataFreshness, DataGrid, GridColumnHeader, GridValueCell, Heading, Icon, Row, RowLabelCell,
+  Banner, Button, DataFreshness, DataGrid, ColumnHeader, GridValueCell, Heading, Icon, Row, RowLabelCell,
   SegmentedControl, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
@@ -72,7 +72,7 @@ function ExternalValuation({ company }: { company: Company }) {
   return (
     <>
       <Text step="m">An appraisal prepared outside Scalar. Every figure here is entered by the analyst and keeps its source.</Text>
-      <DataGrid label="External valuation" style={{ width: '50%' }} head={<><GridColumnHeader grow={2}>Input</GridColumnHeader><GridColumnHeader numeric>Value</GridColumnHeader></>}>
+      <DataGrid label="External valuation" style={{ width: '50%' }} head={<><ColumnHeader grow={2}>Input</ColumnHeader><ColumnHeader numeric>Value</ColumnHeader></>}>
         <Row aria-label="Source"><RowLabelCell>Source (appraiser or document)</RowLabelCell>
           <EditCell label="Source" value={ed.data.source} onCommit={(t) => set({ source: t })} readOnly={readOnly} /></Row>
         <Row aria-label="Appraisal date" zebra><RowLabelCell>Appraisal date</RowLabelCell>
@@ -100,7 +100,7 @@ function SpecifiedShareValue({ company }: { company: Company }) {
       <DataGrid
         label="Specified share values"
         style={{ width: '70%' }}
-        head={<><GridColumnHeader grow={2}>Security</GridColumnHeader><GridColumnHeader numeric>Shares</GridColumnHeader><GridColumnHeader numeric>Price per Share</GridColumnHeader><GridColumnHeader numeric>Value</GridColumnHeader></>}
+        head={<><ColumnHeader grow={2}>Security</ColumnHeader><ColumnHeader numeric>Shares</ColumnHeader><ColumnHeader numeric>Price per Share</ColumnHeader><ColumnHeader numeric>Value</ColumnHeader></>}
       >
         {securities.map((s, i) => (
           <Row key={s.id} aria-label={s.name} zebra={i % 2 === 1}>
@@ -169,12 +169,12 @@ function Comparables({ company, kind }: { company: Company; kind: 'public' | 'tr
         label={kind === 'public' ? 'Public comparables' : 'Transaction comparables'}
         head={
           <>
-            <GridColumnHeader grow={2}>{kind === 'public' ? 'Company' : 'Transaction'}</GridColumnHeader>
-            <GridColumnHeader>{kind === 'public' ? 'Ticker' : 'Transaction ID'}</GridColumnHeader>
-            <GridColumnHeader>Source</GridColumnHeader>
-            <GridColumnHeader numeric>Enterprise Value</GridColumnHeader>
-            <GridColumnHeader numeric>Revenue (LTM)</GridColumnHeader>
-            <GridColumnHeader numeric>EBITDA (LTM)</GridColumnHeader>
+            <ColumnHeader grow={2}>{kind === 'public' ? 'Company' : 'Transaction'}</ColumnHeader>
+            <ColumnHeader>{kind === 'public' ? 'Ticker' : 'Transaction ID'}</ColumnHeader>
+            <ColumnHeader>Source</ColumnHeader>
+            <ColumnHeader numeric>Enterprise Value</ColumnHeader>
+            <ColumnHeader numeric>Revenue (LTM)</ColumnHeader>
+            <ColumnHeader numeric>EBITDA (LTM)</ColumnHeader>
           </>
         }
       >
@@ -204,7 +204,7 @@ function Comparables({ company, kind }: { company: Company; kind: 'public' | 'tr
           onChange={setStat}
           options={[{ value: 'mean', label: 'Mean' }, { value: 'median', label: 'Median' }, { value: 'p25', label: '25th percentile' }, { value: 'p75', label: '75th percentile' }]}
         />
-        <DataGrid label="Metric weights" style={{ width: '50%' }} head={<><GridColumnHeader grow={2}>Multiple</GridColumnHeader><GridColumnHeader numeric>Weight</GridColumnHeader><GridColumnHeader numeric>Selected Multiple</GridColumnHeader></>}>
+        <DataGrid label="Metric weights" style={{ width: '50%' }} head={<><ColumnHeader grow={2}>Multiple</ColumnHeader><ColumnHeader numeric>Weight</ColumnHeader><ColumnHeader numeric>Selected Multiple</ColumnHeader></>}>
           <Row aria-label="EV / Revenue (LTM)"><RowLabelCell>EV / Revenue (LTM)</RowLabelCell>
             <EditCell label="EV / Revenue weight" value={pct1(ed.data.weights.revenue)} onCommit={(t) => setWeight('revenue', parseNumber(t) ?? 0)} error={ed.showErrors && metricIssue ? metricIssue.message : null} readOnly={readOnly} />
             <GridValueCell>{ABSENCE_LABEL['not-calculated']}</GridValueCell></Row>

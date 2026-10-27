@@ -29,7 +29,7 @@ A new version has neither part yet, so the default state shows two empty states.
 | default | [Valuations — Summary (empty states)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-24301) | 11:24301 | `#/companies/abc-co/valuations/summary?state=default` |
 | populated | [Valuations — Summary](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10558) (1247 px tall) | 16:10558 | `#/companies/abc-co/valuations/summary?state=populated` |
 
-Components used: ValuationsLayout (CompanyLayout, TertiaryMenuItem, ButtonIcon with `icons.AttachMoney` / `HourglassEmpty` / `FitScreen` / `FilterList` / `MoreVert` / `Add`, InformationLabel, Selector, ModalStatus, AITool, CurrencySelector, SplitButton, ContextMenu, MenuItem), Card, EmptyState (`icons.Error`), Button, DataGrid (`groupHead`), Row, ColumnGroupHeader, AddColumnHeader (`selected`), GridColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell.
+Components used: ValuationsLayout (CompanyLayout, TertiaryMenuItem, ButtonIcon with `icons.AttachMoney` / `HourglassEmpty` / `FitScreen` / `FilterList` / `MoreVert` / `Add`, InformationLabel, Selector, ModalStatus, AITool, CurrencySelector, SplitButton, ContextMenu, MenuItem), Card, EmptyState (`icons.Error`), Button, DataGrid (`groupHead`), Row, ColumnGroupHeader, AddColumn (ColumnHeader kind="action-button", `open`), ColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell.
 
 Behaviour & rules:
 - Approach weights (50.0% / 50.0%) and scenario weighting (75.0% / 25.0%) are inputs (blue). OPM inputs (maturity 5, risk-free rate 4.38%, volatility source Specified, volatility 50.0%) are inputs too. Everything else is calculated. Weighted Enterprise Value and Total are total rows.
@@ -43,7 +43,7 @@ The concluded value of every fund position, with one table per entity (ABC Co, H
 |---|---|---|---|
 | default | [Valuations — Conclusions](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=16-10794) | 16:10794 | `#/companies/abc-co/valuations/conclusions?state=default` |
 
-Components used: ValuationsLayout, DataGrid, Row (zebra / total), GridColumnHeader, RowLabelCell (`group-header`, `child`, `total`), GridValueCell.
+Components used: ValuationsLayout, DataGrid, Row (zebra / total), ColumnHeader, RowLabelCell (`group-header`, `child`, `total`), GridValueCell.
 
 Behaviour & rules: read-only. The positions and invested capital are the Cap Table → Fund Ownership figures. MOIC = value ÷ invested capital. The values are $0 until an approach concludes.
 
@@ -61,7 +61,7 @@ Solves for the equity value that a transaction in one security implies. The anal
 | unsaved-confirm | [Valuations — Backsolve · Unsaved changes confirmation](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-37640) | 19:37640 | `#/companies/abc-co/valuations/backsolve?state=unsaved-confirm` |
 | validation-banner | [Valuations — Backsolve · Validation errors banner](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-36020) | 19:36020 | `#/companies/abc-co/valuations/backsolve?state=validation-banner` |
 
-Components used: ValuationsLayout, Banner (`negative`, with `issues`), ConfirmationDialog (destructive), DataGrid, Row, GridColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell (editable / error / total), InCellControl (`state="error"`), Tooltip (`open`), InlineEdit, SelectMenu, SelectMenuOption, Button, Icon.
+Components used: ValuationsLayout, Banner (`negative`, with `issues`), ConfirmationDialog (destructive), DataGrid, Row, ColumnHeader, GridColumnDivider, RowLabelCell, GridValueCell (editable / error / total), InCellControl (`state="error"`), Tooltip (`open`), InlineEdit, SelectMenu, SelectMenuOption, Button, Icon.
 
 Behaviour & rules (the validation is real, not drawn):
 - **Unique allocation methods.** Every column whose method is shared with another column is an `InCellControl state="error"` with the message "The allocation method must be unique" (`errorMessage`, per R8). **Add allocation method** appends a Waterfall column, so adding a second one without changing it immediately trips the rule. The button disables at three methods. Opening a duplicate's menu (Waterfall · CSE · OPM) forces the Tooltip open over the cell.

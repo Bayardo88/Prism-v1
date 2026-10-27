@@ -5,7 +5,7 @@
  */
 import { Fragment } from 'react';
 import {
-  DataGrid, GridColumnHeader, GridValueCell, Row, RowLabelCell, space,
+  DataGrid, ColumnHeader, GridValueCell, Row, RowLabelCell, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById, num, usd } from '../../data/fixtures.js';
@@ -34,8 +34,8 @@ export function Conclusions({ params }: ScreenProps) {
             style={{ width: '70%' }}
             head={
               <>
-                <GridColumnHeader grow={1.6}>{c.entity}</GridColumnHeader>
-                {HEADERS.map((h) => <GridColumnHeader key={h} numeric>{h}</GridColumnHeader>)}
+                <ColumnHeader grow={1.6}>{c.entity}</ColumnHeader>
+                {HEADERS.map((h) => <ColumnHeader key={h} numeric>{h}</ColumnHeader>)}
               </>
             }
           >

@@ -342,3 +342,19 @@ angular stroke bound to the four variables.
 **Still open (design):** `Gradient/AI` the *paint style* on `AIButton` / `AITool` (gap 5) can now
 be rebuilt from these variables, which also gives it a Dark mode. The Workflow tones (gap 13) remain
 the only family that is code-first and not yet in the library.
+
+---
+
+## 16. Coded table headers no longer match the Figma Grid Column Header
+
+Since 2026-10-27 every product grid's head is `ColumnHeader` (R16), the navy `Header` component. The
+Scalar-full-product frames (`cZktZhD0ssL5lRVOvSqmOV`) still draw the light **Grid Column Header** and
+**Add Column Header** from page 22, so the header row of every coded grid differs from its frame:
+navy band instead of the light one, no drag handle, and `AddColumn` (`ColumnHeader
+kind="action-button"`) for the trailing header. Everything below the header row still matches.
+
+`GridColumnHeader` and `AddColumnHeader` stay in the library for Figma parity only; `npm run
+lint:tables` keeps them out of product and example code (the Gallery showcase excepted).
+
+**Real fix (design):** swap the Grid Column Header / Add Column Header instances in the screen frames for
+`Header` (Style = Default / Action Button), then retire the two grid-pattern headers.

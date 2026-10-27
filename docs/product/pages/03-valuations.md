@@ -13,7 +13,7 @@ A saved-view grid of every portfolio company (all 200 from `db`: the frame's com
 | scrolled-add-column | [Valuations — Grid scrolled to Add Column](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-16597) | 11:16597 | `#/valuations?state=scrolled-add-column` |
 | add-columns | [Valuations — Add Columns modal](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=14-1134) | 14:1134 | `#/valuations?state=add-columns` |
 
-Components used: AppFrame, FilterDropdown, ViewTabBar, ViewTab, ContextMenu, MenuItem, ButtonIcon, CurrencySelector, DataGrid, Row, GridColumnHeader, RowLabelCell, GridValueCell, AddColumnHeader (selected while the picker is open), ModalStatus, TaskPill, Link, Modal (size m), ModalSearch, Checkbox, Overline, Text, Button, Icon.
+Components used: AppFrame, FilterDropdown, ViewTabBar, ViewTab, ContextMenu, MenuItem, ButtonIcon, CurrencySelector, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell, AddColumn (ColumnHeader kind="action-button"; `open` while the picker is open), ModalStatus, TaskPill, Link, Modal (size m), ModalSearch, Checkbox, Overline, Text, Button, Icon.
 
 Behaviour & rules:
 - Columns: Valuation Date, Process Management, Valuation Status, Valuation Approaches, Enterprise Value, Equity Value, Breakeven Exit Equity, Allocation Method, Current Fund Value, % Change from Previous. All calculated, read-only, from the company record (equity value, fair value, MOIC, valuation method, stage).

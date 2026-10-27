@@ -1,6 +1,15 @@
 # Changelog
 
 ## Unreleased
+- **One column header for every table (R16).** Every product grid's head is now `ColumnHeader`, the header in the
+  Storybook *Data › Table* stories: Firm Valuations and the Intelligence portfolio grids, Summary & Financials,
+  Cap Table, Fund Ownership, Breakpoints, Cash Flow Ledger, the company Valuations tabs (Summary, Conclusions,
+  Backsolve, weighting panel), Comp Groups, the Sheets panel and the approach / report-composer prototypes. Sorting
+  keeps its three-step cycle through `onSortChange`; the Fund filter moved to the header's `actions`; the decorative
+  drag handle is gone. The trailing add-column header is the new product `AddColumn` (`ColumnHeader
+  kind="action-button"` + a `ButtonIcon`). `npm run lint:tables` now also fails on `GridColumnHeader` /
+  `AddColumnHeader` in product or example code (the Gallery showcase excepted); both stay in the library for Figma
+  parity. Figma frames still draw the Grid Column Header, so the coded grids now differ from them in the header row.
 - **Product logic in the prototype (AI-GUIDE §11, P1–P10).** `docs/product/domain-logic.md` is the domain contract,
   condensed from the 2025 training guide (kept as reference in `docs/product/training-notes-2025/`). `apps/product`
   gains a domain layer (`src/domain/`): one valuation context per company (measurement, versions, breakpoint mode,

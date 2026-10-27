@@ -10,7 +10,7 @@
  * Off-total weights are reported in words, never rescaled.
  */
 import {
-  Banner, DataGrid, GridColumnHeader, GridValueCell, Heading, Row, RowLabelCell, Switch, space,
+  Banner, DataGrid, ColumnHeader, GridValueCell, Heading, Row, RowLabelCell, Switch, space,
 } from '@scalar/design-system';
 import type { Company } from '../../data/fixtures.js';
 import { useValuationContext, valuation } from '../../domain/context.js';
@@ -36,10 +36,10 @@ export function WeightingPanel({ company }: { company: Company }) {
         label="Approach weighting"
         head={
           <>
-            <GridColumnHeader grow={2}>Approach</GridColumnHeader>
-            <GridColumnHeader numeric>Weight</GridColumnHeader>
-            <GridColumnHeader>Calibration</GridColumnHeader>
-            <GridColumnHeader>In summary</GridColumnHeader>
+            <ColumnHeader grow={2}>Approach</ColumnHeader>
+            <ColumnHeader numeric>Weight</ColumnHeader>
+            <ColumnHeader>Calibration</ColumnHeader>
+            <ColumnHeader>In summary</ColumnHeader>
           </>
         }
       >
@@ -82,8 +82,8 @@ export function WeightingPanel({ company }: { company: Company }) {
         label="Allocation scenario weighting"
         head={
           <>
-            <GridColumnHeader grow={2}>Allocation scenario</GridColumnHeader>
-            <GridColumnHeader numeric>Weighting/Probability</GridColumnHeader>
+            <ColumnHeader grow={2}>Allocation scenario</ColumnHeader>
+            <ColumnHeader numeric>Weighting/Probability</ColumnHeader>
           </>
         }
       >

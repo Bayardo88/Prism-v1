@@ -8,7 +8,7 @@
  */
 import { Fragment, useState, type ReactNode } from 'react';
 import {
-  DataGrid, Fab, GridColumnDivider, GridColumnHeader, GridValueCell, InCellControl, InlineEdit,
+  DataGrid, Fab, GridColumnDivider, ColumnHeader, GridValueCell, InCellControl, InlineEdit,
   Row, RowLabelCell, SelectMenu, SelectMenuOption, space, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
@@ -108,16 +108,16 @@ export function CapTable({ state, params }: ScreenProps) {
           style={{ width, overflow: 'visible' }}
           head={
             <>
-              <GridColumnHeader>Security Name</GridColumnHeader>
+              <ColumnHeader>Security Name</ColumnHeader>
               {securities.map((s) => (
-                <GridColumnHeader key={s.id} numeric selected={isNew(s)}>
+                <ColumnHeader key={s.id} numeric selected={isNew(s)}>
                   {isNew(s)
                     ? <InlineEdit label="Security name" placeholder="Enter name" value={s.name} onCommit={(name) => rename(s.id, name)} />
                     : s.name}
-                </GridColumnHeader>
+                </ColumnHeader>
               ))}
               <GridColumnDivider type="pinned" />
-              <GridColumnHeader numeric>Total</GridColumnHeader>
+              <ColumnHeader numeric>Total</ColumnHeader>
             </>
           }
         >
