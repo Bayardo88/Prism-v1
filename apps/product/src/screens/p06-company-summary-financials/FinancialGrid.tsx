@@ -1,11 +1,13 @@
 /**
  * The financial-statement grid shared by Income Statement, Performance
  * Metrics, Balance Sheet and KPIs: the row-label column, historical periods,
- * the brand period rule, a run of Projections columns and a trailing group
- * (LTM / NTM, or As Of) set apart by a gutter.
+ * the brand period rule, a run of projection columns (each `ColumnHeader` tagged
+ * "Projection" through its `label`) and a trailing group (LTM / NTM, or As Of)
+ * set apart by a gutter.
  *
  * Built on `DataGrid` + `Row` with the grid-pattern cells directly inside;
- * `groupHead` carries the Projections / LTM / NTM tier. The tracks are passed
+ * `groupHead` carries the LTM / NTM / As Of tier (and the KPI column menu); it
+ * is left out when no column has a group. The tracks are passed
  * explicitly (`columns`) only because the period rule and the gutter are
  * tracks of their own — derived from the header they would each get a `1fr`
  * share. Value columns keep the header-sized `minmax(max-content, 1fr)` track.
@@ -25,8 +27,10 @@ export interface GridColumn {
   /** Header label, one line ("FY 2024", "12/31/2024"). */
   label: string;
   zone: 'hist' | 'proj' | 'trail';
-  /** Group header above the column: "Projections", "LTM", "NTM", "As Of". */
+  /** Group header above the column: "LTM", "NTM", "As Of". */
   group?: string;
+  /** Tag beside the header label (`ColumnHeader label`): "Projection". */
+  tag?: string;
   /** The header is an editable date (LTM / NTM / As Of). */
   editableDate?: boolean;
   /** Footnote reference drawn beside the label. */
@@ -104,7 +108,7 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
     if (s.kind !== 'col') return blank(k);
     if (s.col.groupSlot) return <div key={k} style={{ background: color.bg.surface }}>{s.col.groupSlot}</div>;
     if (!s.col.group) return blank(k);
-    return <ColumnGroupHeader key={k} span={1} styleVariant={s.col.zone === 'proj' ? 'emphasis' : 'default'}>{s.col.group}</ColumnGroupHeader>;
+    return <ColumnGroupHeader key={k} span={1}>{s.col.group}</ColumnGroupHeader>;
   }) : undefined;
 
   const head = slots.map((s, n) => {
@@ -114,7 +118,7 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
     if (s.kind === 'gutter') return blank(k);
     const c = s.col;
     return (
-      <ColumnHeader key={k} numeric input={c.editableDate} icon={c.editableDate ? <icons.CalendarToday /> : undefined} selected={c.selected} data-col={c.key}>
+      <ColumnHeader key={k} numeric label={c.tag} input={c.editableDate} icon={c.editableDate ? <icons.CalendarToday /> : undefined} selected={c.selected} data-col={c.key}>
         {c.label}
         {c.footnote && <Footnote>[{c.footnote}]</Footnote>}
       </ColumnHeader>
@@ -159,10 +163,10 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
 export const range = (a: number, b: number) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
 
 export const fy = (y: number, zone: GridColumn['zone']): GridColumn => ({
-  key: `fy${y}`, label: `FY ${y}`, zone, group: zone === 'proj' ? 'Projections' : undefined,
+  key: `fy${y}`, label: `FY ${y}`, zone, tag: zone === 'proj' ? 'Projection' : undefined,
 });
 
 /** A period column dated at the fiscal year end (`MM/DD`), as the Balance Sheet shows it. */
 export const yearEnd = (y: number, zone: GridColumn['zone'], monthDay: string): GridColumn => ({
-  key: `ye${y}`, label: `${monthDay}/${y}`, zone, group: zone === 'proj' ? 'Projections' : undefined,
+  key: `ye${y}`, label: `${monthDay}/${y}`, zone, tag: zone === 'proj' ? 'Projection' : undefined,
 });
