@@ -195,7 +195,7 @@ export function PortfolioGrid({
         )}
         head={
           <>
-            <ColumnHeader grow={2} data-pin="head" style={pinBody} sort={dirOf('__label')} onSortChange={cycle('__label')}>
+            <ColumnHeader grow={2} data-pin="head" style={pin} sort={dirOf('__label')} onSortChange={cycle('__label')}>
               {firstColumn}
             </ColumnHeader>
             {columns.map((c) => (
