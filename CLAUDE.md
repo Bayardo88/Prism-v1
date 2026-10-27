@@ -11,6 +11,12 @@ decision tables for colour / size / type / component, the full API, and an
 anti-pattern list. It applies to code in this repo and to any product UI built
 on it.
 
+For product screens (`apps/product`) also read
+**[docs/product/domain-logic.md](docs/product/domain-logic.md)**, the domain
+contract (AI-GUIDE §11, rules P1–P10). It covers measurement vs market date,
+versions and Cap Table ↔ Fund Ownership pairing, draft vs published, and empty vs
+zero. Formulas never go in UI code.
+
 ## Building a screen
 
 Every screen starts from `PageTemplate` — navigation, a body slot for your

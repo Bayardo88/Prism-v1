@@ -9,6 +9,8 @@ All 103 frames in that file are coded as a clickable React prototype in
 | Read | For |
 |---|---|
 | This file | The platform: its areas, its chrome, how you move between pages, and the rules that apply everywhere |
+| [`domain-logic.md`](domain-logic.md) | **The domain contract.** Context, dates, versions, status, empty vs zero, validation. Read it before changing any screen |
+| [`training-notes-2025/`](training-notes-2025) | The source guide from the 2025 training sessions (reference only, cited by `domain-logic.md`) |
 | [`pages/`](pages) | One document per Figma page. Each screen gets its purpose, how you get there, its states, the components it uses, and its behaviour rules |
 | [`screen-catalog.md`](screen-catalog.md) | Generated. Every Figma frame with its route, state, component and Figma link |
 | [`screens.json`](screens.json) | Generated. The same catalog in machine-readable form, read by the `scalar-forge` skill |
@@ -123,6 +125,10 @@ Search open") only sets `openMenu`.
   Secondary Menu and Tertiary sub-nav. A fourth level goes in the page body.
 - **PRISM colour says what a thing is.** A company, a document or a version
   each has its own colour. PRISM never signals access or permission.
+- **Values belong to a context.** A company page reads its measurement date,
+  market date and versions from `useValuationContext`, empty is never shown as
+  `$0`, and drafts are never reported as published. See
+  [`domain-logic.md`](domain-logic.md) (AI-GUIDE §11, P1–P10).
 - Everything else is the design-system contract in
   [`AI-GUIDE.md`](../../AI-GUIDE.md): tokens only, a 12px text floor, visible
   focus, and light mode only — pages render light even when the OS is dark.

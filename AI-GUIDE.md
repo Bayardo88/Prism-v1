@@ -20,6 +20,9 @@ body slot and the docked drawer, and you only supply the content. Read
 [docs/page-template.md](docs/page-template.md) (§6 is the agent rules) before
 writing any page.
 
+**Building a product screen? Read §11 too.** It sets the product-logic rules (P1–P10): which date and version a
+value belongs to, why empty is not zero, and why maths never goes in the UI.
+
 ---
 
 ## 0. Setup — do this once per application
@@ -803,6 +806,7 @@ Then check by hand:
 - [ ] No text below 12px (R10) — the only exception is `heading.xs` (10px) in data-grid column headers and in-cell labels.
 - [ ] Charts with ≥3 series carry direct labels.
 - [ ] No table shows pagination — every row in one grid (R15, `npm run lint:tables`).
+- [ ] Product screens: every value is bound to its context and none is a placeholder `$0` (§11, P1–P10, `npm run lint:product-logic`).
 
 ---
 
@@ -822,3 +826,24 @@ bite you:
 5. **`Gradient/AI`** has no Dark-mode counterpart. Verify on `bg.page` in Dark.
 6. **`Header`'s `Input` and `Action` properties** have no spec in Figma, so their
    rendering is a reading of the variant screenshots. See `docs/known-gaps.md` §11.
+
+---
+
+## 11. Product logic rules
+
+Sections 1–10 say how a Scalar screen looks. These rules say what it **means**. They apply to every product
+screen (`apps/product`, and any product repo built on this package). The full contract, with sources and the
+open questions, is [`docs/product/domain-logic.md`](docs/product/domain-logic.md). Breaking one is a bug.
+
+| # | Rule |
+|---|------|
+| **P1** | **Bind every value to its context:** company, measurement date, market date and the financial, cap table and valuation version. Read it from `useValuationContext(companyId)`, never from local state or a hard-coded string. |
+| **P2** | **Measurement date ≠ market date.** Never display one as the other. Editing the market date never moves the measurement date. |
+| **P3** | **Rollover, bulk market-date update and market-date edit are three different actions.** Each says which one it is in its title and its confirm button. None overwrites the source measurement. |
+| **P4** | **Versions are scenarios, not overwrites.** Save as New Version clones. A Cap Table version selects its paired Fund Ownership version. A valuation version owns its approach set. Changing version or date resets derived state. |
+| **P5** | **Empty is not zero.** A missing, uncalculated or draft value renders `—`, `Not calculated` or `Draft` (`displayValue()`), never a placeholder `$0`. |
+| **P6** | **No valuation maths in UI.** No formula goes into a DS component. Prototype numbers come from `domain/illustrative-calcs.ts`, which is labelled non-authoritative. Never derive Waterfall, OPM, DCF, note conversion or IRR yourself. |
+| **P7** | **Validate, never correct.** A weight group sums to exactly 100%. Custom breakpoints ascend. A transaction date is ≤ the measurement date. Show the error with `Banner issues` and the field's error state, and never rescale or reorder the user's input. |
+| **P8** | **Draft is not published.** Fund, firm and Intelligence summaries show published values only. A calibrated approach is read-only and left out of the summary. Ready for Audit is read-only for the reviewer. |
+| **P9** | **Every editor shows its save state** with `SaveState` and guards unsaved work with `useDirtyGuard`, both when leaving the page and when switching version. |
+| **P10** | **Never encode a 2025 defect or an open question.** `VERIFY` items (formulas, status graph, 409A override semantics, portal auth, rollover scope) stay presentational and labelled. A display override never changes a source value. |
