@@ -13,8 +13,8 @@ function columns(p: Periods, projYears: number[], editableTrail: boolean): GridC
   return [
     fy(p.year - 2, 'hist'), fy(p.year - 1, 'hist'), { ...fy(p.year, 'hist'), footnote: editableTrail ? '1' : undefined },
     ...projYears.map((y) => fy(y, 'proj')),
-    { key: 'ltm', label: p.ltm, zone: 'trail', group: 'LTM', editableDate: editableTrail },
-    { key: 'ntm', label: p.ntm, zone: 'trail', group: 'NTM', editableDate: editableTrail },
+    { key: 'ltm', label: p.ltm, zone: 'trail', tag: 'LTM', editableDate: editableTrail },
+    { key: 'ntm', label: p.ntm, zone: 'trail', tag: 'NTM', editableDate: editableTrail },
   ];
 }
 

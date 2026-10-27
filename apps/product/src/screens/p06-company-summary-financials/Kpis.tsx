@@ -23,18 +23,16 @@ export function Kpis({ state, params }: ScreenProps) {
   ].map((c) => (c.key !== selected.key ? c : {
     ...c,
     selected: true,
-    groupSlot: (
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <ButtonIcon
-          variant="tertiary"
-          size="s"
-          label={`${c.label} column actions`}
-          aria-haspopup="menu"
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((o) => !o)}
-          icon={<Icon size="xs" tone="brand"><icons.KeyboardArrowDown /></Icon>}
-        />
-      </div>
+    actions: (
+      <ButtonIcon
+        variant="tertiary"
+        size="xs"
+        label={`${c.label} column actions`}
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen((o) => !o)}
+        icon={<Icon size="xs" tone="onBrand"><icons.KeyboardArrowDown /></Icon>}
+      />
     ),
   }));
 

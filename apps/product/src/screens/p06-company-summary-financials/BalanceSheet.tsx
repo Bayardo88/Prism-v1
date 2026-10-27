@@ -24,7 +24,7 @@ export function BalanceSheet({ state, params }: ScreenProps) {
   const columns: GridColumn[] = [
     ...range(firstYear, p.year).map((y) => col(y, 'hist')),
     ...range(p.year + 1, lastProj).map((y) => col(y, 'proj')),
-    { key: 'as-of', label: p.ltm, zone: 'trail', group: fiscal ? 'LTM' : 'As Of', editableDate: true },
+    { key: 'as-of', label: p.ltm, zone: 'trail', tag: fiscal ? 'LTM' : 'As Of', editableDate: true },
   ];
 
   const toggle = (k: SectionKey) => setExpanded((e) => (e.includes(k) ? e.filter((x) => x !== k) : [...e, k]));

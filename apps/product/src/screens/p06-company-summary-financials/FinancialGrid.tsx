@@ -6,8 +6,8 @@
  * set apart by a gutter.
  *
  * Built on `DataGrid` + `Row` with the grid-pattern cells directly inside;
- * `groupHead` carries the LTM / NTM / As Of tier (and the KPI column menu); it
- * is left out when no column has a group. The tracks are passed
+ * There is no group row: a period's kind ("Projection", "LTM", "NTM", "As Of")
+ * is the `ColumnHeader` label tag, and a column menu sits in its `actions`. The tracks are passed
  * explicitly (`columns`) only because the period rule and the gutter are
  * tracks of their own — derived from the header they would each get a `1fr`
  * share. Value columns keep the header-sized `minmax(max-content, 1fr)` track.
@@ -17,7 +17,7 @@
  */
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  ColumnGroupHeader, DataGrid, Footnote, GridColumnDivider, ColumnHeader, GridValueCell, Row, RowLabelCell,
+  DataGrid, Footnote, GridColumnDivider, ColumnHeader, GridValueCell, Row, RowLabelCell,
   color, icons, size, zIndex, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { GridRowDef, GridValue } from './data.js';
@@ -27,9 +27,7 @@ export interface GridColumn {
   /** Header label, one line ("FY 2024", "12/31/2024"). */
   label: string;
   zone: 'hist' | 'proj' | 'trail';
-  /** Group header above the column: "LTM", "NTM", "As Of". */
-  group?: string;
-  /** Tag beside the header label (`ColumnHeader label`): "Projection". */
+  /** Tag beside the header label (`ColumnHeader label`): "Projection", "LTM", "NTM", "As Of". */
   tag?: string;
   /** The header is an editable date (LTM / NTM / As Of). */
   editableDate?: boolean;
@@ -37,8 +35,8 @@ export interface GridColumn {
   footnote?: string;
   /** Active column (blue top tab) — used by the KPI column menu. */
   selected?: boolean;
-  /** Replaces the group-header slot above this column (e.g. a column-actions trigger). */
-  groupSlot?: ReactNode;
+  /** Trailing header controls (`ColumnHeader actions`), e.g. a column-actions trigger. */
+  actions?: ReactNode;
 }
 
 export interface GridRow extends GridRowDef {
@@ -76,7 +74,7 @@ function cellValue(v: GridValue, emptyKind: ValueKind, key: string) {
   return <GridValueCell key={key} kind={v.kind} state={v.focused ? 'focused' : 'default'}>{v.v}</GridValueCell>;
 }
 
-/** An empty track (group-head blanks, the LTM gutter): page-white, never zebra. */
+/** An empty track (the LTM gutter): page-white, never zebra. */
 const blank = (key: string) => <div key={key} aria-hidden style={{ background: color.bg.surface }} />;
 
 export function FinancialGrid({ title, columns, rows, label, menu }: {
@@ -89,7 +87,6 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
   menu?: { columnKey: string; content: ReactNode };
 }) {
   const slots = slotsFor(columns);
-  const hasGroups = columns.some((c) => c.group || c.groupSlot);
   const wrap = useRef<HTMLDivElement>(null);
   const [anchor, setAnchor] = useState<{ left: number; top: number } | null>(null);
   const menuKey = menu?.columnKey;
@@ -102,15 +99,6 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
     setAnchor({ left: r.left - box.left, top: r.bottom - box.top });
   }, [menuKey, columns.length]);
 
-  const groupHead = hasGroups ? slots.map((s, n) => {
-    const k = `g${n}`;
-    if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
-    if (s.kind !== 'col') return blank(k);
-    if (s.col.groupSlot) return <div key={k} style={{ background: color.bg.surface }}>{s.col.groupSlot}</div>;
-    if (!s.col.group) return blank(k);
-    return <ColumnGroupHeader key={k} span={1}>{s.col.group}</ColumnGroupHeader>;
-  }) : undefined;
-
   const head = slots.map((s, n) => {
     const k = `h${n}`;
     if (s.kind === 'label') return <ColumnHeader key={k} grow={2.4}>{title}</ColumnHeader>;
@@ -118,7 +106,7 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
     if (s.kind === 'gutter') return blank(k);
     const c = s.col;
     return (
-      <ColumnHeader key={k} numeric label={c.tag} input={c.editableDate} icon={c.editableDate ? <icons.CalendarToday /> : undefined} selected={c.selected} data-col={c.key}>
+      <ColumnHeader key={k} numeric label={c.tag} actions={c.actions} input={c.editableDate} icon={c.editableDate ? <icons.CalendarToday /> : undefined} selected={c.selected} data-col={c.key}>
         {c.label}
         {c.footnote && <Footnote>[{c.footnote}]</Footnote>}
       </ColumnHeader>
@@ -127,7 +115,7 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
 
   return (
     <div ref={wrap} style={{ position: 'relative' }}>
-      <DataGrid label={label ?? title} columns={slots.map((s) => TRACK[s.kind])} groupHead={groupHead} head={<>{head}</>}>
+      <DataGrid label={label ?? title} columns={slots.map((s) => TRACK[s.kind])} head={<>{head}</>}>
         {rows.map((r, ri) => {
           const emptyKind: ValueKind = r.emptyKind ?? 'editable';
           return (

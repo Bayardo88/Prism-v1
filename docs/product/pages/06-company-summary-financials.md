@@ -37,7 +37,7 @@ Components used: CompanyLayout (`dockPanels.notes`), TertiaryMenuItem, Selector 
 Behaviour & rules:
 - Value provenance: FY 2024 figures pulled from the source document are **sourced** (green). LTM figures are **editable** (blue). Gross Profit, EBITDA, EBIT, Pretax Income and Net Income are calculated. Empty historical and projection cells are editable inputs.
 - Row hierarchy: Gross Profit and Pretax Income are indented child rows. EBITDA and EBIT are subtotals. Net Income is the total band.
-- The brand period rule separates actuals from projections; each projection column is tagged "Projection" through its `ColumnHeader label` (no group row above it). LTM / NTM sit after a gutter, and their header dates are editable (blue, with a calendar glyph). FY 2024 carries footnote [1].
+- The brand period rule separates actuals from projections; each period's kind ("Projection", "LTM", "NTM", "As Of") is its `ColumnHeader label` tag, so there is no group row above the headers; the KPI column-actions arrow sits in the selected header's `actions`. LTM / NTM sit after a gutter, and their header dates are editable (blue, with a calendar glyph). FY 2024 carries footnote [1].
 - The **Financials Version** selector opens a searchable panel ("Find a Version" → Primary Financial Statement, footer "+ Save as New Version").
 - The **⋮ company actions** menu has Edit Company (→ Company Overview), Excel Export, PDF Export and Edit Common Profile (→ Daily NAV Settings).
 - **Add Projection Year** appends the next FY column to both grids. Its caret opens "Add Historical Year".
