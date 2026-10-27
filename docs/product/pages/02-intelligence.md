@@ -69,6 +69,9 @@ Behaviour & rules:
 - Out: company names → Company Summary (Summaries), Company Cap Table (SOI), Company Daily NAV settings (Daily NAV); page ⋮ on Daily NAV → Firm Settings · Daily NAV; the User Menu → Account, User Management, Comp Groups, Audit Logs, Firm Settings (all pages), Home (switch firm).
 - The shared grid/chrome (`screens/p02-intelligence/PortfolioGrid.tsx`, `chrome.tsx`) is reused by 03 · Valuations (Firm).
 
+## Domain rules
+- Summaries and Schedule of Investments read each company's status from the domain store (`workflowStatusOf`). Only `final` and `published` values are reported (P8, [`../domain-logic.md`](../domain-logic.md)).
+
 ## Gaps & open questions
 - **Frame companies missing from the database:** SpaceX and Perplexity (Summaries), testttrrrrr and Jun 3 25 (Daily NAV) are not among the 200 records, so they are skipped. Figures now come from the records, so they no longer match the numbers drawn in the frames, and a company's valuation status comes from the record (e.g. Backside Blocks is Draft, not Final).
 - **DS bug — `MenuItem` with `href` overflows:** `.scalar-menu-item` is `width: 100%` + padding with content-box sizing, so an `<a>` item is wider than its menu (the button form is border-box by default). This made `summaries?state=user-menu-firm-settings` 1479px wide. Workaround: User Menu and page-action items navigate `onClick` instead of `href`. Fix: `box-sizing: border-box` on `.scalar-menu-item` in `src/styles/components.css`, then restore `href`.

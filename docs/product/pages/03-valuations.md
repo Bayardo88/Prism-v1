@@ -27,6 +27,10 @@ Behaviour & rules:
 - Out: company name → `/companies/:id/valuations/summary`; task buttons → company Information Request / Questions; "+" → Intelligence Summaries (Create Summary View).
 - Reuses the Intelligence portfolio grid and chrome (`screens/p02-intelligence/`).
 
+## Domain rules
+- Status, and whether values show, come from the domain store (`workflowStatusOf`), so publishing on a company's Valuations page shows here. Values of unpublished versions stay "Not Applicable" (P8).
+- Page actions → **Bulk Actions: Update market date…** moves the market date of the selected companies. It creates no measurement or version and is not a rollover (P3).
+
 ## Gaps & open questions
 - SpaceX and Perplexity (drawn in the frame) are not in the database and are skipped; figures and statuses come from the records, not the frame.
 - Task counts are derived (In Progress valuations + DataBricks); the record has no task data.

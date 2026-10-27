@@ -51,6 +51,9 @@ Behaviour & rules: empty state (no-data) explains what appears here and offers "
 - In: company Secondary Menu → Documents; Workspace drawer on Waterfalls (04) and company Waterfall (09); firm Documents (05) empty viewer.
 - Out: References → Income Statement / Cap Table (06/07); row menu "Open in viewer" → Documents (05); New Info Request → Information Request.
 
+## Domain rules
+- Information Request has **Preview respondent page**, which opens the external respondent portal prototype. Its upload, submit and confirm steps are separate, and a confirmation failure never asks for a resend (BUG-09). See [prototype-product-logic](prototype-product-logic.md).
+
 ## Gaps & open questions
 - The sub-nav shows Documents and Questions only (as in the frames); Information Request is a task page reached by button, not a tab.
 - The frame's per-row kebab on request/question rows became RepeatableRow's remove (Trash) button, per the DS railroad.

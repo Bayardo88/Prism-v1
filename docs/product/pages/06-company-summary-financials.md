@@ -81,6 +81,15 @@ Behaviour & rules:
 - In: the Secondary Menu on every company page (Summary, Financials), the Companies menu in the Primary Menu, and Home's company directory.
 - Out: the company actions menu goes to Company Overview (`routes.company.overview`) and Daily NAV Settings (`routes.company.dailyNavSettings`). Summary's sub-nav also goes to both pages (page 11). The Secondary Menu goes to Cap Table, Valuations, Waterfall and Documents.
 
+## Domain rules
+See [`../domain-logic.md`](../domain-logic.md) (AI-GUIDE §11).
+- **Financials Date** is the measurement in the company's valuation context. The **Financials Version** picker lists the measurement's versions (Primary Financial Statement, Downside Case) and switches the context for every company page. *Save as New Version* clones the version and keeps the original. The Downside Case reads 20% lower, so a switch visibly changes the figures (demo data).
+- Switching version with unsaved edits asks first (P4, P9).
+- **Notes** shows its save state and has its own **Save note** (UX-02). **Sheets** is a scratch grid that is not connected to the valuation.
+- Summary Holdings: Concluded Share Value reads "—", Unrealized and Total Value read "Not calculated", and Realized Value is a real $0 (P5).
+- Company ⋮ adds **Roll over to a new date…** and opens the Excel Export dialog.
+- *Frame conflict:* the version menu frame lists one version. The prototype lists the measurement's versions.
+
 ## Gaps & open questions
 - `FinancialGrid` passes `DataGrid columns` explicitly. The period rule (`GridColumnDivider`) and the LTM gutter are tracks of their own, and a header-derived track would give each a `1fr` share. A `width` prop on `GridColumnDivider` (or a `DataGrid` gutter option) would let the tracks derive from `head` like every other grid.
 - The KPI column menu is drawn outside the grid, anchored by measuring its header. The grid scrolls sideways inside itself (`overflow-x: auto`), which would clip an in-grid popover. The DS has no anchored-popover primitive.

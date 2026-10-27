@@ -1,6 +1,18 @@
 # Changelog
 
 ## Unreleased
+- **Product logic in the prototype (AI-GUIDE §11, P1–P10).** `docs/product/domain-logic.md` is the domain contract,
+  condensed from the 2025 training guide (kept as reference in `docs/product/training-notes-2025/`). `apps/product`
+  gains a domain layer (`src/domain/`): one valuation context per company (measurement, versions, breakpoint mode,
+  auditor view), the market date held apart from the measurement date, Financials / Cap Table / Valuation versions with
+  Save as New Version, and Cap Table ↔ Fund Ownership pairing. A version or date switch remounts the page from the new
+  version. Workflow status is shared with the firm pages, so Publish shows up there. Placeholder `$0`s now read "—",
+  "Not calculated" or "Draft". The validation is real: weights total 100%, custom breakpoints ascend, and transaction
+  dates fall on or before the measurement. Every editor has a save state and the unsaved-changes guard. Calibrated
+  approaches are left out of the summary. The new flows have no Figma frames, so they ship as prototypes: approach tabs,
+  rollover, bulk market-date update, Excel export, respondent portal and the 409A composer. New checks run in
+  `verify:product`: `npm run test:product` (domain unit tests) and `npm run lint:product-logic` (placeholder zeros and
+  market date fed from the as-of date). `scripts/serve.mjs` takes a `PORT`.
 - **No table shows pagination (R15).** `DataGrid` and `Table` render every row and nothing pages them. Removed the
   `Pagination` bars from Daily NAV, Summaries, Firm Valuations, Daily NAV Companies, SCIM Revoked Tokens and the Cap Table
   example; those grids now list every row (Global Search's `?hl=` no longer pages to the row, it only scrolls to it).

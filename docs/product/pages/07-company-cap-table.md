@@ -83,6 +83,15 @@ Behaviour & rules:
 - Out: the Tertiary Menu links the four sub-pages to each other. The Secondary Menu leads to Summary, Financials, Valuations, Waterfall and Documents.
 - Data: the same ABC Co positions (Series A / Holding Common / Common; VIP Fund, Holding Co.) feed Valuations → Conclusions and Backsolve on page 08.
 
+## Domain rules
+See [`../domain-logic.md`](../domain-logic.md) (AI-GUIDE §11).
+- **Cap Table Version** is a context picker. Primary Captable ↔ Primary Fund Ownership and Secondary Captable ↔ Secondary Fund Ownership are paired 1:1 (DOC), and Fund Ownership states which pair it shows. The Secondary version adds an unissued option pool (10%), so securities, ownership % and breakpoints change visibly. A switch remounts each page from the selected version (BUG-04/07).
+- Every editor has a save state and the unsaved-changes guard (P9).
+- **Fund Ownership / Cash Flow Ledger:** a transaction date after the measurement date is refused on Save, with a Banner plus the cell's error state (P7). Loan Value, Cash Distributions and Proceeds read "—", and Liquidation Preference reads "Not calculated" (P5).
+- **Breakpoints:** the mode is stored in the context. Custom breakpoints take an "Ends at Equity Value" per breakpoint and must ascend (P7). Custom amounts read "Not calculated". The page and Company Waterfall say which set Waterfall uses (UX-01).
+- Ownership %, liquidation preference and calculated breakpoints come from `domain/illustrative-calcs.ts`. That file is non-authoritative (P6).
+- *Frame conflict:* the custom frames draw `$0` amounts and `$0.000` prices. The prototype shows "Not calculated".
+
 ## Gaps & open questions
 - **Menus are unclipped by hand.** `DataGrid` scrolls sideways (`overflow-x: auto`), which clips an absolutely positioned `SelectMenu` under an in-cell select. The grids with pickers pass `style={{ overflow: 'visible' }}`, and their widths are capped at 100% so nothing needs to scroll. A DS-level popover layer would remove this workaround.
 - **Pinned-total grids pass `columns` explicitly.** `GridColumnDivider` takes no `width`/`grow`, so `columnTracks` would give it a `1fr` track. `pinnedTracks()` in `Anchor.tsx` supplies an `auto` track for it instead. A `width` prop on `GridColumnDivider` would remove this.

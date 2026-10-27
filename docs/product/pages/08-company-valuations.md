@@ -87,6 +87,16 @@ A landing page for the company's Valuations area, built as a prototype (`apps/pr
 - In: Company Secondary Menu → Valuations (from every company page). The firm-level Valuations list (page 03) opens a company's valuation.
 - Out: tabs link Summary ⇄ Conclusions ⇄ Backsolve. The Secondary Menu leads to Cap Table, which supplies the securities, positions and "Primary Captable" used here, and to Waterfall and Documents.
 
+## Domain rules
+See [`../domain-logic.md`](../domain-logic.md) (AI-GUIDE §11).
+- **Market Date** is a picker of its own. Editing it refreshes market data for this measurement only and never moves the measurement date (P2). **Version** is a context picker of the valuation versions.
+- The header status is the version's workflow status. The **valuation ⋮** moves it (In Progress → In Review → Ready for Audit → Final, Publish… with confirmation, Return to Draft), switches to **View as auditor (read-only)**, and offers Save as New Version, Roll over, Excel Export and Compose 409A client report. Publishing shows up on firm Valuations and Intelligence (P8).
+- **Summary** (populated) rows and weights come from the version. A **Weighting** panel edits approach weights and scenario weights (each must total 100%) and the **calibration** switch: a calibrated approach carries no weight and is left out of the summary.
+- **Backsolve:** allocation weightings must total 100% (added to the existing rules). Its Cap Table options are the measurement's versions. It uses the shared guard. Uncomputed results read "Not calculated".
+- **Conclusions** and the header Equity Value read "Not calculated" until an approach concludes, never `$0` (P5).
+- External Valuation and Specified Share Value tabs, and Public / Transaction comps in + Add approach, open the approach prototypes ([prototype-product-logic](prototype-product-logic.md)).
+- *Frame conflict:* the frames draw *Final* and *Ready for Audit* together. The model has one status, so ABC Co is seeded as Ready for Audit and shows one badge. The frames' `$0` results now read "Not calculated".
+
 ## Gaps & open questions
 - **Routes missing:** the External Valuation and Specified Share Value tabs have no Figma frame and no route in `routes.ts`, so they render as inert tabs. The Add approach menu items don't navigate (only Backsolve has a screen).
 - **Forced tooltip placement.** `Tooltip open` wraps its trigger in an inline span, which shrinks a full-width `InCellControl`. So the forced tooltip hangs off a zero-size marker above the cell instead of wrapping the control. A Tooltip `anchor`/block mode would remove this.

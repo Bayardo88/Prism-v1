@@ -27,6 +27,9 @@ Behaviour & rules:
 - In: company Secondary Menu → Waterfall; Waterfalls (04) "Go to <company>".
 - Out: Workspace → Documents → Company · Documents upload (10) and Information Request (10).
 
+## Domain rules
+- A note above the sheet says whether Waterfall uses **calculated or custom breakpoints**, and for which Cap Table version. It links to Breakpoint Analysis (UX-01, [`../domain-logic.md`](../domain-logic.md)).
+
 ## Gaps & open questions
 - Reuses ScenarioGrid / CreateViewModal / scenarioFor / waterfallDockPanels from `screens/p04-waterfalls/` (cross-area import).
 - View menu items beyond Delete (Rename) are not in the frames; Duplicate is a guess.

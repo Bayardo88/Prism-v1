@@ -136,7 +136,13 @@ Search open") only sets `openMenu`.
 ## 5 · Known limits of the prototype
 
 - The data is fixtures (`apps/product/src/data/fixtures.ts` plus each area's
-  `data.ts`). Saves live only in local state.
+  `data.ts`). Measurements, versions, statuses, weights and market dates live
+  in the domain store (`apps/product/src/domain/`) for the browser session.
+  **Reset prototype data** on the catalog clears them. Other saves live only
+  in local state.
+- Flows with no Figma frame (approach tabs, rollover, bulk market date, export,
+  respondent portal, 409A composer) are prototypes. See
+  [`pages/prototype-product-logic.md`](pages/prototype-product-logic.md).
 - The real product icon set (SDS_Main icons) is not in the package, so
   structural glyphs stand in. See [`docs/known-gaps.md`](../known-gaps.md).
 - Companies that appear in a frame but not in the fixtures are shown either as

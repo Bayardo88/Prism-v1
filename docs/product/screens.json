@@ -1206,5 +1206,121 @@
         "figmaUrl": null
       }
     ]
+  },
+  {
+    "id": "prototype.approach.external-valuation",
+    "title": "External Valuation (prototype)",
+    "figmaPage": "Prototype · approaches",
+    "route": "/prototypes/approach/:companyId/external-valuation",
+    "summary": "Enter an outside appraisal with its source and date.",
+    "component": "ApproachScreen",
+    "states": [
+      {
+        "key": "default",
+        "label": "External Valuation — default",
+        "figmaNode": "proto:approach:external-valuation",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
+  },
+  {
+    "id": "prototype.approach.specified-share-value",
+    "title": "Specified Share Value (prototype)",
+    "figmaPage": "Prototype · approaches",
+    "route": "/prototypes/approach/:companyId/specified-share-value",
+    "summary": "Specify a price per share for each series of the Cap Table version in view.",
+    "component": "ApproachScreen",
+    "states": [
+      {
+        "key": "default",
+        "label": "Specified Share Value — default",
+        "figmaNode": "proto:approach:specified-share-value",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
+  },
+  {
+    "id": "prototype.approach.public-comps",
+    "title": "Public Comps (prototype)",
+    "figmaPage": "Prototype · approaches",
+    "route": "/prototypes/approach/:companyId/public-comps",
+    "summary": "Pick public comparables, see where each figure came from and weight the multiples.",
+    "component": "ApproachScreen",
+    "states": [
+      {
+        "key": "default",
+        "label": "Public Comps — default",
+        "figmaNode": "proto:approach:public-comps",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
+  },
+  {
+    "id": "prototype.approach.transaction-comps",
+    "title": "Transaction Comps (prototype)",
+    "figmaPage": "Prototype · approaches",
+    "route": "/prototypes/approach/:companyId/transaction-comps",
+    "summary": "Pick comparable transactions or enter them by hand, and weight the multiples.",
+    "component": "ApproachScreen",
+    "states": [
+      {
+        "key": "default",
+        "label": "Transaction Comps — default",
+        "figmaNode": "proto:approach:transaction-comps",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
+  },
+  {
+    "id": "prototype.respondent-portal",
+    "title": "Respondent Portal (prototype)",
+    "figmaPage": "Prototype · respondent-portal",
+    "route": "/prototypes/respondent-portal/:requestId",
+    "summary": "An external contact answers the analyst’s questions and uploads the requested documents, and is told truthfully whether the response arrived.",
+    "component": "RespondentPortal",
+    "states": [
+      {
+        "key": "default",
+        "label": "Respondent Portal — answering",
+        "figmaNode": "proto:respondent-portal:1",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "received",
+        "label": "Respondent Portal — response received",
+        "figmaNode": "proto:respondent-portal:2",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "confirmation-failed",
+        "label": "Respondent Portal — received, confirmation failed (BUG-09 recovery)",
+        "figmaNode": "proto:respondent-portal:3",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
+  },
+  {
+    "id": "prototype.report-composer",
+    "title": "409A Report Composer (prototype)",
+    "figmaPage": "Prototype · report-composer",
+    "route": "/prototypes/report-composer/:companyId",
+    "summary": "Choose which sections a client sees and adjust displayed figures, with every override kept beside its source value.",
+    "component": "ReportComposer",
+    "states": [
+      {
+        "key": "default",
+        "label": "409A Report Composer — default",
+        "figmaNode": "proto:report-composer:1",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
   }
 ]
