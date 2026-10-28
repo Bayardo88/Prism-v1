@@ -88,7 +88,8 @@ export function PortfolioGrid({
   const [sort, setSort] = useState<{ key: string; dir: SortDirection }>({ key: '', dir: 'none' });
   const [hidden, setHidden] = useState({ left: 0, right: 0, pinnedW: 0 });
   const [anchor, setAnchor] = useState<{ left: number; top: number } | null>(null);
-  const scroller = () => outer.current?.querySelector<HTMLElement>('[role=grid]') ?? null;
+  // DataGrid renders role="table" (it is a table, not an APG grid), and it is the horizontal scroller.
+  const scroller = () => outer.current?.querySelector<HTMLElement>('[role=table]') ?? null;
 
   const sorted = useMemo(() => {
     if (sort.dir === 'none') return rows;

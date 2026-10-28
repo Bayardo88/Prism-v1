@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- **Portfolio grids scroll again.** `PortfolioGrid` looked for its scroller with `[role=grid]`, but `DataGrid` renders
+  `role="table"`, so its sideways scroll silently did nothing: Daily NAV › Public comps opened at the far left, the
+  Summaries "Scrolled" states and Firm Valuations' scroll-to-end didn't scroll, and the "+ N columns" rails
+  neither counted nor paged. It now finds the table.
 - **Pinned table header on single-table pages.** When a page body holds exactly one visible table taller than the room
   left, the shell (`usePinnedTableHead`, wired in `AppFrame`) bounds it to the remaining height, so its rows scroll
   under its `ColumnHeader` row, which stays under the navigation tiers. Sideways scroll and pinned first columns keep
