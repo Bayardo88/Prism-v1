@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { BodySlot, PageTemplate } from './index.js';
+import { DataGrid } from '../table/DataGrid.js';
+import { ColumnHeader } from '../table/ColumnHeader.js';
+import { Row } from '../table/Row.js';
+import { RowLabelCell, GridValueCell } from '../grid-patterns/index.js';
 
 const meta = {
   title: 'Core/PageTemplate',
@@ -36,6 +40,33 @@ export const ScrollingBody: Story = {
       <div style={{ padding: 'var(--space-l)', display: 'flex', flexDirection: 'column', gap: 'var(--space-m)' }}>
         {Array.from({ length: 24 }, (_, i) => <a key={i} href={`#company-${i + 1}`}>Portfolio company {i + 1}</a>)}
       </div>
+    ),
+  },
+};
+/**
+ * A page with **one** table pins that table's column header too: the grid is bounded to the body's height
+ * (`DataGrid maxHeight`), so its rows scroll under the `ColumnHeader` row, which stays under the navigation tiers.
+ * The product shell does this for you (`usePinnedTableHead`). A page with two or more tables does not: the whole
+ * body scrolls, headers included (see *Scrolling Body*).
+ */
+export const SingleTablePinnedHeader: Story = {
+  decorators: [(Story) => <div style={{ height: 360, display: 'flex', flexDirection: 'column' }}><Story /></div>],
+  args: {
+    ...WithDrawer.args,
+    children: (
+      <DataGrid
+        label="Firm valuations"
+        maxHeight="100%"
+        head={<><ColumnHeader grow={2}>Company</ColumnHeader><ColumnHeader numeric>Valuation Date</ColumnHeader><ColumnHeader numeric>Enterprise Value</ColumnHeader></>}
+      >
+        {Array.from({ length: 30 }, (_, i) => (
+          <Row key={i} zebra={i % 2 === 1}>
+            <RowLabelCell>Portfolio company {i + 1}</RowLabelCell>
+            <GridValueCell kind="calculated">06/30/2026</GridValueCell>
+            <GridValueCell kind="calculated">{`$${(12 + i * 3).toLocaleString('en-US')},400,000`}</GridValueCell>
+          </Row>
+        ))}
+      </DataGrid>
     ),
   },
 };

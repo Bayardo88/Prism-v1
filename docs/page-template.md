@@ -56,7 +56,11 @@ slot starting at y 120 with a 16 px inset on both sides and a 1408 px width.
   exactly one viewport tall, so the three navigation tiers stay pinned at the
   top and tables and content scroll under them (story *Core › PageTemplate ›
   Scrolling Body*). Screens on `CompanyLayout` / `PageBody` get the same through
-  `scrollBody`; a hand-written `<main>` spreads `scrollBody` too.
+  `scrollBody`; a hand-written `<main>` spreads `scrollBody` too. When the body
+  holds exactly **one** table taller than the room left, the shell also pins its
+  column header (`usePinnedTableHead` bounds the grid to the remaining height);
+  with two or more tables the whole body scrolls, headers included (story
+  *Core › PageTemplate › Single Table Pinned Header*).
 - The slot is inset 16 px (`space.l`) on both sides. Do not add your own outer
   page padding or margin; do not add a `max-width` to centre it.
 
@@ -186,6 +190,7 @@ wrong shortcut gets copied into every page.
 - [ ] `area`, `company` / `section`, `subNav` and `dock` match the ticket
 - [ ] No outer padding, margin, `max-width` or extra scroll container in the body
 - [ ] Scrolled to the bottom: all three navigation tiers stayed at the top and the document itself did not scroll
+- [ ] One long table on the page: its column header stayed pinned under the tiers; two or more tables: none pinned
 - [ ] `npm run verify` passes (and `npm run build:product` for product screens)
 - [ ] Looked at it in a browser at 1440 px wide
 

@@ -78,6 +78,7 @@ Layout rules:
 
 - Tiers stack with **no gap** between them.
 - **The tiers are sticky.** The frame is exactly one viewport tall and the page never scrolls as a document: Tier 1, Tier 2 and Tier 3 stay pinned at the top and only the content area under them scrolls (the Workspace drawer stays docked at the foot). Tables and content scroll *under* the bars, never the bars with them. In `apps/product` the shell owns this (`AppFrame` + the body `<main>`, `scrollBody`); a screen never adds `position: sticky` to a bar or its own scroll wrapper around the page.
+- **One table → its column header is pinned too.** When the content area holds exactly one visible table taller than the room left, that table is bounded to the remaining height, so its rows scroll under its `ColumnHeader` row, which stays directly under the tiers (sideways scroll and a pinned first column keep working). With **two or more tables** on the page this does not apply: the whole content area scrolls, headers included. A table that already fits is left alone. In `apps/product` the shell does this (`usePinnedTableHead`); screens never wire it themselves.
 - Tier 2 and Tier 3 share the same 16px inset so their left edges align.
 - Interactive items inside all three tiers are **32px tall**; small toolbar controls in Tier 3 and buttons in Tier 2 are **24px**.
 - Always use the design tokens above; the hex values are for reference only.

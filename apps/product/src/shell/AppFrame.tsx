@@ -7,7 +7,8 @@
  * navigation tiers (Primary Menu, company header + Secondary Menu, Tertiary
  * Menu) stay pinned at the top and only the page body scrolls under them. Every
  * screen's body is a `<main style={scrollBody}>` (or `PageBody`, which is one);
- * the dock below it stays docked at the foot.
+ * the dock below it stays docked at the foot. When the body holds exactly one
+ * table, its column header stays pinned too (`usePinnedTableHead`).
  *
  * The global menus are real and clickable on every screen — a Figma frame that
  * shows one open (e.g. "Home — Global Search open") just passes `openMenu`.
@@ -24,6 +25,7 @@ import { portfolioDate, user, type Company } from '../data/fixtures.js';
 import { overlays, type GlobalMenu, type OverlayProps } from './overlays/index.js';
 import { useValuationContext } from '../domain/context.js';
 import { usFromIso } from '../domain/model.js';
+import { usePinnedTableHead } from './usePinnedTableHead.js';
 
 /**
  * Prototype hook: lets a prototype swap a global menu's surface, drive the
@@ -67,6 +69,8 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
   useEffect(() => onMenuChange?.(open), [open, onMenuChange]);
   // Closing Global Search hands focus back to the search bar, whose onFocus would reopen it.
   const closedAt = useRef(0);
+  const body = useRef<HTMLDivElement>(null);
+  usePinnedTableHead(body);
 
   const toggle = (m: GlobalMenu) => () => setOpen((cur) => (cur === m ? undefined : m));
   const Overlay = open ? (overrides.menus?.[open] ?? overlays[open]) : undefined;
@@ -116,7 +120,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
             : <Selector label="Measurement Date" value={date ?? portfolioDate} expanded={open === 'date'} onClick={toggle('date')} />}
         </PrimaryMenu>
 
-        <div style={{ position: 'relative', flex: 1, minHeight: 0, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
+        <div ref={body} style={{ position: 'relative', flex: 1, minHeight: 0, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
           {children}
           {Overlay && <Overlay menu={open!} company={company} onClose={() => { closedAt.current = Date.now(); setOpen(undefined); }} />}
           {overlay}

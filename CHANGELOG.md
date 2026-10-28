@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- **Pinned table header on single-table pages.** When a page body holds exactly one visible table taller than the room
+  left, the shell (`usePinnedTableHead`, wired in `AppFrame`) bounds it to the remaining height, so its rows scroll
+  under its `ColumnHeader` row, which stays under the navigation tiers. Sideways scroll and pinned first columns keep
+  working. Pages with two or more tables, and tables that already fit, are left alone. Applies today to Firm
+  Valuations, Intelligence Summaries, Daily NAV and Firm Settings › Daily NAV Companies. Documented in the navigation
+  spec §3, `page-template.md` and AI-GUIDE R15; new *Core › PageTemplate › Single Table Pinned Header* story.
 - **Sticky navigation tiers.** `AppFrame` is now exactly one viewport tall and the document no longer scrolls: the
   Primary Menu, company header + Secondary Menu and Tertiary Menu stay pinned at the top while each screen's body
   `<main>` scrolls under them (the Workspace dock stays at the foot). `CompanyLayout`, `PageBody` and the screens with
