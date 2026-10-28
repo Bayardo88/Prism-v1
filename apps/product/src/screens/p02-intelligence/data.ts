@@ -256,14 +256,16 @@ export const NAV_FRAME = [
   'Etrade', 'New Company', 'GPC', 'Backside Blocks',
 ];
 
+/** NAV Considerations (Status) leads, right after Company, so a row's NAV status reads first. */
 export const navGroups = [
+  { label: 'NAV Considerations', span: 1 },
   { label: 'Previous Valuation', span: 3 },
   { label: 'Secondary Data', span: 9 },
   { label: 'Public Comp Value', span: 3 },
-  { label: 'NAV Considerations', span: 1 },
 ];
 
 export const navColumns: GridCol[] = [
+  { key: 'status', label: 'Status' },
   { key: 'valDate', label: 'Valuation Date', numeric: true },
   { key: 'equity', label: 'Equity Value', numeric: true },
   { key: 'pps', label: 'Price / Share', numeric: true },
@@ -279,7 +281,6 @@ export const navColumns: GridCol[] = [
   { key: 'pc1', label: '1-Day Δ', numeric: true },
   { key: 'pc5', label: '5-Day Δ', numeric: true },
   { key: 'pcLast', label: 'Last Val Δ', numeric: true },
-  { key: 'status', label: 'Status' },
 ];
 
 /** The previous valuation a Daily NAV row compares against — published valuations only. */

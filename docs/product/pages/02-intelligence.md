@@ -58,7 +58,7 @@ A daily mark for every company (all 200 from `db`, the frame's companies first, 
 Components used: AppFrame, FilterDropdown, SecondaryMenu, FloatingLabelInput, DataFreshness, SplitButton, ContextMenu, MenuItem, DataGrid (groupHead), Row, ColumnGroupHeader, ColumnHeader, RowLabelCell, GridValueCell, Chip, Icon.
 
 Behaviour & rules:
-- Column groups: Previous Valuation (3) · Secondary Data (9) · Public Comp Value (3) · NAV Considerations (Status). The second and third frames are the same grid scrolled to Secondary Data.
+- Column groups: NAV Considerations (Status) · Previous Valuation (3) · Secondary Data (9) · Public Comp Value (3). Status is the first column after Company, so a row's NAV status reads before its figures (the Figma frames still draw it last). The second and third frames are the same grid scrolled to Secondary Data.
 - Secondary-market prices are **sourced** cells (Text/Sourced); deltas without data show "—".
 - Previous Valuation (date, equity value, last-round price per share) comes from the record when its valuation is Final or Published; those rows carry a + expander on the row label.
 - Status "No Action Needed" is a positive Chip with a check_circle icon and words (R8).
