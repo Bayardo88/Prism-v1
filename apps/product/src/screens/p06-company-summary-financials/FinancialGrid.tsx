@@ -3,14 +3,13 @@
  * Metrics, Balance Sheet and KPIs: the row-label column, historical periods,
  * the brand period rule, a run of projection columns (each `ColumnHeader` tagged
  * "Projection" through its `label`) and a trailing group (LTM / NTM, or As Of)
- * set apart by a gutter.
+ * that follows the last projection directly, with no gutter between them.
  *
  * Built on `DataGrid` + `Row` with the grid-pattern cells directly inside;
  * There is no group row: a period's kind ("Projection", "LTM", "NTM", "As Of")
  * is the `ColumnHeader` label tag, and a column menu sits in its `actions`. The tracks are passed
- * explicitly (`columns`) only because the period rule and the gutter are
- * tracks of their own — derived from the header they would each get a `1fr`
- * share. Value columns keep the header-sized `minmax(max-content, 1fr)` track.
+ * explicitly (`columns`) only because the period rule is a track of its own —
+ * derived from the header it would get a `1fr` share. Value columns keep the header-sized `minmax(max-content, 1fr)` track.
  *
  * A column menu (KPI Copy / Delete) is drawn outside the grid, anchored to its
  * header, because the grid scrolls sideways inside itself and would clip it.
@@ -18,7 +17,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import {
   DataGrid, Footnote, GridColumnDivider, ColumnHeader, GridValueCell, Row, RowLabelCell,
-  color, icons, size, zIndex, type RowLabelType, type ValueKind,
+  icons, zIndex, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { GridRowDef, GridValue } from './data.js';
 
@@ -48,14 +47,13 @@ export interface GridRow extends GridRowDef {
   labelContent?: ReactNode;
 }
 
-type Slot = { kind: 'label' } | { kind: 'rule' } | { kind: 'gutter' } | { kind: 'col'; col: GridColumn; i: number };
+type Slot = { kind: 'label' } | { kind: 'rule' } | { kind: 'col'; col: GridColumn; i: number };
 
 function slotsFor(cols: GridColumn[]): Slot[] {
   const out: Slot[] = [{ kind: 'label' }];
   cols.forEach((col, i) => {
     const prev = cols[i - 1];
     if (col.zone === 'proj' && prev?.zone !== 'proj') out.push({ kind: 'rule' });
-    if (col.zone === 'trail' && prev?.zone !== 'trail') out.push({ kind: 'gutter' });
     out.push({ kind: 'col', col, i });
   });
   return out;
@@ -64,7 +62,6 @@ function slotsFor(cols: GridColumn[]): Slot[] {
 const TRACK: Record<Slot['kind'], string> = {
   label: 'minmax(max-content, 2.4fr)',
   rule: 'max-content',
-  gutter: size.icon.m,
   col: 'minmax(max-content, 1fr)',
 };
 
@@ -73,9 +70,6 @@ function cellValue(v: GridValue, emptyKind: ValueKind, key: string) {
   if (typeof v === 'string') return <GridValueCell key={key} kind={emptyKind === 'total' ? 'total' : 'calculated'}>{v}</GridValueCell>;
   return <GridValueCell key={key} kind={v.kind} state={v.focused ? 'focused' : 'default'}>{v.v}</GridValueCell>;
 }
-
-/** An empty track (the LTM gutter): page-white, never zebra. */
-const blank = (key: string) => <div key={key} aria-hidden style={{ background: color.bg.surface }} />;
 
 export function FinancialGrid({ title, columns, rows, label, menu }: {
   title: string;
@@ -103,7 +97,6 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
     const k = `h${n}`;
     if (s.kind === 'label') return <ColumnHeader key={k} grow={2.4}>{title}</ColumnHeader>;
     if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
-    if (s.kind === 'gutter') return blank(k);
     const c = s.col;
     return (
       <ColumnHeader key={k} numeric label={c.tag} actions={c.actions} input={c.editableDate} icon={c.editableDate ? <icons.CalendarToday /> : undefined} selected={c.selected} data-col={c.key}>
@@ -132,7 +125,6 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
                   );
                 }
                 if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
-                if (s.kind === 'gutter') return blank(k);
                 return cellValue(r.values?.[s.i], emptyKind, k);
               })}
             </Row>

@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- **No gutter before LTM / NTM.** Income Statement, Performance Metrics, Balance Sheet and KPIs no longer leave a
+  blank track between the last projection and the trailing LTM / NTM (or As Of) columns: `FinancialGrid` drops its
+  gutter slot. The rule is in AI-GUIDE R16 and the new *Data › GridPatterns › Statement Trailing Periods* story.
 - **One column header for every table (R16).** Every product grid's head is now `ColumnHeader`, the header in the
   Storybook *Data › Table* stories: Firm Valuations and the Intelligence portfolio grids, Summary & Financials,
   Cap Table, Fund Ownership, Breakpoints, Cash Flow Ledger, the company Valuations tabs (Summary, Conclusions,

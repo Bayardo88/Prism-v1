@@ -6,6 +6,7 @@ import {
 } from './index.js';
 import type { SortDirection } from './index.js';
 import { DataGrid } from '../table/DataGrid.js';
+import { ColumnHeader } from '../table/ColumnHeader.js';
 import { Row } from '../table/Row.js';
 import { LineChart } from '../charts/LineChart.js';
 
@@ -193,6 +194,46 @@ export const StatementInDataGrid: Story = {
         <Row><RowLabelCell expanded={open} onToggle={() => setOpen((o) => !o)}>Revenue</RowLabelCell><GridValueCell kind="sourced">4,120,000</GridValueCell><GridValueCell kind="editable">4,980,000</GridValueCell></Row>
         {open && <Row><RowLabelCell type="child">Product</RowLabelCell><GridValueCell kind="sourced">3,000,000</GridValueCell><GridValueCell kind="editable" state="error" errorMessage="Required">{''}</GridValueCell></Row>}
         <Row><RowLabelCell type="total">Total</RowLabelCell><GridValueCell kind="total">4,120,000</GridValueCell><GridValueCell kind="total">4,980,000</GridValueCell></Row>
+      </DataGrid>
+    );
+  },
+};
+
+/**
+ * A statement's period layout: actuals, the period rule, projections, then the trailing
+ * LTM / NTM columns. Each period's kind is its `ColumnHeader label` tag, and the trailing
+ * group follows the last projection directly — no gutter or blank track between them.
+ */
+export const StatementTrailingPeriods: Story = {
+  decorators: [(Story) => <div style={{ width: 960 }}><Story /></div>],
+  render: () => {
+    const value = 'minmax(max-content, 1fr)';
+    const rows: [string, string, string][] = [['Total Revenue', '22,118', '22,118'], ['Total Cost of Sales', '3,078', '3,078']];
+    return (
+      <DataGrid
+        label="Income statement"
+        columns={['minmax(max-content, 2.4fr)', value, 'max-content', value, value, value]}
+        head={
+          <>
+            <ColumnHeader grow={2.4}>Income Statement</ColumnHeader>
+            <ColumnHeader numeric>FY 2024</ColumnHeader>
+            <GridColumnDivider type="period" />
+            <ColumnHeader numeric label="Projection">FY 2025</ColumnHeader>
+            <ColumnHeader numeric label="LTM" input>12/31/2024</ColumnHeader>
+            <ColumnHeader numeric label="NTM" input>12/31/2025</ColumnHeader>
+          </>
+        }
+      >
+        {rows.map(([label, fy, ltm], i) => (
+          <Row key={label} zebra={i % 2 === 1}>
+            <RowLabelCell>{label}</RowLabelCell>
+            <GridValueCell kind="sourced">{fy}</GridValueCell>
+            <GridColumnDivider type="period" />
+            <GridValueCell kind="editable" />
+            <GridValueCell kind="editable">{ltm}</GridValueCell>
+            <GridValueCell kind="editable" />
+          </Row>
+        ))}
       </DataGrid>
     );
   },

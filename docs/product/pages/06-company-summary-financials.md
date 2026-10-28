@@ -37,7 +37,7 @@ Components used: CompanyLayout (`dockPanels.notes`), TertiaryMenuItem, Selector 
 Behaviour & rules:
 - Value provenance: FY 2024 figures pulled from the source document are **sourced** (green). LTM figures are **editable** (blue). Gross Profit, EBITDA, EBIT, Pretax Income and Net Income are calculated. Empty historical and projection cells are editable inputs.
 - Row hierarchy: Gross Profit and Pretax Income are indented child rows. EBITDA and EBIT are subtotals. Net Income is the total band.
-- The brand period rule separates actuals from projections; each period's kind ("Projection", "LTM", "NTM", "As Of") is its `ColumnHeader label` tag, so there is no group row above the headers; the KPI column-actions arrow sits in the selected header's `actions`. LTM / NTM sit after a gutter, and their header dates are editable (blue, with a calendar glyph). FY 2024 carries footnote [1].
+- The brand period rule separates actuals from projections; each period's kind ("Projection", "LTM", "NTM", "As Of") is its `ColumnHeader label` tag, so there is no group row above the headers; the KPI column-actions arrow sits in the selected header's `actions`. LTM / NTM (or As Of) follow the last projection directly, with no gutter or blank track between them, and their header dates are editable (blue, with a calendar glyph). FY 2024 carries footnote [1].
 - The **Financials Version** selector opens a searchable panel ("Find a Version" → Primary Financial Statement, footer "+ Save as New Version").
 - The **⋮ company actions** menu has Edit Company (→ Company Overview), Excel Export, PDF Export and Edit Common Profile (→ Daily NAV Settings).
 - **Add Projection Year** appends the next FY column to both grids. Its caret opens "Add Historical Year".
@@ -91,7 +91,7 @@ See [`../domain-logic.md`](../domain-logic.md) (AI-GUIDE §11).
 - *Frame conflict:* the version menu frame lists one version. The prototype lists the measurement's versions.
 
 ## Gaps & open questions
-- `FinancialGrid` passes `DataGrid columns` explicitly. The period rule (`GridColumnDivider`) and the LTM gutter are tracks of their own, and a header-derived track would give each a `1fr` share. A `width` prop on `GridColumnDivider` (or a `DataGrid` gutter option) would let the tracks derive from `head` like every other grid.
+- `FinancialGrid` passes `DataGrid columns` explicitly. The period rule (`GridColumnDivider`) is a track of its own, and a header-derived track would give it a `1fr` share. A `width` prop on `GridColumnDivider` would let the tracks derive from `head` like every other grid.
 - The KPI column menu is drawn outside the grid, anchored by measuring its header. The grid scrolls sideways inside itself (`overflow-x: auto`), which would clip an in-grid popover. The DS has no anchored-popover primitive.
 - Holdings "Investment Date" comes from the record (`investmentDate`, 11/05/2020 for ABC Co), not the frame's 08/07/2023.
 - The Financials Date selector has no Figma frame for an open state, so it is a trigger with no menu.
