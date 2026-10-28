@@ -15,7 +15,7 @@ import {
 import type { ScreenProps } from '../../types.js';
 import { href, navigate } from '../../router.js';
 import { routes } from '../../routes.js';
-import { AppFrame } from '../../shell/AppFrame.js';
+import { AppFrame, scrollBody } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
 import { ToolbarKebab } from '../../shell/Toolbar.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
@@ -381,7 +381,7 @@ export function Documents({ state }: ScreenProps) {
         {company && <TertiaryMenuItem current menu={false}>{company.name}</TertiaryMenuItem>}
       </TertiaryMenu>
 
-      <main style={{ flex: 1, display: 'flex', gap: space.l, padding: space.l, alignItems: 'flex-start' }}>
+      <main style={{ ...scrollBody, display: 'flex', gap: space.l, padding: space.l, alignItems: 'flex-start' }}>
         {/* Companies */}
         <section aria-label="All Companies" style={{ flex: '0 0 22%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: space.s }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

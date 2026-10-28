@@ -9,7 +9,7 @@ import type { ReactNode } from 'react';
 import {
   Badge, Banner, Button, CompanyInfo, SecondaryMenu, SecondaryMenuItem, TertiaryMenu, space,
 } from '@scalar/design-system';
-import { AppFrame, type AppFrameProps } from './AppFrame.js';
+import { AppFrame, scrollBody, type AppFrameProps } from './AppFrame.js';
 import { WorkspaceDock, type DockTab } from './WorkspaceDock.js';
 import { href } from '../router.js';
 import { routes } from '../routes.js';
@@ -76,7 +76,7 @@ export function CompanyLayout({
         </TertiaryMenu>
       )}
 
-      <main style={{ flex: 1, padding: space.l, display: 'flex', flexDirection: 'column', gap: space.l }}>
+      <main style={{ ...scrollBody, padding: space.l, display: 'flex', flexDirection: 'column', gap: space.l }}>
         {readOnly && (
           <Banner
             tone="neutral"

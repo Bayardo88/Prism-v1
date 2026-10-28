@@ -24,4 +24,19 @@ export const WithChrome: Story = {
   },
 };
 export const WithDrawer: Story = { args: { ...WithChrome.args, drawer: bar('Workspace drawer') } };
+/**
+ * The body slot scrolls on its own: in a frame of fixed height (the viewport, in the product) the three
+ * navigation tiers stay pinned at the top and the content scrolls under them; the drawer stays docked.
+ */
+export const ScrollingBody: Story = {
+  decorators: [(Story) => <div style={{ height: 360, display: 'flex', flexDirection: 'column' }}><Story /></div>],
+  args: {
+    ...WithDrawer.args,
+    children: (
+      <div style={{ padding: 'var(--space-l)', display: 'flex', flexDirection: 'column', gap: 'var(--space-m)' }}>
+        {Array.from({ length: 24 }, (_, i) => <a key={i} href={`#company-${i + 1}`}>Portfolio company {i + 1}</a>)}
+      </div>
+    ),
+  },
+};
 export const Placeholder: StoryObj<typeof BodySlot> = { render: () => <BodySlot label="CHART-SLOT" /> };

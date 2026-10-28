@@ -6,7 +6,7 @@
  */
 import type { ReactNode } from 'react';
 import { Button, color, elevation, radius, space } from '@scalar/design-system';
-import { AppFrame } from '../../shell/AppFrame.js';
+import { AppFrame, scrollBody } from '../../shell/AppFrame.js';
 import { PageHeader, type PageTab } from '../../shell/PageHeader.js';
 import { routes } from '../../routes.js';
 
@@ -37,7 +37,7 @@ export function FirmSettingsFrame({ tab, children, overlay, saveDisabled }: {
         current={tab}
         actions={<Button variant="primary" tone="positive" size="m" disabled={saveDisabled}>Save</Button>}
       />
-      <main style={{ padding: space.l, display: 'flex', flexDirection: 'column', gap: space.xl, flex: 1 }}>
+      <main style={{ ...scrollBody, padding: space.l, display: 'flex', flexDirection: 'column', gap: space.xl }}>
         {children}
       </main>
     </AppFrame>

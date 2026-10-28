@@ -4,7 +4,7 @@ import {
   RowLabelCell, Scrim, SelectMenu, SelectMenuOption, SpeedDial, SpeedDialItem, Text, color, elevation, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { AppFrame } from '../../shell/AppFrame.js';
+import { AppFrame, scrollBody } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
 import { initialGroups, versions, type CompGroup } from './data.js';
 
@@ -138,7 +138,7 @@ export function CompGroups({ state }: ScreenProps) {
       ) : fab}
     >
       <PageHeader title="Comp Groups" actions={<Button variant="primary" tone="positive">Save</Button>} />
-      <main style={{ padding: space.l, display: 'flex', flexDirection: 'column', gap: space.xl, flex: 1 }}>
+      <main style={{ ...scrollBody, padding: space.l, display: 'flex', flexDirection: 'column', gap: space.xl }}>
         {groups.map((g) => (
           <GroupPanel
             key={g.id}

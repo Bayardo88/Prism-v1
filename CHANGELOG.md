@@ -1,6 +1,11 @@
 # Changelog
 
 ## Unreleased
+- **Sticky navigation tiers.** `AppFrame` is now exactly one viewport tall and the document no longer scrolls: the
+  Primary Menu, company header + Secondary Menu and Tertiary Menu stay pinned at the top while each screen's body
+  `<main>` scrolls under them (the Workspace dock stays at the foot). `CompanyLayout`, `PageBody` and the screens with
+  their own `<main>` use the new `scrollBody` style. Documented in the navigation spec §1/§3 and `page-template.md`;
+  new *Core › PageTemplate › Scrolling Body* story.
 - **No gutter before LTM / NTM.** Income Statement, Performance Metrics, Balance Sheet and KPIs no longer leave a
   blank track between the last projection and the trailing LTM / NTM (or As Of) columns: `FinancialGrid` drops its
   gutter slot. The rule is in AI-GUIDE R16 and the new *Data › GridPatterns › Statement Trailing Periods* story.

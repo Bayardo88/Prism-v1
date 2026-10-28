@@ -13,6 +13,7 @@
 3. **Tier 2 is scoped to the entity** (Firm or Company) and is reconfigured per page.
 4. **Tier 3 is scoped to the table/view** currently on screen and is reconfigured per Tier 2 tab.
 5. Tiers 2 and 3 are **optional per screen** — hide them entirely rather than rendering empty bars.
+5a. **The three tiers stay pinned at the top while the content scrolls under them** (§3). Only the body scrolls; the document never does.
 6. **Never hand-build a nav bar.** Compose from the shared components listed in §6. Add a new screen by adding a *configuration*, not new markup.
 7. All data below Tier 1 is a function of two global values: **Company scope** and **Measurement Date**. Read them from shared context; never store a local copy.
 
@@ -76,6 +77,7 @@ Total chrome height by configuration:
 Layout rules:
 
 - Tiers stack with **no gap** between them.
+- **The tiers are sticky.** The frame is exactly one viewport tall and the page never scrolls as a document: Tier 1, Tier 2 and Tier 3 stay pinned at the top and only the content area under them scrolls (the Workspace drawer stays docked at the foot). Tables and content scroll *under* the bars, never the bars with them. In `apps/product` the shell owns this (`AppFrame` + the body `<main>`, `scrollBody`); a screen never adds `position: sticky` to a bar or its own scroll wrapper around the page.
 - Tier 2 and Tier 3 share the same 16px inset so their left edges align.
 - Interactive items inside all three tiers are **32px tall**; small toolbar controls in Tier 3 and buttons in Tier 2 are **24px**.
 - Always use the design tokens above; the hex values are for reference only.

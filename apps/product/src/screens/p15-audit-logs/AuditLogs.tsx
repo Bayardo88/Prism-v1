@@ -4,7 +4,7 @@ import {
   Modal, Row, RowHeader, Select, Text, icons, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
-import { AppFrame } from '../../shell/AppFrame.js';
+import { AppFrame, scrollBody } from '../../shell/AppFrame.js';
 import { href } from '../../router.js';
 import { routes } from '../../routes.js';
 import { firm } from '../../data/fixtures.js';
@@ -42,7 +42,7 @@ export function AuditLogs(_: ScreenProps) {
         </Modal>
       )}
     >
-      <main style={{ padding: space.l, display: 'flex', flexDirection: 'column', gap: space.m, flex: 1 }}>
+      <main style={{ ...scrollBody, padding: space.l, display: 'flex', flexDirection: 'column', gap: space.m }}>
         <FilterBar
           label="Filter By"
           action={
