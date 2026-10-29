@@ -3,13 +3,13 @@
  * pinned Total, and below it the firm's own holdings in each security.
  * The securities come from the company record (`securitiesFor`).
  *
- * States: default · new-column (a blank security added by "Add security") ·
+ * States: default · new-column (a blank security added by "Add Security" in the Tertiary Menu) ·
  * security-type-menu (the Security Type picker open on that new column).
  */
 import { Fragment, useState, type ReactNode } from 'react';
 import {
-  DataGrid, Fab, GridColumnDivider, ColumnHeader, GridValueCell, InCellControl, InlineEdit,
-  Row, RowLabelCell, SelectMenu, SelectMenuOption, space, type RowLabelType, type ValueKind,
+  ContextMenu, DataGrid, GridColumnDivider, ColumnHeader, GridValueCell, Icon, InCellControl, InlineEdit, MenuItem,
+  Row, RowLabelCell, SelectMenu, SelectMenuOption, SplitButton, icons, space, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById, firm, num, usd, type Company } from '../../data/fixtures.js';
@@ -41,11 +41,18 @@ export function CapTable({ state, params }: ScreenProps) {
   const securities = ed.data;
   const setSecurities = ed.update;
   const [menuFor, setMenuFor] = useState<string | null>(state === 'security-type-menu' ? securities[0]!.id : null);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
 
   const isNew = (s: Security) => s.id.startsWith('new-');
-  const addSecurity = () => {
-    if (securities.some((s) => isNew(s) && !s.name && !s.type)) return;
-    setSecurities((cur) => [newSecurity(), ...cur]);
+  const addSecurity = (type?: string) => {
+    setAddMenuOpen(false);
+    // A blank new column is reused rather than stacked; picking a type from the menu fills it in.
+    const blank = securities.find((s) => isNew(s) && !s.name && !s.type);
+    if (blank) {
+      if (type) setSecurities((cur) => cur.map((s) => (s.id === blank.id ? { ...s, type } : s)));
+      return;
+    }
+    setSecurities((cur) => [{ ...newSecurity(), type }, ...cur]);
   };
   const rename = (id: string, name: string) =>
     setSecurities((cur) => cur.map((s) => (s.id === id ? { ...s, name } : s)));
@@ -105,7 +112,36 @@ export function CapTable({ state, params }: ScreenProps) {
   );
 
   return (
-    <CapTableLayout company={company} page="securities" currency onSave={ed.save} saveState={ed.saveState} overlay={ed.guard.dialog}>
+    <CapTableLayout
+      company={company}
+      page="securities"
+      currency
+      onSave={ed.save}
+      saveState={ed.saveState}
+      overlay={ed.guard.dialog}
+      action={
+        // "+ Add Security ▾": the main button adds a blank column, the menu adds one of a given type.
+        // Sits in the Tertiary Menu, so the menu opens downward.
+        <SplitButton
+          variant="secondary"
+          size="xs"
+          leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
+          onClick={() => addSecurity()}
+          menuOpen={addMenuOpen}
+          onMenuToggle={() => setAddMenuOpen((o) => !o)}
+          menuLabel="Add a security of a type"
+          menu={
+            <ContextMenu label="Add security">
+              {SECURITY_TYPES.map((t) => (
+                <MenuItem key={t} onClick={() => addSecurity(t)}>{`Add ${t}`}</MenuItem>
+              ))}
+            </ContextMenu>
+          }
+        >
+          Add Security
+        </SplitButton>
+      }
+    >
       <div style={{ display: 'flex', flexDirection: 'column', gap: space.xl, paddingTop: space.l }}>
         <DataGrid
           label="Cap table"
@@ -178,7 +214,6 @@ export function CapTable({ state, params }: ScreenProps) {
             (s) => v('calculated', amt(s.firmLiquidationPreference)), v('calculated', amt(firmLp)), { expandable: true })}
         </DataGrid>
       </div>
-      <Fab onClick={addSecurity}>Add Security</Fab>
     </CapTableLayout>
   );
 }

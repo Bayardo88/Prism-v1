@@ -8,8 +8,8 @@
  */
 import { Fragment, useCallback, useState, type ReactNode } from 'react';
 import {
-  Banner, Chip, Text, ContextMenu, DataGrid, GridColumnDivider, ColumnHeader, GridValueCell, InCellControl,
-  MenuItem, Row, RowLabelCell, SelectMenu, SelectMenuOption, SplitButton, color, space, type ValueKind,
+  Banner, Chip, Text, ContextMenu, DataGrid, GridColumnDivider, ColumnHeader, GridValueCell, Icon, InCellControl,
+  MenuItem, Row, RowLabelCell, SelectMenu, SelectMenuOption, SplitButton, color, icons, space, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById, num, usd, type Company } from '../../data/fixtures.js';
@@ -130,11 +130,13 @@ export function FundOwnership({ state, params }: ScreenProps) {
       onSave={ed.save}
       saveState={ed.saveState}
       overlay={ed.guard.dialog}
-      footer={
+      action={
+        // Sits in the Tertiary Menu between Filter and Save, so the menu opens downward.
         <SplitButton
           variant="secondary"
+          size="xs"
+          leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
           menuLabel="More ways to add fund ownership"
-          menuPlacement="top"
           onClick={add}
           menuOpen={addMenuOpen}
           onMenuToggle={() => setAddMenuOpen((o) => !o)}

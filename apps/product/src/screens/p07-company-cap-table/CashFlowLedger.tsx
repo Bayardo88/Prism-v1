@@ -8,8 +8,8 @@
  */
 import { useCallback, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, ButtonIcon, DataGrid, ColumnHeader, GridValueCell, Heading, Icon, InCellControl,
-  Row, RowLabelCell, SelectMenu, SelectMenuOption, Tooltip, icons,
+  Banner, ButtonIcon, ContextMenu, DataGrid, ColumnHeader, GridValueCell, Heading, Icon, InCellControl,
+  MenuItem, Row, RowLabelCell, SelectMenu, SelectMenuOption, SplitButton, Tooltip, icons,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById, usd, type Company } from '../../data/fixtures.js';
@@ -53,7 +53,17 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
     setRows((cur) => cur.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
     setMenu(null);
   };
-  const addRow = () => { if (!rows.some((r) => r.draft)) setRows((cur) => [...cur, draft()]); };
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  /** One draft row at a time; picking a type from the menu sets it on that row. */
+  const addRow = (type?: Transaction['type']) => {
+    setAddMenuOpen(false);
+    const open = rows.find((r) => r.draft);
+    if (open) {
+      if (type) edit(open.id, { type });
+      return;
+    }
+    setRows((cur) => [...cur, type ? { ...draft(), type } : draft()]);
+  };
 
   /** Sourced rows are read-only (green); a draft row is picked cell by cell. */
   const pick = (r: Transaction, field: Field, label: string): ReactNode => {
@@ -84,7 +94,34 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
   const signed = (v: number) => (v < 0 ? `-${usd.format(-v)}` : usd.format(v));
 
   return (
-    <CapTableLayout company={company} page="cash-flow-ledger" onSave={ed.save} saveState={ed.saveState} overlay={ed.guard.dialog}>
+    <CapTableLayout
+      company={company}
+      page="cash-flow-ledger"
+      onSave={ed.save}
+      saveState={ed.saveState}
+      overlay={ed.guard.dialog}
+      action={
+        // Sits between Filter and Save, so the menu opens downward.
+        <SplitButton
+          variant="secondary"
+          size="xs"
+          leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
+          menuLabel="Add a transaction of a type"
+          onClick={() => addRow()}
+          menuOpen={addMenuOpen}
+          onMenuToggle={() => setAddMenuOpen((o) => !o)}
+          menu={addMenuOpen && (
+            <ContextMenu label="Add transaction">
+              {TRANSACTION_TYPES.map((t) => (
+                <MenuItem key={t} onClick={() => addRow(t)}>{`Add ${t}`}</MenuItem>
+              ))}
+            </ContextMenu>
+          )}
+        >
+          Add Transaction
+        </SplitButton>
+      }
+    >
       {ed.showErrors && <Banner tone="negative" title="To save, correct the new transaction. A transaction cannot be dated after the measurement date." issues={ed.issues} />}
       <DataGrid
         label="Transactions"
@@ -128,10 +165,6 @@ export function CashFlowLedger({ state, params }: ScreenProps) {
           </Row>
         ))}
       </DataGrid>
-
-      <div>
-        <Button onClick={addRow}>Add Transaction</Button>
-      </div>
 
       <Heading level={2} step="m">Cash Flow Summary</Heading>
       <DataGrid

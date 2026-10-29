@@ -6,9 +6,10 @@
  *
  * States: calculated (default) · custom-3 · custom-4 (one breakpoint added).
  */
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
-  Banner, DataGrid, Fab, Text, ColumnHeader, GridValueCell, Row, RowLabelCell, Switch, type RowLabelType, type ValueKind,
+  Banner, ContextMenu, DataGrid, Icon, MenuItem, SplitButton, Text, ColumnHeader, GridValueCell, Row, RowLabelCell, Switch, icons,
+  type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { companyById } from '../../data/fixtures.js';
@@ -58,6 +59,11 @@ export function Breakpoints({ state, params }: ScreenProps) {
     descendingAt(bounds).map((i) => ({ label: `Breakpoint ${i + 1} must end above Breakpoint ${i}.` })), []);
   const ed = useEditor<Array<number | undefined>>(() => Array.from({ length: countFor(state) - 1 }, () => undefined), { validate, readOnly: ctx.readOnly });
   const bad = new Set(ed.showErrors ? descendingAt(ed.data) : []);
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
+  const addBreakpoint = () => {
+    setAddMenuOpen(false);
+    ed.update((cur) => (cur.length + 1 < LETTERS.length ? [...cur, undefined] : cur));
+  };
 
   const calc = breakpointsFor(company, capTable.scenario);
   const data: Table = useCustom
@@ -82,7 +88,33 @@ export function Breakpoints({ state, params }: ScreenProps) {
   };
 
   return (
-    <CapTableLayout company={company} page="breakpoints" save={useCustom} onSave={ed.save} saveState={ed.saveState} overlay={ed.guard.dialog}>
+    <CapTableLayout
+      company={company}
+      page="breakpoints"
+      save={useCustom}
+      onSave={ed.save}
+      saveState={ed.saveState}
+      overlay={ed.guard.dialog}
+      action={useCustom && (
+        // Only custom breakpoints can be added to; sits between Filter and Save, so the menu opens downward.
+        <SplitButton
+          variant="secondary"
+          size="xs"
+          leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
+          menuLabel="More ways to add a breakpoint"
+          onClick={addBreakpoint}
+          menuOpen={addMenuOpen}
+          onMenuToggle={() => setAddMenuOpen((o) => !o)}
+          menu={addMenuOpen && (
+            <ContextMenu label="Add breakpoint">
+              <MenuItem onClick={addBreakpoint}>Add breakpoint column</MenuItem>
+            </ContextMenu>
+          )}
+        >
+          Add Breakpoint
+        </SplitButton>
+      )}
+    >
       <Switch size="s" checked={useCustom} onChange={(e) => setUseCustom(e.currentTarget.checked)}>
         Use custom breakpoints?
       </Switch>
@@ -124,8 +156,6 @@ export function Breakpoints({ state, params }: ScreenProps) {
         {calc.securities.map((s, si) => row(s, 'line-item', input, data.bySecurity[si]!))}
         {row('Total', 'total', 'total', data.total)}
       </DataGrid>
-
-      {useCustom && <Fab onClick={() => ed.update((cur) => (cur.length + 1 < LETTERS.length ? [...cur, undefined] : cur))}>Add Breakpoint</Fab>}
     </CapTableLayout>
   );
 }

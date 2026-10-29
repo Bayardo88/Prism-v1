@@ -15,7 +15,7 @@ For example, `#/companies/cohesity/cap-table/securities` shows Common plus Serie
 ## Screens
 
 ### Cap Table — `/companies/:companyId/cap-table/securities`
-Enter each security's terms (investment date, type, original issue price, shares outstanding, conversion rate) and read the ownership, fully diluted shares and liquidation preferences derived from them. A second grid shows the firm's own holdings in each security (Spatical Ventures). You get here from Secondary Menu → Cap Table, which is the default sub-page. **Add Security** (the FAB) adds a blank column.
+Enter each security's terms (investment date, type, original issue price, shares outstanding, conversion rate) and read the ownership, fully diluted shares and liquidation preferences derived from them. A second grid shows the firm's own holdings in each security (Spatical Ventures). You get here from Secondary Menu → Cap Table, which is the default sub-page. **Add Security** sits in the Tertiary Menu between Filter and Save (a `SplitButton`, `secondary` `xs`): the button adds a blank column, and its menu adds a column of a chosen security type.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
@@ -23,7 +23,7 @@ Enter each security's terms (investment date, type, original issue price, shares
 | new-column | [Cap Table — New security column](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-18882) | 11:18882 | `#/companies/abc-co/cap-table/securities?state=new-column` |
 | security-type-menu | [Cap Table — Security Type menu open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-19396) | 11:19396 | `#/companies/abc-co/cap-table/securities?state=security-type-menu` |
 
-Components used: CompanyLayout (shell), TertiaryMenuItem, Selector (`surface="surface"`, Cap Table Version) + SelectMenu, ModalStatus, ButtonIcon (`icons.MoreVert`), CurrencySelector, SplitButton, DataGrid, Row (zebra / total), ColumnHeader, InlineEdit, RowLabelCell, GridValueCell, InCellControl, GridColumnDivider, SelectMenu, SelectMenuOption, Fab.
+Components used: CompanyLayout (shell), TertiaryMenuItem, Selector (`surface="surface"`, Cap Table Version) + SelectMenu, ModalStatus, ButtonIcon (`icons.MoreVert`), CurrencySelector, SplitButton, DataGrid, Row (zebra / total), ColumnHeader, InlineEdit, RowLabelCell, GridValueCell, InCellControl, GridColumnDivider, SelectMenu, SelectMenuOption.
 
 Behaviour & rules:
 - Inputs are blue (`GridValueCell kind="editable"` / `InCellControl`): investment date, security type, original issue price, shares outstanding and conversion rate. Everything else is calculated. Totals are bold and have a rule.
@@ -33,7 +33,7 @@ Behaviour & rules:
 - The Cap Table Version picker is a light-surface `Selector` that opens a `SelectMenu`, which lists one version: Primary Captable. The Draft status is display-only.
 
 ### Fund Ownership — `/companies/:companyId/cap-table/fund-ownership`
-Record each fund's position in each security: entity, fund, investment date, invested capital, shares, and the derived loan value, preferences, distributions and proceeds. There are two filter bands, fund (VIP Fund) and security (Series A · Holding Common · Common). **Add Fund Ownership** (the split button in the footer) appends a blank position.
+Record each fund's position in each security: entity, fund, investment date, invested capital, shares, and the derived loan value, preferences, distributions and proceeds. There are two filter bands, fund (VIP Fund) and security (Series A · Holding Common · Common). **Add Fund Ownership** (a `SplitButton`, `secondary` `xs`, in the Tertiary Menu between Filter and Save) appends a blank position.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
@@ -49,7 +49,7 @@ Behaviour & rules:
 - The filter chips are display-only. The DS Chip is not a toggle.
 
 ### Breakpoint Analysis — `/companies/:companyId/cap-table/breakpoints`
-Shows the equity values at which each security starts to participate. By default they are calculated from the cap table. **Use custom breakpoints?** (a Switch) changes the per-security amounts into inputs. It also shows Save and **Add Breakpoint** (FAB).
+Shows the equity values at which each security starts to participate. By default they are calculated from the cap table. **Use custom breakpoints?** (a Switch) changes the per-security amounts into inputs. It also shows Save and **Add Breakpoint** (a `SplitButton`, `secondary` `xs`, in the Tertiary Menu between Filter and Save).
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
@@ -57,14 +57,14 @@ Shows the equity values at which each security starts to participate. By default
 | custom-3 | [Breakpoints — Custom (3)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-14358) | 19:14358 | `#/companies/abc-co/cap-table/breakpoints?state=custom-3` |
 | custom-4 | [Breakpoints — Custom (4 added)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-17438) | 19:17438 | `#/companies/abc-co/cap-table/breakpoints?state=custom-4` |
 
-Components used: CapTableLayout, Switch, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell, Fab.
+Components used: CapTableLayout, Switch, SplitButton, ContextMenu, MenuItem, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell.
 
 Behaviour & rules:
 - Calculated mode is read-only and computed from the cap table: preferences first, then the common catch-up to the highest issue price, then Pro Rata. For ABC Co that gives $0 → $1,112,233 → $90,001,121 → Infinity. There is one row per security. There is no Save in this mode.
 - Custom ranges are symbolic ($0 to $A, $A to $B, …, then "to Infinity"). Adding a breakpoint re-letters the chain, and the last one is always open-ended. The Common and Series A amounts are editable.
 
 ### Cash Flow Ledger — `/companies/:companyId/cap-table/cash-flow-ledger`
-Lists every transaction on the company's positions and rolls them up into a Cash Flow Summary per fund (total investments, proceeds, net cost basis, gross IRR). **Add Transaction** appends an editable row.
+Lists every transaction on the company's positions and rolls them up into a Cash Flow Summary per fund (total investments, proceeds, net cost basis, gross IRR). **Add Transaction** (a `SplitButton`, `secondary` `xs`, in the Tertiary Menu between Filter and Save) appends an editable row; its menu appends one of a chosen transaction type.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
