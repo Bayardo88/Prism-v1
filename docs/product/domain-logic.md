@@ -197,7 +197,7 @@ These come from training-notes `10` §2:
 - P0: how the versions relate and which changes invalidate a published valuation.
 - P0: the status transitions and who may make them.
 - P0: portal authentication and idempotency.
-- P1: what rollover copies, the market data provider, auto-weighted methods (CSE/CSB), FX. (The prototype's display-currency switch on Financials uses labelled illustrative rates, `ILLUSTRATIVE_FX_PER_USD`; it records nothing.)
+- P1: what rollover copies, the market data provider, auto-weighted methods (CSE/CSB), FX. (The prototype's platform-wide display-currency switch uses labelled illustrative rates, `ILLUSTRATIVE_FX_PER_USD`; it records nothing.)
 - P2: naming (GPC vs Public Comps, Keller vs Scalar).
 
 ## 13 · Where it lives in code

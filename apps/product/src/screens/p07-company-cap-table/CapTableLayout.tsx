@@ -66,7 +66,7 @@ export function CapTableLayout({ company, page, currency, save = true, onSave, s
       subNavEnd={
         <>
           <ToolbarAi />
-          {currency && <ToolbarCurrency unit="($) Thousands" />}
+          {currency && <ToolbarCurrency />}
           <ToolbarTableTools />
           {save && <ToolbarSave onClick={onSave} state={saveState} />}
         </>

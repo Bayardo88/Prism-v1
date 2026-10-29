@@ -8,6 +8,7 @@ import { CompanyLayout } from '../../shell/CompanyLayout.js';
 import { ToolbarAi } from '../../shell/Toolbar.js';
 import { CompanyActions, CurrencyUnit, SummarySubNav } from './CompanyChrome.js';
 import { holdings, holdingsColumns, type HoldingRow } from './data.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 const NEXT: Record<SortDirection, SortDirection> = { none: 'ascending', ascending: 'descending', descending: 'none' };
 
@@ -37,6 +38,9 @@ export function SummaryHoldings({ params }: ScreenProps) {
     ...all.filter((h) => h.type === 'subtotal' || h.type === 'total'),
   ];
 
+  // Money follows the Currency Selector; Concluded Share Value is per share, so it converts only.
+  const money = useMoney();
+  const shown = (h: string, t: string) => (h === 'Concluded Share Value' ? money.price(t) : money.amount(t));
   const cycle = (col: number) => setSort((s) => ({ col, dir: s.col === col ? NEXT[s.dir] : 'ascending' }));
 
   return (
@@ -66,7 +70,7 @@ export function SummaryHoldings({ params }: ScreenProps) {
               <>
                 <RowLabelCell type={r.type}>{r.label}</RowLabelCell>
                 {holdingsColumns.map((h, i) => (
-                  <GridValueCell key={h} kind={r.type === 'total' ? 'total' : 'calculated'}>{r.values[i]}</GridValueCell>
+                  <GridValueCell key={h} kind={r.type === 'total' ? 'total' : 'calculated'}>{typeof r.values[i] === 'string' ? shown(h, r.values[i] as string) : r.values[i]}</GridValueCell>
                 ))}
               </>
             )}

@@ -6,7 +6,7 @@
  */
 import { useState, type ReactNode } from 'react';
 import {
-  Button, ButtonIcon, ContextMenu, SaveState, CurrencySelector, Icon, MenuItem, RichTextToolbar, WORLD_CURRENCIES,
+  Button, ButtonIcon, ContextMenu, SaveState, Icon, MenuItem, RichTextToolbar,
   SegmentedControl, Selector, TertiaryMenuItem, Textarea, ViewTab, ViewTabBar, icons, space, zIndex,
   type RichTextFormat,
 } from '@scalar/design-system';
@@ -16,7 +16,7 @@ import type { Company } from '../../data/fixtures.js';
 import { useValuationContext } from '../../domain/context.js';
 import { usFromIso } from '../../domain/model.js';
 import { VersionPicker } from '../../shell/VersionPicker.js';
-import { setDisplayCurrency, setDisplayUnit, useDisplayCurrency, useDisplayUnit } from '../../shell/displayUnit.js';
+import { ToolbarCurrency } from '../../shell/Toolbar.js';
 import { useEditor } from '../../domain/useEditor.js';
 import { openExport } from '../prototypes/export/state.js';
 import { openRollover } from '../prototypes/rollover/state.js';
@@ -101,30 +101,9 @@ export function SummarySubNav({ company, current }: { company: Company; current:
   );
 }
 
-/**
- * Display currency and unit. A display concern only — never a recorded conversion.
- * With `cycle`, a click on the unit steps Hundreds → Thousands → Millions →
- * Hundreds, and the currency code opens a list of world currencies; the tables
- * that read `useDisplayUnit()` / `useDisplayCurrency()` (the Financials grids)
- * re-express their figures. Rates are illustrative (P1 open question); the list's
- * footer says so.
- */
-export function CurrencyUnit({ unit = '($) Thousands', cycle = false }: { unit?: string; cycle?: boolean }) {
-  const shown = useDisplayUnit();
-  const code = useDisplayCurrency();
-  if (cycle) {
-    return (
-      <CurrencySelector
-        currencies={WORLD_CURRENCIES}
-        currency={code}
-        onCurrencyChange={setDisplayCurrency}
-        unit={shown}
-        onUnitChange={setDisplayUnit}
-        currencyNote="Illustrative rates, not market data. Display only — nothing is converted or recorded."
-      />
-    );
-  }
-  return <CurrencySelector currency="USD">{unit}</CurrencySelector>;
+/** Display currency and unit — the platform-wide chip (`ToolbarCurrency`). A display concern only, never a recorded conversion. */
+export function CurrencyUnit() {
+  return <ToolbarCurrency />;
 }
 
 /**

@@ -25,6 +25,7 @@ import { fullyDiluted, shareOf, sum } from '../../domain/illustrative-calcs.js';
 import { usFromIso } from '../../domain/model.js';
 import { ABSENCE_LABEL } from '../../domain/display.js';
 import { EditCell } from '../../shell/EditCell.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 const blank = (company: Company): Position => ({
   id: `new-${Math.random().toString(36).slice(2, 7)}`, security: '', entity: company.name,
@@ -85,6 +86,9 @@ export function FundOwnership({ state, params }: ScreenProps) {
 
   const total = (f: (p: Position) => number) => sum(positions, f);
   const v = (kind: ValueKind, value?: ReactNode) => <GridValueCell kind={kind}>{value}</GridValueCell>;
+  // Money follows the Currency Selector. Edits commit recorded figures, so money cells are read-only while rescaled.
+  const money = useMoney();
+  const amt = (n: number) => money.amount(usd.format(n));
 
   const picker = (p: Position, field: Field, label: string) => {
     const open = menu?.id === p.id && menu.field === field;
@@ -187,11 +191,11 @@ export function FundOwnership({ state, params }: ScreenProps) {
         {row('Invested Capital', (p) => (
           <EditCell
             label={`Invested capital in ${p.security || 'new position'}`}
-            value={usd.format(p.investedCapital)}
+            value={amt(p.investedCapital)}
             onCommit={(t) => setField(p.id, { investedCapital: parseNumber(t) ?? 0 })}
-            readOnly={ctx.readOnly}
+            readOnly={ctx.readOnly || !money.isRecorded}
           />
-        ), v('calculated', usd.format(total((p) => p.investedCapital))))}
+        ), v('calculated', amt(total((p) => p.investedCapital))))}
         {/* P5: values that are not entered or not calculated yet are never shown as $0. */}
         {row('Loan Value', () => v('calculated', NOT_ENTERED), v('calculated', NOT_ENTERED))}
         {row('Shares', (p) => (
@@ -204,7 +208,7 @@ export function FundOwnership({ state, params }: ScreenProps) {
         ), v('calculated', num1.format(total((p) => p.shares))))}
         {row('Shares (as Converted)', (p) => v('calculated', num.format(p.sharesAsConverted)), v('calculated', num1.format(total((p) => p.sharesAsConverted))))}
         {row('Fully Diluted Ownership %', (p) => v('calculated', fdPct(p.sharesAsConverted)), v('calculated', fdPct(total((p) => p.sharesAsConverted))))}
-        {row('Initial Liquidation Preference', (p) => v('calculated', usd.format(p.initialLiquidationPreference)), v('calculated', usd.format(total((p) => p.initialLiquidationPreference))))}
+        {row('Initial Liquidation Preference', (p) => v('calculated', amt(p.initialLiquidationPreference)), v('calculated', amt(total((p) => p.initialLiquidationPreference))))}
         {row('Liquidation Preference', () => v('calculated', NOT_CALCULATED), v('calculated', NOT_CALCULATED))}
         {row('Cash Distributions', () => v('editable', NOT_ENTERED), v('calculated', NOT_ENTERED))}
         {row('Proceeds from Sold Shares', () => v('editable', NOT_ENTERED), v('calculated', NOT_ENTERED))}

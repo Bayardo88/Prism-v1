@@ -93,7 +93,7 @@ export function DailyNavSettings({ state, params }: ScreenProps) {
       subNavEnd={
         <>
           <ToolbarAi />
-          <CurrencyUnit unit="$" />
+          <CurrencyUnit />
           <ToolbarSave disabled={!dirty} />
         </>
       }

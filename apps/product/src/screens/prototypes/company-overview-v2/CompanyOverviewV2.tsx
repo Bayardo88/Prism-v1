@@ -8,6 +8,7 @@ import { CompanyActions, CurrencyUnit, SummarySubNav } from '../../p06-company-s
 import { ZxIndexCard } from './ZxIndexCard.js';
 import { PublicCompsCard } from './PublicCompsCard.js';
 import { BoardPresentationsCard } from './BoardPresentationsCard.js';
+import { useMoney } from '../../../shell/displayUnit.js';
 
 /**
  * Company Overview v2 (prototype). Order: Company Information · ZX Index Value ·
@@ -16,6 +17,8 @@ import { BoardPresentationsCard } from './BoardPresentationsCard.js';
  * and shown only as placeholders so the page reads in context.
  */
 export function CompanyOverviewV2({ state, params }: ScreenProps) {
+  // Money follows the Currency Selector.
+  const money = useMoney();
   const company = companyById(params.companyId);
   const [asOf, setAsOf] = useState<'date' | 'latest'>('date');
   const board = state === 'board-short' ? 'short' : state === 'board-long' ? 'long' : 'default';
@@ -49,8 +52,8 @@ export function CompanyOverviewV2({ state, params }: ScreenProps) {
       </Card>
       <Card title="Fundraising Rounds">
         <DataGrid label="Fundraising rounds" head={<><ColumnHeader grow={2} tone="subtle">Round</ColumnHeader><ColumnHeader tone="subtle">Date</ColumnHeader><ColumnHeader numeric tone="subtle">Amount</ColumnHeader></>}>
-          <Row><Cell>Series B</Cell><Cell>Mar 2024</Cell><Cell numeric type="data">$32,000,000</Cell></Row>
-          <Row><Cell>Series A</Cell><Cell>Jan 2022</Cell><Cell numeric type="data">$12,000,000</Cell></Row>
+          <Row><Cell>Series B</Cell><Cell>Mar 2024</Cell><Cell numeric type="data">{money.amount('$32,000,000')}</Cell></Row>
+          <Row><Cell>Series A</Cell><Cell>Jan 2022</Cell><Cell numeric type="data">{money.amount('$12,000,000')}</Cell></Row>
         </DataGrid>
       </Card>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: space.l }}>

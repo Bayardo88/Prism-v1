@@ -13,6 +13,7 @@ import { ValuationsLayout } from './ValuationsLayout.js';
 import { conclusionsFor } from './data.js';
 import { displayValue, type Absence } from '../../domain/display.js';
 import { moic } from '../../domain/illustrative-calcs.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 const HEADERS = ['Invested Capital', 'Weighted Value per Share', '# of Shares', 'Value', 'MOIC'];
 const money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
@@ -20,6 +21,10 @@ const x2 = (v: number) => `${v.toFixed(2)}x`;
 
 export function Conclusions({ params }: ScreenProps) {
   const company = companyById(params.companyId);
+  // Money follows the Currency Selector; value per share converts only.
+  const money = useMoney();
+  const amt = (n: number) => money.amount(usd.format(n));
+  const px = (n: number) => money.price(money2.format(n));
   return (
     <ValuationsLayout company={company} tab="conclusions">
       <div style={{ display: 'flex', flexDirection: 'column', gap: space['2xl'] }}>
@@ -51,19 +56,19 @@ export function Conclusions({ params }: ScreenProps) {
                   {f.positions.map((p, i) => (
                     <Row key={p.security} aria-label={p.security} zebra={i % 2 === 1}>
                       <RowLabelCell type="child">{p.security}</RowLabelCell>
-                      <GridValueCell>{usd.format(p.invested)}</GridValueCell>
-                      <GridValueCell>{show(p.valuePerShare, money2.format)}</GridValueCell>
+                      <GridValueCell>{amt(p.invested)}</GridValueCell>
+                      <GridValueCell>{show(p.valuePerShare, px)}</GridValueCell>
                       <GridValueCell>{num.format(p.shares)}</GridValueCell>
-                      <GridValueCell>{show(p.value, usd.format)}</GridValueCell>
+                      <GridValueCell>{show(p.value, amt)}</GridValueCell>
                       <GridValueCell>{show(moic(p.value, p.invested), x2)}</GridValueCell>
                     </Row>
                   ))}
                   <Row type="total" aria-label={`${f.fund} Total`}>
                     <RowLabelCell type="total">{`${f.fund} Total`}</RowLabelCell>
-                    <GridValueCell kind="total">{usd.format(invested)}</GridValueCell>
+                    <GridValueCell kind="total">{amt(invested)}</GridValueCell>
                     <GridValueCell kind="total" />
                     <GridValueCell kind="total">{num.format(shares)}</GridValueCell>
-                    <GridValueCell kind="total">{show(value, usd.format)}</GridValueCell>
+                    <GridValueCell kind="total">{show(value, amt)}</GridValueCell>
                     <GridValueCell kind="total">{show(moic(value, invested), x2)}</GridValueCell>
                   </Row>
                 </Fragment>

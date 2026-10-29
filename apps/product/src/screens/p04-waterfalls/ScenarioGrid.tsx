@@ -10,6 +10,7 @@
  * Blue = editable, green = sourced (AI-GUIDE §5).
  */
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useMoney } from '../../shell/displayUnit.js';
 import {
   Chip, ColumnHeader, DataGrid, GridValueCell, InCellControl, Row, RowLabelCell, space, zIndex,
 } from '@scalar/design-system';
@@ -47,12 +48,19 @@ export interface ScenarioGridProps {
   label?: string;
 }
 
-const money = (col: ScenarioColumn, v: number, digits = 1) =>
-  `${col.symbol}${v.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+/** A rate (the FX row): written as is, never rescaled. */
+const rate = (col: ScenarioColumn, v: number) =>
+  `${col.symbol}${v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export function ScenarioGrid({
   columns, withCompany, band, companyOpen, onCompanyClick, companyPicker, label = 'Waterfall scenario',
 }: ScenarioGridProps) {
+  // Amounts are recorded in Millions and follow the Currency Selector: a USD column
+  // converts to the display currency; a reporting-currency column (NIO, EUR) keeps
+  // its own currency and only rescales.
+  const fmt = useMoney('Millions');
+  const money = (col: ScenarioColumn, v: number) => (col.currency === 'USD' ? fmt.format(v) : fmt.scaleOnly(v, col.symbol));
+  const unitChip = band && band.unit.replace(/Hundreds|Thousands|Millions/, fmt.unit);
   const pick = (col: ScenarioColumn, name: string, value: string | undefined, type: 'select' | 'date' = 'select') =>
     col.editable
       ? <InCellControl key={col.key} type={type} label={name}>{value}</InCellControl>
@@ -100,7 +108,7 @@ export function ScenarioGrid({
         head={
           <>
             <ColumnHeader tone="subtle" grow={2}>
-              {band && <span style={{ display: 'inline-flex', gap: space.xs }}><Chip styleVariant="positive">{band.rate}</Chip><Chip styleVariant="default">{band.unit}</Chip></span>}
+              {band && <span style={{ display: 'inline-flex', gap: space.xs }}><Chip styleVariant="positive">{band.rate}</Chip><Chip styleVariant="default">{unitChip}</Chip></span>}
             </ColumnHeader>
             {columns.map((c) => (
               <ColumnHeader key={c.key} tone="subtle" numeric grow={2}>{columns.length > 1 ? c.currency : ''}</ColumnHeader>
@@ -113,7 +121,7 @@ export function ScenarioGrid({
         {withCompany && row('Cap Table Date', (c) => pick(c, 'Cap table date', c.capTableDate))}
         {row('Cap Table', (c) => pick(c, 'Cap table', c.capTable))}
         {row('Exit Date', (c) => pick(c, 'Exit date', c.exitDate, 'date'))}
-        {row('Foreign Exchange Rate', (c) => <GridValueCell key={c.key} kind="sourced">{money(c, c.fxRate, 2)}</GridValueCell>)}
+        {row('Foreign Exchange Rate', (c) => <GridValueCell key={c.key} kind="sourced">{rate(c, c.fxRate)}</GridValueCell>)}
         {row('Exit Enterprise Value', (c) => <GridValueCell key={c.key} kind="editable">{money(c, c.exitEnterpriseValue)}</GridValueCell>)}
         {row('Plus Cash', (c) => <GridValueCell key={c.key} kind="sourced">{money(c, c.cash)}</GridValueCell>, 'child')}
         {row('Less Debt', (c) => <GridValueCell key={c.key} kind="sourced">{money(c, c.debt)}</GridValueCell>, 'child')}

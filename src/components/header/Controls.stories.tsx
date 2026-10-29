@@ -121,6 +121,8 @@ const storyRates: Record<string, number> = { USD: 1, EUR: 0.92, GBP: 0.79, JPY: 
  * currencies (`currencies={WORLD_CURRENCIES}`); the unit part keeps cycling. The
  * table re-expresses its USD-Thousands figures in the picked currency and unit.
  * Rates are illustrative (the list footer says so) — a display change, never a recorded conversion.
+ * In the product every toolbar chip is this one, platform-wide: a choice holds on every screen, and
+ * tables follow it — amounts rescale and convert, per-share prices convert only.
  */
 export const CurrencyPicker: Story = {
   decorators: [(S) => <div style={{ display: 'grid', gap: 'var(--space-m)', width: 480, minHeight: 420, alignContent: 'start' }}><S /></div>],

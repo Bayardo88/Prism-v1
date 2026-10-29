@@ -4,16 +4,37 @@
  * the page's primary action. Screens compose the ones they need.
  */
 import type { ReactNode } from 'react';
-import { AITool, Button, ButtonIcon, CurrencySelector, Icon, SaveState, icons, space, type SaveStateValue } from '@scalar/design-system';
+import { AITool, Button, ButtonIcon, CurrencySelector, Icon, SaveState, WORLD_CURRENCIES, icons, space, type CurrencyDisplayUnit, type SaveStateValue } from '@scalar/design-system';
+import { setDisplayCurrency, setDisplayUnit, useDisplayCurrency, useDisplayUnit } from './displayUnit.js';
 
 /** The purple AI trigger. */
 export function ToolbarAi({ onClick }: { onClick?: () => void }) {
   return <AITool onClick={onClick} />;
 }
 
-/** Display currency and unit: a green USD part, then the unit. */
-export function ToolbarCurrency({ unit = '($) Thousands', currency = 'USD', onClick }: { unit?: ReactNode; currency?: ReactNode; onClick?: () => void }) {
-  return <CurrencySelector currency={currency} onClick={onClick}>{unit}</CurrencySelector>;
+/**
+ * Display currency and unit, platform-wide. The code opens a list of world
+ * currencies; the unit steps Hundreds → Thousands → Millions → Hundreds. Both
+ * live in `shell/displayUnit.ts`, so every screen's tables follow the same
+ * choice (they format money through `useMoney`). Rates are illustrative (FX is
+ * an open question, P1); the list footer says so.
+ */
+export function ToolbarCurrency({ recorded = 'Thousands' }: {
+  /** The screen's recorded unit, shown until the user picks one. */
+  recorded?: CurrencyDisplayUnit;
+} = {}) {
+  const unit = useDisplayUnit() ?? recorded;
+  const code = useDisplayCurrency();
+  return (
+    <CurrencySelector
+      currencies={WORLD_CURRENCIES}
+      currency={code}
+      onCurrencyChange={setDisplayCurrency}
+      unit={unit}
+      onUnitChange={setDisplayUnit}
+      currencyNote="Illustrative rates, not market data. Display only — nothing is converted or recorded."
+    />
+  );
 }
 
 /** Fit to screen and column filter — the two table tools. */

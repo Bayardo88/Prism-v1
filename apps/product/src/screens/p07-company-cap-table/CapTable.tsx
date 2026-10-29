@@ -20,6 +20,7 @@ import { useValuationContext } from '../../domain/context.js';
 import { useEditor } from '../../domain/useEditor.js';
 import type { CapTableScenario } from '../../domain/model.js';
 import { fullyDiluted, liquidationPreference, sum } from '../../domain/illustrative-calcs.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 const pct = (v: number) => `${v.toFixed(1)}%`;
 const money2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
@@ -90,6 +91,10 @@ export function CapTable({ state, params }: ScreenProps) {
     );
   };
   const v = (kind: ValueKind, value?: ReactNode) => <GridValueCell kind={kind}>{value}</GridValueCell>;
+  // Money follows the Currency Selector: amounts rescale and convert, the issue price converts only.
+  const money = useMoney();
+  const amt = (n: number) => money.amount(usd.format(n));
+  const px = (n: number) => money.price(money2.format(n));
 
   const typeMenu = (s: Security) => menuFor === s.id && (
     <SelectMenu label="Security type">
@@ -141,7 +146,7 @@ export function CapTable({ state, params }: ScreenProps) {
             ),
             v('calculated'))}
           {row('Original Issue Price', 'line-item',
-            (s) => v('editable', s.originalIssuePrice !== undefined ? money2.format(s.originalIssuePrice) : undefined),
+            (s) => v('editable', s.originalIssuePrice !== undefined ? px(s.originalIssuePrice) : undefined),
             v('calculated'))}
           {row('Shares Outstanding', 'line-item',
             (s) => v('editable', s.sharesOutstanding !== undefined ? num.format(s.sharesOutstanding) : undefined),
@@ -160,9 +165,9 @@ export function CapTable({ state, params }: ScreenProps) {
           {row('Preferred Terms', 'line-item', () => v('calculated'), v('calculated'), { expandable: true })}
           {row(`Accrued Dividends (as of ${company.asOf})`, 'line-item', () => v('calculated'), v('calculated'))}
           {row('Initial Liquidation Preference', 'total',
-            (s) => v('total', lp(s) ? usd.format(lp(s)) : undefined), v('total', usd.format(totalLp)))}
+            (s) => v('total', lp(s) ? amt(lp(s)) : undefined), v('total', amt(totalLp)))}
           {row('Total Preference (with Dividends)', 'total',
-            (s) => v('total', lp(s) ? usd.format(lp(s)) : undefined), v('total', usd.format(totalLp)))}
+            (s) => v('total', lp(s) ? amt(lp(s)) : undefined), v('total', amt(totalLp)))}
         </DataGrid>
 
         <DataGrid label={`${firm.name} holdings`} columns={columns} style={{ width, overflow: 'visible' }}>
@@ -170,7 +175,7 @@ export function CapTable({ state, params }: ScreenProps) {
           {row(`${firm.name} Shares`, 'line-item',
             (s) => v('calculated', num.format(s.firmShares)), v('calculated', num.format(firmShares)), { expandable: true })}
           {row(`${firm.name} Liquidation Preference`, 'line-item',
-            (s) => v('calculated', usd.format(s.firmLiquidationPreference)), v('calculated', usd.format(firmLp)), { expandable: true })}
+            (s) => v('calculated', amt(s.firmLiquidationPreference)), v('calculated', amt(firmLp)), { expandable: true })}
         </DataGrid>
       </div>
       <Fab onClick={addSecurity}>Add Security</Fab>

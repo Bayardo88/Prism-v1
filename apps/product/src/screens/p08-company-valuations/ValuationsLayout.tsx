@@ -25,6 +25,7 @@ import { VersionPicker } from '../../shell/VersionPicker.js';
 import { useValuationContext } from '../../domain/context.js';
 import { statusView } from '../p02-intelligence/data.js';
 import { ValuationActions } from './ValuationActions.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 export type ValuationTab =
   | 'overview' | 'summary' | 'conclusions' | 'external-valuation' | 'specified-share-value' | 'backsolve'
@@ -83,6 +84,7 @@ export function ValuationsLayout({
   const [values, setValues] = useState(false);
   const [dates, setDates] = useState(false);
   const headline = headlineFor(company);
+  const money = useMoney();
   const { valuation } = useValuationContext(company);
   const status = statusView[valuation?.status ?? 'draft'];
 
@@ -128,8 +130,8 @@ export function ValuationsLayout({
         <>
           {values && (
             <>
-              <InformationLabel label="Equity Value" value={headline.equityValue} />
-              <InformationLabel label="Unrealized Firm Total" value={headline.unrealized} />
+              <InformationLabel label="Equity Value" value={money.amount(headline.equityValue)} />
+              <InformationLabel label="Unrealized Firm Total" value={money.amount(headline.unrealized)} />
             </>
           )}
           <ButtonIcon

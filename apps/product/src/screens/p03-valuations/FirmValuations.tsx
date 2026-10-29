@@ -20,6 +20,7 @@ import type { Company } from '../../data/fixtures.js';
 import { VALUATIONS_FRAME, tasksOf, valuationColumns, valuationValues } from './data.js';
 import { BulkMarketDateModal } from '../prototypes/bulk-market-date/BulkMarketDateModal.js';
 import { usFromIso } from '../../domain/model.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 const ORDER = inFrameOrder(VALUATIONS_FRAME);
 /** Total columns the catalogue offers (the modal's "N of 140 available"). */
@@ -93,6 +94,8 @@ function AddColumnsModal({ open, onClose }: { open: boolean; onClose: () => void
 }
 
 export function FirmValuations({ state }: ScreenProps) {
+  // Money follows the Currency Selector.
+  const money = useMoney();
   const atEnd = state !== 'default';
   const [view, setView] = useState('Firm Valuations');
   const [viewMenu, setViewMenu] = useState<string | undefined>();
@@ -146,6 +149,7 @@ export function FirmValuations({ state }: ScreenProps) {
         )}
         <PortfolioGrid
           label="Firm valuations"
+          money={money.amount}
           firstColumn="Firm Portfolio Summary"
           columns={valuationColumns}
           rows={rows}

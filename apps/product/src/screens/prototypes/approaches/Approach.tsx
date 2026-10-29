@@ -30,6 +30,7 @@ import { EditCell } from '../../../shell/EditCell.js';
 import { ValuationsLayout } from '../../p08-company-valuations/ValuationsLayout.js';
 import { securitiesFor } from '../../p07-company-cap-table/data.js';
 import { APPROACH_TITLES, PUBLIC_COMPS, TRANSACTION_COMPS, type ApproachKey, type Comparable } from './data.js';
+import { useMoney } from '../../../shell/displayUnit.js';
 
 const usd0 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const usd2 = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
@@ -66,7 +67,10 @@ export function Approach({ params, approach: key }: ScreenProps & { approach: Ap
 interface External { source: string; date: string; ev?: number; equity?: number }
 
 function ExternalValuation({ company }: { company: Company }) {
-  const { readOnly } = useValuationContext(company);
+  const { readOnly: locked } = useValuationContext(company);
+  // Money follows the Currency Selector; while rescaled the cells are read-only, since edits commit recorded figures.
+  const money = useMoney();
+  const readOnly = locked || !money.isRecorded;
   const ed = useEditor<External>(() => ({ source: '', date: '' }), { readOnly });
   const set = (patch: Partial<External>) => ed.update((cur) => ({ ...cur, ...patch }));
   return (
@@ -78,9 +82,9 @@ function ExternalValuation({ company }: { company: Company }) {
         <Row aria-label="Appraisal date" zebra><RowLabelCell>Appraisal date</RowLabelCell>
           <EditCell label="Appraisal date" placeholder="MM/DD/YYYY" value={ed.data.date} onCommit={(t) => set({ date: t })} readOnly={readOnly} /></Row>
         <Row aria-label="Enterprise value"><RowLabelCell>Enterprise Value</RowLabelCell>
-          <EditCell label="Enterprise value" value={ed.data.ev === undefined ? '' : usd0.format(ed.data.ev)} onCommit={(t) => set({ ev: parseNumber(t) })} readOnly={readOnly} /></Row>
+          <EditCell label="Enterprise value" value={ed.data.ev === undefined ? '' : money.amount(usd0.format(ed.data.ev))} onCommit={(t) => set({ ev: parseNumber(t) })} readOnly={readOnly} /></Row>
         <Row aria-label="Equity value" zebra><RowLabelCell>Equity Value</RowLabelCell>
-          <EditCell label="Equity value" value={ed.data.equity === undefined ? '' : usd0.format(ed.data.equity)} onCommit={(t) => set({ equity: parseNumber(t) })} readOnly={readOnly} /></Row>
+          <EditCell label="Equity value" value={ed.data.equity === undefined ? '' : money.amount(usd0.format(ed.data.equity))} onCommit={(t) => set({ equity: parseNumber(t) })} readOnly={readOnly} /></Row>
       </DataGrid>
       <SaveRow ed={ed} />
     </>
@@ -90,7 +94,10 @@ function ExternalValuation({ company }: { company: Company }) {
 /* -------------------------------------------------------- Specified Share Value */
 
 function SpecifiedShareValue({ company }: { company: Company }) {
-  const { capTable, readOnly } = useValuationContext(company);
+  const { capTable, readOnly: locked } = useValuationContext(company);
+  // Per-share prices follow the Currency Selector's currency (never its unit); read-only while converted.
+  const money = useMoney();
+  const readOnly = locked || !money.isRecorded;
   // The securities of the Cap Table version in view — never another version's (BUG-04).
   const securities = securitiesFor(company, capTable.scenario);
   const ed = useEditor<Record<string, number | undefined>>(() => ({}), { readOnly });
@@ -108,7 +115,7 @@ function SpecifiedShareValue({ company }: { company: Company }) {
             <GridValueCell kind="sourced">{num.format(s.sharesOutstanding ?? 0)}</GridValueCell>
             <EditCell
               label={`Price per share of ${s.name}`}
-              value={ed.data[s.id] === undefined ? '' : usd2.format(ed.data[s.id]!)}
+              value={ed.data[s.id] === undefined ? '' : money.price(usd2.format(ed.data[s.id]!))}
               onCommit={(t) => ed.update((cur) => ({ ...cur, [s.id]: parseNumber(t) }))}
               readOnly={readOnly}
             />
@@ -133,7 +140,11 @@ function SpecifiedShareValue({ company }: { company: Company }) {
 type Stat = 'mean' | 'median' | 'p25' | 'p75';
 
 function Comparables({ company, kind }: { company: Company; kind: 'public' | 'transaction' }) {
-  const { measurement, readOnly } = useValuationContext(company);
+  const { measurement, readOnly: locked } = useValuationContext(company);
+  // Comparable metrics are recorded in Millions and follow the Currency Selector; read-only while rescaled.
+  const shown = useMoney('Millions');
+  const readOnly = locked || !shown.isRecorded;
+  const mm = (v: number) => (shown.isRecorded ? m$(v) : shown.format(v));
   const [stat, setStat] = useState<Stat>('median');
   const validate = useCallback((d: { rows: Comparable[]; weights: { revenue: number; ebitda: number } }) => {
     const issue = weightIssue([d.weights.revenue, d.weights.ebitda], 'Metric weights');
@@ -153,8 +164,8 @@ function Comparables({ company, kind }: { company: Company; kind: 'public' | 'tr
     ed.update((cur) => ({ ...cur, rows: cur.rows.map((r) => (r.id === id ? { ...r, ...patch } : r)) }));
   const setWeight = (k: 'revenue' | 'ebitda', w: number) => ed.update((cur) => ({ ...cur, weights: { ...cur.weights, [k]: w } }));
   const money = (r: Comparable, field: 'ev' | 'revenueLtm' | 'ebitdaLtm', label: string) => (r.source === 'manual'
-    ? <EditCell label={`${label} of ${r.name || 'manual comparable'}`} value={r[field] === undefined ? '' : m$(r[field]!)} onCommit={(t) => setRow(r.id, { [field]: parseNumber(t) })} readOnly={readOnly} />
-    : <GridValueCell kind="sourced">{displayValue(r[field], m$)}</GridValueCell>);
+    ? <EditCell label={`${label} of ${r.name || 'manual comparable'}`} value={r[field] === undefined ? '' : mm(r[field]!)} onCommit={(t) => setRow(r.id, { [field]: parseNumber(t) })} readOnly={readOnly} />
+    : <GridValueCell kind="sourced">{displayValue(r[field], mm)}</GridValueCell>);
 
   const freshness = useMemo(() => `Market data as of ${usFromIso(measurement.marketDate)}`, [measurement.marketDate]);
 

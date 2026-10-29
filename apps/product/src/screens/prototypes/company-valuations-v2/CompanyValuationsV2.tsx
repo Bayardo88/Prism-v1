@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   Card, CardItem, Cell, ColumnHeader, DataGrid, EmptyState, LineChart, Link, ModalStatus,
-  Row, RowHeader, SegmentedControl, Text, space,
+  Row, RowHeader, SegmentedControl, Text, currencySymbol, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
 import { companyById, num, pct, usd } from '../../../data/fixtures.js';
@@ -11,6 +11,7 @@ import { ValuationsLayout } from '../../p08-company-valuations/ValuationsLayout.
 import { approachRowsFor, conclusionsFor } from '../../p08-company-valuations/data.js';
 import { APPROACH_WEIGHTS, moic, moneyToNumber, versionsFor } from './data.js';
 import { ABSENCE_LABEL } from '../../../domain/display.js';
+import { useMoney } from '../../../shell/displayUnit.js';
 
 /** $ in thousands — the unit the Valuations header is set to. */
 const k = (v: number) => usd.format(Math.round(v / 1000));
@@ -37,6 +38,10 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
   const summary = href(routes.company.valuationSummary(company.id));
   const conclusions = href(routes.company.valuationConclusions(company.id));
   const approachRows = approachRowsFor(company).filter((r) => r.type === 'child');
+  // Money follows the Currency Selector; the unit captions name the shown unit.
+  const money = useMoney();
+  const km = (n: number) => money.amount(k(n));
+  const unitCaption = `${currencySymbol(money.currency)} ${money.unit.toLowerCase()}`;
   const funds = conclusionsFor(company).flatMap((c) => c.funds.map((f) => ({ entity: c.entity, ...f })));
 
   return (
@@ -56,20 +61,20 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
             }
           >
             <CardItem label="Version" value={v.label} />
-            <CardItem label="Equity value ($ thousands)" value={empty ? ABSENCE_LABEL['not-calculated'] : k(v.equityValue)} />
-            <CardItem label="Unrealized firm total ($ thousands)" value={empty ? ABSENCE_LABEL['not-calculated'] : k(v.fairValue)} />
+            <CardItem label={`Equity value (${unitCaption})`} value={empty ? ABSENCE_LABEL['not-calculated'] : km(v.equityValue)} />
+            <CardItem label={`Unrealized firm total (${unitCaption})`} value={empty ? ABSENCE_LABEL['not-calculated'] : km(v.fairValue)} />
             <CardItem label="MOIC" value={empty ? '0.00x' : moic(v.fairValue, company.invested)} />
             <CardItem label="Fully diluted ownership" value={pct(company.ownershipPct)} />
           </Card>
 
-          <Card title="Equity value by version" action={<Text as="span" step="s" tone="tertiary">$ thousands</Text>}>
+          <Card title="Equity value by version" action={<Text as="span" step="s" tone="tertiary">{unitCaption}</Text>}>
             <LineChart
-              key={`${company.id}-${empty}`}
+              key={`${company.id}-${empty}-${money.unit}-${money.currency}`}
               title={`${company.name} equity value by version`}
               categoryLabel="Version"
               categories={trend.map((x) => x.date)}
-              series={[{ label: 'Equity value', values: trend.map((x) => (empty ? 0 : Math.round(x.equityValue / 1000))) }]}
-              format={(n) => usd.format(n)}
+              series={[{ label: 'Equity value', values: trend.map((x) => (empty ? 0 : money.value(Math.round(x.equityValue / 1000)))) }]}
+              format={money.formatShown}
             />
           </Card>
         </div>
@@ -92,8 +97,8 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
                 <RowHeader href={summary}>{x.label}</RowHeader>
                 <Cell>{x.date}</Cell>
                 <Cell><StatusBadge status={x.status} /></Cell>
-                <Cell numeric type="data">{i === 0 && empty ? ABSENCE_LABEL['not-calculated'] : k(x.equityValue)}</Cell>
-                <Cell numeric type="data">{i === 0 && empty ? ABSENCE_LABEL['not-calculated'] : k(x.fairValue)}</Cell>
+                <Cell numeric type="data">{i === 0 && empty ? ABSENCE_LABEL['not-calculated'] : km(x.equityValue)}</Cell>
+                <Cell numeric type="data">{i === 0 && empty ? ABSENCE_LABEL['not-calculated'] : km(x.fairValue)}</Cell>
               </Row>
             ))}
           </DataGrid>
@@ -124,8 +129,8 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
                   <Row key={r.label} zebra={i % 2 === 1}>
                     <Cell>{r.label}</Cell>
                     <Cell numeric type="input">{`${APPROACH_WEIGHTS.find((w) => w.label === r.label)?.weight ?? 0}.0%`}</Cell>
-                    <Cell numeric type="data">{usd.format(Math.round(moneyToNumber(r.ev) * v.scale))}</Cell>
-                    <Cell numeric type="data">{usd.format(Math.round(moneyToNumber(r.equity) * v.scale))}</Cell>
+                    <Cell numeric type="data">{money.amount(usd.format(Math.round(moneyToNumber(r.ev) * v.scale)))}</Cell>
+                    <Cell numeric type="data">{money.amount(usd.format(Math.round(moneyToNumber(r.equity) * v.scale)))}</Cell>
                   </Row>
                 ))}
               </DataGrid>
@@ -137,7 +142,7 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
               <EmptyState type="no-data" title="Nothing concluded yet" body="Values appear here once an approach concludes." />
             ) : (
               <DataGrid
-                label="Concluded value by fund ($ thousands)"
+                label={`Concluded value by fund (${unitCaption})`}
                 head={
                   <>
                     <ColumnHeader grow={2} tone="subtle">Fund · entity</ColumnHeader>
@@ -155,7 +160,7 @@ export function CompanyValuationsV2({ state, params }: ScreenProps) {
                     <Row key={`${f.entity}-${f.fund}`} zebra={i % 2 === 1}>
                       <Cell>{`${f.fund} · ${f.entity}`}</Cell>
                       <Cell numeric type="data">{num.format(shares)}</Cell>
-                      <Cell numeric type="data">{k(value)}</Cell>
+                      <Cell numeric type="data">{km(value)}</Cell>
                       <Cell numeric type="data">{moic(value, invested)}</Cell>
                     </Row>
                   );

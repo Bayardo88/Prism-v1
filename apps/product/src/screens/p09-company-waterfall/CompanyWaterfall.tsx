@@ -70,7 +70,7 @@ export function CompanyWaterfall({ state, params }: ScreenProps) {
       subNavEnd={
         <>
           <ToolbarAi />
-          {band && <ToolbarCurrency currency={band.rate} unit={band.unit} />}
+          {band && <ToolbarCurrency recorded="Millions" />}
           <ToolbarTableTools />
           <ToolbarSave disabled>Save Notes &amp; Documents</ToolbarSave>
         </>

@@ -84,7 +84,7 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
   menu?: { columnKey: string; content: ReactNode };
 }) {
   const slots = slotsFor(columns);
-  const unit = useDisplayUnit();
+  const unit = useDisplayUnit() ?? 'Thousands';
   const currency = useDisplayCurrency();
   const wrap = useRef<HTMLDivElement>(null);
   const [anchor, setAnchor] = useState<{ left: number; top: number } | null>(null);

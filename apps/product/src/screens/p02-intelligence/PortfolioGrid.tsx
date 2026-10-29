@@ -46,6 +46,12 @@ export interface GridRow {
 
 export interface PortfolioGridProps {
   label: string;
+  /**
+   * Re-expresses a cell's text for the Currency Selector (`useMoney().amount`),
+   * by column. Screens that show the chip pass it; text that is not a dollar
+   * figure passes through.
+   */
+  money?: (text: string, columnKey: string) => string;
   /** Header of the pinned first column. */
   firstColumn: string;
   columns: GridCol[];
@@ -82,7 +88,7 @@ const numberOf = (v: ReactNode): number | null => {
 
 export function PortfolioGrid({
   label, firstColumn, columns, rows, total, groups, scrollTo, selectedCol, focused, onCellClick,
-  onAddColumn, addColumnLabel = 'Add column', addColumnSelected, rails, popover,
+  onAddColumn, addColumnLabel = 'Add column', addColumnSelected, rails, popover, money,
 }: PortfolioGridProps) {
   const outer = useRef<HTMLDivElement>(null);
   const [sort, setSort] = useState<{ key: string; dir: SortDirection }>({ key: '', dir: 'none' });
@@ -177,7 +183,7 @@ export function PortfolioGrid({
         onClick={onCellClick ? () => onCellClick(row.id, col.key) : undefined}
         style={onCellClick ? { cursor: 'pointer' } : undefined}
       >
-        {typeof v === 'string' ? <span title={v} style={clip}>{v}</span> : v}
+        {typeof v === 'string' ? <span title={money ? money(v, col.key) : v} style={clip}>{money ? money(v, col.key) : v}</span> : v}
       </GridValueCell>
     );
   };
@@ -229,7 +235,7 @@ export function PortfolioGrid({
         {total && (
           <Row type="total">
             <RowHeader type="total" style={pin}>Total</RowHeader>
-            {columns.map((c) => <GridValueCell key={c.key} kind="total">{total[c.key] ?? ''}</GridValueCell>)}
+            {columns.map((c) => { const t = total[c.key]; return <GridValueCell key={c.key} kind="total">{typeof t === 'string' && money ? money(t, c.key) : t ?? ''}</GridValueCell>; })}
             {onAddColumn && <GridValueCell kind="total">{''}</GridValueCell>}
           </Row>
         )}

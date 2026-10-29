@@ -79,7 +79,7 @@ export function Waterfalls({ state }: ScreenProps) {
         end={
           <>
             <ToolbarAi />
-            <ToolbarCurrency currency={band?.rate ?? 'USD'} unit={band?.unit ?? '($) Millions'} />
+            <ToolbarCurrency recorded="Millions" />
             <ToolbarTableTools />
             <ToolbarSave disabled={state !== 'workspace-documents'}>Save Notes &amp; Documents</ToolbarSave>
           </>

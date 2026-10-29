@@ -17,6 +17,7 @@ import { ExportMenuItems, PortfolioHeader, PublishedNote, SavedViewsBar } from '
 import { CreateSummaryView } from './CreateSummaryView.js';
 import { companyHref, StatusCell } from './cells.js';
 import { SUMMARY_FRAME, inFrameOrder, investedHistory, summaryColumns, summaryTotal, summaryValues } from './data.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 const SCROLL: Record<string, string | undefined> = {
   'scrolled-value-metrics': 'total',
@@ -34,6 +35,8 @@ const SCROLL: Record<string, string | undefined> = {
 const ORDER = inFrameOrder(SUMMARY_FRAME);
 
 export function Summaries({ state }: ScreenProps) {
+  // Money follows the Currency Selector (amounts; percentages and multiples pass through).
+  const money = useMoney();
   const afterTrend = ['cell-trend', 'saved-view-menu', 'create-view', 'page-actions', 'user-menu', 'user-menu-firm-settings'].includes(state);
 
   const [view, setView] = useState('Firm Summary');
@@ -124,6 +127,7 @@ export function Summaries({ state }: ScreenProps) {
       <PageBody gap={space.m}>
         <PortfolioGrid
           label="Firm portfolio summary"
+          money={money.amount}
           firstColumn="Firm Portfolio Summary"
           columns={summaryColumns}
           rows={rows}
@@ -141,11 +145,12 @@ export function Summaries({ state }: ScreenProps) {
             content: (
               <CellHistoryPopover title="Invested Capital" subtitle={focusedCo.name} onClose={() => setTrendOpen(false)}>
                 <LineChart
+                  key={`${money.unit}-${money.currency}`}
                   title={`Invested Capital — ${focusedCo.name}`}
                   categoryLabel="Date"
                   categories={history.categories}
-                  series={[{ label: 'Invested capital', values: history.values }]}
-                  format={(v) => `$${v.toLocaleString('en-US')}`}
+                  series={[{ label: 'Invested capital', values: history.values.map(money.value) }]}
+                  format={money.formatShown}
                   height={200}
                 />
               </CellHistoryPopover>

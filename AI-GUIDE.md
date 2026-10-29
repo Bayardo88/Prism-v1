@@ -717,6 +717,16 @@ Rules:
   P1), so product rates are illustrative, live in `domain/illustrative-calcs.ts`
   (`ILLUSTRATIVE_FX_PER_USD`) and are labelled in the list footer (`currencyNote`,
   P10). Don't show the rate beside the chip.
+- **In the product the Currency Selector is platform-wide.** Every toolbar chip is
+  `ToolbarCurrency` (or `CurrencyUnit`, which renders it); pass `recorded` when the
+  screen's amounts aren't stored in Thousands (`recorded="Millions"` on Waterfalls).
+  Unit and currency live in `shell/displayUnit.ts`: until the user picks a unit,
+  each screen shows its recorded unit, and a pick holds on every screen. Format
+  every money figure under the chip through `useMoney(recorded)`: `amount` for
+  amounts, `price` for per-share prices (currency only, never the unit), `value` /
+  `formatShown` for charts (give the chart a `key` on unit and currency so it
+  redraws). Rates and percentages pass through. While figures are rescaled
+  (`!isRecorded`), money edit cells are read-only, because edits commit recorded figures.
 - `NumberField label` renders a floating label on the top border, matching a
   filled `FloatingLabelInput` (44px box), for mixing number fields into page and
   modal forms.

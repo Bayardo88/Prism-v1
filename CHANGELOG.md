@@ -1,6 +1,19 @@
 # Changelog
 
 ## Unreleased
+- **Currency Selector across the platform.** Every toolbar chip in the product is now the live `ToolbarCurrency`
+  (code → world-currency list, unit → Hundreds/Thousands/Millions cycle), and one choice holds on every screen.
+  Tables and charts follow it through `useMoney(recorded)` in `shell/displayUnit.ts`. Covered: Financials,
+  Summary Holdings, Cap Table and Fund Ownership, Valuation Summary, Conclusions and the header figures,
+  Intelligence Summaries (with the Invested Capital chart), Firm Valuations, Waterfalls and the company
+  Waterfall, and the Valuations v2, Approach and Company Overview v2 prototypes.
+  - **Units:** until a unit is picked, each screen shows its recorded unit (Waterfalls in Millions, the rest in
+    Thousands), so the default views are unchanged.
+  - **What converts:** per-share prices change currency only. FX rates, percentages, multiples and share counts
+    never change. A Waterfall's own reporting-currency columns rescale but keep their currency.
+  - **Editing:** money edit cells are read-only while figures are rescaled.
+  - **Unchanged:** the per-company currency chips in Schedule of Investments still show each company's own
+    cap-table currency.
 - **Currency Selector picks a currency.** With `currencies` (e.g. the new `WORLD_CURRENCIES`, 30 major currencies),
   the currency code is its own button that opens a searchable list under the chip; picking one reports it through
   `onCurrencyChange` and the unit label takes its symbol (`currencySymbol`). Works alongside the unit cycle. Story

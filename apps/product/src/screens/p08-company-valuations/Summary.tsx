@@ -18,6 +18,7 @@ import { allocationRowsFor, approachRowsFor } from './data.js';
 import { useValuationContext } from '../../domain/context.js';
 import { WeightingPanel } from './WeightingPanel.js';
 import { AddColumn } from '../../shell/AddColumn.js';
+import { useMoney } from '../../shell/displayUnit.js';
 
 function Empty({ title, body, action, onAction }: { title: string; body: string; action: string; onAction: () => void }) {
   return (
@@ -41,6 +42,9 @@ export function Summary({ state, params }: ScreenProps) {
   const company = companyById(params.companyId);
   const v = useValuationContext(company);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Money follows the Currency Selector; per-share rows convert only.
+  const money = useMoney();
+  const m = (label: string, t: string | undefined) => (t === undefined ? t : /per share/i.test(label) ? money.price(t) : money.amount(t));
   useEffect(() => setMenuOpen(false), [state]);
   const openMenu = () => setMenuOpen(true);
   const populated = state === 'populated';
@@ -92,8 +96,8 @@ export function Summary({ state, params }: ScreenProps) {
             }
           >
             {approachRowsFor(company, v.valuation).map((r, i) => row(r.label, r.label, r.type,
-              [cell(r.type === 'total' ? 'total' : 'calculated', r.ev, 'ev'), cell(r.type === 'total' ? 'total' : 'calculated', r.equity, 'eq'),
-                cell(r.kind, r.waterfall, 'w'), cell(r.kind, r.opm, 'o'),
+              [cell(r.type === 'total' ? 'total' : 'calculated', m(r.label, r.ev), 'ev'), cell(r.type === 'total' ? 'total' : 'calculated', m(r.label, r.equity), 'eq'),
+                cell(r.kind, m(r.label, r.waterfall), 'w'), cell(r.kind, m(r.label, r.opm), 'o'),
                 <GridValueCell key="add" />], 2, i % 2 === 1))}
           </DataGrid>
 
@@ -120,9 +124,9 @@ export function Summary({ state, params }: ScreenProps) {
             }
           >
             {allocationRowsFor(company, v.valuation, v.capTable.name).map((r, i) => row(`${i}-${r.label}`, r.label, r.type,
-              [cell(r.kind, r.values[0], 'w'),
-                cell(r.kind, r.values[1], 'o'),
-                cell(r.type === 'total' ? 'total' : 'calculated', r.values[2], 'x')], 0, i % 2 === 1))}
+              [cell(r.kind, m(r.label, r.values[0]), 'w'),
+                cell(r.kind, m(r.label, r.values[1]), 'o'),
+                cell(r.type === 'total' ? 'total' : 'calculated', m(r.label, r.values[2]), 'x')], 0, i % 2 === 1))}
           </DataGrid>
 
           <WeightingPanel company={company} />
