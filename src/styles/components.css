@@ -1763,9 +1763,31 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
   font-weight: var(--font-weight-semi-bold);
   cursor: pointer;
 }
-.scalar-ai-tool:focus-within { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
+.scalar-ai-tool:focus-visible,
+.scalar-ai-tool--input:has(.scalar-ai-tool__input:focus) { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 .scalar-ai-tool__input { flex: 1 1 auto; min-width: 0; border: 0; background: none; outline: none; color: inherit; font: inherit; }
 .scalar-ai-tool__input::placeholder { color: inherit; opacity: 0.8; }
+/* Open prompt field (Figma State=AI-Input-Field, 466:3115): white field, subtle
+ * rule, purple AI mark that closes it, and the "Press ↵" submit chip. */
+.scalar-ai-tool--input {
+  box-sizing: border-box;
+  height: var(--size-target-dense);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-stroke-subtle);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-heading-s);
+  line-height: var(--line-height-heading-s);
+  font-weight: var(--font-weight-regular);
+  cursor: auto;
+}
+.scalar-ai-tool--input .scalar-ai-tool__input { inline-size: 22ch; }
+.scalar-ai-tool--input .scalar-ai-tool__input::placeholder { color: var(--color-text-tertiary); opacity: 1; }
+.scalar-ai-tool__mark,
+.scalar-ai-tool__submit { display: inline-flex; align-items: center; border: 0; border-radius: var(--radius-xs); font: inherit; cursor: pointer; }
+.scalar-ai-tool__mark { padding: 0; background: none; color: var(--color-icon-ai); }
+.scalar-ai-tool__submit { flex: none; padding: var(--space-2xs); background: var(--color-bg-subtle); color: var(--color-text-tertiary); white-space: nowrap; }
+.scalar-ai-tool__mark:focus-visible,
+.scalar-ai-tool__submit:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 1px; }
 
 /* --- Company info bar --------------------------------------------------------- */
 /* The Secondary Menu bar: title, badge or filter, the tab row, and the page's

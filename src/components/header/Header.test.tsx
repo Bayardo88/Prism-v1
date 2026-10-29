@@ -260,6 +260,30 @@ describe('triggers', () => {
     await expectNoViolations(container);
   });
 
+  it('AITool opens on click, takes typing, and the AI mark or Escape closes it', async () => {
+    const onSubmit = vi.fn();
+    const onStateChange = vi.fn();
+    const { container } = render(<AITool onSubmit={onSubmit} onStateChange={onStateChange} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Ask AI' }));
+    expect(onStateChange).toHaveBeenLastCalledWith('input');
+    const field = screen.getByRole('textbox', { name: 'Ask the assistant' });
+    expect(document.activeElement).toBe(field);
+    expect(field.getAttribute('placeholder')).toBe('How can I help you?');
+    await userEvent.type(field, 'Summarise ABC Co{Enter}');
+    expect(onSubmit).toHaveBeenCalledWith('Summarise ABC Co');
+    await userEvent.click(screen.getByRole('button', { name: /Press ↵/ }));
+    expect(onSubmit).toHaveBeenCalledTimes(2);
+    await expectNoViolations(container);
+    await userEvent.click(screen.getByRole('button', { name: 'Close AI' }));
+    expect(onStateChange).toHaveBeenLastCalledWith('trigger');
+    expect(screen.queryByRole('textbox')).toBeNull();
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Ask AI' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Ask AI' }));
+    expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe('Summarise ABC Co');
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
   it('ValuationInfo toggles groups with stable names and exposes picker state', async () => {
     const onMarket = vi.fn();
     const { container } = render(<ValuationInfo equityValue="$1" marketDate="06/01" version="V1" onMarketDateClick={onMarket} marketDateExpanded />);

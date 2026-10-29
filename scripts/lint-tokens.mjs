@@ -74,7 +74,7 @@ const OUTLINE_REPLACEMENTS = {
   '.scalar-modal-search__input': '.scalar-modal-search:focus-within',
   '.scalar-data-review-card__select:focus-visible': '.scalar-data-review-card__select:focus-visible::after',
   '.scalar-search-bar__input': '.scalar-search-bar:focus-within',
-  '.scalar-ai-tool__input': '.scalar-ai-tool:focus-within',
+  '.scalar-ai-tool__input': '.scalar-ai-tool--input:has(.scalar-ai-tool__input:focus)',
   '.scalar-floating__control': '.scalar-floating__box:focus-within',
   '.scalar-number-field__control': '.scalar-number-field:focus-within',
   '.scalar-tag-input__entry': '.scalar-tag-input:focus-within',

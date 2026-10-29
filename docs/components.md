@@ -98,7 +98,7 @@ Legend: **=** direct mapping · **⊕** several Figma sets merged into one expor
 | Valuation | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
 | Workboard | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
 | Tool-switch | State | ⊕ `ToolSwitch` | `header/Controls.tsx` |
-| AI tool | State | = `AITool` | `header/Controls.tsx` |
+| AI tool | State | = `AITool` (click opens `AI-Input-Field`, the AI mark or Escape closes it; Figma `466:3117`) | `header/Controls.tsx` |
 
 **Merges.** `Company Dropdown/Default` and `/Pinned Company` differ only by
 whether a pinned group is present, so one component takes `companies` with a

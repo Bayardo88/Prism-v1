@@ -7,7 +7,7 @@ import type { ReactNode } from 'react';
 import { AITool, Button, ButtonIcon, CurrencySelector, Icon, SaveState, WORLD_CURRENCIES, icons, space, type CurrencyDisplayUnit, type SaveStateValue } from '@scalar/design-system';
 import { setDisplayCurrency, setDisplayUnit, useDisplayCurrency, useDisplayUnit } from './displayUnit.js';
 
-/** The purple AI trigger. */
+/** The purple AI trigger. A click opens the prompt field; the AI mark or Escape closes it. */
 export function ToolbarAi({ onClick }: { onClick?: () => void }) {
   return <AITool onClick={onClick} />;
 }

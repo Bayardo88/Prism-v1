@@ -189,6 +189,22 @@ export const Tools: Story = {
 };
 
 export const AIToolTrigger: Story = { render: () => <AITool /> };
+/**
+ * Click the AI mark to open the prompt field (Figma `State=AI-Input-Field`) and
+ * type anything; Enter or "Press ↵" submits. Click the AI mark again, or press
+ * Escape, to close it. The typed prompt is kept.
+ */
+export const AIToolExpand: Story = {
+  render: function Render() {
+    const [sent, setSent] = useState('');
+    return (
+      <div>
+        <AITool onSubmit={setSent} />
+        <p aria-live="polite">{sent && `Submitted: ${sent}`}</p>
+      </div>
+    );
+  },
+};
 export const AIToolTriggerWithText: Story = { render: () => <AITool>Ask AI</AITool> };
 /** Enter submits the prompt. */
 export const AIToolInput: Story = {

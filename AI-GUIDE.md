@@ -438,6 +438,11 @@ wrapper inside the slot. Full guide: `docs/page-template.md`.
 `CompanyDropdown` · `FilterDropdown` · `SearchBar` · `Notification` · `Badge` ·
 `ComboTag` · `CurrencySelector` · `Selector` · `InformationLabel` · `ValuationInfo` · `ToolSwitch` · `AITool`
 
+- **`AITool` opens and closes itself.** A click on the trigger opens the prompt field (Figma `AI-Input-Field`)
+  and focuses it; the AI mark inside the field, or Escape, closes it. Props: `state` / `defaultState` /
+  `onStateChange`, `value` / `onValueChange`, `onSubmit` (Enter or the "Press ↵" chip), `placeholder`
+  ("How can I help you?"). Don't wire your own toggle around it.
+
 - **Three navigation tiers is the limit.** A fourth level belongs in the page
   body, not the chrome.
 - Exactly one `TabItem` is `active` at all times. A tab bar with nothing

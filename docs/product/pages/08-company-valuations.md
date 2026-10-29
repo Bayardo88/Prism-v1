@@ -3,7 +3,7 @@
 Company Valuations is where a valuation analyst builds one valuation version of a portfolio company ("Version 1 - 2024-12-31", market date 12/31/2024). The analyst adds approaches (GPC, M&A comps, Backsolve, DCF…), weights them into an enterprise and equity value, allocates the equity across scenarios (Waterfall, OPM) and concludes a value per share and per fund position. Reviewers and auditors read the same pages. The header status shows **Final** and **Ready for Audit**. The screens use the Prism Navigation V4 chrome:
 - **Company header:** an `attach_money` toggle reveals Equity Value / Unrealized Firm Total (Information Labels), and an `hourglass_empty` toggle reveals Market Date / Version (light-surface `Selector`s). These are followed by the status badges and ⋮.
 - **Tertiary Menu:** one tab per approach (Summary · Conclusions · External Valuation · Specified Share Value · Backsolve) and **+** (Add approach).
-- **Actions:** Ask AI, USD ($) Thousands, fit to screen, filter, the green Save split button and ⋮.
+- **Actions:** Ask AI (opens a "How can I help you?" prompt field; the AI mark or Escape closes it), USD ($) Thousands, fit to screen, filter, the green Save split button and ⋮.
 
 Open it from the company's Secondary Menu → **Valuations**.
 

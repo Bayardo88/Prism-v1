@@ -1,5 +1,5 @@
 import {
-  forwardRef, useId, useMemo, useRef, useState,
+  forwardRef, useEffect, useId, useMemo, useRef, useState,
   type ButtonHTMLAttributes, type FormEvent, type HTMLAttributes, type InputHTMLAttributes, type MouseEvent, type ReactNode,
 } from 'react';
 import { cx } from '../../utils/cx.js';
@@ -628,22 +628,28 @@ export const ToolSwitch = forwardRef<HTMLDivElement, ToolSwitchProps>(function T
 export type AIToolState = 'trigger' | 'input';
 
 export interface AIToolProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'defaultValue' | 'onSubmit'> {
-  /** `trigger` is the entry point; `input` is the open prompt field. */
+  /** `trigger` is the entry point; `input` is the open prompt field. Omit to let the tool open and close itself. */
   state?: AIToolState;
+  /** Initial state when uncontrolled. Default `trigger`. */
+  defaultState?: AIToolState;
+  /** Called when the user opens the field (trigger click) or closes it (AI mark click, Escape). */
+  onStateChange?: (state: AIToolState) => void;
   children?: ReactNode;
   /** Prompt text (input state). Omit to let the field own it. */
   value?: string;
   /** Initial prompt text when uncontrolled. */
   defaultValue?: string;
   onValueChange?: (value: string) => void;
-  /** Input state: called with the prompt when the user presses Enter. */
+  /** Input state: called with the prompt when the user presses Enter or the "Press ↵" chip. */
   onSubmit?: (value: string) => void;
-  /** Input state: placeholder. Default "Ask anything…". */
+  /** Input state: placeholder. Default "How can I help you?". */
   placeholder?: string;
   /** Input state: accessible name. Default "Ask the assistant". */
   inputLabel?: string;
   /** Trigger state: accessible name when there is no visible text. Default "Ask AI". */
   label?: string;
+  /** Input state: accessible name of the AI mark that closes the field. Default "Close AI". */
+  closeLabel?: string;
 }
 
 /**
@@ -652,30 +658,53 @@ export interface AIToolProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
  * Reserved for genuinely generative actions. The gradient stroke in Figma is
  * the intentional exception and has no Dark-mode counterpart.
  *
+ * Clicking the trigger opens the prompt field (Figma `State=AI-Input-Field`)
+ * and focuses it; clicking the AI mark inside the field, or Escape in it, closes it
+ * again and returns focus to the trigger. The typed prompt is kept. Pass
+ * `state` to control this yourself.
+ *
  * The ref and the remaining native props go to the interactive element — the
  * `<button>` in `trigger`, the `<input>` in `input` (where `className` styles
  * the wrapping `<form>`). Enter submits.
  */
 export const AITool = forwardRef<HTMLButtonElement & HTMLInputElement, AIToolProps>(function AITool(
   {
-    state = 'trigger', children, value, defaultValue = '', onValueChange, onSubmit, placeholder = 'Ask anything…',
-    inputLabel = 'Ask the assistant', label = 'Ask AI', className, ...rest
+    state: stateProp, defaultState = 'trigger', onStateChange, children, value, defaultValue = '', onValueChange, onSubmit,
+    placeholder = 'How can I help you?', inputLabel = 'Ask the assistant', label = 'Ask AI', closeLabel = 'Close AI',
+    className, onClick, ...rest
   },
   ref,
 ) {
+  const [state, setState] = useControllableState<AIToolState>(stateProp, defaultState, onStateChange);
   const [text, setText] = useControllableState<string>(value, defaultValue, onValueChange);
   const inputId = useId();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Move focus only after the user toggled, never on mount.
+  const toggled = useRef(false);
+  useEffect(() => {
+    if (!toggled.current) return;
+    toggled.current = false;
+    (state === 'input' ? inputRef : triggerRef).current?.focus();
+  }, [state]);
+  const toggle = (next: AIToolState) => { toggled.current = true; setState(next); };
+
   if (state === 'input') {
     const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       onSubmit?.(text);
     };
     return (
-      <form className={cx('scalar-ai-tool', className)} onSubmit={handleSubmit}>
-        <Icon size="s" tone="inherit"><AiMark /></Icon>
+      <form
+        className={cx('scalar-ai-tool', 'scalar-ai-tool--input', className)}
+        onSubmit={handleSubmit}
+      >
+        <button type="button" className="scalar-ai-tool__mark" aria-label={closeLabel} onClick={() => toggle('trigger')}>
+          <Icon size="s" tone="inherit"><AiMark /></Icon>
+        </button>
         <input
           id={inputId}
-          ref={ref}
+          ref={composeRefs(inputRef, ref)}
           className="scalar-ai-tool__input"
           name="prompt"
           autoComplete="off"
@@ -684,17 +713,25 @@ export const AITool = forwardRef<HTMLButtonElement & HTMLInputElement, AIToolPro
           {...(rest as InputHTMLAttributes<HTMLInputElement>)}
           value={text}
           onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            (rest as InputHTMLAttributes<HTMLInputElement>).onKeyDown?.(e);
+            if (e.key === 'Escape' && !e.defaultPrevented) { e.preventDefault(); toggle('trigger'); }
+          }}
         />
+        <button type="submit" className="scalar-ai-tool__submit">
+          Press ↵<VisuallyHidden> to send</VisuallyHidden>
+        </button>
       </form>
     );
   }
   return (
     <button
-      ref={ref}
+      ref={composeRefs(triggerRef, ref)}
       type="button"
       aria-label={children ? undefined : label}
       className={cx('scalar-ai-tool', className)}
       {...rest}
+      onClick={(e) => { onClick?.(e); if (!e.defaultPrevented) toggle('input'); }}
     >
       <Icon size="s" tone="inherit"><AiMark /></Icon>
       {children}

@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- **AI tool opens into a prompt field.** Clicking `AITool` now switches it to the Figma `State=AI-Input-Field`
+  (466:3115): a white field with a subtle rule, the purple AI mark, "How can I help you?" and a "Press ↵" submit
+  chip. The field takes focus, so the user can type straight away; Enter or the chip submits (`onSubmit`).
+  Clicking the AI mark, or Escape, closes it and returns focus to the trigger; the typed prompt is kept. New
+  `defaultState` / `onStateChange` (pass `state` to control it), `closeLabel`; the placeholder default is now
+  "How can I help you?". Every toolbar `ToolbarAi` in the product gets it. Story *Header › Controls › AI Tool Expand*.
 - **Currency Selector across the platform.** Every toolbar chip in the product is now the live `ToolbarCurrency`
   (code → world-currency list, unit → Hundreds/Thousands/Millions cycle), and one choice holds on every screen.
   Tables and charts follow it through `useMoney(recorded)` in `shell/displayUnit.ts`. Covered: Financials,
