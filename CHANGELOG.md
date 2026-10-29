@@ -8,7 +8,8 @@
   `size` takes `xs` · `s` · `m` · `l` (24 · 32 · 40 · 48px), with Button's hover, pressed and disabled treatment.
   Its types are now `ButtonVariant` / `ButtonTone` / `ButtonSize`. The default (primary · main · m) is unchanged.
   New stories *Menus › Actions › Split Tertiary / Warning / Negative / Small / Extra Small / Large / All Variants*.
-  The Figma Split Button set still has only its 16 variants (Primary/Secondary × Main/Positive).
+  The Figma Split Button set (`1591:366`, page 20 · Menus & Actions) now carries the same matrix: 192 variants,
+  Style × Size (XS · S · M · L) × Tone × State, every fill, stroke, padding and height bound to v1.1 tokens.
 - **Portfolio grids scroll again.** `PortfolioGrid` looked for its scroller with `[role=grid]`, but `DataGrid` renders
   `role="table"`, so its sideways scroll silently did nothing: Daily NAV › Public comps opened at the far left, the
   Summaries "Scrolled" states and Firm Valuations' scroll-to-end didn't scroll, and the "+ N columns" rails

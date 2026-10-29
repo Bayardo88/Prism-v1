@@ -59,9 +59,8 @@ export interface SplitButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 
  * ("+ Add projection year ▾" → Add historical year; "Report ▾" → Validate,
  * Preview, Finalize, Send). The two halves are separate hit targets.
  *
- * Figma: `Split Button` (Style × Tone × State, 16 variants). Hover and Open
- * map to CSS and `menuOpen`. Code carries the full `Button` matrix — tertiary,
- * warning, negative and the four sizes have no Figma variant yet.
+ * Figma: `Split Button` (Style × Size × Tone × State, 192 variants) — the full
+ * `Button` matrix. Hover and Open map to CSS and `menuOpen`.
  *
  * Accessibility: opening moves focus to the first menu item; Esc, outside
  * click and Tab close it and focus returns to the caret. ArrowDown on the

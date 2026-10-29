@@ -254,7 +254,7 @@ The product app wraps it as `shell/PageTemplate.tsx`. Guide: [page-template.md](
 | Menu Item | State × Tone (7) | = `MenuItem` (+ ＋`MenuDivider`, ＋`MenuSubItems`) | `actions-menus/Menu.tsx` |
 | Context Menu | Header (2) | = `ContextMenu` (`heading` prop) | `actions-menus/Menu.tsx` |
 | User Menu | Firm Settings Expanded (2) | = `UserMenu` (expansion lives on `MenuItem expanded`) | `actions-menus/Menu.tsx` |
-| Split Button | Style × Tone × State (16) | = `SplitButton` (＋ `menuPlacement` bottom · top; code adds the full `Button` matrix: `variant` tertiary, `tone` warning · negative, `size` xs · s · m · l — not yet in Figma) | `actions-menus/Actions.tsx` |
+| Split Button | Style (3) × Size (4) × Tone (4) × State (4) = 192 | = `SplitButton` (`variant` primary · secondary · tertiary, `tone` main · positive · warning · negative, `size` xs · s · m · l; ＋ `menuPlacement` bottom · top). Figma `1591:366`, page 20 | `actions-menus/Actions.tsx` |
 | FAB | State (4) | = `Fab` | `actions-menus/Actions.tsx` |
 | Speed Dial Item | State (3) | = `SpeedDialItem` | `actions-menus/Actions.tsx` |
 | Speed Dial | — | = `SpeedDial` | `actions-menus/Actions.tsx` |
