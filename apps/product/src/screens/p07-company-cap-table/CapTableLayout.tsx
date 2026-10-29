@@ -37,6 +37,8 @@ export interface CapTableLayoutProps {
   /** Show Save (hidden while breakpoints are calculated — nothing to save). */
   save?: boolean;
   onSave?: () => void;
+  /** The page's own action, in the Tertiary Menu between the table tools and Save. */
+  action?: ReactNode;
   /** Shown beside Save (P9). */
   saveState?: SaveStateValue;
   footer?: ReactNode;
@@ -44,7 +46,7 @@ export interface CapTableLayoutProps {
   children?: ReactNode;
 }
 
-export function CapTableLayout({ company, page, currency, save = true, onSave, saveState, footer, overlay, children }: CapTableLayoutProps) {
+export function CapTableLayout({ company, page, currency, save = true, onSave, action, saveState, footer, overlay, children }: CapTableLayoutProps) {
   return (
     <CompanyLayout
       company={company}
@@ -68,6 +70,7 @@ export function CapTableLayout({ company, page, currency, save = true, onSave, s
           <ToolbarAi />
           {currency && <ToolbarCurrency />}
           <ToolbarTableTools />
+          {action}
           {save && <ToolbarSave onClick={onSave} state={saveState} />}
         </>
       }

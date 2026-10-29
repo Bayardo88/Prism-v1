@@ -15,7 +15,7 @@ For example, `#/companies/cohesity/cap-table/securities` shows Common plus Serie
 ## Screens
 
 ### Cap Table — `/companies/:companyId/cap-table/securities`
-Enter each security's terms (investment date, type, original issue price, shares outstanding, conversion rate) and read the ownership, fully diluted shares and liquidation preferences derived from them. A second grid shows the firm's own holdings in each security (Spatical Ventures). You get here from Secondary Menu → Cap Table, which is the default sub-page. **Add Security** (the FAB) adds a blank column.
+Enter each security's terms (investment date, type, original issue price, shares outstanding, conversion rate) and read the ownership, fully diluted shares and liquidation preferences derived from them. A second grid shows the firm's own holdings in each security (Spatical Ventures). You get here from Secondary Menu → Cap Table, which is the default sub-page. **Add Security** sits in the Tertiary Menu between Filter and Save (a `SplitButton`, `secondary` `xs`): the button adds a blank column, and its menu adds a column of a chosen security type.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
@@ -23,7 +23,7 @@ Enter each security's terms (investment date, type, original issue price, shares
 | new-column | [Cap Table — New security column](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-18882) | 11:18882 | `#/companies/abc-co/cap-table/securities?state=new-column` |
 | security-type-menu | [Cap Table — Security Type menu open](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=11-19396) | 11:19396 | `#/companies/abc-co/cap-table/securities?state=security-type-menu` |
 
-Components used: CompanyLayout (shell), TertiaryMenuItem, Selector (`surface="surface"`, Cap Table Version) + SelectMenu, ModalStatus, ButtonIcon (`icons.MoreVert`), CurrencySelector, SplitButton, DataGrid, Row (zebra / total), ColumnHeader, InlineEdit, RowLabelCell, GridValueCell, InCellControl, GridColumnDivider, SelectMenu, SelectMenuOption, Fab.
+Components used: CompanyLayout (shell), TertiaryMenuItem, Selector (`surface="surface"`, Cap Table Version) + SelectMenu, ModalStatus, ButtonIcon (`icons.MoreVert`), CurrencySelector, SplitButton, DataGrid, Row (zebra / total), ColumnHeader, InlineEdit, RowLabelCell, GridValueCell, InCellControl, GridColumnDivider, SelectMenu, SelectMenuOption.
 
 Behaviour & rules:
 - Inputs are blue (`GridValueCell kind="editable"` / `InCellControl`): investment date, security type, original issue price, shares outstanding and conversion rate. Everything else is calculated. Totals are bold and have a rule.
