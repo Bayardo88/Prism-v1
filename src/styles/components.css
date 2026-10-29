@@ -1674,6 +1674,7 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
   color: var(--color-text-secondary);
   border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
 }
+.scalar-currency-selector--cycle:hover .scalar-currency-selector__unit { color: var(--color-text-primary); }
 .scalar-currency-selector:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 
 .scalar-selector {

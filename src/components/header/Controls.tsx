@@ -1,5 +1,5 @@
 import {
-  forwardRef, useId,
+  forwardRef, useId, useState,
   type ButtonHTMLAttributes, type FormEvent, type HTMLAttributes, type InputHTMLAttributes, type ReactNode,
 } from 'react';
 import { cx } from '../../utils/cx.js';
@@ -221,13 +221,59 @@ export const ComboTag = forwardRef<HTMLSpanElement, ComboTagProps>(function Comb
 
 /* --- Currency selector ------------------------------------------------------ */
 
+/** The display units the Currency Selector steps through, in click order: Hundreds → Thousands → Millions → Hundreds. */
+export const CURRENCY_DISPLAY_UNITS = ['Hundreds', 'Thousands', 'Millions'] as const;
+export type CurrencyDisplayUnit = (typeof CURRENCY_DISPLAY_UNITS)[number];
+
+const UNIT_SCALE: Record<CurrencyDisplayUnit, number> = { Hundreds: 1e2, Thousands: 1e3, Millions: 1e6 };
+
+/** The unit a click moves to. Millions wraps back to Hundreds. */
+export function nextCurrencyDisplayUnit(unit: CurrencyDisplayUnit): CurrencyDisplayUnit {
+  return CURRENCY_DISPLAY_UNITS[(CURRENCY_DISPLAY_UNITS.indexOf(unit) + 1) % CURRENCY_DISPLAY_UNITS.length]!;
+}
+
+/**
+ * Re-expresses an amount stated in `from` units in `to` units: 22,118 Thousands
+ * is 221,180 Hundreds or 22.118 Millions. A display rescale only — the stored
+ * figure never changes.
+ */
+export function convertCurrencyDisplayUnit(value: number, from: CurrencyDisplayUnit, to: CurrencyDisplayUnit): number {
+  return (value * UNIT_SCALE[from]) / UNIT_SCALE[to];
+}
+
+const UNIT_DIGITS: Record<CurrencyDisplayUnit, number> = { Hundreds: 0, Thousands: 0, Millions: 1 };
+
+/**
+ * An amount stated in `from` units, written in `to` units with the unit's
+ * precision: whole numbers in Hundreds and Thousands, one decimal in Millions.
+ * Negatives keep the statement's parentheses: `($2,503)`.
+ */
+export function formatCurrencyDisplayUnit(value: number, from: CurrencyDisplayUnit, to: CurrencyDisplayUnit, symbol = '$'): string {
+  const digits = UNIT_DIGITS[to];
+  const n = convertCurrencyDisplayUnit(Math.abs(value), from, to);
+  const text = `${symbol}${n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })}`;
+  return value < 0 ? `(${text})` : text;
+}
+
 export interface CurrencySelectorProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  /** The display unit, e.g. "($) Thousands". */
+  /** The display unit, e.g. "($) Thousands". With `unit` / `defaultUnit` it defaults to "(<symbol>) <unit>". */
   children?: ReactNode;
   /** The currency code, shown in the first part of the chip, e.g. "USD". */
   currency?: ReactNode;
   /** Its picker is open (`aria-expanded`). Omit for a read-only display. */
   expanded?: boolean;
+  /**
+   * The display unit, controlled. Passing `unit`, `defaultUnit` or `onUnitChange`
+   * turns the chip into a unit cycle: each click steps Hundreds → Thousands →
+   * Millions → Hundreds and reports the next unit through `onUnitChange`.
+   */
+  unit?: CurrencyDisplayUnit;
+  /** Initial unit when uncontrolled. Default `Thousands`. */
+  defaultUnit?: CurrencyDisplayUnit;
+  /** The unit after a click. The screen rescales its figures with `convertCurrencyDisplayUnit`. */
+  onUnitChange?: (unit: CurrencyDisplayUnit) => void;
+  /** The currency symbol in the default unit label. Default `$`. */
+  symbol?: ReactNode;
 }
 
 /**
@@ -236,13 +282,46 @@ export interface CurrencySelectorProps extends ButtonHTMLAttributes<HTMLButtonEl
  * Currency is a display concern. Switching it must never imply a conversion has
  * been recorded against the data.
  *
- * It announces `aria-haspopup="menu"` only when it can open something (an
- * `onClick` or `expanded` is supplied); the screen owns the picker.
+ * Two modes:
+ * - **Picker** (default): it announces `aria-haspopup="menu"` only when it can
+ *   open something (an `onClick` or `expanded` is supplied); the screen owns the picker.
+ * - **Unit cycle** (`unit`, `defaultUnit` or `onUnitChange`): a click steps the
+ *   display unit Hundreds → Thousands → Millions → Hundreds. It opens no menu, so
+ *   it carries no `aria-haspopup`; the name says which unit a click moves to, and
+ *   the change is announced politely.
  */
 export const CurrencySelector = forwardRef<HTMLButtonElement, CurrencySelectorProps>(function CurrencySelector(
-  { children, currency, expanded, onClick, className, ...rest },
+  { children, currency, expanded, onClick, className, unit: unitProp, defaultUnit, onUnitChange, symbol = '$', ...rest },
   ref,
 ) {
+  const cycles = unitProp !== undefined || defaultUnit !== undefined || onUnitChange !== undefined;
+  const [unit, setUnit] = useControllableState<CurrencyDisplayUnit>(unitProp, defaultUnit ?? 'Thousands', onUnitChange);
+  const [announce, setAnnounce] = useState('');
+  if (cycles) {
+    const next = nextCurrencyDisplayUnit(unit);
+    return (
+      <>
+        <button
+          ref={ref}
+          type="button"
+          data-unit={unit}
+          onClick={(e) => {
+            onClick?.(e);
+            if (e.defaultPrevented) return;
+            setUnit(next);
+            setAnnounce(`Showing ${next}`);
+          }}
+          className={cx('scalar-currency-selector', 'scalar-currency-selector--cycle', className)}
+          {...rest}
+        >
+          {currency && <span className="scalar-currency-selector__currency">{currency}</span>}
+          <span className="scalar-currency-selector__unit">{children ?? <>({symbol}) {unit}</>}</span>
+          <VisuallyHidden>, switch to {next}</VisuallyHidden>
+        </button>
+        <VisuallyHidden role="status">{announce}</VisuallyHidden>
+      </>
+    );
+  }
   const interactive = !!onClick || expanded !== undefined;
   return (
     <button

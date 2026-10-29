@@ -1,6 +1,13 @@
 # Changelog
 
 ## Unreleased
+- **Currency Selector cycles the display unit.** `CurrencySelector` takes `unit` / `defaultUnit` / `onUnitChange`
+  (and `symbol`): each click steps Hundreds → Thousands → Millions → Hundreds, its name says which unit a click
+  moves to, and the change is announced. New helpers `CURRENCY_DISPLAY_UNITS`, `nextCurrencyDisplayUnit`,
+  `convertCurrencyDisplayUnit` and `formatCurrencyDisplayUnit`. Story *Header › Controls › Currency Unit Cycle*.
+  On Financials (Income Statement, Balance Sheet, KPIs) the chip now cycles and every dollar figure in the grids
+  rescales from its recorded Thousands; percentages and labels don't change. The unit is kept across the
+  Financials tabs (`shell/displayUnit.ts`). Display only: the recorded figures never change.
 - **Add Projection Year moves to the Tertiary Menu.** On Financials (Income Statement, Balance Sheet, KPIs) the
   "+ Add Projection Year ▾" split button now sits in the Tier 3 toolbar between the filter icon and Save, instead of
   a footer bar; its menu (Add Historical Year) drops down, and it uses `SplitButton size="xs"` so it matches Save.

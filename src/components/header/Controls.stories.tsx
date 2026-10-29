@@ -2,9 +2,14 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   Badge, badgeCount, CompanyDropdown, FilterDropdown, SearchBar, Notification, ComboTag, CurrencySelector,
-  Selector, InformationLabel, ToolSwitch, AITool,
+  Selector, InformationLabel, ToolSwitch, AITool, formatCurrencyDisplayUnit,
 } from './index.js';
-import type { ToolSwitchValue } from './index.js';
+import type { CurrencyDisplayUnit, ToolSwitchValue } from './index.js';
+import { DataGrid } from '../table/DataGrid.js';
+import { ColumnHeader } from '../table/ColumnHeader.js';
+import { Row } from '../table/Row.js';
+import { RowHeader } from '../table/RowHeader.js';
+import { Cell } from '../table/Cell.js';
 import { Icon } from '../icon/Icon.js';
 import { Check } from '../icon/glyphs.js';
 
@@ -75,6 +80,37 @@ export const CurrencySelectors: Story = {
       <CurrencySelector currency="USD">($) Thousands</CurrencySelector>
     </>
   ),
+};
+
+const statement = [
+  { label: 'Total Revenue', fy: 22118 },
+  { label: 'Total Cost of Sales', fy: 3078 },
+  { label: 'Gross Profit', fy: 19041 },
+  { label: 'Depreciation Expense', fy: -2503 },
+];
+
+/**
+ * Unit cycle: each click steps Hundreds → Thousands → Millions → Hundreds, and the
+ * table under it rescales. Figures are stored in Thousands; the screen rescales
+ * them with `formatCurrencyDisplayUnit` — a display change, never a conversion.
+ */
+export const CurrencyUnitCycle: Story = {
+  decorators: [(S) => <div style={{ display: 'grid', gap: 'var(--space-m)', width: 480 }}><S /></div>],
+  render: function Render() {
+    const [unit, setUnit] = useState<CurrencyDisplayUnit>('Hundreds');
+    return (
+      <>
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <CurrencySelector currency="USD" unit={unit} onUnitChange={setUnit} />
+        </div>
+        <DataGrid label={`Income statement, in ${unit}`} head={<><ColumnHeader grow={2}>Income Statement</ColumnHeader><ColumnHeader numeric>FY 2024</ColumnHeader></>}>
+          {statement.map((r, i) => (
+            <Row key={r.label} zebra={i % 2 === 1}><RowHeader>{r.label}</RowHeader><Cell numeric type="data">{formatCurrencyDisplayUnit(r.fy, 'Thousands', unit)}</Cell></Row>
+          ))}
+        </DataGrid>
+      </>
+    );
+  },
 };
 
 export const Selectors: Story = {

@@ -16,6 +16,7 @@ import type { Company } from '../../data/fixtures.js';
 import { useValuationContext } from '../../domain/context.js';
 import { usFromIso } from '../../domain/model.js';
 import { VersionPicker } from '../../shell/VersionPicker.js';
+import { setDisplayUnit, useDisplayUnit } from '../../shell/displayUnit.js';
 import { useEditor } from '../../domain/useEditor.js';
 import { openExport } from '../prototypes/export/state.js';
 import { openRollover } from '../prototypes/rollover/state.js';
@@ -100,8 +101,14 @@ export function SummarySubNav({ company, current }: { company: Company; current:
   );
 }
 
-/** Display currency and unit. A display concern only — never a recorded conversion. */
-export function CurrencyUnit({ unit = '($) Thousands' }: { unit?: string }) {
+/**
+ * Display currency and unit. A display concern only — never a recorded conversion.
+ * With `cycle`, a click steps Hundreds → Thousands → Millions → Hundreds and the
+ * tables that read `useDisplayUnit()` (the Financials grids) rescale.
+ */
+export function CurrencyUnit({ unit = '($) Thousands', cycle = false }: { unit?: string; cycle?: boolean }) {
+  const shown = useDisplayUnit();
+  if (cycle) return <CurrencySelector currency="USD" unit={shown} onUnitChange={setDisplayUnit} />;
   return <CurrencySelector currency="USD">{unit}</CurrencySelector>;
 }
 

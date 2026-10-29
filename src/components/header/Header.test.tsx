@@ -1,12 +1,13 @@
 import { createRef, useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { checkA11y } from '../../test/render.js';
 import {
   AITool, Badge, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ComboTag, CurrencySelector, FilterDropdown,
   InformationLabel, MainMenuItem, MenuPanel, Notification, PrimaryMenu, SearchBar, SecondaryMenu, SecondaryMenuItem,
   SectionSubMenu, Selector, SubmenuItem, TertiaryMenu, TertiaryMenuItem, ToolSwitch, ValuationInfo, MenuGroupLabel,
+  convertCurrencyDisplayUnit, formatCurrencyDisplayUnit, nextCurrencyDisplayUnit,
 } from './index.js';
 
 async function expectNoViolations(container: Element) {
@@ -273,5 +274,27 @@ describe('triggers', () => {
     await userEvent.click(picker);
     expect(onMarket).toHaveBeenCalled();
     await expectNoViolations(container);
+  });
+
+  it('CurrencySelector cycles Hundreds → Thousands → Millions → Hundreds', () => {
+    const seen: string[] = [];
+    render(<CurrencySelector currency="USD" defaultUnit="Hundreds" onUnitChange={(u) => seen.push(u)} data-testid="cyc" />);
+    const chip = screen.getByTestId('cyc');
+    expect(chip.hasAttribute('aria-haspopup')).toBe(false);
+    expect(chip.textContent).toContain('($) Hundreds');
+    expect(chip.textContent).toContain('switch to Thousands');
+    fireEvent.click(chip); fireEvent.click(chip); fireEvent.click(chip);
+    expect(seen).toEqual(['Thousands', 'Millions', 'Hundreds']);
+    expect(chip.getAttribute('data-unit')).toBe('Hundreds');
+    expect(screen.getByRole('status').textContent).toBe('Showing Hundreds');
+  });
+
+  it('formatCurrencyDisplayUnit rescales from the stored unit', () => {
+    expect(nextCurrencyDisplayUnit('Millions')).toBe('Hundreds');
+    expect(formatCurrencyDisplayUnit(22118, 'Thousands', 'Hundreds')).toBe('$221,180');
+    expect(formatCurrencyDisplayUnit(22118, 'Thousands', 'Thousands')).toBe('$22,118');
+    expect(formatCurrencyDisplayUnit(22118, 'Thousands', 'Millions')).toBe('$22.1');
+    expect(formatCurrencyDisplayUnit(-2503, 'Thousands', 'Millions')).toBe('($2.5)');
+    expect(convertCurrencyDisplayUnit(1, 'Millions', 'Thousands')).toBe(1000);
   });
 });

@@ -20,6 +20,8 @@ import {
   icons, zIndex, type RowLabelType, type ValueKind,
 } from '@scalar/design-system';
 import type { GridRowDef, GridValue } from './data.js';
+import { rescaleAmountText, useDisplayUnit } from '../../shell/displayUnit.js';
+import type { CurrencyDisplayUnit } from '@scalar/design-system';
 
 export interface GridColumn {
   key: string;
@@ -65,10 +67,11 @@ const TRACK: Record<Slot['kind'], string> = {
   col: 'minmax(max-content, 1fr)',
 };
 
-function cellValue(v: GridValue, emptyKind: ValueKind, key: string) {
+/** One value cell; dollar amounts follow the Currency Selector's display unit. */
+function cellValue(v: GridValue, emptyKind: ValueKind, key: string, unit: CurrencyDisplayUnit) {
   if (v === undefined) return <GridValueCell key={key} kind={emptyKind} />;
-  if (typeof v === 'string') return <GridValueCell key={key} kind={emptyKind === 'total' ? 'total' : 'calculated'}>{v}</GridValueCell>;
-  return <GridValueCell key={key} kind={v.kind} state={v.focused ? 'focused' : 'default'}>{v.v}</GridValueCell>;
+  if (typeof v === 'string') return <GridValueCell key={key} kind={emptyKind === 'total' ? 'total' : 'calculated'}>{rescaleAmountText(v, unit)}</GridValueCell>;
+  return <GridValueCell key={key} kind={v.kind} state={v.focused ? 'focused' : 'default'}>{v.v === undefined ? undefined : rescaleAmountText(v.v, unit)}</GridValueCell>;
 }
 
 export function FinancialGrid({ title, columns, rows, label, menu }: {
@@ -81,6 +84,7 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
   menu?: { columnKey: string; content: ReactNode };
 }) {
   const slots = slotsFor(columns);
+  const unit = useDisplayUnit();
   const wrap = useRef<HTMLDivElement>(null);
   const [anchor, setAnchor] = useState<{ left: number; top: number } | null>(null);
   const menuKey = menu?.columnKey;
@@ -125,7 +129,7 @@ export function FinancialGrid({ title, columns, rows, label, menu }: {
                   );
                 }
                 if (s.kind === 'rule') return <GridColumnDivider key={k} type="period" />;
-                return cellValue(r.values?.[s.i], emptyKind, k);
+                return cellValue(r.values?.[s.i], emptyKind, k, unit);
               })}
             </Row>
           );

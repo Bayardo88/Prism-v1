@@ -702,6 +702,13 @@ Rules:
   so a split action can always match the button beside it. `size="xs"` (24px)
   sits in the Tertiary Menu toolbar beside Save (Financials' "+ Add Projection
   Year ▾"). Choose style and tone by the same rules as `Button`.
+- `CurrencySelector unit / defaultUnit / onUnitChange` turns the chip into a
+  display-unit cycle: each click steps Hundreds → Thousands → Millions →
+  Hundreds. It opens no menu (no `aria-haspopup`). The tables under it rescale
+  their money figures with `formatCurrencyDisplayUnit(value, recordedUnit,
+  shownUnit)` (whole numbers in Hundreds/Thousands, one decimal in Millions);
+  percentages, counts and absence labels never change. It is a display rescale,
+  never a recorded conversion. Without those props it stays the picker trigger.
 - `NumberField label` renders a floating label on the top border, matching a
   filled `FloatingLabelInput` (44px box), for mixing number fields into page and
   modal forms.

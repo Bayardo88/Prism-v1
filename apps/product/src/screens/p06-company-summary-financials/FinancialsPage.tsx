@@ -72,7 +72,7 @@ export function FinancialsPage({
       subNavEnd={
         <>
           <ToolbarAi />
-          <CurrencyUnit />
+          <CurrencyUnit cycle />
           <ToolbarTableTools />
           <AddYearButton initialOpen={addYearMenuOpen} onProjection={onAddProjectionYear} onHistorical={onAddHistoricalYear} />
           <ToolbarSave />
