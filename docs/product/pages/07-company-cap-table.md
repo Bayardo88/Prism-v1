@@ -33,7 +33,7 @@ Behaviour & rules:
 - The Cap Table Version picker is a light-surface `Selector` that opens a `SelectMenu`, which lists one version: Primary Captable. The Draft status is display-only.
 
 ### Fund Ownership — `/companies/:companyId/cap-table/fund-ownership`
-Record each fund's position in each security: entity, fund, investment date, invested capital, shares, and the derived loan value, preferences, distributions and proceeds. There are two filter bands, fund (VIP Fund) and security (Series A · Holding Common · Common). **Add Fund Ownership** (the split button in the footer) appends a blank position.
+Record each fund's position in each security: entity, fund, investment date, invested capital, shares, and the derived loan value, preferences, distributions and proceeds. There are two filter bands, fund (VIP Fund) and security (Series A · Holding Common · Common). **Add Fund Ownership** (a `SplitButton`, `secondary` `xs`, in the Tertiary Menu between Filter and Save) appends a blank position.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
