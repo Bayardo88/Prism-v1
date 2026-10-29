@@ -5,6 +5,7 @@ import {
 } from './index.js';
 import { Icon } from '../icon/Icon.js';
 import { Calendar, List } from '../icon/glyphs.js';
+import { space } from '../../tokens/index.js';
 
 const meta = {
   title: 'Menus/Actions',
@@ -12,8 +13,9 @@ const meta = {
   tags: ['autodocs'],
   args: { children: 'Add projection year', menuLabel: 'More add options' },
   argTypes: {
-    variant: { control: 'inline-radio', options: ['primary', 'secondary'] },
-    tone: { control: 'inline-radio', options: ['main', 'positive'] },
+    variant: { control: 'inline-radio', options: ['primary', 'secondary', 'tertiary'] },
+    tone: { control: 'inline-radio', options: ['main', 'positive', 'warning', 'negative'] },
+    size: { control: 'inline-radio', options: ['xs', 's', 'm', 'l'] },
     menuPlacement: { control: 'inline-radio', options: ['bottom', 'top'] },
   },
   parameters: { layout: 'padded' },
@@ -34,6 +36,38 @@ const menu = (
 export const SplitPrimary: Story = { args: { menu } };
 export const SplitSecondary: Story = { args: { menu, variant: 'secondary' } };
 export const SplitPositiveSave: Story = { args: { menu, tone: 'positive', children: 'Save', menuLabel: 'More save options' } };
+/** 24px, the size of the Tertiary Menu's Save: "+ Add Projection Year ▾" in the Financials toolbar. */
+export const SplitExtraSmall: Story = { args: { menu, variant: 'secondary', size: 'xs' } };
+export const SplitTertiary: Story = { args: { menu, variant: 'tertiary' } };
+export const SplitWarning: Story = { args: { menu, tone: 'warning', children: 'Override lock', menuLabel: 'More override options' } };
+export const SplitNegative: Story = { args: { menu, tone: 'negative', children: 'Delete version', menuLabel: 'More delete options' } };
+export const SplitSmall: Story = { args: { menu, variant: 'secondary', size: 's' } };
+export const SplitLarge: Story = { args: { menu, size: 'l' } };
+
+const variants = ['primary', 'secondary', 'tertiary'] as const;
+const tones = ['main', 'positive', 'warning', 'negative'] as const;
+const sizes = ['xs', 's', 'm', 'l'] as const;
+
+/** The full matrix, the same as Button's: Style × Type at each size. */
+export const SplitAllVariants: Story = {
+  render: (args) => (
+    <div style={{ display: 'grid', gap: space.l }}>
+      {sizes.map((size) => (
+        <div key={size} style={{ display: 'grid', gap: space.s }}>
+          {variants.map((variant) => (
+            <div key={variant} style={{ display: 'flex', flexWrap: 'wrap', gap: space.s, alignItems: 'center' }}>
+              {tones.map((tone) => (
+                <SplitButton key={tone} {...args} variant={variant} tone={tone} size={size} menuLabel={`More ${tone} ${variant} ${size} options`}>
+                  {`${variant} · ${tone} · ${size}`}
+                </SplitButton>
+              ))}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  ),
+};
 export const SplitDisabled: Story = { args: { menu, disabled: true } };
 export const SplitOpen: Story = { args: { menu, defaultMenuOpen: true }, parameters: { layout: 'padded' }, decorators: [(S) => <div style={{ minHeight: 220 }}><S /></div>] };
 

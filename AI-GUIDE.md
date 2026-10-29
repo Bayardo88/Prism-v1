@@ -697,6 +697,11 @@ Rules:
   check as well as the tint. Long searchable lists use `ComboboxPanel`.
 - `SplitButton menuPlacement="top"` opens its menu upward — for a button at the
   foot of a page or above the Workspace Drawer.
+- `SplitButton` takes the same `variant` (primary · secondary · tertiary), `tone`
+  (main · positive · warning · negative) and `size` (xs · s · m · l) as `Button`,
+  so a split action can always match the button beside it. `size="xs"` (24px)
+  sits in the Tertiary Menu toolbar beside Save (Financials' "+ Add Projection
+  Year ▾"). Choose style and tone by the same rules as `Button`.
 - `NumberField label` renders a floating label on the top border, matching a
   filled `FloatingLabelInput` (44px box), for mixing number fields into page and
   modal forms.

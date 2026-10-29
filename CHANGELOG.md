@@ -1,6 +1,14 @@
 # Changelog
 
 ## Unreleased
+- **Add Projection Year moves to the Tertiary Menu.** On Financials (Income Statement, Balance Sheet, KPIs) the
+  "+ Add Projection Year ▾" split button now sits in the Tier 3 toolbar between the filter icon and Save, instead of
+  a footer bar; its menu (Add Historical Year) drops down, and it uses `SplitButton size="xs"` so it matches Save.
+- **SplitButton matches Button's variants.** `variant` adds `tertiary`, `tone` adds `warning` and `negative`, and
+  `size` takes `xs` · `s` · `m` · `l` (24 · 32 · 40 · 48px), with Button's hover, pressed and disabled treatment.
+  Its types are now `ButtonVariant` / `ButtonTone` / `ButtonSize`. The default (primary · main · m) is unchanged.
+  New stories *Menus › Actions › Split Tertiary / Warning / Negative / Small / Extra Small / Large / All Variants*.
+  The Figma Split Button set still has only its 16 variants (Primary/Secondary × Main/Positive).
 - **Portfolio grids scroll again.** `PortfolioGrid` looked for its scroller with `[role=grid]`, but `DataGrid` renders
   `role="table"`, so its sideways scroll silently did nothing: Daily NAV › Public comps opened at the far left, the
   Summaries "Scrolled" states and Firm Valuations' scroll-to-end didn't scroll, and the "+ N columns" rails

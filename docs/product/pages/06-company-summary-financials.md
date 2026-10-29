@@ -40,7 +40,7 @@ Behaviour & rules:
 - The brand period rule separates actuals from projections; each period's kind ("Projection", "LTM", "NTM", "As Of") is its `ColumnHeader label` tag, so there is no group row above the headers; the KPI column-actions arrow sits in the selected header's `actions`. LTM / NTM (or As Of) follow the last projection directly, with no gutter or blank track between them, and their header dates are editable (blue, with a calendar glyph). FY 2024 carries footnote [1].
 - The **Financials Version** selector opens a searchable panel ("Find a Version" → Primary Financial Statement, footer "+ Save as New Version").
 - The **⋮ company actions** menu has Edit Company (→ Company Overview), Excel Export, PDF Export and Edit Common Profile (→ Daily NAV Settings).
-- **Add Projection Year** appends the next FY column to both grids. Its caret opens "Add Historical Year".
+- **Add Projection Year** sits in the Tertiary Menu toolbar, between the filter icon and Save. It appends the next FY column to both grids; its caret opens "Add Historical Year" (the menu drops down).
 - **Notes** in the Workspace dock opens the (sticky) drawer through `dockPanels.notes`: a Note 1 tab, the Client / Internal audience switch, a rich-text toolbar and the note body. Sheets and Documents have no frame of their own and show the shell default.
 
 ### Balance Sheet — `/companies/:companyId/financials/balance-sheet`

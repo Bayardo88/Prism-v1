@@ -1,8 +1,8 @@
 /**
  * The frame every Financials sub-page shares: company header with Financials
  * Date / Version and the ⋮ actions, the Income Statement · Balance Sheet · KPIs
- * sub-nav with currency + Save, the "Add Projection Year" split button in the
- * footer and the Workspace dock (Notes opens the drawer).
+ * sub-nav with currency, the table tools, the "Add Projection Year" split button
+ * and Save, and the Workspace dock (Notes opens the drawer).
  */
 import { useState, type ReactNode } from 'react';
 import { Button, ContextMenu, Icon, MenuItem, SplitButton, icons } from '@scalar/design-system';
@@ -25,7 +25,7 @@ export interface FinancialsPageProps {
   children?: ReactNode;
 }
 
-/** "+ Add Projection Year ▾" → Add Historical Year. The menu opens upward, clear of the dock. */
+/** "+ Add Projection Year ▾" → Add Historical Year. Sits in the Tertiary Menu, so the menu opens downward. */
 function AddYearButton({ initialOpen, onProjection, onHistorical }: {
   initialOpen: boolean;
   onProjection?: () => void;
@@ -35,12 +35,12 @@ function AddYearButton({ initialOpen, onProjection, onHistorical }: {
   return (
     <SplitButton
       variant="secondary"
+      size="xs"
       leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
       onClick={onProjection}
       menuOpen={open}
       onMenuToggle={() => setOpen((o) => !o)}
       menuLabel="More ways to add a year"
-      menuPlacement="top"
       menu={
         <ContextMenu label="Add year">
           <MenuItem icon={<Icon tone="inherit"><icons.Add /></Icon>} onClick={() => { onHistorical?.(); setOpen(false); }}>
@@ -74,11 +74,9 @@ export function FinancialsPage({
           <ToolbarAi />
           <CurrencyUnit />
           <ToolbarTableTools />
+          <AddYearButton initialOpen={addYearMenuOpen} onProjection={onAddProjectionYear} onHistorical={onAddHistoricalYear} />
           <ToolbarSave />
         </>
-      }
-      footer={
-        <AddYearButton initialOpen={addYearMenuOpen} onProjection={onAddProjectionYear} onHistorical={onAddHistoricalYear} />
       }
       dockOpen={notesOpen ? 'notes' : undefined}
       dockPanels={{ notes: <NotesPanel /> }}

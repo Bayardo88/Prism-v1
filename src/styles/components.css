@@ -1849,12 +1849,17 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-user-menu__name { color: var(--color-text-primary); font-size: var(--font-size-label-m); line-height: var(--line-height-label-m); font-weight: var(--font-weight-semi-bold); }
 .scalar-user-menu__detail { color: var(--color-text-secondary); font-size: var(--font-size-text-s); line-height: var(--line-height-text-s); }
 
-/* Split Button — reuses the Button tone variables. */
+/* Split Button — the Button matrix (Style × Tone × Size) on two halves. Each tone
+ * publishes the same custom properties as Button; the style and size rules are
+ * written once against them. */
 .scalar-split-button {
   --sb-fill: var(--color-bg-brand);
   --sb-fill-hover: var(--color-bg-brand-hover);
+  --sb-fill-pressed: var(--color-bg-brand-pressed);
   --sb-on: var(--color-text-on-brand);
   --sb-ink: var(--color-text-brand);
+  --sb-ink-hover: var(--color-text-brand-hover);
+  --sb-ink-pressed: var(--color-text-brand-pressed);
   --sb-line: var(--color-stroke-brand);
   --sb-tint: var(--color-bg-brand-subtle);
   position: relative;
@@ -1868,36 +1873,94 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-split-button--positive {
   --sb-fill: var(--color-bg-positive);
   --sb-fill-hover: var(--color-bg-positive-hover);
+  --sb-fill-pressed: var(--color-bg-positive-pressed);
   --sb-on: var(--color-text-on-positive);
   --sb-ink: var(--color-text-positive);
+  --sb-ink-hover: var(--color-text-positive-hover);
+  --sb-ink-pressed: var(--color-text-positive-pressed);
   --sb-line: var(--color-stroke-positive);
   --sb-tint: var(--color-bg-positive-subtle);
+}
+/* Warning pairs Background/Warning with Text/On Warning (near-black), as Button does (R4). */
+.scalar-split-button--warning {
+  --sb-fill: var(--color-bg-warning);
+  --sb-fill-hover: var(--color-bg-warning-hover);
+  --sb-fill-pressed: var(--color-bg-warning-pressed);
+  --sb-on: var(--color-text-on-warning);
+  --sb-ink: var(--color-text-warning);
+  --sb-ink-hover: var(--color-text-warning-hover);
+  --sb-ink-pressed: var(--color-text-warning-pressed);
+  --sb-line: var(--color-stroke-warning);
+  --sb-tint: var(--color-bg-warning-subtle);
+}
+.scalar-split-button--negative {
+  --sb-fill: var(--color-bg-negative);
+  --sb-fill-hover: var(--color-bg-negative-hover);
+  --sb-fill-pressed: var(--color-bg-negative-pressed);
+  --sb-on: var(--color-text-on-negative);
+  --sb-ink: var(--color-text-negative);
+  --sb-ink-hover: var(--color-text-negative-hover);
+  --sb-ink-pressed: var(--color-text-negative-pressed);
+  --sb-line: var(--color-stroke-negative);
+  --sb-tint: var(--color-bg-negative-subtle);
 }
 .scalar-split-button__action,
 .scalar-split-button__menu {
   display: inline-flex;
   align-items: center;
   gap: var(--space-s);
-  min-height: var(--size-control-m);
   border: 1px solid transparent;
   font: inherit;
   cursor: pointer;
-  background: var(--sb-fill);
-  color: var(--sb-on);
+  transition: background-color var(--duration-fast) var(--easing-standard),
+              color var(--duration-fast) var(--easing-standard);
 }
-.scalar-split-button__action { padding: var(--space-s) var(--space-l); border-radius: var(--radius-s) 0 0 var(--radius-s); }
-.scalar-split-button__menu { padding: var(--space-s); border-radius: 0 var(--radius-s) var(--radius-s) 0; }
-.scalar-split-button__separator { width: 1px; background: var(--sb-on); opacity: 0.4; }
-.scalar-split-button__action:hover,
-.scalar-split-button__menu:hover,
-.scalar-split-button__menu[aria-expanded='true'] { background: var(--sb-fill-hover); }
-.scalar-split-button--secondary .scalar-split-button__action,
-.scalar-split-button--secondary .scalar-split-button__menu { background: var(--color-bg-surface); color: var(--sb-ink); border-color: var(--sb-line); }
+.scalar-split-button__action { border-radius: var(--radius-s) 0 0 var(--radius-s); }
+.scalar-split-button__menu { border-radius: 0 var(--radius-s) var(--radius-s) 0; }
+.scalar-split-button__separator { width: 1px; background: currentColor; opacity: 0.4; }
+
+/* Sizes — the Button heights: 24 · 32 · 40 · 48px. */
+.scalar-split-button--xs { font-size: var(--font-size-label-s); line-height: var(--line-height-label-s); }
+.scalar-split-button--xs .scalar-split-button__action,
+.scalar-split-button--xs .scalar-split-button__menu { height: var(--size-icon-l); gap: var(--space-xs); }
+.scalar-split-button--xs .scalar-split-button__action { padding-inline: var(--space-s) var(--space-xs); border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
+.scalar-split-button--xs .scalar-split-button__menu { padding-inline: var(--space-xs); border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+.scalar-split-button--s { font-size: var(--font-size-label-s); line-height: var(--line-height-label-s); }
+.scalar-split-button--s .scalar-split-button__action,
+.scalar-split-button--s .scalar-split-button__menu { height: var(--size-control-s); gap: var(--space-xs); }
+.scalar-split-button--s .scalar-split-button__action { padding-inline: var(--space-s); border-radius: var(--radius-xs) 0 0 var(--radius-xs); }
+.scalar-split-button--s .scalar-split-button__menu { padding-inline: var(--space-xs); border-radius: 0 var(--radius-xs) var(--radius-xs) 0; }
+.scalar-split-button--m .scalar-split-button__action,
+.scalar-split-button--m .scalar-split-button__menu { min-height: var(--size-control-m); padding-block: var(--space-s); }
+.scalar-split-button--m .scalar-split-button__action { padding-inline: var(--space-l); }
+.scalar-split-button--m .scalar-split-button__menu { padding-inline: var(--space-s); }
+.scalar-split-button--l { font-size: var(--font-size-label-l); line-height: var(--line-height-label-l); }
+.scalar-split-button--l .scalar-split-button__action,
+.scalar-split-button--l .scalar-split-button__menu { height: var(--size-control-l); }
+.scalar-split-button--l .scalar-split-button__action { padding-inline: var(--space-l); }
+.scalar-split-button--l .scalar-split-button__menu { padding-inline: var(--space-m); }
+
+/* Styles. */
+.scalar-split-button--primary :is(.scalar-split-button__action, .scalar-split-button__menu) { background: var(--sb-fill); color: var(--sb-on); }
+.scalar-split-button--primary .scalar-split-button__separator { background: var(--sb-on); }
+.scalar-split-button--primary :is(.scalar-split-button__action, .scalar-split-button__menu):hover:not(:disabled),
+.scalar-split-button--primary .scalar-split-button__menu[aria-expanded='true'] { background: var(--sb-fill-hover); }
+.scalar-split-button--primary :is(.scalar-split-button__action, .scalar-split-button__menu):active:not(:disabled) { background: var(--sb-fill-pressed); }
+
+.scalar-split-button--secondary :is(.scalar-split-button__action, .scalar-split-button__menu) { background: var(--color-bg-surface); color: var(--sb-ink); border-color: var(--sb-line); }
 .scalar-split-button--secondary .scalar-split-button__separator { display: none; }
-.scalar-split-button--secondary .scalar-split-button__action:hover,
-.scalar-split-button--secondary .scalar-split-button__menu:hover,
-.scalar-split-button--secondary .scalar-split-button__menu[aria-expanded='true'] { background: var(--sb-tint); }
-.scalar-split-button :disabled { background: var(--color-bg-disabled); color: var(--color-text-on-disabled); border-color: transparent; cursor: not-allowed; }
+
+.scalar-split-button--tertiary :is(.scalar-split-button__action, .scalar-split-button__menu) { background: transparent; color: var(--sb-ink); }
+.scalar-split-button--tertiary .scalar-split-button__separator { background: var(--sb-line); }
+
+:is(.scalar-split-button--secondary, .scalar-split-button--tertiary) :is(.scalar-split-button__action, .scalar-split-button__menu):hover:not(:disabled),
+:is(.scalar-split-button--secondary, .scalar-split-button--tertiary) .scalar-split-button__menu[aria-expanded='true'] { background: var(--sb-tint); color: var(--sb-ink-hover); }
+:is(.scalar-split-button--secondary, .scalar-split-button--tertiary) :is(.scalar-split-button__action, .scalar-split-button__menu):active:not(:disabled) { background: var(--sb-tint); color: var(--sb-ink-pressed); }
+
+/* Disabled matches Button: filled styles grey out, outline and text styles keep no fill. */
+.scalar-split-button :is(.scalar-split-button__action, .scalar-split-button__menu):disabled { background: var(--color-bg-disabled); color: var(--color-text-on-disabled); border-color: transparent; cursor: not-allowed; }
+:is(.scalar-split-button--secondary, .scalar-split-button--tertiary) :is(.scalar-split-button__action, .scalar-split-button__menu):disabled { background: transparent; color: var(--color-text-disabled); }
+.scalar-split-button--secondary :is(.scalar-split-button__action, .scalar-split-button__menu):disabled { border-color: var(--color-stroke-disabled); }
 .scalar-split-button :focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; z-index: 1; }
 .scalar-split-button__popover { position: absolute; top: 100%; right: 0; margin-top: var(--space-xs); z-index: var(--z-overlay); }
 .scalar-split-button__popover--top { top: auto; bottom: 100%; margin-top: 0; margin-bottom: var(--space-xs); }

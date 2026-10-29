@@ -11,21 +11,26 @@ import { Icon } from '../icon/Icon.js';
 import { ChevronDown, Close, MoreVertical, Plus } from '../icon/glyphs.js';
 import { CheckCircle as CheckCircleGlyph } from '../icon/material.js';
 import { ButtonIcon } from '../button/ButtonIcon.js';
+import type { ButtonSize, ButtonTone, ButtonVariant } from '../button/Button.js';
 import { MENU_ITEM_SELECTOR, normalizeTabStop, useMenuKeys, type MenuCloseReason } from './useMenuKeys.js';
 
 /* ---------------------------------------------------------------------------
  * Split Button
  * ------------------------------------------------------------------------ */
 
-export type SplitButtonVariant = 'primary' | 'secondary';
-export type SplitButtonTone = 'main' | 'positive';
+/** The same matrix as `Button`: Style (`variant`) × Type (`tone`) × `size`. */
+export type SplitButtonVariant = ButtonVariant;
+export type SplitButtonTone = ButtonTone;
+export type SplitButtonSize = ButtonSize;
 
 export interface SplitButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'onClick' | 'children'> {
   children: ReactNode;
   variant?: SplitButtonVariant;
-  /** `positive` is the green Save used on edit screens. */
+  /** As `Button`: `positive` is the green Save on edit screens, `negative` a destructive action, `warning` a caution. */
   tone?: SplitButtonTone;
   leadingIcon?: ReactNode;
+  /** The `Button` heights: `xs` 24 · `s` 32 · `m` 40 · `l` 48px. `xs` sits beside the Tertiary Menu's Save. Default `m`. */
+  size?: SplitButtonSize;
   /** The main action. */
   onClick?: () => void;
   /**
@@ -55,7 +60,8 @@ export interface SplitButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 
  * Preview, Finalize, Send). The two halves are separate hit targets.
  *
  * Figma: `Split Button` (Style × Tone × State, 16 variants). Hover and Open
- * map to CSS and `menuOpen`.
+ * map to CSS and `menuOpen`. Code carries the full `Button` matrix — tertiary,
+ * warning, negative and the four sizes have no Figma variant yet.
  *
  * Accessibility: opening moves focus to the first menu item; Esc, outside
  * click and Tab close it and focus returns to the caret. ArrowDown on the
@@ -63,7 +69,7 @@ export interface SplitButtonProps extends Omit<HTMLAttributes<HTMLSpanElement>, 
  */
 export const SplitButton = forwardRef<HTMLSpanElement, SplitButtonProps>(function SplitButton(
   {
-    children, variant = 'primary', tone = 'main', leadingIcon, onClick, onMenuToggle, onOpenChange, menuOpen, defaultMenuOpen = false,
+    children, variant = 'primary', tone = 'main', size = 'm', leadingIcon, onClick, onMenuToggle, onOpenChange, menuOpen, defaultMenuOpen = false,
     menuLabel, disabled, menu, menuPlacement = 'bottom', className, ...rest
   },
   ref,
@@ -101,7 +107,7 @@ export const SplitButton = forwardRef<HTMLSpanElement, SplitButtonProps>(functio
   };
 
   return (
-    <span ref={ref} className={cx('scalar-split-button', `scalar-split-button--${variant}`, `scalar-split-button--${tone}`, className)} {...rest}>
+    <span ref={ref} className={cx('scalar-split-button', `scalar-split-button--${variant}`, `scalar-split-button--${tone}`, `scalar-split-button--${size}`, className)} {...rest}>
       <button type="button" className="scalar-split-button__action" onClick={onClick} disabled={disabled}>
         {leadingIcon}
         {children}
@@ -119,7 +125,7 @@ export const SplitButton = forwardRef<HTMLSpanElement, SplitButtonProps>(functio
         aria-controls={shown ? popoverId : undefined}
         aria-label={menuLabel}
       >
-        <Icon size="s" tone="inherit" className={cx(open && 'scalar-rotate-180')}>
+        <Icon size={size === 'l' ? 'm' : 's'} tone="inherit" className={cx(open && 'scalar-rotate-180')}>
           <ChevronDown />
         </Icon>
       </button>
