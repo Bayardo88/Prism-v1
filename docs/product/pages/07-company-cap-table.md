@@ -49,7 +49,7 @@ Behaviour & rules:
 - The filter chips are display-only. The DS Chip is not a toggle.
 
 ### Breakpoint Analysis — `/companies/:companyId/cap-table/breakpoints`
-Shows the equity values at which each security starts to participate. By default they are calculated from the cap table. **Use custom breakpoints?** (a Switch) changes the per-security amounts into inputs. It also shows Save and **Add Breakpoint** (FAB).
+Shows the equity values at which each security starts to participate. By default they are calculated from the cap table. **Use custom breakpoints?** (a Switch) changes the per-security amounts into inputs. It also shows Save and **Add Breakpoint** (a `SplitButton`, `secondary` `xs`, in the Tertiary Menu between Filter and Save).
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
@@ -57,14 +57,14 @@ Shows the equity values at which each security starts to participate. By default
 | custom-3 | [Breakpoints — Custom (3)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-14358) | 19:14358 | `#/companies/abc-co/cap-table/breakpoints?state=custom-3` |
 | custom-4 | [Breakpoints — Custom (4 added)](https://www.figma.com/design/cZktZhD0ssL5lRVOvSqmOV/Scalar-full-product?node-id=19-17438) | 19:17438 | `#/companies/abc-co/cap-table/breakpoints?state=custom-4` |
 
-Components used: CapTableLayout, Switch, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell, Fab.
+Components used: CapTableLayout, Switch, SplitButton, ContextMenu, MenuItem, DataGrid, Row, ColumnHeader, RowLabelCell, GridValueCell.
 
 Behaviour & rules:
 - Calculated mode is read-only and computed from the cap table: preferences first, then the common catch-up to the highest issue price, then Pro Rata. For ABC Co that gives $0 → $1,112,233 → $90,001,121 → Infinity. There is one row per security. There is no Save in this mode.
 - Custom ranges are symbolic ($0 to $A, $A to $B, …, then "to Infinity"). Adding a breakpoint re-letters the chain, and the last one is always open-ended. The Common and Series A amounts are editable.
 
 ### Cash Flow Ledger — `/companies/:companyId/cap-table/cash-flow-ledger`
-Lists every transaction on the company's positions and rolls them up into a Cash Flow Summary per fund (total investments, proceeds, net cost basis, gross IRR). **Add Transaction** appends an editable row.
+Lists every transaction on the company's positions and rolls them up into a Cash Flow Summary per fund (total investments, proceeds, net cost basis, gross IRR). **Add Transaction** (a `SplitButton`, `secondary` `xs`, in the Tertiary Menu between Filter and Save) appends an editable row; its menu appends one of a chosen transaction type.
 
 | State | Figma frame | Node | Open with |
 |---|---|---|---|
