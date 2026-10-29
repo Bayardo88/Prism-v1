@@ -1,6 +1,13 @@
 # Changelog
 
 ## Unreleased
+- **Currency Selector picks a currency.** With `currencies` (e.g. the new `WORLD_CURRENCIES`, 30 major currencies),
+  the currency code is its own button that opens a searchable list under the chip; picking one reports it through
+  `onCurrencyChange` and the unit label takes its symbol (`currencySymbol`). Works alongside the unit cycle. Story
+  *Header › Controls › Currency Picker*. On Financials the grids re-express every dollar figure in the picked
+  currency at **illustrative** rates (`ILLUSTRATIVE_FX_PER_USD` in `domain/illustrative-calcs.ts`); the list footer
+  says they are illustrative, and no rate is shown beside the chip. FX stays an open question (P1): display
+  only, nothing is converted or recorded.
 - **Currency Selector cycles the display unit.** `CurrencySelector` takes `unit` / `defaultUnit` / `onUnitChange`
   (and `symbol`): each click steps Hundreds → Thousands → Millions → Hundreds, its name says which unit a click
   moves to, and the change is announced. New helpers `CURRENCY_DISPLAY_UNITS`, `nextCurrencyDisplayUnit`,

@@ -1,11 +1,14 @@
 import {
-  forwardRef, useId, useState,
-  type ButtonHTMLAttributes, type FormEvent, type HTMLAttributes, type InputHTMLAttributes, type ReactNode,
+  forwardRef, useId, useMemo, useRef, useState,
+  type ButtonHTMLAttributes, type FormEvent, type HTMLAttributes, type InputHTMLAttributes, type MouseEvent, type ReactNode,
 } from 'react';
 import { cx } from '../../utils/cx.js';
 import { useControllableState } from '../../utils/useControllableState.js';
 import { useRovingFocus } from '../../utils/useRovingFocus.js';
 import { VisuallyHidden } from '../../utils/VisuallyHidden.js';
+import { composeRefs } from '../../utils/refs.js';
+import { useOverlay } from '../../utils/useOverlay.js';
+import { ComboboxPanel } from '../form-patterns/Pickers.js';
 import { Icon } from '../icon/Icon.js';
 import { AiMark, Bell, Search as SearchGlyph } from '../icon/glyphs.js';
 import { ArrowDropDown, CalendarMonth, Store, ViewSidebar } from '../icon/material.js';
@@ -255,6 +258,34 @@ export function formatCurrencyDisplayUnit(value: number, from: CurrencyDisplayUn
   return value < 0 ? `(${text})` : text;
 }
 
+/** A currency the selector can list: ISO 4217 code and English name. */
+export interface CurrencyOption { code: string; name: string }
+
+/** Major world currencies, in the order the list shows them. */
+export const WORLD_CURRENCIES: readonly CurrencyOption[] = [
+  { code: 'USD', name: 'US Dollar' }, { code: 'EUR', name: 'Euro' }, { code: 'GBP', name: 'British Pound' },
+  { code: 'JPY', name: 'Japanese Yen' }, { code: 'CHF', name: 'Swiss Franc' }, { code: 'CAD', name: 'Canadian Dollar' },
+  { code: 'AUD', name: 'Australian Dollar' }, { code: 'NZD', name: 'New Zealand Dollar' }, { code: 'CNY', name: 'Chinese Yuan' },
+  { code: 'HKD', name: 'Hong Kong Dollar' }, { code: 'SGD', name: 'Singapore Dollar' }, { code: 'INR', name: 'Indian Rupee' },
+  { code: 'KRW', name: 'South Korean Won' }, { code: 'SEK', name: 'Swedish Krona' }, { code: 'NOK', name: 'Norwegian Krone' },
+  { code: 'DKK', name: 'Danish Krone' }, { code: 'PLN', name: 'Polish Złoty' }, { code: 'ILS', name: 'Israeli New Shekel' },
+  { code: 'AED', name: 'UAE Dirham' }, { code: 'SAR', name: 'Saudi Riyal' }, { code: 'ZAR', name: 'South African Rand' },
+  { code: 'BRL', name: 'Brazilian Real' }, { code: 'MXN', name: 'Mexican Peso' }, { code: 'CLP', name: 'Chilean Peso' },
+  { code: 'COP', name: 'Colombian Peso' }, { code: 'ARS', name: 'Argentine Peso' }, { code: 'TRY', name: 'Turkish Lira' },
+  { code: 'IDR', name: 'Indonesian Rupiah' }, { code: 'THB', name: 'Thai Baht' }, { code: 'NIO', name: 'Nicaraguan Córdoba' },
+];
+
+/** The currency's narrow symbol ("$", "€", "£", "¥"); the code itself when there is none. */
+export function currencySymbol(code: string): string {
+  try {
+    const part = new Intl.NumberFormat('en-US', { style: 'currency', currency: code, currencyDisplay: 'narrowSymbol' })
+      .formatToParts(0).find((p) => p.type === 'currency');
+    return part?.value ?? code;
+  } catch {
+    return code;
+  }
+}
+
 export interface CurrencySelectorProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** The display unit, e.g. "($) Thousands". With `unit` / `defaultUnit` it defaults to "(<symbol>) <unit>". */
   children?: ReactNode;
@@ -272,8 +303,20 @@ export interface CurrencySelectorProps extends ButtonHTMLAttributes<HTMLButtonEl
   defaultUnit?: CurrencyDisplayUnit;
   /** The unit after a click. The screen rescales its figures with `convertCurrencyDisplayUnit`. */
   onUnitChange?: (unit: CurrencyDisplayUnit) => void;
-  /** The currency symbol in the default unit label. Default `$`. */
+  /** The currency symbol in the default unit label. Default: the selected currency's symbol, else `$`. */
   symbol?: ReactNode;
+  /**
+   * Turns the currency part into its own button that opens a searchable list of
+   * these currencies (`WORLD_CURRENCIES` for the major world currencies). With it,
+   * `currency` is the selected ISO code, controlled.
+   */
+  currencies?: readonly CurrencyOption[];
+  /** Initial currency code when uncontrolled. Default `USD`. */
+  defaultCurrency?: string;
+  /** The picked code. The screen re-expresses its figures in it. */
+  onCurrencyChange?: (code: string) => void;
+  /** A line under the list, e.g. where the rates come from. */
+  currencyNote?: ReactNode;
 }
 
 /**
@@ -289,14 +332,97 @@ export interface CurrencySelectorProps extends ButtonHTMLAttributes<HTMLButtonEl
  *   display unit Hundreds → Thousands → Millions → Hundreds. It opens no menu, so
  *   it carries no `aria-haspopup`; the name says which unit a click moves to, and
  *   the change is announced politely.
+ * - **Currency list** (`currencies`): the currency part becomes its own button
+ *   (`aria-haspopup="listbox"`) that opens a searchable `ComboboxPanel` of
+ *   currencies under the chip; picking one reports it through `onCurrencyChange`
+ *   and the unit label takes its symbol. Combines with the unit cycle, which
+ *   stays on the unit part. The screen re-expresses its figures — the component
+ *   holds no exchange rates.
  */
 export const CurrencySelector = forwardRef<HTMLButtonElement, CurrencySelectorProps>(function CurrencySelector(
-  { children, currency, expanded, onClick, className, unit: unitProp, defaultUnit, onUnitChange, symbol = '$', ...rest },
+  {
+    children, currency, expanded, onClick, className, unit: unitProp, defaultUnit, onUnitChange, symbol: symbolProp,
+    currencies, defaultCurrency, onCurrencyChange, currencyNote, ...rest
+  },
   ref,
 ) {
   const cycles = unitProp !== undefined || defaultUnit !== undefined || onUnitChange !== undefined;
   const [unit, setUnit] = useControllableState<CurrencyDisplayUnit>(unitProp, defaultUnit ?? 'Thousands', onUnitChange);
+  const [code, setCode] = useControllableState<string>(
+    currencies && typeof currency === 'string' ? currency : undefined, defaultCurrency ?? 'USD', onCurrencyChange,
+  );
   const [announce, setAnnounce] = useState('');
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const trigger = useRef<HTMLButtonElement>(null);
+  const popover = useRef<HTMLSpanElement>(null);
+  const search = useRef<HTMLInputElement>(null);
+  useOverlay({ open, modal: false, containerRef: popover, triggerRef: trigger, initialFocus: search, onClose: () => setOpen(false) });
+  const items = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return (currencies ?? [])
+      .filter((c) => !q || c.code.toLowerCase().includes(q) || c.name.toLowerCase().includes(q))
+      .map((c) => ({ value: c.code, label: `${c.code} · ${c.name}`, detail: currencySymbol(c.code) }));
+  }, [currencies, query]);
+  const symbol = symbolProp ?? (currencies ? currencySymbol(code) : '$');
+  const step = (e: MouseEvent<HTMLButtonElement>) => {
+    onClick?.(e);
+    if (e.defaultPrevented) return;
+    const next = nextCurrencyDisplayUnit(unit);
+    setUnit(next);
+    setAnnounce(`Showing ${next}`);
+  };
+
+  if (currencies) {
+    const next = nextCurrencyDisplayUnit(unit);
+    return (
+      <>
+        <span
+          className={cx('scalar-currency-selector', 'scalar-currency-selector--split', cycles && 'scalar-currency-selector--cycle', className)}
+          data-unit={cycles ? unit : undefined}
+          data-currency={code}
+          {...(rest as HTMLAttributes<HTMLSpanElement>)}
+        >
+          <button
+            ref={composeRefs(ref, trigger)}
+            type="button"
+            className="scalar-currency-selector__currency"
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            onClick={() => { setQuery(''); setOpen((o) => !o); }}
+          >
+            {code}<VisuallyHidden>, change currency</VisuallyHidden>
+          </button>
+          {cycles ? (
+            <button type="button" className="scalar-currency-selector__unit" onClick={step}>
+              {children ?? <>({symbol}) {unit}</>}<VisuallyHidden>, switch to {next}</VisuallyHidden>
+            </button>
+          ) : (
+            <span className="scalar-currency-selector__unit">{children}</span>
+          )}
+          {open && (
+            <span ref={popover} className="scalar-currency-selector__popover">
+              <ComboboxPanel
+                ref={search}
+                label="Currencies"
+                searchLabel="Find a currency"
+                searchPlaceholder="Find a currency"
+                items={items}
+                value={code}
+                query={query}
+                onQueryChange={setQuery}
+                onSelect={(c) => { setCode(c); setOpen(false); setAnnounce(`Showing ${c}`); trigger.current?.focus(); }}
+                onEscape={() => setOpen(false)}
+                footer={currencyNote}
+              />
+            </span>
+          )}
+        </span>
+        <VisuallyHidden role="status">{announce}</VisuallyHidden>
+      </>
+    );
+  }
+
   if (cycles) {
     const next = nextCurrencyDisplayUnit(unit);
     return (
@@ -305,12 +431,7 @@ export const CurrencySelector = forwardRef<HTMLButtonElement, CurrencySelectorPr
           ref={ref}
           type="button"
           data-unit={unit}
-          onClick={(e) => {
-            onClick?.(e);
-            if (e.defaultPrevented) return;
-            setUnit(next);
-            setAnnounce(`Showing ${next}`);
-          }}
+          onClick={step}
           className={cx('scalar-currency-selector', 'scalar-currency-selector--cycle', className)}
           {...rest}
         >

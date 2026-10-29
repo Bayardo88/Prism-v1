@@ -1674,6 +1674,13 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
   color: var(--color-text-secondary);
   border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
 }
+.scalar-currency-selector--split { position: relative; cursor: default; }
+.scalar-currency-selector--split :is(.scalar-currency-selector__currency, .scalar-currency-selector__unit) { font: inherit; cursor: pointer; }
+.scalar-currency-selector--split button.scalar-currency-selector__unit { border: 0; }
+.scalar-currency-selector--split .scalar-currency-selector__currency:hover,
+.scalar-currency-selector--split .scalar-currency-selector__currency[aria-expanded='true'] { background: var(--color-bg-positive-subtle); }
+.scalar-currency-selector--split button:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; z-index: 1; }
+.scalar-currency-selector__popover { position: absolute; top: 100%; right: 0; margin-top: var(--space-xs); z-index: var(--z-overlay); }
 .scalar-currency-selector--cycle:hover .scalar-currency-selector__unit { color: var(--color-text-primary); }
 .scalar-currency-selector:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
 

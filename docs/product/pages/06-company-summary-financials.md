@@ -41,6 +41,7 @@ Behaviour & rules:
 - The **Financials Version** selector opens a searchable panel ("Find a Version" → Primary Financial Statement, footer "+ Save as New Version").
 - The **⋮ company actions** menu has Edit Company (→ Company Overview), Excel Export, PDF Export and Edit Common Profile (→ Daily NAV Settings).
 - **Currency Selector** (`USD ($) Thousands`) cycles the display unit on click: Hundreds → Thousands → Millions → Hundreds. Every dollar figure in the grids rescales (recorded in Thousands; `$22,118` → `$221,180` → `$22.1`), percentages and N/A don't change, and the unit is kept across Income Statement, Balance Sheet and KPIs. A display rescale only, never a recorded conversion.
+- Its **currency code** (`USD`) opens a searchable list of world currencies. Picking one re-expresses every dollar figure in that currency (`€20,349` for EUR in Thousands) and the unit label takes its symbol. No rate is shown beside the chip; the list footer says the rates are illustrative (`domain/illustrative-calcs.ts`) because the FX source is an open question (P1); kept across the Financials tabs.
 - **Add Projection Year** sits in the Tertiary Menu toolbar, between the filter icon and Save. It appends the next FY column to both grids; its caret opens "Add Historical Year" (the menu drops down).
 - **Notes** in the Workspace dock opens the (sticky) drawer through `dockPanels.notes`: a Note 1 tab, the Client / Internal audience switch, a rich-text toolbar and the note body. Sheets and Documents have no frame of their own and show the shell default.
 

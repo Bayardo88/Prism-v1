@@ -13,12 +13,12 @@ export type {
 export {
   Badge, badgeCount,
   CompanyDropdown, FilterDropdown, SearchBar, Notification,
-  ComboTag, CurrencySelector, CURRENCY_DISPLAY_UNITS, nextCurrencyDisplayUnit, convertCurrencyDisplayUnit, formatCurrencyDisplayUnit, Selector, InformationLabel,
+  ComboTag, CurrencySelector, CURRENCY_DISPLAY_UNITS, nextCurrencyDisplayUnit, convertCurrencyDisplayUnit, formatCurrencyDisplayUnit, WORLD_CURRENCIES, currencySymbol, Selector, InformationLabel,
   ToolSwitch, AITool,
 } from './Controls.js';
 export type {
   BadgeProps, CompanyDropdownProps, FilterDropdownProps, SearchBarProps,
-  NotificationProps, ComboTagProps, CurrencySelectorProps, CurrencyDisplayUnit, SelectorProps,
+  NotificationProps, ComboTagProps, CurrencySelectorProps, CurrencyDisplayUnit, CurrencyOption, SelectorProps,
   InformationLabelProps, InformationLabelTone, SelectorSurface, SelectorIcon,
   ToolSwitchProps, ToolSwitchValue, AIToolProps, AIToolState,
 } from './Controls.js';

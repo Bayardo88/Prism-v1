@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
   Badge, badgeCount, CompanyDropdown, FilterDropdown, SearchBar, Notification, ComboTag, CurrencySelector,
-  Selector, InformationLabel, ToolSwitch, AITool, formatCurrencyDisplayUnit,
+  Selector, InformationLabel, ToolSwitch, AITool, formatCurrencyDisplayUnit, currencySymbol, WORLD_CURRENCIES,
 } from './index.js';
 import type { CurrencyDisplayUnit, ToolSwitchValue } from './index.js';
 import { DataGrid } from '../table/DataGrid.js';
@@ -106,6 +106,43 @@ export const CurrencyUnitCycle: Story = {
         <DataGrid label={`Income statement, in ${unit}`} head={<><ColumnHeader grow={2}>Income Statement</ColumnHeader><ColumnHeader numeric>FY 2024</ColumnHeader></>}>
           {statement.map((r, i) => (
             <Row key={r.label} zebra={i % 2 === 1}><RowHeader>{r.label}</RowHeader><Cell numeric type="data">{formatCurrencyDisplayUnit(r.fy, 'Thousands', unit)}</Cell></Row>
+          ))}
+        </DataGrid>
+      </>
+    );
+  },
+};
+
+/** Story-only illustrative rates (units per 1 USD). Screens take theirs from the product's illustrative calcs. */
+const storyRates: Record<string, number> = { USD: 1, EUR: 0.92, GBP: 0.79, JPY: 150, CHF: 0.88, CAD: 1.37, MXN: 18.5, BRL: 5.6, NIO: 36.6 };
+
+/**
+ * Currency list + unit cycle: the currency code opens a searchable list of world
+ * currencies (`currencies={WORLD_CURRENCIES}`); the unit part keeps cycling. The
+ * table re-expresses its USD-Thousands figures in the picked currency and unit.
+ * Rates are illustrative (the list footer says so) — a display change, never a recorded conversion.
+ */
+export const CurrencyPicker: Story = {
+  decorators: [(S) => <div style={{ display: 'grid', gap: 'var(--space-m)', width: 480, minHeight: 420, alignContent: 'start' }}><S /></div>],
+  render: function Render() {
+    const [unit, setUnit] = useState<CurrencyDisplayUnit>('Thousands');
+    const [code, setCode] = useState('USD');
+    const rate = storyRates[code] ?? 1;
+    return (
+      <>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 'var(--space-s)' }}>
+          <CurrencySelector
+            currencies={WORLD_CURRENCIES}
+            currency={code}
+            onCurrencyChange={setCode}
+            unit={unit}
+            onUnitChange={setUnit}
+            currencyNote="Illustrative rates, not market data. Display only."
+          />
+        </div>
+        <DataGrid label={`Income statement, ${code} ${unit}`} head={<><ColumnHeader grow={2}>Income Statement</ColumnHeader><ColumnHeader numeric>FY 2024</ColumnHeader></>}>
+          {statement.map((r, i) => (
+            <Row key={r.label} zebra={i % 2 === 1}><RowHeader>{r.label}</RowHeader><Cell numeric type="data">{formatCurrencyDisplayUnit(r.fy * rate, 'Thousands', unit, currencySymbol(code))}</Cell></Row>
           ))}
         </DataGrid>
       </>

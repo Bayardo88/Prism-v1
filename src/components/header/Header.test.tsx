@@ -7,7 +7,7 @@ import {
   AITool, Badge, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ComboTag, CurrencySelector, FilterDropdown,
   InformationLabel, MainMenuItem, MenuPanel, Notification, PrimaryMenu, SearchBar, SecondaryMenu, SecondaryMenuItem,
   SectionSubMenu, Selector, SubmenuItem, TertiaryMenu, TertiaryMenuItem, ToolSwitch, ValuationInfo, MenuGroupLabel,
-  convertCurrencyDisplayUnit, formatCurrencyDisplayUnit, nextCurrencyDisplayUnit,
+  convertCurrencyDisplayUnit, formatCurrencyDisplayUnit, nextCurrencyDisplayUnit, currencySymbol, WORLD_CURRENCIES,
 } from './index.js';
 
 async function expectNoViolations(container: Element) {
@@ -296,5 +296,28 @@ describe('triggers', () => {
     expect(formatCurrencyDisplayUnit(22118, 'Thousands', 'Millions')).toBe('$22.1');
     expect(formatCurrencyDisplayUnit(-2503, 'Thousands', 'Millions')).toBe('($2.5)');
     expect(convertCurrencyDisplayUnit(1, 'Millions', 'Thousands')).toBe(1000);
+  });
+
+  it('CurrencySelector with currencies opens a searchable list and reports the pick', async () => {
+    const picked: string[] = [];
+    render(<CurrencySelector currencies={WORLD_CURRENCIES} defaultCurrency="USD" defaultUnit="Thousands" onCurrencyChange={(c) => picked.push(c)} />);
+    const code = screen.getByRole('button', { name: /USD, change currency/ });
+    expect(code.getAttribute('aria-haspopup')).toBe('listbox');
+    expect(code.getAttribute('aria-expanded')).toBe('false');
+    await userEvent.click(code);
+    expect(code.getAttribute('aria-expanded')).toBe('true');
+    await userEvent.type(screen.getByRole('combobox', { name: 'Find a currency' }), 'pound');
+    expect(screen.getAllByRole('option').map((o) => o.textContent)).toEqual(['GBP · British Pound£']);
+    await userEvent.click(screen.getByRole('option'));
+    expect(picked).toEqual(['GBP']);
+    expect(screen.queryByRole('listbox')).toBeNull();
+    expect(screen.getByRole('button', { name: /GBP, change currency/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /\(£\) Thousands, switch to Millions/ })).toBeTruthy();
+  });
+
+  it('currencySymbol gives the narrow symbol', () => {
+    expect(currencySymbol('EUR')).toBe('€');
+    expect(currencySymbol('JPY')).toBe('¥');
+    expect(formatCurrencyDisplayUnit(20349, 'Thousands', 'Millions', currencySymbol('EUR'))).toBe('€20.3');
   });
 });

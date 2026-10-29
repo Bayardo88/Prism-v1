@@ -709,6 +709,14 @@ Rules:
   shownUnit)` (whole numbers in Hundreds/Thousands, one decimal in Millions);
   percentages, counts and absence labels never change. It is a display rescale,
   never a recorded conversion. Without those props it stays the picker trigger.
+- `CurrencySelector currencies={WORLD_CURRENCIES} currency onCurrencyChange`
+  makes the currency code its own button that opens a searchable list of world
+  currencies (`ComboboxPanel`, `aria-haspopup="listbox"`); the unit label takes
+  the picked currency's symbol (`currencySymbol`). The component holds no rates:
+  the screen re-expresses its figures. FX is an open question (domain-logic §12,
+  P1), so product rates are illustrative, live in `domain/illustrative-calcs.ts`
+  (`ILLUSTRATIVE_FX_PER_USD`) and are labelled in the list footer (`currencyNote`,
+  P10). Don't show the rate beside the chip.
 - `NumberField label` renders a floating label on the top border, matching a
   filled `FloatingLabelInput` (44px box), for mixing number fields into page and
   modal forms.
