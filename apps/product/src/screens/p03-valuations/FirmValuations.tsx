@@ -4,7 +4,7 @@
  * — for all 200 companies in the database in one grid (no pagination), with saved views
  * and an Add Columns picker at the end of the grid.
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   Banner, Button, Checkbox, Modal, ModalSearch, Overline, TaskPill, Text, icons, space,
 } from '@scalar/design-system';
@@ -27,7 +27,7 @@ const ORDER = inFrameOrder(VALUATIONS_FRAME);
 const AVAILABLE = 140;
 
 /** Open process-management tasks: document requests and questions, each a jump into the company. */
-function Tasks({ company }: { company: Company }) {
+export function Tasks({ company }: { company: Company }) {
   const t = tasksOf(company);
   if (!t) return <Text step="s" tone="tertiary">No tasks required</Text>;
   return (
@@ -93,7 +93,17 @@ function AddColumnsModal({ open, onClose }: { open: boolean; onClose: () => void
   );
 }
 
-export function FirmValuations({ state }: ScreenProps) {
+/** What a prototype can layer onto the real grid (the Firm Valuations preview drawer). */
+export interface FirmValuationsExtras {
+  /** Opens a company in place instead of following its row link. */
+  onOpenRow?: (company: Company) => void;
+  /** The company being previewed; its row header shows as selected. */
+  openRowId?: string;
+  /** Rendered in the frame's overlay layer (a Drawer). */
+  drawer?: ReactNode;
+}
+
+export function FirmValuations({ state, onOpenRow, openRowId, drawer }: ScreenProps & FirmValuationsExtras) {
   // Money follows the Currency Selector.
   const money = useMoney();
   const atEnd = state !== 'default';
@@ -109,12 +119,14 @@ export function FirmValuations({ state }: ScreenProps) {
     label: c.name,
     href: companyHref(c, routes.company.valuationSummary),
     sortText: c.name,
+    onOpen: onOpenRow ? () => onOpenRow(c) : undefined,
+    selected: c.id === openRowId,
     values: {
       ...valuationValues(c),
       process: <Tasks company={c} />,
       status: <StatusCell company={c} />,
     },
-  })), []);
+  })), [onOpenRow, openRowId]);
 
   return (
     <AppFrame
@@ -123,6 +135,7 @@ export function FirmValuations({ state }: ScreenProps) {
         <>
           <AddColumnsModal open={adding} onClose={() => setAdding(false)} />
           <BulkMarketDateModal open={bulk} onClose={() => setBulk(false)} onDone={setBulkDone} />
+          {drawer}
         </>
       }
     >
