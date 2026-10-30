@@ -478,7 +478,9 @@ select.scalar-field__control { appearance: none; -webkit-appearance: none; curso
   border-color: var(--color-bg-brand);
 }
 .scalar-choice-input:checked + .scalar-radio-box { border-color: var(--color-bg-brand); border-width: 2px; }
-.scalar-radio-box__dot { width: 50%; height: 50%; border-radius: var(--radius-full); background: var(--color-bg-brand); }
+.scalar-radio-box__dot { width: 50%; height: 50%; border-radius: var(--radius-full); background: var(--color-bg-brand); visibility: hidden; }
+/* The dot marks the selected option only; an unchecked radio is an empty ring. */
+.scalar-choice-input:checked + .scalar-radio-box .scalar-radio-box__dot { visibility: visible; }
 .scalar-choice-input[data-tone='negative'] + .scalar-choice { border-color: var(--color-stroke-negative); }
 .scalar-choice-input:disabled + .scalar-choice {
   background: var(--color-bg-disabled);
