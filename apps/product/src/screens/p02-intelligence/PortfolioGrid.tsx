@@ -42,6 +42,13 @@ export interface GridRow {
   values: Record<string, ReactNode | undefined>;
   /** Draws the trailing + on the row header (Daily NAV companies with a valuation). */
   expandable?: boolean;
+  /**
+   * Opens the row in place (a preview drawer) instead of following `href`.
+   * Ctrl/Cmd/Shift-click and middle-click still follow the link.
+   */
+  onOpen?: () => void;
+  /** Marks the row header as the one being previewed. */
+  selected?: boolean;
 }
 
 export interface PortfolioGridProps {
@@ -226,7 +233,19 @@ export function PortfolioGrid({
       >
         {sorted.map((r, i) => (
           <Row key={r.id} zebra={i % 2 === 1}>
-            <RowHeader href={r.href} icon={r.expandable ? <icons.Add /> : undefined} style={pinRow(i)}>{r.label}</RowHeader>
+            <RowHeader
+              href={r.href}
+              selected={r.selected}
+              icon={r.expandable ? <icons.Add /> : undefined}
+              style={pinRow(i)}
+              onClick={r.onOpen ? (e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+                e.preventDefault();
+                r.onOpen!();
+              } : undefined}
+            >
+              {r.label}
+            </RowHeader>
             {columns.map((c) => valueCell(r, c))}
             {onAddColumn && <GridValueCell>{''}</GridValueCell>}
           </Row>
