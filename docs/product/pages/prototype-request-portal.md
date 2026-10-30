@@ -29,7 +29,7 @@ From the request email (no Scalar login). In the product: **Company › Document
 
 ## Components
 
-`PageTemplate` (navigation · companyInfo · subNavigation) · `PrimaryMenu` + `MainMenuItem` (Login) · `CompanyInfo` + `SecondaryMenu` · `TertiaryMenu` · `ProgressRing` · `FilterDropdown` + `SelectMenu` · `Checkbox` · `Button` + `ContextMenu` (bulk) · `SubmenuItem` (categories) · `Select` (mobile categories) · `Chip` (status, word + icon) · `FormField` / `Textarea` / `Input` / `RadioGroup` · `Dropzone` · `FileRow` · `Alert` · `Banner` · `EmptyState` · `Modal` · `Toast`.
+`PageTemplate` (navigation · companyInfo · subNavigation) · `PrimaryMenu` + `MainMenuItem` (Login) · `CompanyInfo` + `SecondaryMenu` · `TertiaryMenu` · `ProgressBar` + `InformationLabel` · `FilterDropdown` + `SelectMenu` · `Checkbox` · `Button` + `ContextMenu` (bulk) · `SubmenuItem` (categories) · `Select` (mobile categories) · `Chip` (status, word + icon) · `FormField` / `Textarea` / `Input` / `RadioGroup` · `Dropzone` · `FileRow` · `Alert` · `Banner` · `EmptyState` · `Modal` · `Toast`.
 
 ## Prototype-only
 
@@ -37,6 +37,6 @@ Answers live in localStorage and file bytes in IndexedDB, in this browser only. 
 
 ## Gaps
 
-- **ProgressRing has no compact size.** The Secondary Menu bar is 32px; the ring is 48px. Shown at `size.control.s`, its 12px centre label sits on the stroke ("26%") and cannot fit "100%", so at 100% a positive check replaces it. Proposed rung-7: `ProgressRing size="s"` (32px) with the value rendered beside the ring.
+- **Progress is a `ProgressBar`, not a ring.** `ProgressRing` is 48px and the Secondary Menu bar is 32px; at 32px its 12px label collided with the stroke. The bar (`7/27 ▬▬ 26%` plus an `InformationLabel` "Remaining 20 requests": brand while work is left, positive when all resolved) fits the tier with room to spare and is the AI-GUIDE §5 choice for progress with a known total.
 - **Clickable `Chip` is a toggle** (`aria-pressed`), so the deadline is a tertiary `Button`, not a chip.
 - **Templates are CSV.** Real `.xlsx` assets need a content sign-off on columns (G3.3) before they replace these.

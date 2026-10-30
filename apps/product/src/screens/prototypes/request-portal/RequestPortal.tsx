@@ -15,8 +15,8 @@
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, Checkbox, CompanyInfo, ContextMenu, EmptyState, FilterDropdown, FormField, Icon, MainMenuItem,
-  MenuDivider, MenuItem, Overline, PageTemplate, PrimaryMenu, ProgressRing, ScalarProvider, SecondaryMenu,
+  Banner, Button, Checkbox, CompanyInfo, ContextMenu, EmptyState, FilterDropdown, FormField, Icon, InformationLabel, MainMenuItem,
+  MenuDivider, MenuItem, Overline, PageTemplate, PrimaryMenu, ProgressBar, ScalarProvider, SecondaryMenu,
   SecondaryMenuItem, Select, SelectMenu, SelectMenuOption, SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport,
   breakpoint, color, elevation, icons, radius, size, space, zIndex,
 } from '@scalar/design-system';
@@ -142,24 +142,28 @@ export function RequestPortal({ state }: ScreenProps) {
     />
   );
 
+  // A thin determinate bar (AI-GUIDE §5: progress with a known total) fits the 32px tier; the ring did not.
+  const pct = total > 0 ? Math.round((resolvedCount / total) * 100) : 0;
   const progress = (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s, flex: 'none' }}>
-      {/* The DS ring is 48px; the Secondary Menu bar is 32px. Shown at size.control.s, its 12px label fits up to "99%".
-          At 100% a check replaces it (gap: ProgressRing has no compact size — see the page doc). */}
-      {total > 0 && remaining === 0 ? (
-        <Icon size="xl" tone="positive" label="All information requests resolved"><icons.CheckCircle /></Icon>
-      ) : (
-        <ProgressRing
-          value={resolvedCount}
-          max={total}
-          display="percent"
-          label="Information requests resolved"
-          style={{ width: size.control.s, height: size.control.s }}
-        />
-      )}
-      <Text as="span" step="s" tone="secondary" aria-live="polite" style={{ whiteSpace: 'nowrap' }}>
-        {total === 0 ? 'No requests' : remaining === 0 ? 'All resolved' : `${remaining} remaining`}
+      <Text as="span" step="s" weight="semiBold" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+        {resolvedCount}/{total}
       </Text>
+      <ProgressBar
+        value={pct}
+        label={`${resolvedCount} of ${total} information requests resolved`}
+        style={{ width: mobile ? size.control.l : `calc(${size.control.l} * 3)` }}
+      />
+      {!mobile && total > 0 && (
+        <Text as="span" step="s" tone="secondary" style={{ fontVariantNumeric: 'tabular-nums' }}>{pct}%</Text>
+      )}
+      {/* The header's label/value pair (CompanyInfo stories). Brand while work is left; positive only when done. */}
+      <InformationLabel
+        aria-live="polite"
+        label={mobile ? 'Left' : 'Remaining'}
+        value={total === 0 ? 'No requests' : remaining === 0 ? 'All resolved' : mobile ? String(remaining) : `${remaining} request${remaining === 1 ? '' : 's'}`}
+        tone={total > 0 && remaining === 0 ? 'positive' : 'brand'}
+      />
     </span>
   );
 
