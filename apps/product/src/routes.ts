@@ -43,6 +43,7 @@ export const routes = {
     approach: (key: 'external-valuation' | 'specified-share-value' | 'public-comps' | 'transaction-comps') =>
       (companyId: string) => `/prototypes/approach/${companyId}/${key}`,
     respondentPortal: (requestId: string) => `/prototypes/respondent-portal/${requestId}`,
+    requestPortal: (requestId: string) => `/prototypes/request-portal/${requestId}`,
     reportComposer: (companyId: string) => `/prototypes/report-composer/${companyId}`,
   },
   account: {

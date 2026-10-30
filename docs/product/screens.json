@@ -1322,5 +1322,57 @@
         "figmaUrl": null
       }
     ]
+  },
+  {
+    "id": "prototype.request-portal",
+    "title": "Unified Request Portal (prototype)",
+    "figmaPage": "Prototype · request-portal",
+    "route": "/prototypes/request-portal/:requestId",
+    "summary": "An external contact works through one numbered list of information requests — answers, dates, Yes/No, documents and completed templates — and sees truthfully what is resolved.",
+    "component": "RequestPortal",
+    "states": [
+      {
+        "key": "default",
+        "label": "Request Portal — mixed request types",
+        "figmaNode": "proto:request-portal:1",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "questions-only",
+        "label": "Request Portal — questions only",
+        "figmaNode": "proto:request-portal:2",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "documents-only",
+        "label": "Request Portal — documents only",
+        "figmaNode": "proto:request-portal:3",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "templates-only",
+        "label": "Request Portal — templates only",
+        "figmaNode": "proto:request-portal:4",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "all-complete",
+        "label": "Request Portal — every request resolved",
+        "figmaNode": "proto:request-portal:5",
+        "section": "Prototype",
+        "figmaUrl": null
+      },
+      {
+        "key": "empty",
+        "label": "Request Portal — no requests",
+        "figmaNode": "proto:request-portal:6",
+        "section": "Prototype",
+        "figmaUrl": null
+      }
+    ]
   }
 ]

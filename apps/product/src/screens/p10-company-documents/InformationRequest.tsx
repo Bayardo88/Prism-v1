@@ -67,6 +67,9 @@ export function InformationRequest({ state, params }: ScreenProps) {
               <Button variant="tertiary" asChild>
                 <a href={href(routes.prototypes.respondentPortal(`${company.id}-request`))}>Preview respondent page</a>
               </Button>
+              <Button variant="tertiary" asChild>
+                <a href={href(routes.prototypes.requestPortal(`${company.id}-request`))}>Preview unified portal</a>
+              </Button>
               <Button variant="primary" disabled={!canSend} trailingIcon={<Icon size="s" tone="inherit"><icons.Send /></Icon>} onClick={back}>
                 Send
               </Button>
