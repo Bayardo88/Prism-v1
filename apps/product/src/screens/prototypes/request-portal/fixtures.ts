@@ -12,9 +12,17 @@ export const REQUEST_META = {
   company: 'ABC Co',
   analyst: 'Steven Hansen',
   respondent: 'Maria López',
-  /** Server-provided due date (ISO). The extension flow changes it through the store, never Date.now(). */
-  dueDate: '2026-11-13',
 };
+
+/**
+ * The request's due date as the server would send it. The prototype seeds it a
+ * week out the first time a fixture loads and then keeps the stored value, so
+ * a responder sees "7 days remaining" on first open.
+ */
+export function seedDueDate(today = new Date()): string {
+  const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
 
 export const CATEGORIES: Category[] = [
   { id: 'corporate', order: 1, name: 'Corporate & Legal' },
@@ -50,6 +58,17 @@ const SEEDS: Seed[] = [
   { id: 'r-101', categoryId: 'corporate', requestOrder: 1, title: 'Restated Certificate of Incorporation', description: 'The current certificate with all amendments, as filed.', responseType: 'file', ...doc },
   { id: 'r-102', categoryId: 'corporate', requestOrder: 2, title: 'Has the company changed its legal name or domicile since the last valuation?', responseType: 'choice' },
   { id: 'r-103', categoryId: 'corporate', requestOrder: 3, title: 'Board composition as of the report date', description: 'Use the template so seats and observers are listed the same way each period.', responseType: 'template_file', template: TEMPLATES.missing, ...sheet },
+  {
+    id: 'r-104', categoryId: 'corporate', requestOrder: 4, title: 'Which accounting standard does the company report under?',
+    responseType: 'multiple_choice',
+    choice: { mode: 'single', options: [
+      { id: 'us-gaap', label: 'US GAAP' }, { id: 'ifrs', label: 'IFRS' }, { id: 'other', label: 'Other', other: true },
+    ] },
+  },
+  {
+    id: 'r-104f', parentId: 'r-104', showWhen: ['ifrs'], categoryId: 'corporate', requestOrder: 4,
+    title: 'When did the company adopt IFRS?', responseType: 'date',
+  },
   { id: 'r-201', categoryId: 'capitalization', requestOrder: 1, title: 'Fully diluted cap table as of 06/30/2026', description: 'Include every class, option pool and convertible instrument.', responseType: 'file', ...doc },
   { id: 'r-202', categoryId: 'capitalization', requestOrder: 2, title: 'Options and warrants schedule', description: 'Complete the template with one row per grant.', responseType: 'template_file', template: TEMPLATES.options, ...sheet },
   { id: 'r-203', categoryId: 'capitalization', requestOrder: 3, title: 'Have there been any secondary or other equity transactions recently?', description: 'Describe the date, price per share, class and parties.', responseType: 'text' },
@@ -72,6 +91,21 @@ const SEEDS: Seed[] = [
   { id: 'r-801', categoryId: 'transactions', requestOrder: 1, title: 'Has the company received any acquisition offers?', description: 'Include indications of interest and term sheets, even if declined.', responseType: 'text' },
   { id: 'r-802', categoryId: 'transactions', requestOrder: 2, title: 'Term sheet for the most recent offer', responseType: 'file', ...doc, status: 'na' },
   { id: 'r-803', categoryId: 'transactions', requestOrder: 3, title: 'When is the projected exit for the company?', responseType: 'date' },
+  {
+    id: 'r-804', categoryId: 'transactions', requestOrder: 4, title: 'Which of these events occurred since the last valuation?',
+    description: 'Select all that apply.', responseType: 'multiple_choice',
+    choice: { mode: 'multiple', options: [
+      { id: 'acquisition', label: 'Acquisition of another company' },
+      { id: 'financing', label: 'New financing round' },
+      { id: 'executive', label: 'Departure of a key executive' },
+      { id: 'restructuring', label: 'Restructuring or layoffs' },
+      { id: 'other', label: 'Other', other: true },
+    ] },
+  },
+  {
+    id: 'r-804f', parentId: 'r-804', showWhen: ['acquisition'], categoryId: 'transactions', requestOrder: 4,
+    title: 'Upload the acquisition agreement', description: 'The signed purchase agreement, with schedules.', responseType: 'file', ...doc,
+  },
   { id: 'r-901', categoryId: 'other', requestOrder: 1, title: 'Has anything else occurred that could materially impact the valuation?', responseType: 'text' },
   { id: 'r-902', categoryId: 'other', requestOrder: 2, title: 'Presentation of the business strategy', responseType: 'file', ...doc },
 ];
@@ -81,18 +115,38 @@ const orderOf = (categoryId: string) => CATEGORIES.find((c) => c.id === category
 const build = (seeds: Seed[]): InformationRequest[] =>
   seeds.map((s) => ({ ...s, categoryOrder: orderOf(s.categoryId), status: s.status ?? 'pending' }));
 
+/** Keep the requests that pass, with the follow-ups of every parent that passes. */
+const pick = (test: (s: Seed) => boolean) => {
+  const parents = SEEDS.filter((s) => !s.parentId && test(s));
+  const ids = new Set(parents.map((s) => s.id));
+  return build(SEEDS.filter((s) => ids.has(s.id) || (s.parentId !== undefined && ids.has(s.parentId))));
+};
+
 /** The fixture sets each screen state loads (P2.2). Same list component for all of them. */
 export const FIXTURES: Record<string, () => InformationRequest[]> = {
   default: () => build(SEEDS),
-  'questions-only': () => build(SEEDS.filter((s) => s.responseType === 'text' || s.responseType === 'choice' || s.responseType === 'date')),
-  'documents-only': () => build(SEEDS.filter((s) => s.responseType === 'file')),
-  'templates-only': () => build(SEEDS.filter((s) => s.responseType === 'template_file')),
+  'questions-only': () => pick((s) => ['text', 'choice', 'multiple_choice', 'date'].includes(s.responseType)),
+  'documents-only': () => pick((s) => s.responseType === 'file'),
+  'templates-only': () => pick((s) => s.responseType === 'template_file'),
   // File requests resolve as "sent another way" here: no file exists, so none is implied (P0.8).
   'all-complete': () => build(SEEDS).map((r) => {
     if (r.status !== 'pending') return r;
     if (r.responseType === 'file' || r.responseType === 'template_file') return { ...r, status: 'sent' };
+    if (r.responseType === 'multiple_choice') return { ...r, status: 'complete', selection: { optionIds: [r.choice!.options[0]!.id] } };
     const answer = r.responseType === 'choice' ? 'no' : r.responseType === 'date' ? '2026-06-30' : 'Answered in the call on 10/20/2026.';
     return { ...r, status: 'complete', answer };
   }),
   empty: () => [],
 };
+
+/**
+ * A fund admin answers the same request for several companies. Each company has
+ * its own list and progress: the first starts fresh, the second part-way, the
+ * third fully resolved.
+ */
+export function seedFor(state: string, companyIndex: number): InformationRequest[] {
+  const base = (FIXTURES[state] ?? FIXTURES.default!)();
+  if (companyIndex === 0) return base;
+  if (companyIndex === 1) return base.map((r, i) => (r.status === 'pending' && !r.parentId && i % 3 === 0 ? { ...r, status: 'sent' } : r));
+  return (FIXTURES['all-complete']!)().filter((r) => base.some((b) => b.id === r.id));
+}

@@ -3,35 +3,60 @@
  * real (P1.5, P1.6, P1.7). Submissions go through the prototype store, so they
  * confirm, fail and retry like the real flow would.
  */
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  Alert, Button, FormField, Input, Link, Modal, Text, Textarea, space,
+  Alert, Button, DatePicker, FormField, Input, Link, Modal, Text, Textarea, space,
 } from '@scalar/design-system';
 import { REQUEST_META } from './fixtures.js';
 
-export type PortalDialog = 'login' | 'contact' | 'privacy' | 'help' | 'extend' | 'delegate' | null;
+export type PortalDialog = 'login' | 'contact' | 'privacy' | 'help' | 'due-date' | 'delegate' | null;
 
 const col = { display: 'flex', flexDirection: 'column', gap: space.m } as const;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const fmt = (iso: string) => { const [y, m, d] = iso.split('-'); return `${m}/${d}/${y}`; };
+const toIso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const fromIso = (iso: string) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y!, m! - 1, d!); };
 
-export function LoginDialog({ open, onClose, notify }: { open: boolean; onClose: () => void; notify: (t: 'positive', s: string) => void }) {
-  const [email, setEmail] = useState('');
+/** Shown only when a firm sent the request: Scalar runs the portal but is not the sender. */
+function PoweredBy() {
+  return <Text step="s" tone="tertiary">Powered by Scalar</Text>;
+}
+
+/**
+ * Prototype sign-in. Signing in opens the requests even from an expired link,
+ * without a new email. Nothing is checked or sent.
+ */
+export function LoginDialog({ open, onClose, email: knownEmail, onLogin }: {
+  open: boolean; onClose: () => void; email: string; onLogin: (email: string) => void;
+}) {
+  const [email, setEmail] = useState(knownEmail);
+  const [password, setPassword] = useState('');
   const [touched, setTouched] = useState(false);
-  const bad = touched && !EMAIL.test(email);
+  const badEmail = touched && !EMAIL.test(email);
+  const badPassword = touched && !password;
+  const submit = () => {
+    setTouched(true);
+    if (!EMAIL.test(email) || !password) return;
+    setPassword(''); setTouched(false);
+    onLogin(email);
+  };
   return (
-    <Modal open={open} onClose={onClose} title="Log in to the request portal" size="s"
+    <Modal open={open} onClose={onClose} title="Log in" size="s"
       footer={<>
         <Button variant="secondary" onClick={onClose}>Cancel</Button>
-        <Button onClick={() => { setTouched(true); if (EMAIL.test(email)) { onClose(); notify('positive', `Prototype: a sign-in link would be sent to ${email}.`); } }}>Send sign-in link</Button>
+        <Button onClick={submit}>Log in</Button>
       </>}
     >
-      <div style={col}>
-        <Text step="m" tone="secondary">You can answer without logging in from the link in your email. Log in to see every request sent to you.</Text>
-        <FormField label="Work email" required state={bad ? 'error' : 'default'} helperText={bad ? 'Enter an email like name@company.com.' : undefined}>
-          <Input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.currentTarget.value)} onBlur={() => setTouched(true)} />
+      <form style={col} onSubmit={(e) => { e.preventDefault(); submit(); }}>
+        <Text step="m" tone="secondary">Logged in, you can open your requests without a new link.</Text>
+        <FormField label="Work email" required state={badEmail ? 'error' : 'default'} helperText={badEmail ? 'Enter an email like name@company.com.' : undefined}>
+          <Input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.currentTarget.value)} />
         </FormField>
-      </div>
+        <FormField label="Password" required state={badPassword ? 'error' : 'default'} helperText={badPassword ? 'Enter your password.' : 'Prototype: any password works.'}>
+          <Input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.currentTarget.value)} />
+        </FormField>
+        <button type="submit" hidden aria-hidden tabIndex={-1} />
+      </form>
     </Modal>
   );
 }
@@ -57,22 +82,25 @@ export function ContactDialog({ open, onClose, notify }: { open: boolean; onClos
   );
 }
 
-export function PrivacyDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function PrivacyDialog({ open, onClose, sender, poweredBy }: { open: boolean; onClose: () => void; sender: string; poweredBy: boolean }) {
   return (
     <Modal open={open} onClose={onClose} title="Privacy Policy" size="m" footer={<Button onClick={onClose}>Close</Button>}>
       <div style={col}>
         <Alert tone="warning" title="Prototype">This page is a placeholder for the approved policy. In this prototype, answers and files stay in your browser and are not sent anywhere.</Alert>
-        <Text step="m">Scalar uses the information you provide only to prepare the valuation requested by {REQUEST_META.firm}. Access is limited to the people working on this engagement.</Text>
-        <Text step="m">You can ask for a copy or deletion of what you submitted by contacting your analyst.</Text>
+        <Text step="m">{sender} uses the information you provide only for the valuation work this request supports. Access is limited to the people working on this engagement.</Text>
+        <Text step="m">You can ask for a copy or deletion of what you submitted by contacting the sender.</Text>
+        {poweredBy && <PoweredBy />}
       </div>
     </Modal>
   );
 }
 
-export function HelpDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function HelpDialog({ open, onClose, poweredBy, multiCompany }: { open: boolean; onClose: () => void; poweredBy: boolean; multiCompany: boolean }) {
   const steps = [
+    ...(multiCompany ? ['Pick a company in the top bar. Each company has its own requests and progress.'] : []),
     'Pick a category on the left, or work through the whole list.',
-    'Open a request to answer it. Each one asks for exactly one kind of response — an answer, a date, a Yes/No, or a file.',
+    'Open a request to answer it. Each one asks for one kind of response — an answer, a date, a choice, or a file.',
+    'Some answers add a follow-up question. It appears inside the same request once you save.',
     'For a template request, download the template, fill it in, and upload it to the same request.',
     'A request turns Complete only once your response is saved. If an upload fails, it stays Pending and you can try again.',
     'If something does not apply, or you sent it another way, say so from the request’s actions. You can reopen it later.',
@@ -80,44 +108,32 @@ export function HelpDialog({ open, onClose }: { open: boolean; onClose: () => vo
   ];
   return (
     <Modal open={open} onClose={onClose} title="How do I use this?" size="m" footer={<Button onClick={onClose}>Got it</Button>}>
-      <ol style={{ ...col, margin: 0, paddingLeft: space.l }}>
-        {steps.map((s) => <li key={s}><Text step="m">{s}</Text></li>)}
-      </ol>
+      <div style={col}>
+        <ol style={{ ...col, margin: 0, paddingLeft: space.l }}>
+          {steps.map((s) => <li key={s}><Text step="m">{s}</Text></li>)}
+        </ol>
+        {poweredBy && <PoweredBy />}
+      </div>
     </Modal>
   );
 }
 
-export function ExtendDialog({ open, onClose, dueDate, onSubmit }: {
-  open: boolean; onClose: () => void; dueDate: string; onSubmit: (date: string, reason: string) => Promise<void>;
+/** The sender sets the due date directly: pick a date, it saves. No reason, no approval. */
+export function DueDateDialog({ open, onClose, dueDate, onSave }: {
+  open: boolean; onClose: () => void; dueDate: string; onSave: (iso: string) => void;
 }) {
-  const [date, setDate] = useState('');
-  const [reason, setReason] = useState('');
-  const [touched, setTouched] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const dateBad = !date || date <= dueDate;
-  const submit = async () => {
-    setTouched(true);
-    if (dateBad || !reason.trim()) return;
-    setBusy(true); setError(null);
-    try { await onSubmit(date, reason.trim()); onClose(); } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
-  };
+  const [date, setDate] = useState(dueDate);
+  useEffect(() => { if (open) setDate(dueDate); }, [open, dueDate]);
   return (
-    <Modal open={open} onClose={onClose} title="Request more time" size="s"
+    <Modal open={open} onClose={onClose} title="Change due date" size="s"
       footer={<>
-        <Button variant="secondary" onClick={onClose} disabled={busy}>Cancel</Button>
-        <Button onClick={submit} loading={busy}>Send extension request</Button>
+        <Button variant="secondary" onClick={onClose}>Cancel</Button>
+        <Button disabled={date === dueDate} onClick={() => { onSave(date); onClose(); }}>Save due date</Button>
       </>}
     >
       <div style={col}>
-        <Text step="m" tone="secondary">Current due date: {fmt(dueDate)}. {REQUEST_META.analyst} will confirm the new date.</Text>
-        <FormField label="New due date" required state={touched && dateBad ? 'error' : 'default'} helperText={touched && dateBad ? `Pick a date after ${fmt(dueDate)}.` : undefined}>
-          <Input type="date" min={dueDate} value={date} onChange={(e) => setDate(e.currentTarget.value)} />
-        </FormField>
-        <FormField label="Reason" required state={touched && !reason.trim() ? 'error' : 'default'} helperText={touched && !reason.trim() ? 'Tell the analyst why you need more time.' : undefined}>
-          <Textarea rows={3} value={reason} onChange={(e) => setReason(e.currentTarget.value)} />
-        </FormField>
-        {error && <Alert tone="negative" title="Not sent">{error}</Alert>}
+        <Text step="m" tone="secondary">Currently {fmt(dueDate)}. The recipient sees the new date straight away.</Text>
+        <DatePicker value={fromIso(date)} onChange={(d) => setDate(toIso(d))} aria-label="New due date" />
       </div>
     </Modal>
   );

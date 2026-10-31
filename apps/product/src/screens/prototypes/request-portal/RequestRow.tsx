@@ -6,12 +6,12 @@
  */
 import { useEffect, useState } from 'react';
 import {
-  Alert, Button, Checkbox, Chip, Dropzone, FileRow, FormField, Icon, Input, Radio, RadioGroup, Text, Textarea,
-  color, icons, size, space,
+  Alert, Button, Checkbox, Chip, ConfirmationDialog, Dropzone, FileRow, FormField, Icon, Input, Label, Radio, RadioGroup,
+  Text, Textarea, color, icons, radius, size, space,
 } from '@scalar/design-system';
 import {
-  formatBytes, isResolved, requestNumber, responseTypeLabel, statusLabel, type InformationRequest, type RequestStatus,
-  type UploadedFile,
+  MAX_FILE_BYTES, activeFollowUp, formatBytes, requestNumber, responseTypeLabel, shownStatus, statusLabel,
+  type InformationRequest, type RequestStatus, type UploadedFile,
 } from './model.js';
 import { downloadTemplate, type OpState, type PortalStore } from './store.js';
 
@@ -25,16 +25,17 @@ const statusChip: Record<RequestStatus, { style: 'default' | 'positive' | 'info'
 const typeIcon: Record<InformationRequest['responseType'], JSX.Element> = {
   text: <icons.EditNote />,
   choice: <icons.Rule />,
+  multiple_choice: <icons.FormatListBulleted />,
   date: <icons.CalendarToday />,
   file: <icons.UploadFile />,
   template_file: <icons.TableView />,
 };
 
-export function StatusChip({ status }: { status: RequestStatus }) {
+export function StatusChip({ status, label }: { status: RequestStatus; label?: string }) {
   const s = statusChip[status];
   return (
     <Chip size="s" styleVariant={s.style} leadingIcon={<Icon size="xs" tone="inherit">{s.icon}</Icon>}>
-      {statusLabel[status]}
+      {label ?? statusLabel[status]}
     </Chip>
   );
 }
@@ -46,6 +47,8 @@ const fmtDate = (iso: string) => {
 
 interface RowProps {
   req: InformationRequest;
+  /** Every request, so a row can find its follow-up. */
+  all: readonly InformationRequest[];
   expanded: boolean;
   onToggle: () => void;
   selected: boolean;
@@ -56,11 +59,15 @@ interface RowProps {
   mobile: boolean;
 }
 
-export function RequestRow({ req, expanded, onToggle, selected, onSelect, store, onDelegate, notify, mobile }: RowProps) {
+export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, store, onDelegate, notify, mobile }: RowProps) {
   const num = requestNumber(req);
   const panelId = `req-panel-${req.id}`;
   const op = store.ops[req.id];
-  const resolved = isResolved(req);
+  // Reopen is offered for any saved outcome, including a saved answer whose follow-up is still open.
+  const resolved = req.status !== 'pending';
+  const followUp = req.status === 'pending' || req.status === 'complete' ? activeFollowUp(req, all) : undefined;
+  const status = shownStatus(req, all);
+  const waitingOnFollowUp = req.status === 'complete' && status === 'pending';
 
   return (
     <li
@@ -100,7 +107,7 @@ export function RequestRow({ req, expanded, onToggle, selected, onSelect, store,
         {op && op.phase !== 'idle' && op.phase !== 'failed' && (
           <Text as="span" step="s" tone="brand" role="status">{op.phase === 'saving' ? 'Saving…' : op.phase === 'validating' ? 'Checking…' : `Uploading ${op.progress ?? 0}%`}</Text>
         )}
-        <StatusChip status={req.status} />
+        <StatusChip status={status} label={waitingOnFollowUp ? 'Follow-up needed' : undefined} />
       </div>
 
       {expanded && (
@@ -121,13 +128,15 @@ export function RequestRow({ req, expanded, onToggle, selected, onSelect, store,
             </Alert>
           )}
 
-          <Response req={req} op={op} store={store} notify={notify} />
+          <Response req={req} op={op} store={store} notify={notify} all={all} />
 
           {op?.phase === 'failed' && (
             <Alert tone="negative" title="Not saved" onDismiss={() => store.clearError(req.id)} dismissLabel="Dismiss error">
               {op.error}
             </Alert>
           )}
+
+          {followUp && <FollowUp req={followUp} store={store} notify={notify} all={all} />}
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: space.s, paddingTop: space.xs }}>
             {resolved ? (
@@ -158,12 +167,46 @@ export function RequestRow({ req, expanded, onToggle, selected, onSelect, store,
  * Response renderers — one per response type (P1.9)
  * ------------------------------------------------------------------------ */
 
-interface ResponseProps { req: InformationRequest; op?: OpState; store: PortalStore; notify: RowProps['notify'] }
+interface ResponseProps { req: InformationRequest; op?: OpState; store: PortalStore; notify: RowProps['notify']; all: readonly InformationRequest[] }
+
+/**
+ * A follow-up, shown inside its parent once the parent's saved answer calls for
+ * it. Any response type; it has its own number (2.5a), save and errors.
+ */
+function FollowUp({ req, store, notify, all }: Omit<ResponseProps, 'op'>) {
+  const op = store.ops[req.id];
+  const num = requestNumber(req);
+  return (
+    <section
+      aria-label={`Follow-up ${num}`}
+      style={{ display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m, borderLeft: `2px solid ${color.stroke.brand}`, background: color.bg.subtle, borderRadius: `0 ${radius.xs} ${radius.xs} 0` }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', gap: space.s, flexWrap: 'wrap' }}>
+        <Text as="span" step="s" weight="semiBold" tone="secondary">Follow-up {num}</Text>
+        <StatusChip status={req.status} />
+      </div>
+      <Text step="m" weight="semiBold">{req.title}</Text>
+      {req.description && <Text step="s" tone="secondary">{req.description}</Text>}
+      <Response req={req} op={op} store={store} notify={notify} all={all} />
+      {op?.phase === 'failed' && (
+        <Alert tone="negative" title="Not saved" onDismiss={() => store.clearError(req.id)} dismissLabel="Dismiss error">{op.error}</Alert>
+      )}
+      {req.status !== 'pending' && (
+        <div>
+          <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.Undo /></Icon>} onClick={() => store.reopen([req.id])}>
+            Edit follow-up
+          </Button>
+        </div>
+      )}
+    </section>
+  );
+}
 
 function Response(props: ResponseProps) {
   switch (props.req.responseType) {
     case 'text': return <AnswerResponse {...props} kind="text" />;
     case 'choice': return <AnswerResponse {...props} kind="choice" />;
+    case 'multiple_choice': return <ChoiceResponse {...props} />;
     case 'date': return <AnswerResponse {...props} kind="date" />;
     case 'file': return <FileResponse {...props} />;
     case 'template_file': return <TemplateResponse {...props} />;
@@ -175,7 +218,7 @@ function AnswerResponse({ req, op, store, kind }: ResponseProps & { kind: 'text'
   const [draft, setDraft] = useState(req.answer ?? '');
   useEffect(() => { setDraft(req.answer ?? ''); }, [req.answer]);
   const saving = op?.phase === 'saving';
-  const readOnly = isResolved(req);
+  const readOnly = req.status !== 'pending';
 
   if (readOnly) {
     if (!req.answer) return null;
@@ -218,9 +261,105 @@ function AnswerResponse({ req, op, store, kind }: ResponseProps & { kind: 'text'
   );
 }
 
+/**
+ * Multiple choice: radios to pick one, checkboxes to select all that apply.
+ * An "Other" option asks for text. Saving can add a follow-up; a change that
+ * drops a follow-up which already has an answer asks first, then clears it.
+ */
+function ChoiceResponse({ req, op, store, all }: ResponseProps) {
+  const cfg = req.choice!;
+  const [ids, setIds] = useState<string[]>(req.selection?.optionIds ?? []);
+  const [other, setOther] = useState(req.selection?.otherText ?? '');
+  const [touched, setTouched] = useState(false);
+  const [confirm, setConfirm] = useState<InformationRequest[] | null>(null);
+  useEffect(() => { setIds(req.selection?.optionIds ?? []); setOther(req.selection?.otherText ?? ''); }, [req.selection]);
+
+  const saving = op?.phase === 'saving';
+  const labelId = `choice-label-${req.id}`;
+  const otherOption = cfg.options.find((o) => o.other);
+  const otherPicked = !!otherOption && ids.includes(otherOption.id);
+  const otherMissing = otherPicked && !other.trim();
+  const followUps = all.filter((f) => f.parentId === req.id);
+  const wouldAdd = followUps.find((f) => (f.showWhen ?? []).some((id) => ids.includes(id)) && f !== activeFollowUp(req, all));
+
+  if (req.status !== 'pending') {
+    if (!req.selection) return null;
+    const labels = cfg.options.filter((o) => req.selection!.optionIds.includes(o.id))
+      .map((o) => (o.other && req.selection!.otherText ? `${o.label}: ${req.selection!.otherText}` : o.label));
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
+        <Text step="s" tone="secondary">Your saved answer</Text>
+        {labels.map((l) => <Text key={l} step="m">{l}</Text>)}
+      </div>
+    );
+  }
+
+  const save = (clearIds: string[] = []) => {
+    const selection = { optionIds: ids, otherText: otherPicked ? other.trim() : undefined };
+    void store.saveSelection(req.id, selection, clearIds);
+  };
+  const onSave = () => {
+    setTouched(true);
+    if (!ids.length || otherMissing) return;
+    // Follow-ups this choice no longer calls for, that already hold an answer.
+    const dropped = followUps.filter((f) => !(f.showWhen ?? []).some((id) => ids.includes(id))
+      && (f.status !== 'pending' || f.answer || f.selection || f.files?.length));
+    if (dropped.length) setConfirm(dropped); else save();
+  };
+
+  const otherField = otherPicked && (
+    <div style={{ paddingLeft: space.xl }}>
+      <FormField label="Please specify" required state={touched && otherMissing ? 'error' : 'default'}
+        helperText={touched && otherMissing ? 'Describe your “Other” answer to save.' : undefined}>
+        <Input value={other} onChange={(e) => setOther(e.currentTarget.value)} disabled={saving} />
+      </FormField>
+    </div>
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
+      {cfg.mode === 'single' ? (
+        <RadioGroup label="Choose one" value={ids[0]} onValueChange={(v) => setIds([v])} disabled={saving}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
+            {cfg.options.map((o) => <Radio key={o.id} value={o.id}>{o.label}</Radio>)}
+          </div>
+        </RadioGroup>
+      ) : (
+        <div role="group" aria-labelledby={labelId} style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
+          <Label as="span" step="l" id={labelId}>Select all that apply</Label>
+          {cfg.options.map((o) => (
+            <Checkbox key={o.id} checked={ids.includes(o.id)} disabled={saving}
+              onChange={(e) => { const on = e.currentTarget.checked; setIds((x) => (on ? [...x, o.id] : x.filter((id) => id !== o.id))); }}>
+              {o.label}
+            </Checkbox>
+          ))}
+        </div>
+      )}
+      {otherField}
+      {touched && !ids.length && <Text step="s" tone="negative">Choose at least one option to save.</Text>}
+      {wouldAdd && <Text step="s" tone="secondary">Saving this answer adds a follow-up question.</Text>}
+      <div>
+        <Button size="s" loading={saving} disabled={saving} onClick={onSave}>
+          {op?.phase === 'failed' ? 'Try again' : req.selection ? 'Save changes' : 'Save answer'}
+        </Button>
+      </div>
+      <ConfirmationDialog
+        open={confirm !== null}
+        title="Remove the follow-up answer?"
+        confirmLabel="Remove and save"
+        destructive
+        onCancel={() => setConfirm(null)}
+        onConfirm={() => { save((confirm ?? []).map((f) => f.id)); setConfirm(null); }}
+      >
+        {`This answer no longer calls for follow-up ${confirm?.map(requestNumber).join(', ')}. Saving removes what was entered there.`}
+      </ConfirmationDialog>
+    </div>
+  );
+}
+
 function hintFor(req: InformationRequest) {
   const exts = (req.allowedExtensions ?? []).map((e) => e.toUpperCase()).join(', ');
-  return `${exts} · 15 MB max`;
+  return `${exts} · ${formatBytes(req.maxFileSizeBytes ?? MAX_FILE_BYTES)} max`;
 }
 
 function UploadArea({ req, op, store, label }: ResponseProps & { label?: string }) {

@@ -12,22 +12,30 @@
  * requests that are selected AND visible AND eligible (P1.1, P1.2).
  *
  * Persistence and uploads go through a labelled prototype adapter (store.ts).
+ *
+ * Prototype switches (scenario.ts, kept in the URL): who sent the request
+ * (Scalar → company, Scalar → fund admin, firm → portfolio company), who is
+ * looking (the responder, or the sender's own user, who may change the due
+ * date), and whether the link has expired (then only ExpiredLink shows, until
+ * the recipient logs in).
  */
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, Checkbox, CompanyInfo, ContextMenu, EmptyState, FilterDropdown, FormField, Icon, InformationLabel, MainMenuItem,
-  MenuDivider, MenuItem, Overline, PageTemplate, PrimaryMenu, ProgressBar, ScalarProvider, SecondaryMenu,
-  SecondaryMenuItem, Select, SelectMenu, SelectMenuOption, SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport,
-  breakpoint, color, elevation, icons, radius, size, space, zIndex,
+  Banner, Button, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
+  FormField, Icon, InformationLabel, MainMenuItem, MenuDivider, MenuItem, Overline, PageTemplate, PrimaryMenu, ProgressBar,
+  Radio, RadioGroup, ScalarProvider, SecondaryMenu, SecondaryMenuItem, SegmentedControl, Select, SelectMenu, SelectMenuOption,
+  SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, breakpoint, color, elevation, icons, radius, size, space, zIndex,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
-import { CATEGORIES, REQUEST_META } from './fixtures.js';
+import { ExpiredLink } from './ExpiredLink.js';
+import { CATEGORIES, REQUEST_META, seedFor } from './fixtures.js';
 import { byNumber, isResolved, matchesStatus, type RequestStatus, type StatusFilter } from './model.js';
 import {
-  ContactDialog, DelegateDialog, ExtendDialog, HelpDialog, LoginDialog, PrivacyDialog, type PortalDialog,
+  ContactDialog, DelegateDialog, DueDateDialog, HelpDialog, LoginDialog, PrivacyDialog, type PortalDialog,
 } from './PortalModals.js';
 import { RequestRow } from './RequestRow.js';
-import { usePortalStore } from './store.js';
+import { SCENARIOS, SCENARIO_IDS, usePrototypeConfig, type LinkState, type Viewer } from './scenario.js';
+import { peekRequests, usePortalStore } from './store.js';
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -36,6 +44,23 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
 ];
 
 const fmt = (iso: string) => { const [y, m, d] = iso.split('-'); return `${m}/${d}/${y}`; };
+
+/** Whole days from today to an ISO date (negative when past). */
+function daysUntil(iso: string, today = new Date()) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const due = Date.UTC(y!, m! - 1, d!);
+  const now = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  return Math.round((due - now) / 86_400_000);
+}
+
+/** What a responder sees instead of the date: words, with tone as a second signal (R8). */
+function dueWords(days: number): { text: string; tone: 'secondary' | 'warning' | 'negative' } {
+  if (days < 0) return { text: `Overdue by ${-days} day${days === -1 ? '' : 's'}`, tone: 'negative' };
+  if (days === 0) return { text: 'Due today', tone: 'warning' };
+  return { text: `${days} day${days === 1 ? '' : 's'} remaining`, tone: days <= 2 ? 'warning' : 'secondary' };
+}
+
+const storeKey = (state: string, scenario: string, companyId: string) => `${state}.${scenario}.${companyId}`;
 
 function useMobile() {
   const q = `(max-width: ${breakpoint.tabletSmall - 1}px)`;
@@ -52,7 +77,21 @@ function useMobile() {
 interface ToastItem { id: number; tone: 'positive' | 'negative' | 'info'; text: string }
 
 export function RequestPortal({ state }: ScreenProps) {
-  const store = usePortalStore(state);
+  const [config, setConfig] = usePrototypeConfig();
+  const scenario = SCENARIOS[config.scenario];
+  const multiCompany = scenario.companies.length > 1;
+  const [companyId, setCompanyId] = useState(scenario.companies[0]!.id);
+  const companyIndex = Math.max(0, scenario.companies.findIndex((c) => c.id === companyId));
+  const company = scenario.companies[companyIndex]!;
+  // A company from another scenario never carries over.
+  useEffect(() => { setCompanyId(SCENARIOS[config.scenario].companies[0]!.id); }, [config.scenario]);
+  const seed = useCallback(() => seedFor(state, companyIndex), [state, companyIndex]);
+  const store = usePortalStore(storeKey(state, scenario.id, company.id), seed);
+  const [loggedIn, setLoggedIn] = useState<string | null>(null);
+  const [companyMenu, setCompanyMenu] = useState(false);
+  const isSender = config.viewer === 'sender';
+  // An expired link shows nothing of the request until the recipient logs in.
+  const expired = config.link === 'expired' && !loggedIn;
   const mobile = useMobile();
   const [category, setCategory] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -72,11 +111,14 @@ export function RequestPortal({ state }: ScreenProps) {
   };
 
   /* ---- one derived model for every count (P1.3) ---- */
-  const all = useMemo(() => [...store.requests].sort(byNumber), [store.requests]);
+  // Follow-ups live inside their parent: they are never rows and never counted on their own.
+  const every = store.requests;
+  const all = useMemo(() => store.requests.filter((r) => !r.parentId).sort(byNumber), [store.requests]);
+  const done = (r: (typeof all)[number]) => isResolved(r, every);
   const total = all.length;
-  const resolvedCount = all.filter(isResolved).length;
+  const resolvedCount = all.filter(done).length;
   const remaining = total - resolvedCount;
-  const visible = all.filter((r) => (category === 'all' || r.categoryId === category) && matchesStatus(r, statusFilter));
+  const visible = all.filter((r) => (category === 'all' || r.categoryId === category) && matchesStatus(r, statusFilter, every));
   const visibleIds = visible.map((r) => r.id);
   const categoriesInUse = CATEGORIES.filter((c) => all.some((r) => r.categoryId === c.id));
 
@@ -90,6 +132,9 @@ export function RequestPortal({ state }: ScreenProps) {
     });
   }, [visibleKey]);
 
+  // A different company's list starts with nothing selected or open.
+  useEffect(() => { setSelected(new Set()); setExpanded(new Set()); setCategory('all'); }, [company.id]);
+
   const selectedVisible = visible.filter((r) => selected.has(r.id));
   const allChecked = visible.length > 0 && selectedVisible.length === visible.length;
   const someChecked = selectedVisible.length > 0 && !allChecked;
@@ -98,8 +143,8 @@ export function RequestPortal({ state }: ScreenProps) {
   const toggleExp = (id: string) => setExpanded((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
 
   /* ---- bulk actions: selected ∩ visible ∩ eligible ---- */
-  const pendingSel = selectedVisible.filter((r) => !isResolved(r)).map((r) => r.id);
-  const resolvedSel = selectedVisible.filter(isResolved).map((r) => r.id);
+  const pendingSel = selectedVisible.filter((r) => r.status === 'pending').map((r) => r.id);
+  const resolvedSel = selectedVisible.filter((r) => r.status !== 'pending').map((r) => r.id);
   const bulkStatus = (status: RequestStatus) => {
     store.setStatus(pendingSel, status);
     notify('info', `${pendingSel.length} request${pendingSel.length === 1 ? '' : 's'} marked ${status === 'na' ? 'not applicable' : 'complete — sent another way'}.`);
@@ -114,7 +159,6 @@ export function RequestPortal({ state }: ScreenProps) {
 
   const clearFilters = () => { setCategory('all'); setStatusFilter('all'); };
   const statusText = STATUS_OPTIONS.find((o) => o.value === statusFilter)!.label;
-  const deadlineLabel = store.extension ? `Extension requested · ${fmt(store.extension.requestedDate)}` : `Due ${fmt(store.dueDate)}`;
 
   const engagement = (
     <Text as="span" step="s" weight="semiBold" style={{ whiteSpace: 'nowrap', paddingInline: mobile ? undefined : space.s }}>
@@ -122,24 +166,78 @@ export function RequestPortal({ state }: ScreenProps) {
     </Text>
   );
 
-  // An action, so a Button (a clickable Chip is a toggle, AI-GUIDE §5).
-  const deadline = (
-    <Button size="s" variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><icons.Schedule /></Icon>} onClick={() => setDialog('extend')}>
-      {store.extension ? deadlineLabel : `${deadlineLabel} · Extend`}
+  // The sender sets the date (an action, so a Button); the responder sees how long is left, in words.
+  const due = dueWords(daysUntil(store.dueDate));
+  const deadline = isSender ? (
+    <Button size="s" variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><icons.EditCalendar /></Icon>} onClick={() => setDialog('due-date')}
+      aria-label={`Due ${fmt(store.dueDate)}. Change due date`}>
+      Due {fmt(store.dueDate)}
     </Button>
+  ) : (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.xs, flex: 'none' }}>
+      <Icon size="s" tone={due.tone === 'secondary' ? 'secondary' : due.tone}><icons.Schedule /></Icon>
+      <Text as="span" step="s" weight={due.tone === 'secondary' ? 'regular' : 'semiBold'} tone={due.tone} style={{ whiteSpace: 'nowrap' }}>{due.text}</Text>
+    </span>
   );
 
   /* ---- chrome ---- */
+  const logo = scenario.brand === 'scalar'
+    ? <img src="./assets/scalar-logo-white.svg" alt="Scalar" style={{ display: 'block', height: size.icon.l, width: 'auto' }} />
+    : <img className="scalar-primary-menu__logo" src="./assets/firm-logo.jpg" alt={scenario.senderName} />;
+
+  // Fund admin: one company at a time. The menu shows each company's progress from its own stored list.
+  const companyStats = scenario.companies.map((c, i) => {
+    const list = c.id === company.id ? every : peekRequests(storeKey(state, scenario.id, c.id), () => seedFor(state, i));
+    const parents = list.filter((r) => !r.parentId);
+    const resolved = parents.filter((r) => isResolved(r, list)).length;
+    return { company: c, resolved, total: parents.length, complete: parents.length > 0 && resolved === parents.length };
+  });
+  const companiesComplete = companyStats.filter((x) => x.complete).length;
+  const companySwitcher = multiCompany && (
+    <span style={{ position: 'relative', display: 'inline-flex' }}>
+      <CompanyDropdown expanded={companyMenu} onClick={() => setCompanyMenu((o) => !o)}>{company.name}</CompanyDropdown>
+      {companyMenu && (
+        <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay, marginTop: space.xs, background: color.bg.surface, borderRadius: radius.s, boxShadow: elevation.overlay, minWidth: 'max-content' }}>
+          <Text as="p" step="s" tone="secondary" style={{ margin: 0, padding: `${space.s} ${space.m} 0` }}>
+            {companiesComplete} of {scenario.companies.length} companies complete
+          </Text>
+          <CompanyDropdownPanel
+            label="Companies in this request"
+            currentId={company.id}
+            initialFocus
+            onClose={() => setCompanyMenu(false)}
+            onSelect={(id) => { setCompanyId(id); setCompanyMenu(false); }}
+            companies={companyStats.map((x) => ({
+              id: x.company.id,
+              name: (
+                <span style={{ display: 'flex', justifyContent: 'space-between', gap: space.l, width: '100%' }}>
+                  <span>{x.company.name}</span>
+                  <Text as="span" step="s" tone={x.complete ? 'positive' : 'secondary'}>{x.complete ? 'Complete' : `${x.resolved}/${x.total}`}</Text>
+                </span>
+              ),
+            }))}
+          />
+        </div>
+      )}
+    </span>
+  );
+
   const navigation = (
     <PrimaryMenu
       navLabel="Portal"
-      logo={<img className="scalar-primary-menu__logo" src="./assets/firm-logo.jpg" alt={REQUEST_META.firm} />}
-      end={
+      logo={logo}
+      end={loggedIn ? (
+        <MainMenuItem icon={<Icon size="s" tone="onBrand"><icons.Logout /></Icon>} onClick={() => { setLoggedIn(null); notify('info', 'Logged out.'); }}>
+          Log out
+        </MainMenuItem>
+      ) : (
         <MainMenuItem icon={<Icon size="s" tone="onBrand"><icons.Login /></Icon>} onClick={() => setDialog('login')}>
           Login
         </MainMenuItem>
-      }
-    />
+      )}
+    >
+      {companySwitcher}
+    </PrimaryMenu>
   );
 
   // A thin determinate bar (AI-GUIDE §5: progress with a known total) fits the 32px tier; the ring did not.
@@ -169,14 +267,17 @@ export function RequestPortal({ state }: ScreenProps) {
 
   const companyInfo = (
     <CompanyInfo
-      name="Information Request"
-      end={<>
+      name={company.name}
+      end={expired ? undefined : <>
         {!mobile && deadline}
         {progress}
       </>}
     >
+      {/* "Information Request" is the selected item of this row; the company it is for is the title.
+          A phone has no room for the row: the help links move into the body. */}
       {!mobile && (
-        <SecondaryMenu label="Help">
+        <SecondaryMenu label="Request">
+          <SecondaryMenuItem current>Information Request</SecondaryMenuItem>
           <SecondaryMenuItem onClick={() => setDialog('contact')}>Contact Us</SecondaryMenuItem>
           <SecondaryMenuItem onClick={() => setDialog('privacy')}>Privacy Policy</SecondaryMenuItem>
           <SecondaryMenuItem onClick={() => setDialog('help')}>How do I use this?</SecondaryMenuItem>
@@ -252,13 +353,13 @@ export function RequestPortal({ state }: ScreenProps) {
       </SubmenuItem>
       {categoriesInUse.map((c) => {
         const items = all.filter((r) => r.categoryId === c.id);
-        const done = items.filter(isResolved).length;
+        const doneCount = items.filter(done).length;
         return (
           <SubmenuItem key={c.id} current={category === c.id} onClick={() => setCategory(c.id)}>
             <span style={{ display: 'flex', justifyContent: 'space-between', gap: space.s, width: '100%' }}>
               <span style={{ whiteSpace: 'nowrap' }}>{c.order}. {c.name}</span>
-              <Text as="span" step="s" tone={done === items.length ? 'positive' : 'secondary'}>
-                {done}/{items.length}<span className="scalar-visually-hidden"> resolved</span>
+              <Text as="span" step="s" tone={doneCount === items.length ? 'positive' : 'secondary'}>
+                {doneCount}/{items.length}<span className="scalar-visually-hidden"> resolved</span>
               </Text>
             </span>
           </SubmenuItem>
@@ -267,18 +368,39 @@ export function RequestPortal({ state }: ScreenProps) {
     </nav>
   );
 
+  const resetAll = () => {
+    store.reset(scenario.companies.map((c) => storeKey(state, scenario.id, c.id)));
+    setSelected(new Set()); setExpanded(new Set());
+    notify('info', 'Prototype data reset.');
+  };
   const prototypeControls = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m, borderTop: `1px solid ${color.stroke.divider}` }}>
-      <Text step="s" tone="secondary">Prototype — answers and files are kept in this browser only. Nothing is uploaded or encrypted.</Text>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.m, padding: space.m, borderTop: `1px solid ${color.stroke.divider}` }}>
+      <Overline as="h2">Prototype view</Overline>
+      <RadioGroup label="Who sent the request" size="s" value={config.scenario} onValueChange={(v) => setConfig({ scenario: v as typeof config.scenario })}>
+        {SCENARIO_IDS.map((id) => <Radio key={id} value={id}><Text as="span" step="s">{SCENARIOS[id].label}</Text></Radio>)}
+      </RadioGroup>
+      <SegmentedControl<Viewer>
+        label="Viewing as"
+        value={config.viewer}
+        onChange={(v) => setConfig({ viewer: v })}
+        options={[{ value: 'responder', label: 'Responder' }, { value: 'sender', label: scenario.senderRole }]}
+      />
+      <SegmentedControl<LinkState>
+        label="Link"
+        value={config.link}
+        onChange={(v) => setConfig({ link: v })}
+        options={[{ value: 'active', label: 'Active link' }, { value: 'expired', label: 'Expired link' }]}
+      />
+      <Text step="s" tone="secondary">Answers and files are kept in this browser only. Nothing is uploaded or encrypted.</Text>
       <Checkbox size="s" checked={store.simulateFailure} onChange={(e) => store.setSimulateFailure(e.currentTarget.checked)}>
         <Text as="span" step="s">Simulate save / upload failure</Text>
       </Checkbox>
-      <div><Button size="s" variant="tertiary" onClick={() => { store.reset(); setSelected(new Set()); setExpanded(new Set()); notify('info', 'Prototype data reset.'); }}>Reset prototype data</Button></div>
+      <div><Button size="s" variant="tertiary" onClick={resetAll}>Reset prototype data</Button></div>
     </div>
   );
 
   const list = total === 0 ? (
-    <EmptyState type="no-data" title="No requests yet" body={`${REQUEST_META.firm} has not sent any requests for this report date. You’ll get an email when they do.`} icon={<icons.Inbox />} />
+    <EmptyState type="no-data" title="No requests yet" body={`${scenario.senderName} has not sent any requests for ${company.name} for this report date. You’ll get an email when they do.`} icon={<icons.Inbox />} />
   ) : visible.length === 0 ? (
     <EmptyState
       type="no-results"
@@ -296,6 +418,7 @@ export function RequestPortal({ state }: ScreenProps) {
           <RequestRowWithHeader key={r.id} header={showHeader ? `${cat.order}. ${cat.name}` : undefined}>
             <RequestRow
               req={r}
+              all={every}
               expanded={expanded.has(r.id)}
               onToggle={() => toggleExp(r.id)}
               selected={selected.has(r.id)}
@@ -314,6 +437,20 @@ export function RequestPortal({ state }: ScreenProps) {
   return (
     <ScalarProvider mode="light" viewport="auto">
       <div style={{ height: '100vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', background: color.bg.page }}>
+        {expired ? (
+          <PageTemplate fullHeight={false} navigation={navigation} companyInfo={companyInfo}>
+            <ExpiredLink
+              email={scenario.recipient.email}
+              sender={scenario.senderName}
+              company={company.name}
+              simulateFailure={store.simulateFailure}
+              onLogin={() => setDialog('login')}
+            />
+            <div style={{ alignSelf: 'center', width: '100%', maxWidth: '60ch', marginBottom: space.l, border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
+              {prototypeControls}
+            </div>
+          </PageTemplate>
+        ) : (
         <PageTemplate fullHeight={false} navigation={navigation} companyInfo={companyInfo} subNavigation={subNavigation}>
           <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: mobile ? 'minmax(0, 1fr)' : 'minmax(min-content, 1fr) minmax(0, 4fr)', gap: space.l, paddingBlock: space.m }}>
             {!mobile && (
@@ -334,7 +471,7 @@ export function RequestPortal({ state }: ScreenProps) {
                       <option value="all">All requests ({resolvedCount}/{total})</option>
                       {categoriesInUse.map((c) => {
                         const items = all.filter((r) => r.categoryId === c.id);
-                        return <option key={c.id} value={c.id}>{c.order}. {c.name} ({items.filter(isResolved).length}/{items.length})</option>;
+                        return <option key={c.id} value={c.id}>{c.order}. {c.name} ({items.filter(done).length}/{items.length})</option>;
                       })}
                     </Select>
                   </FormField>
@@ -349,7 +486,7 @@ export function RequestPortal({ state }: ScreenProps) {
               {total > 0 && remaining === 0 && (
                 <div style={{ padding: space.m }}>
                   <Banner tone="positive" title="Every request is resolved">
-                    {`Thank you. ${REQUEST_META.analyst} can see your responses. You can still open a request to change it.`}
+                    {`Thank you. ${scenario.senderName} can see your responses for ${company.name}. You can still open a request to change it.`}
                   </Banner>
                 </div>
               )}
@@ -358,6 +495,7 @@ export function RequestPortal({ state }: ScreenProps) {
             </section>
           </div>
         </PageTemplate>
+        )}
 
         <ToastViewport aria-label="Notifications">
           {toasts.map((t) => (
@@ -365,15 +503,20 @@ export function RequestPortal({ state }: ScreenProps) {
           ))}
         </ToastViewport>
 
-        <LoginDialog open={dialog === 'login'} onClose={() => setDialog(null)} notify={notify} />
+        <LoginDialog
+          open={dialog === 'login'}
+          onClose={() => setDialog(null)}
+          email={scenario.recipient.email}
+          onLogin={(email) => { setLoggedIn(email); setDialog(null); notify('positive', `Logged in as ${email}.`); }}
+        />
         <ContactDialog open={dialog === 'contact'} onClose={() => setDialog(null)} notify={notify} />
-        <PrivacyDialog open={dialog === 'privacy'} onClose={() => setDialog(null)} />
-        <HelpDialog open={dialog === 'help'} onClose={() => setDialog(null)} />
-        <ExtendDialog
-          open={dialog === 'extend'}
+        <PrivacyDialog open={dialog === 'privacy'} onClose={() => setDialog(null)} sender={scenario.senderName} poweredBy={scenario.poweredBy} />
+        <HelpDialog open={dialog === 'help'} onClose={() => setDialog(null)} poweredBy={scenario.poweredBy} multiCompany={multiCompany} />
+        <DueDateDialog
+          open={dialog === 'due-date'}
           onClose={() => setDialog(null)}
           dueDate={store.dueDate}
-          onSubmit={async (date, reason) => { await store.requestExtension(date, reason); notify('positive', `Extension to ${fmt(date)} requested. ${REQUEST_META.analyst} will confirm.`); }}
+          onSave={(iso) => { store.setDueDate(iso); notify('positive', `Due date changed to ${fmt(iso)}.`); }}
         />
         <DelegateDialog
           open={dialog === 'delegate'}

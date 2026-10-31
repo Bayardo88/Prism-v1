@@ -11,35 +11,38 @@
  * keeps the request Pending, records the error and allows a retry.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { FIXTURES, REQUEST_META } from './fixtures.js';
+import { REQUEST_META, seedDueDate } from './fixtures.js';
 import {
-  validateFile, type InformationRequest, type RequestStatus, type UploadedFile,
+  validateFile, type ChoiceSelection, type InformationRequest, type RequestStatus, type UploadedFile,
 } from './model.js';
 
 export type Phase = 'idle' | 'validating' | 'uploading' | 'saving' | 'failed';
 export interface OpState { phase: Phase; progress?: number; error?: string; fileName?: string }
 
-export interface ExtensionRequest { requestedDate: string; reason: string; submittedAt: string }
-
 interface Persisted {
   requests: InformationRequest[];
   dueDate: string;
-  extension?: ExtensionRequest;
 }
 
-const KEY = (fixture: string) => `scalar.request-portal.v1.${fixture}`;
+// v2: multiple choice, follow-ups and a seeded due date changed the stored shape.
+const KEY = (key: string) => `scalar.request-portal.v2.${key}`;
 const LATENCY = 700;
 
-function load(fixture: string): Persisted {
+function load(key: string, seed: () => InformationRequest[]): Persisted {
   try {
-    const raw = window.localStorage.getItem(KEY(fixture));
+    const raw = window.localStorage.getItem(KEY(key));
     if (raw) return JSON.parse(raw) as Persisted;
   } catch { /* storage blocked: start from the fixture */ }
-  return { requests: (FIXTURES[fixture] ?? FIXTURES.default!)(), dueDate: REQUEST_META.dueDate };
+  return { requests: seed(), dueDate: seedDueDate() };
 }
 
-function persist(fixture: string, data: Persisted) {
-  try { window.localStorage.setItem(KEY(fixture), JSON.stringify(data)); } catch { /* ignore */ }
+function persist(key: string, data: Persisted) {
+  try { window.localStorage.setItem(KEY(key), JSON.stringify(data)); } catch { /* ignore */ }
+}
+
+/** Read another company's stored list without mounting it (the fund-admin company menu). */
+export function peekRequests(key: string, seed: () => InformationRequest[]): InformationRequest[] {
+  return load(key, seed).requests;
 }
 
 /* ---- file bytes (IndexedDB) ---- */
@@ -85,15 +88,26 @@ export function saveBlob(blob: Blob, fileName: string) {
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-export function usePortalStore(fixture: string) {
-  const [data, setData] = useState<Persisted>(() => load(fixture));
+/**
+ * `key` names one company's copy of one fixture; `seed` builds it the first time.
+ * Changing `key` (switching company) loads that company's list.
+ */
+export function usePortalStore(key: string, seed: () => InformationRequest[]) {
+  const [data, setData] = useState<Persisted>(() => load(key, seed));
+  const [loadedKey, setLoadedKey] = useState(key);
   const [ops, setOps] = useState<Record<string, OpState>>({});
+  if (loadedKey !== key) {
+    // React's "reset state when a prop changes": re-render with the other company's list before commit.
+    setLoadedKey(key);
+    setData(load(key, seed));
+    setOps({});
+  }
   const [simulateFailure, setSimulateFailure] = useState(false);
   const failRef = useRef(simulateFailure);
   failRef.current = simulateFailure;
   const inFlight = useRef(new Set<string>());
 
-  useEffect(() => { persist(fixture, data); }, [fixture, data]);
+  useEffect(() => { if (loadedKey === key) persist(key, data); }, [key, loadedKey, data]);
 
   const setOp = (id: string, op: OpState | null) =>
     setOps((o) => { const n = { ...o }; if (op) n[id] = op; else delete n[id]; return n; });
@@ -155,6 +169,32 @@ export function usePortalStore(fixture: string) {
     setOp(req.id, null);
   }, [patch]);
 
+  /**
+   * Multiple choice. Completes after the save resolves. `clearIds` are follow-ups
+   * the new selection no longer calls for: their answers and files are removed
+   * (the screen confirms that first) so a stale follow-up never counts.
+   */
+  const saveSelection = useCallback(async (id: string, selection: ChoiceSelection, clearIds: readonly string[] = []) => {
+    if (inFlight.current.has(id)) return;
+    inFlight.current.add(id);
+    setOp(id, { phase: 'saving' });
+    await wait(LATENCY);
+    inFlight.current.delete(id);
+    if (failRef.current) {
+      setOp(id, { phase: 'failed', error: 'Your answer was not saved. Check your connection and try again — your choices are kept.' });
+      return;
+    }
+    setData((d) => ({
+      ...d,
+      requests: d.requests.map((r) => {
+        if (r.id === id) return { ...r, selection, status: 'complete', updatedAt: now() };
+        if (clearIds.includes(r.id)) return { ...r, answer: undefined, selection: undefined, files: undefined, status: 'pending', updatedAt: now() };
+        return r;
+      }),
+    }));
+    setOp(id, null);
+  }, []);
+
   const clearError = useCallback((id: string) => setOp(id, null), []);
 
   const removeFile = useCallback((reqId: string, fileId: string) =>
@@ -185,22 +225,20 @@ export function usePortalStore(fixture: string) {
     patch(ids, (r) => ({ ...r, delegatee: email }));
   }, [patch]);
 
-  const requestExtension = useCallback(async (requestedDate: string, reason: string) => {
-    await wait(LATENCY);
-    if (failRef.current) throw new Error('Your extension request was not sent. Try again.');
-    setData((d) => ({ ...d, extension: { requestedDate, reason, submittedAt: now() } }));
-  }, []);
+  /** The sender (Scalar or firm user) sets the due date directly; no request, no approval. */
+  const setDueDate = useCallback((iso: string) => setData((d) => ({ ...d, dueDate: iso })), []);
 
-  const reset = useCallback(() => {
-    try { window.localStorage.removeItem(KEY(fixture)); } catch { /* ignore */ }
-    setData(load(fixture));
+  /** Clears every stored company of this fixture, so the fund-admin menu resets too. */
+  const reset = useCallback((keys: readonly string[] = [key]) => {
+    try { keys.forEach((k) => window.localStorage.removeItem(KEY(k))); } catch { /* ignore */ }
+    setData(load(key, seed));
     setOps({});
-  }, [fixture]);
+  }, [key, seed]);
 
   return {
-    requests: data.requests, dueDate: data.dueDate, extension: data.extension, ops,
+    requests: data.requests, dueDate: data.dueDate, ops,
     simulateFailure, setSimulateFailure,
-    saveAnswer, uploadFile, clearError, removeFile, downloadUpload, setStatus, reopen, delegate, requestExtension, reset,
+    saveAnswer, saveSelection, uploadFile, clearError, removeFile, downloadUpload, setStatus, reopen, delegate, setDueDate, reset,
   };
 }
 
