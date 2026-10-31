@@ -75,6 +75,8 @@ export interface PrototypeConfig {
   scenario: ScenarioId;
   viewer: Viewer;
   link: LinkState;
+  /** `controls=off` hides the Prototype view panel, for links that show one fixed view. */
+  controls: boolean;
 }
 
 function read(): PrototypeConfig {
@@ -84,6 +86,7 @@ function read(): PrototypeConfig {
     scenario: scenario && scenario in SCENARIOS ? scenario : 'scalar-company',
     viewer: q.get('viewer') === 'sender' ? 'sender' : 'responder',
     link: q.get('link') === 'expired' ? 'expired' : 'active',
+    controls: q.get('controls') !== 'off',
   };
 }
 

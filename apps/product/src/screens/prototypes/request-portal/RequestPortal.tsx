@@ -373,7 +373,7 @@ export function RequestPortal({ state }: ScreenProps) {
     setSelected(new Set()); setExpanded(new Set());
     notify('info', 'Prototype data reset.');
   };
-  const prototypeControls = (
+  const prototypeControls = config.controls && (
     <div style={{ display: 'flex', flexDirection: 'column', gap: space.m, padding: space.m, borderTop: `1px solid ${color.stroke.divider}` }}>
       <Overline as="h2">Prototype view</Overline>
       <RadioGroup label="Who sent the request" size="s" value={config.scenario} onValueChange={(v) => setConfig({ scenario: v as typeof config.scenario })}>
@@ -446,9 +446,11 @@ export function RequestPortal({ state }: ScreenProps) {
               simulateFailure={store.simulateFailure}
               onLogin={() => setDialog('login')}
             />
-            <div style={{ alignSelf: 'center', width: '100%', maxWidth: '60ch', marginBottom: space.l, border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
-              {prototypeControls}
-            </div>
+            {prototypeControls && (
+              <div style={{ alignSelf: 'center', width: '100%', maxWidth: '60ch', marginBottom: space.l, border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
+                {prototypeControls}
+              </div>
+            )}
           </PageTemplate>
         ) : (
         <PageTemplate fullHeight={false} navigation={navigation} companyInfo={companyInfo} subNavigation={subNavigation}>
