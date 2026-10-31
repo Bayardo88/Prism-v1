@@ -182,7 +182,7 @@ export function RequestPortal({ state }: ScreenProps) {
 
   /* ---- chrome ---- */
   const logo = scenario.brand === 'scalar'
-    ? <img src="./assets/scalar-logo-white.svg" alt="Scalar" style={{ display: 'block', height: size.icon.l, width: 'auto' }} />
+    ? <img src="./assets/scalar-wordmark-white.png" alt="Scalar" style={{ display: 'block', height: size.icon.l, width: 'auto' }} />
     : <img className="scalar-primary-menu__logo" src="./assets/firm-logo.jpg" alt={scenario.senderName} />;
 
   // Fund admin: one company at a time. The menu shows each company's progress from its own stored list.
