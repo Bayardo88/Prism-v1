@@ -96,12 +96,15 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   const [data, setData] = useState<Persisted>(() => load(key, seed));
   const [loadedKey, setLoadedKey] = useState(key);
   const [ops, setOps] = useState<Record<string, OpState>>({});
-  if (loadedKey !== key) {
-    // React's "reset state when a prop changes": re-render with the other company's list before commit.
+  // React's "reset state when a prop changes": re-render with the other company's list before commit.
+  // This render already uses that list, so nothing reads one company's requests against another's categories.
+  const fresh = loadedKey !== key ? load(key, seed) : null;
+  if (fresh) {
     setLoadedKey(key);
-    setData(load(key, seed));
+    setData(fresh);
     setOps({});
   }
+  const current = fresh ?? data;
   const [simulateFailure, setSimulateFailure] = useState(false);
   const failRef = useRef(simulateFailure);
   failRef.current = simulateFailure;
@@ -236,7 +239,7 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   }, [key, seed]);
 
   return {
-    requests: data.requests, dueDate: data.dueDate, ops,
+    requests: current.requests, dueDate: current.dueDate, ops: fresh ? {} : ops,
     simulateFailure, setSimulateFailure,
     saveAnswer, saveSelection, uploadFile, clearError, removeFile, downloadUpload, setStatus, reopen, delegate, setDueDate, reset,
   };

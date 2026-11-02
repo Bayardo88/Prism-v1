@@ -18,10 +18,14 @@ From the request email (no Scalar login). In the product: **Company › Document
 
 | Scenario | Top row | Second row | Notes |
 |---|---|---|---|
-| `scalar-company` | Scalar logo | **Company name** · *Information Request* (selected) · help links | |
-| `scalar-fund-admin` | Scalar logo + `CompanyDropdown` | **Selected company** · … | Each company has its own list, progress and storage; the menu shows each one's status and "N of 3 companies complete". |
-| `firm-company` | Firm logo | **Company name** · … | No Scalar logo; "Powered by Scalar" in the Privacy Policy and How do I use this? dialogs. |
+| `scalar-company` | Scalar logo | **Company name** · *Information Request* (selected) · help links | Engagement "PPA". |
+| `scalar-company-409a` | Scalar logo | same | Engagement "409A"; a short list of 12 requests in 4 categories (Financials, Cap Table, Other, Questions). |
+| `scalar-fund-admin` | Scalar logo + `CompanyDropdown` | **Selected company** · … | Engagement "ASC 820 Fair Value". Each company has its own list, progress and storage; the menu shows each one's status and "N of 3 companies complete". |
+| `firm-company` | Firm logo | **Company name** · … | Engagement "PPA". No Scalar logo; "Powered by Scalar" in the Privacy Policy and How do I use this? dialogs. |
 
+`?controls=off` hides the Prototype view panel; the named Netlify links (one per view) use it.
+
+- **Signed-in header:** `sender` is signed in to the platform, so the top row ends like the product's (`AppFrame`): `Notification`, the Valuations / Workboard `ToolSwitch` (Scalar users only), the user's `Avatar` and the More menu — never Login. An expired link never stops them.
 - **Viewer:** `responder` sees "7 days remaining" (seeded a week out on first load; "Due today" / "Overdue by N days" in warning / negative words). `sender` (Scalar user, or Firm user when a firm sent it) sees "Due MM/DD/YYYY" and sets any date in a `DatePicker` dialog that saves at once — no reason, no approval.
 - **Link:** `expired` shows `ExpiredLink` only — no requests, filters or progress. "Email me a new link" goes to the address on the request (masked, m•••@abcco.com); "Log in instead" opens the requests without a new email. Due date and link expiry are separate.
 
@@ -39,7 +43,10 @@ From the request email (no Scalar login). In the product: **Company › Document
 6. **Templates:** one request holds *Step 1 · Template provided by Scalar* (name, CSV, version, issue date, Download) and *Step 2 · Upload the completed template*. Download fetches the real asset and saves it as `text/csv` with its own filename; a missing asset (request 1.3) shows *Template unavailable*. The download stays available after completion.
 7. **Statuses:** `pending` · `complete` · `na` · `sent`. N/A and *sent another way* resolve a request but never imply a file arrived. **Reopen** returns it to Pending immediately and keeps the saved answer/files attached and editable. Uploading again keeps earlier versions listed.
 8. **Selection:** Select All acts on the visible subset (category + status filter); selection is pruned whenever the filter changes, and bulk actions act on selected ∩ visible ∩ eligible, with counts in the menu.
-9. **Every control does something:** Login (signs in; opens an expired link), Contact Us, Privacy Policy, How do I use this?, the sender's due date and Delegate open dialogs that validate, confirm and can fail (with the failure toggle on).
+9. **Introduction:** optional instructions from the analyst (`INTRODUCTION`, `{company}` / `{sender}` filled in). When present, an *Introduction* item sits above *All requests* and the page opens on it; picking *All requests* or a category hides it.
+10. **Expand:** the Tertiary Menu's *Expand* menu offers Expand all · Expand all pending · Collapse all, acting on the visible rows (icon-only on a phone).
+11. **Access note (recipient only):** "Files are encrypted" and "Only approved users can access this request…" sit at the foot of the category column (end of the list on a phone).
+12. **Every control does something:** Login (signs in; opens an expired link), Contact Us, Privacy Policy, How do I use this?, the sender's due date and Delegate open dialogs that validate, confirm and can fail (with the failure toggle on).
 
 ## Components
 

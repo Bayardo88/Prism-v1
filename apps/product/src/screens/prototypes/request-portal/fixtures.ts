@@ -1,18 +1,28 @@
 /**
- * Demo content for the Unified Request Portal: a PPA information request for
- * report date 06/30/2026. Order is defined here (`categoryOrder`,
+ * Demo content for the Unified Request Portal: information requests for
+ * report date 06/30/2026 (the engagement label comes from the scenario). Order is defined here (`categoryOrder`,
  * `requestOrder`), never by array position.
  */
 import { DOC_EXTENSIONS, SHEET_EXTENSIONS, type Category, type InformationRequest, type TemplateAsset } from './model.js';
 
 export const REQUEST_META = {
-  engagement: 'PPA',
   reportDate: '06/30/2026',
   firm: 'Spatical Ventures',
   company: 'ABC Co',
   analyst: 'Steven Hansen',
   respondent: 'Maria López',
 };
+
+/**
+ * Optional instructions the analyst writes for the whole request. Shown as the
+ * "Introduction" item above the categories; `{company}` and `{sender}` are
+ * filled in. A request without one has no Introduction item.
+ */
+export const INTRODUCTION = [
+  'To ensure a timely and accurate completion of the valuation for {company}, {sender} requires specific financial, operational, and structural information.',
+  'We kindly request that you review and provide the following documents, as well as responses to the accompanying questions, at your earliest convenience.',
+  'To facilitate our quantitative analysis, please provide all financial statements, capitalization tables, and data schedules in Microsoft Excel format, wherever applicable, rather than as static PDFs.',
+];
 
 /**
  * The request's due date as the server would send it. The prototype seeds it a
@@ -110,43 +120,78 @@ const SEEDS: Seed[] = [
   { id: 'r-902', categoryId: 'other', requestOrder: 2, title: 'Presentation of the business strategy', responseType: 'file', ...doc },
 ];
 
-const orderOf = (categoryId: string) => CATEGORIES.find((c) => c.id === categoryId)!.order;
+/** A 409A request: twelve requests in four categories, to show a short list. */
+export const CATEGORIES_409A: Category[] = [
+  { id: 'v-financials', order: 1, name: 'Financials' },
+  { id: 'v-cap-table', order: 2, name: 'Cap Table' },
+  { id: 'v-other', order: 3, name: 'Other' },
+  { id: 'v-questions', order: 4, name: 'Questions' },
+];
+
+const SEEDS_409A: Seed[] = [
+  { id: 'v-101', categoryId: 'v-financials', requestOrder: 1, title: 'Historical annual income statements and year-end balance sheets', description: 'For the past three fiscal years, if available.', responseType: 'file', ...doc },
+  { id: 'v-102', categoryId: 'v-financials', requestOrder: 2, title: 'Last twelve months income statement and balance sheet', description: 'As of the valuation date.', responseType: 'file', ...doc },
+  { id: 'v-103', categoryId: 'v-financials', requestOrder: 3, title: 'Next year financial projections', responseType: 'file', ...doc },
+  { id: 'v-104', categoryId: 'v-financials', requestOrder: 4, title: 'Next 3–5 year financial projections', description: 'If available.', responseType: 'file', ...doc },
+  { id: 'v-201', categoryId: 'v-cap-table', requestOrder: 1, title: 'Cap table', description: 'As of the valuation date, including outstanding options and warrants with their strike prices.', responseType: 'file', ...doc },
+  { id: 'v-202', categoryId: 'v-cap-table', requestOrder: 2, title: 'Amended and Restated Certificate of Incorporation or Operating Agreement', description: 'Or another document detailing the economic rights and preferences of each class of equity.', responseType: 'file', ...doc },
+  { id: 'v-203', categoryId: 'v-cap-table', requestOrder: 3, title: 'Convertible note / SAFE ledger and agreements', description: 'If applicable.', responseType: 'file', ...doc },
+  { id: 'v-301', categoryId: 'v-other', requestOrder: 1, title: 'Latest company pitch deck', description: 'If available.', responseType: 'file', ...doc },
+  { id: 'v-302', categoryId: 'v-other', requestOrder: 2, title: 'A list of competitors and comparable firms', description: 'If available.', responseType: 'file', ...doc },
+  { id: 'v-303', categoryId: 'v-other', requestOrder: 3, title: 'Any previous valuation opinions', description: 'If available.', responseType: 'file', ...doc },
+  { id: 'v-401', categoryId: 'v-questions', requestOrder: 1, title: 'Has the company had any secondary transactions?', description: 'Secondary transactions.', responseType: 'choice' },
+  { id: 'v-402', categoryId: 'v-questions', requestOrder: 2, title: 'Has the company received any term sheets, or does it have any potential debt or equity transactions in process?', description: 'Term sheets.', responseType: 'choice' },
+];
+
+const orderOf = (categoryId: string) => [...CATEGORIES, ...CATEGORIES_409A].find((c) => c.id === categoryId)!.order;
 
 const build = (seeds: Seed[]): InformationRequest[] =>
   seeds.map((s) => ({ ...s, categoryOrder: orderOf(s.categoryId), status: s.status ?? 'pending' }));
 
 /** Keep the requests that pass, with the follow-ups of every parent that passes. */
-const pick = (test: (s: Seed) => boolean) => {
+const pickFrom = (SEEDS: Seed[]) => (test: (s: Seed) => boolean) => {
   const parents = SEEDS.filter((s) => !s.parentId && test(s));
   const ids = new Set(parents.map((s) => s.id));
   return build(SEEDS.filter((s) => ids.has(s.id) || (s.parentId !== undefined && ids.has(s.parentId))));
 };
 
 /** The fixture sets each screen state loads (P2.2). Same list component for all of them. */
-export const FIXTURES: Record<string, () => InformationRequest[]> = {
-  default: () => build(SEEDS),
-  'questions-only': () => pick((s) => ['text', 'choice', 'multiple_choice', 'date'].includes(s.responseType)),
-  'documents-only': () => pick((s) => s.responseType === 'file'),
-  'templates-only': () => pick((s) => s.responseType === 'template_file'),
-  // File requests resolve as "sent another way" here: no file exists, so none is implied (P0.8).
-  'all-complete': () => build(SEEDS).map((r) => {
-    if (r.status !== 'pending') return r;
-    if (r.responseType === 'file' || r.responseType === 'template_file') return { ...r, status: 'sent' };
-    if (r.responseType === 'multiple_choice') return { ...r, status: 'complete', selection: { optionIds: [r.choice!.options[0]!.id] } };
-    const answer = r.responseType === 'choice' ? 'no' : r.responseType === 'date' ? '2026-06-30' : 'Answered in the call on 10/20/2026.';
-    return { ...r, status: 'complete', answer };
-  }),
-  empty: () => [],
+const fixtures = (SEEDS: Seed[]): Record<string, () => InformationRequest[]> => {
+  const pick = pickFrom(SEEDS);
+  return {
+    default: () => build(SEEDS),
+    'questions-only': () => pick((s) => ['text', 'choice', 'multiple_choice', 'date'].includes(s.responseType)),
+    'documents-only': () => pick((s) => s.responseType === 'file'),
+    'templates-only': () => pick((s) => s.responseType === 'template_file'),
+    // File requests resolve as "sent another way" here: no file exists, so none is implied (P0.8).
+    'all-complete': () => build(SEEDS).map((r) => {
+      if (r.status !== 'pending') return r;
+      if (r.responseType === 'file' || r.responseType === 'template_file') return { ...r, status: 'sent' };
+      if (r.responseType === 'multiple_choice') return { ...r, status: 'complete', selection: { optionIds: [r.choice!.options[0]!.id] } };
+      const answer = r.responseType === 'choice' ? 'no' : r.responseType === 'date' ? '2026-06-30' : 'Answered in the call on 10/20/2026.';
+      return { ...r, status: 'complete', answer };
+    }),
+    empty: () => [],
+  };
 };
+
+/** Which request list a scenario loads: the full PPA-style list, or the short 409A one. */
+export type RequestSet = 'standard' | '409a';
+export const FIXTURES: Record<RequestSet, Record<string, () => InformationRequest[]>> = {
+  standard: fixtures(SEEDS),
+  '409a': fixtures(SEEDS_409A),
+};
+export const CATEGORIES_FOR: Record<RequestSet, Category[]> = { standard: CATEGORIES, '409a': CATEGORIES_409A };
 
 /**
  * A fund admin answers the same request for several companies. Each company has
  * its own list and progress: the first starts fresh, the second part-way, the
  * third fully resolved.
  */
-export function seedFor(state: string, companyIndex: number): InformationRequest[] {
-  const base = (FIXTURES[state] ?? FIXTURES.default!)();
+export function seedFor(state: string, companyIndex: number, set: RequestSet = 'standard'): InformationRequest[] {
+  const sets = FIXTURES[set];
+  const base = (sets[state] ?? sets.default!)();
   if (companyIndex === 0) return base;
   if (companyIndex === 1) return base.map((r, i) => (r.status === 'pending' && !r.parentId && i % 3 === 0 ? { ...r, status: 'sent' } : r));
-  return (FIXTURES['all-complete']!)().filter((r) => base.some((b) => b.id === r.id));
+  return (sets['all-complete']!)().filter((r) => base.some((b) => b.id === r.id));
 }

@@ -21,14 +21,15 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Banner, Button, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
-  FormField, Icon, InformationLabel, MainMenuItem, MenuDivider, MenuItem, Overline, PageTemplate, PrimaryMenu, ProgressBar,
+  Avatar, Banner, Button, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
+  FormField, Icon, InformationLabel, MainMenuItem, MenuDivider, MenuItem, Notification, Overline, PageTemplate, PrimaryMenu, ProgressBar,
   Radio, RadioGroup, ScalarProvider, SecondaryMenu, SecondaryMenuItem, SegmentedControl, Select, SelectMenu, SelectMenuOption,
-  SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, breakpoint, color, elevation, icons, radius, size, space, zIndex,
+  SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, ToolSwitch, breakpoint, color, elevation, icons, radius, size, space, zIndex,
+  type ToolSwitchValue,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
 import { ExpiredLink } from './ExpiredLink.js';
-import { CATEGORIES, REQUEST_META, seedFor } from './fixtures.js';
+import { CATEGORIES_FOR, INTRODUCTION, REQUEST_META, seedFor } from './fixtures.js';
 import { byNumber, isResolved, matchesStatus, type RequestStatus, type StatusFilter } from './model.js';
 import {
   ContactDialog, DelegateDialog, DueDateDialog, HelpDialog, LoginDialog, PrivacyDialog, type PortalDialog,
@@ -85,15 +86,23 @@ export function RequestPortal({ state }: ScreenProps) {
   const company = scenario.companies[companyIndex]!;
   // A company from another scenario never carries over.
   useEffect(() => { setCompanyId(SCENARIOS[config.scenario].companies[0]!.id); }, [config.scenario]);
-  const seed = useCallback(() => seedFor(state, companyIndex), [state, companyIndex]);
+  const requestSet = scenario.requestSet;
+  const CATEGORIES = CATEGORIES_FOR[requestSet];
+  const seed = useCallback(() => seedFor(state, companyIndex, requestSet), [state, companyIndex, requestSet]);
   const store = usePortalStore(storeKey(state, scenario.id, company.id), seed);
   const [loggedIn, setLoggedIn] = useState<string | null>(null);
   const [companyMenu, setCompanyMenu] = useState(false);
+  // The sender's own user (Scalar or firm) is signed in to the platform, so an expired link never stops them.
   const isSender = config.viewer === 'sender';
+  const [tool, setTool] = useState<ToolSwitchValue>('valuations');
   // An expired link shows nothing of the request until the recipient logs in.
-  const expired = config.link === 'expired' && !loggedIn;
+  const expired = config.link === 'expired' && !loggedIn && !isSender;
   const mobile = useMobile();
-  const [category, setCategory] = useState<string>('all');
+  // With instructions from the analyst, the page opens on them ("Introduction"); any category hides them.
+  const intro = INTRODUCTION.map((p) => p.replace('{company}', company.name).replace('{sender}', scenario.senderName));
+  const firstCategory = intro.length ? 'intro' : 'all';
+  const [category, setCategory] = useState<string>(firstCategory);
+  const [expandMenu, setExpandMenu] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [statusMenu, setStatusMenu] = useState(false);
   const [bulkMenu, setBulkMenu] = useState(false);
@@ -118,7 +127,7 @@ export function RequestPortal({ state }: ScreenProps) {
   const total = all.length;
   const resolvedCount = all.filter(done).length;
   const remaining = total - resolvedCount;
-  const visible = all.filter((r) => (category === 'all' || r.categoryId === category) && matchesStatus(r, statusFilter, every));
+  const visible = category === 'intro' ? [] : all.filter((r) => (category === 'all' || r.categoryId === category) && matchesStatus(r, statusFilter, every));
   const visibleIds = visible.map((r) => r.id);
   const categoriesInUse = CATEGORIES.filter((c) => all.some((r) => r.categoryId === c.id));
 
@@ -132,8 +141,8 @@ export function RequestPortal({ state }: ScreenProps) {
     });
   }, [visibleKey]);
 
-  // A different company's list starts with nothing selected or open.
-  useEffect(() => { setSelected(new Set()); setExpanded(new Set()); setCategory('all'); }, [company.id]);
+  // A different company's (or scenario's) list starts with nothing selected or open.
+  useEffect(() => { setSelected(new Set()); setExpanded(new Set()); setCategory(firstCategory); }, [company.id, scenario.id, firstCategory]);
 
   const selectedVisible = visible.filter((r) => selected.has(r.id));
   const allChecked = visible.length > 0 && selectedVisible.length === visible.length;
@@ -162,7 +171,7 @@ export function RequestPortal({ state }: ScreenProps) {
 
   const engagement = (
     <Text as="span" step="s" weight="semiBold" style={{ whiteSpace: 'nowrap', paddingInline: mobile ? undefined : space.s }}>
-      {REQUEST_META.engagement} | Report Date {REQUEST_META.reportDate}
+      {scenario.engagement} | Report Date {REQUEST_META.reportDate}
     </Text>
   );
 
@@ -187,7 +196,7 @@ export function RequestPortal({ state }: ScreenProps) {
 
   // Fund admin: one company at a time. The menu shows each company's progress from its own stored list.
   const companyStats = scenario.companies.map((c, i) => {
-    const list = c.id === company.id ? every : peekRequests(storeKey(state, scenario.id, c.id), () => seedFor(state, i));
+    const list = c.id === company.id ? every : peekRequests(storeKey(state, scenario.id, c.id), () => seedFor(state, i, requestSet));
     const parents = list.filter((r) => !r.parentId);
     const resolved = parents.filter((r) => isResolved(r, list)).length;
     return { company: c, resolved, total: parents.length, complete: parents.length > 0 && resolved === parents.length };
@@ -226,7 +235,22 @@ export function RequestPortal({ state }: ScreenProps) {
     <PrimaryMenu
       navLabel="Portal"
       logo={logo}
-      end={loggedIn ? (
+      end={isSender ? (
+        // Signed in to the platform: the same end-of-bar controls as the product (AppFrame), not Login.
+        <>
+          <Notification unread onClick={() => notify('info', 'Notifications are not part of this prototype.')} />
+          {scenario.brand === 'scalar' && <ToolSwitch value={tool} onChange={setTool} />}
+          <button type="button" aria-label={`${scenario.senderUser.name} — user menu`} title={scenario.senderUser.name}
+            onClick={() => notify('info', `Signed in as ${scenario.senderUser.name} (${scenario.senderRole}).`)}
+            style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer' }}>
+            <Avatar size="s" className="scalar-avatar--ringed" initials={scenario.senderUser.initials} alt={scenario.senderUser.name} />
+          </button>
+          <button type="button" className="scalar-primary-menu__more" aria-label="More actions"
+            onClick={() => notify('info', 'The actions menu is not part of this prototype.')}>
+            <Icon size="l" tone="inherit"><icons.MoreVert /></Icon>
+          </button>
+        </>
+      ) : loggedIn ? (
         <MainMenuItem icon={<Icon size="s" tone="onBrand"><icons.Logout /></Icon>} onClick={() => { setLoggedIn(null); notify('info', 'Logged out.'); }}>
           Log out
         </MainMenuItem>
@@ -291,6 +315,31 @@ export function RequestPortal({ state }: ScreenProps) {
       label="Request tools"
       end={<>
         <div style={{ position: 'relative' }}>
+          {/* A phone has no room for the label beside Select All and Bulk actions: the icon carries it. */}
+          <Button size="s" variant="tertiary" disabled={!visible.length} aria-haspopup="menu" aria-expanded={expandMenu}
+            aria-label={mobile ? 'Expand or collapse requests' : undefined}
+            leadingIcon={<Icon size="s" tone="inherit"><icons.UnfoldMore /></Icon>}
+            trailingIcon={mobile ? undefined : <Icon size="s" tone="inherit"><icons.ArrowDropDown /></Icon>} onClick={() => setExpandMenu((o) => !o)}>
+            {mobile ? null : 'Expand'}
+          </Button>
+          {expandMenu && visible.length > 0 && (
+            <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay, marginTop: space.xs, boxShadow: elevation.overlay }}>
+              {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+              <ContextMenu label="Expand or collapse requests" autoFocus onClose={() => setExpandMenu(false)}>
+                <MenuItem onClick={() => { setExpanded(new Set(visibleIds)); setExpandMenu(false); }} icon={<Icon size="s" tone="inherit"><icons.UnfoldMore /></Icon>}>
+                  Expand all
+                </MenuItem>
+                <MenuItem onClick={() => { setExpanded(new Set(visible.filter((r) => !done(r)).map((r) => r.id))); setExpandMenu(false); }} icon={<Icon size="s" tone="inherit"><icons.Schedule /></Icon>}>
+                  {`Expand all pending (${visible.filter((r) => !done(r)).length})`}
+                </MenuItem>
+                <MenuItem onClick={() => { setExpanded(new Set()); setExpandMenu(false); }} icon={<Icon size="s" tone="inherit"><icons.UnfoldLess /></Icon>}>
+                  Collapse all
+                </MenuItem>
+              </ContextMenu>
+            </div>
+          )}
+        </div>
+        <div style={{ position: 'relative' }}>
           <FilterDropdown label="Status" expanded={statusMenu} aria-haspopup="listbox" onClick={() => setStatusMenu((o) => !o)}>
             {statusText}
           </FilterDropdown>
@@ -346,6 +395,9 @@ export function RequestPortal({ state }: ScreenProps) {
   /* ---- body ---- */
   const categoryNav = (
     <nav aria-label="Categories" style={{ display: 'flex', flexDirection: 'column', gap: space['2xs'] }}>
+      {intro.length > 0 && (
+        <SubmenuItem current={category === 'intro'} onClick={() => setCategory('intro')}>Introduction</SubmenuItem>
+      )}
       <SubmenuItem current={category === 'all'} onClick={() => setCategory('all')}>
         <span style={{ display: 'flex', justifyContent: 'space-between', gap: space.s, width: '100%' }}>
           <span>All requests</span><Text as="span" step="s" tone="secondary">{resolvedCount}/{total}</Text>
@@ -399,7 +451,32 @@ export function RequestPortal({ state }: ScreenProps) {
     </div>
   );
 
-  const list = total === 0 ? (
+  // For the recipient (not signed in): who can see this request, and that files are protected.
+  const securityNote = !isSender && (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m, borderTop: `1px solid ${color.stroke.divider}` }}>
+      <span style={{ display: 'flex', gap: space.s, alignItems: 'flex-start' }}>
+        <Icon size="s" tone="secondary"><icons.Lock /></Icon>
+        <Text as="span" step="s" tone="secondary">Files are encrypted.</Text>
+      </span>
+      <span style={{ display: 'flex', gap: space.s, alignItems: 'flex-start' }}>
+        <Icon size="s" tone="secondary"><icons.VerifiedUser /></Icon>
+        <Text as="span" step="s" tone="secondary">Only approved users can access this request. Use Delegate to forward requests to other coworkers.</Text>
+      </span>
+    </div>
+  );
+
+  const introduction = (
+    <section aria-labelledby="request-intro" style={{ display: 'flex', flexDirection: 'column', gap: space.m, padding: space.l, maxWidth: '75ch' }}>
+      <Text as="h2" id="request-intro" step="l" weight="semiBold" style={{ margin: 0 }}>Introduction</Text>
+      {intro.map((p) => <Text as="p" key={p} step="m" style={{ margin: 0 }}>{p}</Text>)}
+      <Text as="p" step="m" tone="secondary" style={{ margin: 0 }}>
+        {`${total} request${total === 1 ? '' : 's'} · ${remaining} remaining`}
+      </Text>
+      <div><Button size="s" onClick={() => setCategory('all')}>View requests</Button></div>
+    </section>
+  );
+
+  const list = category === 'intro' ? introduction : total === 0 ? (
     <EmptyState type="no-data" title="No requests yet" body={`${scenario.senderName} has not sent any requests for ${company.name} for this report date. You’ll get an email when they do.`} icon={<icons.Inbox />} />
   ) : visible.length === 0 ? (
     <EmptyState
@@ -461,7 +538,10 @@ export function RequestPortal({ state }: ScreenProps) {
                   <Overline as="h2" style={{ padding: `${space.xs} ${space.s}` }}>Categories</Overline>
                   {categoryNav}
                 </div>
-                {prototypeControls}
+                <div>
+                  {securityNote}
+                  {prototypeControls}
+                </div>
               </aside>
             )}
             <section aria-label="Requests" style={{ minHeight: 0, overflow: 'auto', border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
@@ -470,6 +550,7 @@ export function RequestPortal({ state }: ScreenProps) {
                   {engagement}
                   <FormField label="Category">
                     <Select value={category} onChange={(e) => setCategory(e.currentTarget.value)}>
+                      {intro.length > 0 && <option value="intro">Introduction</option>}
                       <option value="all">All requests ({resolvedCount}/{total})</option>
                       {categoriesInUse.map((c) => {
                         const items = all.filter((r) => r.categoryId === c.id);
@@ -493,6 +574,7 @@ export function RequestPortal({ state }: ScreenProps) {
                 </div>
               )}
               {list}
+              {mobile && securityNote}
               {mobile && prototypeControls}
             </section>
           </div>

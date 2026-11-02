@@ -7,9 +7,10 @@
  * combination.
  */
 import { useEffect, useState } from 'react';
-import { companyById, type Company } from '../../../data/fixtures.js';
+import { companyById, user, type Company } from '../../../data/fixtures.js';
+import { REQUEST_META, type RequestSet } from './fixtures.js';
 
-export type ScenarioId = 'scalar-company' | 'scalar-fund-admin' | 'firm-company';
+export type ScenarioId = 'scalar-company' | 'scalar-company-409a' | 'scalar-fund-admin' | 'firm-company';
 /** `sender` is a Scalar user, or a firm user when the firm sent the request. */
 export type Viewer = 'responder' | 'sender';
 export type LinkState = 'active' | 'expired';
@@ -28,7 +29,16 @@ export interface Scenario {
   /** Show "Powered by Scalar" in the help and privacy dialogs. */
   poweredBy: boolean;
   recipient: { name: string; email: string };
+  /** The engagement in the tertiary row ("PPA | Report Date …"). */
+  engagement: string;
+  /** Which request list loads. */
+  requestSet: RequestSet;
+  /** Who a `sender` viewer is signed in as. */
+  senderUser: { name: string; initials: string };
 }
+
+const SCALAR_USER = { name: REQUEST_META.analyst, initials: 'SH' };
+const MARIA = { name: 'Maria López', email: 'maria.lopez@abcco.com' };
 
 export const SCENARIOS: Record<ScenarioId, Scenario> = {
   'scalar-company': {
@@ -39,7 +49,23 @@ export const SCENARIOS: Record<ScenarioId, Scenario> = {
     senderRole: 'Scalar user',
     companies: [companyById('abc-co')],
     poweredBy: false,
-    recipient: { name: 'Maria López', email: 'maria.lopez@abcco.com' },
+    recipient: MARIA,
+    engagement: 'PPA',
+    requestSet: 'standard',
+    senderUser: SCALAR_USER,
+  },
+  'scalar-company-409a': {
+    id: 'scalar-company-409a',
+    label: 'Scalar → company (409A, 12 requests)',
+    brand: 'scalar',
+    senderName: 'Scalar',
+    senderRole: 'Scalar user',
+    companies: [companyById('abc-co')],
+    poweredBy: false,
+    recipient: MARIA,
+    engagement: '409A',
+    requestSet: '409a',
+    senderUser: SCALAR_USER,
   },
   'scalar-fund-admin': {
     id: 'scalar-fund-admin',
@@ -50,6 +76,9 @@ export const SCENARIOS: Record<ScenarioId, Scenario> = {
     companies: [companyById('abc-co'), companyById('databricks'), companyById('cohesity')],
     poweredBy: false,
     recipient: { name: 'Jordan Reyes', email: 'jordan.reyes@harborfundadmin.com' },
+    engagement: 'ASC 820 Fair Value',
+    requestSet: 'standard',
+    senderUser: SCALAR_USER,
   },
   'firm-company': {
     id: 'firm-company',
@@ -59,7 +88,10 @@ export const SCENARIOS: Record<ScenarioId, Scenario> = {
     senderRole: 'Firm user',
     companies: [companyById('abc-co')],
     poweredBy: true,
-    recipient: { name: 'Maria López', email: 'maria.lopez@abcco.com' },
+    recipient: MARIA,
+    engagement: 'PPA',
+    requestSet: 'standard',
+    senderUser: { name: user.name, initials: user.initials },
   },
 };
 
