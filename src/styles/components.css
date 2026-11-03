@@ -271,14 +271,7 @@
 .scalar-ai-button:disabled { background: var(--color-bg-disabled); color: var(--color-text-on-disabled); cursor: not-allowed; }
 
 /* --- AI Outline ------------------------------------------------------------ */
-/* A 3px ring in the AI gradient (known gap 15), drawn on its own layer over the
- * host's edge, so the host keeps its own fill and border. The ring is a conic
- * gradient on ::before, masked so only its 3px transparent border shows (the
- * border-beam technique). While active, a short comet of the gradient, with a
- * matching glow just outside the edge, orbits once every 3s: turning the conic's start angle (a registered property, so
- * it interpolates) makes it follow every corner, and a full turn ends on its
- * first frame, so the loop has no seam. Still, or under reduced motion, the
- * whole ring shows the four stops at rest. */
+/* AI gradient ring on ::before, masked to its border; host fill untouched. Docs: docs/ai-outline.md. */
 @property --scalar-ai-outline-angle {
   syntax: '<angle>';
   inherits: false;
@@ -311,14 +304,7 @@
   mask: linear-gradient(black 0 0) padding-box, linear-gradient(black 0 0);
   mask-composite: exclude;
 }
-/* The orbit is an animation, which base.css's reduced-motion rule doesn't
- * reach, so it (and its glow) only runs when the user allows motion.
- *
- * The glow is the same comet on ::after, filled across the host's box,
- * blurred outward into a space.m band, then masked to that band, so it only
- * shows outside the host and never tints its fill. Two classes outrank a
- * host's own ::after (the bell's hit area); the bell is 32px, a full target
- * without it. */
+/* Comet + glow (::after, blurred, masked to outside the host) only when motion is allowed. */
 @media (prefers-reduced-motion: no-preference) {
   .scalar-ai-outline--active::before,
   .scalar-ai-outline.scalar-ai-outline--active::after {
@@ -1661,8 +1647,7 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 }
 .scalar-notification::after { content: ''; position: absolute; inset: -6px; }
 .scalar-notification:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: 2px; }
-/* While AI works, the AI outline's glow takes over ::after. A 32px tile spreads
- * little colour, so on the navy bar the glow is tighter and at full strength. */
+/* Bell: tighter, stronger glow to read on navy. */
 @media (prefers-reduced-motion: no-preference) {
   .scalar-notification.scalar-ai-outline--active::after { opacity: 1; filter: blur(4px) saturate(1.5); }
 }
