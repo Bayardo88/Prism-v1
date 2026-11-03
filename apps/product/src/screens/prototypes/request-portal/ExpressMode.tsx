@@ -6,10 +6,10 @@
  *
  * Steps: add (drop + paste) → analyzing (AiOutline + words) → review → applying.
  */
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import {
   AiOutline, Alert, Button, Checkbox, Chip, Dropzone, FileRow, FormField, Icon, Input, Modal, Overline, Select, Spinner,
-  Text, Textarea, color, icons, radius, space,
+  Text, Textarea, color, glyphs, icons, radius, space,
 } from '@scalar/design-system';
 import {
   FILE_TYPES, analyze, requestLabel, sampleContent, type AnswerSuggestion, type Confidence, type FileSuggestion,
@@ -239,7 +239,7 @@ export function ExpressModeDialog({ open, onClose, requests, requestSet, initial
     <>
       <Text step="s" tone="tertiary" style={{ marginRight: 'auto' }}>Prototype: matching is simulated in your browser.</Text>
       <Button variant="secondary" onClick={onClose}>Cancel</Button>
-      <Button leadingIcon={<Icon size="s" tone="inherit"><icons.StarShine /></Icon>} disabled={!files.length && !text.trim()} onClick={run}>Analyze</Button>
+      <Button leadingIcon={<Icon size="s" tone="inherit"><glyphs.AiMark /></Icon>} disabled={!files.length && !text.trim()} onClick={run}>Analyze</Button>
     </>
   ) : step === 'review' ? (
     <>
@@ -258,6 +258,16 @@ export function ExpressModeDialog({ open, onClose, requests, requestSet, initial
     </Modal>
   );
 }
+
+/**
+ * The Express mode button wears the AI colour, like the Ask AI tool. Button has no AI tone, so
+ * this sets its documented tone properties (`--btn-*`) to the AI tokens. White on `bg.ai` is 5:1 (AA).
+ */
+export const AI_BUTTON_STYLE = {
+  '--btn-fill': color.bg.ai, '--btn-fill-hover': color.bg.ai, '--btn-fill-pressed': color.bg.ai, '--btn-on': color.text.onAi,
+  '--btn-ink': color.text.ai, '--btn-ink-hover': color.text.ai, '--btn-ink-pressed': color.text.ai,
+  '--btn-line': color.stroke.ai, '--btn-tint': color.bg.aiSubtle,
+} as CSSProperties;
 
 /** Shown on a request whose response came from Express mode. */
 export const EXPRESS_NOTE = 'Matched by Express mode';

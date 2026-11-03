@@ -25,11 +25,11 @@ import {
   FormField, Icon, InformationLabel, MainMenuItem, MenuDivider, MenuItem, Notification, Overline, PageTemplate, PrimaryMenu, ProgressBar,
   Radio, RadioGroup, ScalarProvider, SecondaryMenu, SecondaryMenuItem, SegmentedControl, Select, SelectMenu, SelectMenuOption,
   SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, ToolSwitch, breakpoint, color, elevation, icons, radius, size, space, zIndex,
-  type ToolSwitchValue,
+  glyphs, type ToolSwitchValue,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
 import { ExpiredLink } from './ExpiredLink.js';
-import { ExpressModeDialog, type ExpressPlan } from './ExpressMode.js';
+import { AI_BUTTON_STYLE, ExpressModeDialog, type ExpressPlan } from './ExpressMode.js';
 import { CATEGORIES_FOR, INTRODUCTION, REQUEST_META, seedFor } from './fixtures.js';
 import { byNumber, formatBytes, isResolved, matchesStatus, requestNumber, type RequestStatus, type StatusFilter } from './model.js';
 import {
@@ -223,7 +223,7 @@ export function RequestPortal({ state }: ScreenProps) {
   const statusText = STATUS_OPTIONS.find((o) => o.value === statusFilter)!.label;
 
   const expressButton = (
-    <Button size="s" variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.StarShine /></Icon>} onClick={() => setExpress({ open: true, files: [] })}>
+    <Button size="s" style={AI_BUTTON_STYLE} leadingIcon={<Icon size="s" tone="inherit"><glyphs.AiMark /></Icon>} onClick={() => setExpress({ open: true, files: [] })}>
       Express mode
     </Button>
   );
@@ -662,7 +662,7 @@ export function RequestPortal({ state }: ScreenProps) {
               )}
               {dragging && (
                 <div style={{ position: 'sticky', top: 0, zIndex: zIndex.sticky, padding: space.m, background: color.bg.surface }}>
-                  <Alert tone="info" title="Drop to sort with Express mode" icon={<Icon size="m" tone="inherit"><icons.StarShine /></Icon>}>
+                  <Alert tone="info" title="Drop to sort with Express mode" icon={<Icon size="m" tone="inherit"><glyphs.AiMark /></Icon>}>
                     We’ll suggest which request each file answers. You review them before anything is saved.
                   </Alert>
                 </div>

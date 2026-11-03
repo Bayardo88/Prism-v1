@@ -7,7 +7,7 @@
 import { useEffect, useId, useState, type DragEvent } from 'react';
 import {
   Alert, Button, Checkbox, Chip, ConfirmationDialog, FileRow, FormField, Icon, Input, Label, Radio, RadioGroup,
-  Text, Textarea, Tooltip, color, icons, radius, size, space,
+  Text, Textarea, Tooltip, color, glyphs, icons, radius, size, space,
 } from '@scalar/design-system';
 import { UploadBar, UploadedFiles, canUpload, useUploader, type Notify } from './FileUpload.js';
 import {
@@ -158,7 +158,7 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
           {req.details && <Text id={ids.details} step="m" tone="secondary">{req.details}</Text>}
           {/* Where the response came from stays visible, to the recipient and the sender. */}
           {(req.answeredViaExpress || currentFiles(req).some((f) => f.viaExpress)) && (
-            <div><Chip size="s" styleVariant="ai" leadingIcon={<Icon size="xs" tone="inherit"><icons.StarShine /></Icon>}>{EXPRESS_NOTE}</Chip></div>
+            <div><Chip size="s" styleVariant="ai" leadingIcon={<Icon size="xs" tone="inherit"><glyphs.AiMark /></Icon>}>{EXPRESS_NOTE}</Chip></div>
           )}
           {req.delegatee && mobile && <Text step="s" tone="secondary">Delegated to {req.delegatee}</Text>}
 
