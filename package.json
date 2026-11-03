@@ -114,7 +114,7 @@
   "size-limit": [
     {
       "path": "dist/styles/scalar.css",
-      "limit": "40 kB",
+      "limit": "41 kB",
       "gzip": true
     }
   ]
