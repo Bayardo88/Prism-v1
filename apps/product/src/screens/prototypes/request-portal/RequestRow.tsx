@@ -7,7 +7,7 @@
 import { useEffect, useState } from 'react';
 import {
   Alert, Button, Checkbox, Chip, ConfirmationDialog, Dropzone, FileRow, FormField, Icon, Input, Label, Radio, RadioGroup,
-  Text, Textarea, color, icons, radius, size, space,
+  Text, Textarea, Tooltip, color, icons, radius, size, space,
 } from '@scalar/design-system';
 import {
   MAX_FILE_BYTES, activeFollowUp, formatBytes, requestNumber, responseTypeLabel, shownStatus, statusLabel,
@@ -145,12 +145,17 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
               </Button>
             ) : (
               <>
-                <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.DoNotDisturbOn /></Icon>} onClick={() => { store.setStatus([req.id], 'na'); notify('info', `Request ${num} marked as not applicable.`); }}>
-                  Mark as not applicable
-                </Button>
-                <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.Send /></Icon>} onClick={() => { store.setStatus([req.id], 'sent'); notify('info', `Request ${num} marked complete — sent another way.`); }}>
-                  Mark complete – sent another way
-                </Button>
+                {/* Short labels; the tooltip explains each outcome for first-time users. */}
+                <Tooltip position="right" content="Mark as not applicable, such as when it isn’t available or doesn’t apply to your business.">
+                  <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.DoNotDisturbOn /></Icon>} onClick={() => { store.setStatus([req.id], 'na'); notify('info', `Request ${num} marked as not applicable.`); }}>
+                    N/A
+                  </Button>
+                </Tooltip>
+                <Tooltip content="Mark as complete, such as when you sent it offline or another way.">
+                  <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.Send /></Icon>} onClick={() => { store.setStatus([req.id], 'sent'); notify('info', `Request ${num} marked complete — sent another way.`); }}>
+                    Complete
+                  </Button>
+                </Tooltip>
               </>
             )}
             <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.PersonAdd /></Icon>} onClick={() => onDelegate(req.id)}>
