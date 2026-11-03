@@ -715,7 +715,7 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-alert--warning  { --alert-bg: var(--color-bg-warning-subtle);  --alert-line: var(--color-stroke-warning);  --alert-icon: var(--color-icon-warning); }
 .scalar-alert--negative { --alert-bg: var(--color-bg-negative-subtle); --alert-line: var(--color-stroke-negative); --alert-icon: var(--color-icon-negative); }
 .scalar-alert__icon { color: var(--alert-icon); flex: none; }
-.scalar-alert__body { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }
+.scalar-alert__body { display: flex; flex-direction: column; gap: var(--space-2xs); flex: 1; min-width: 0; }
 
 /* --- Toast ----------------------------------------------------------------- */
 .scalar-toast {

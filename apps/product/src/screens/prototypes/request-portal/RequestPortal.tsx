@@ -469,7 +469,7 @@ export function RequestPortal({ state }: ScreenProps) {
   const introduction = intro.length > 0 && introOpen && category === 'all' && (
     <div style={{ padding: space.m, borderBottom: `1px solid ${color.stroke.divider}` }}>
       <Alert tone="info" title={`Introduction from ${scenario.senderName}`} onDismiss={() => setIntroOpen(false)} dismissLabel="Dismiss introduction">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, maxWidth: '90ch' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
           {intro.map((p) => <Text as="p" key={p} step="m" style={{ margin: 0 }}>{p}</Text>)}
         </div>
       </Alert>
