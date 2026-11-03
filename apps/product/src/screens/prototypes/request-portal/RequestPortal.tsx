@@ -19,9 +19,9 @@
  * date), and whether the link has expired (then only ExpiredLink shows, until
  * the recipient logs in).
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import {
-  Alert, Avatar, Banner, Button, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
+  Alert, Avatar, Banner, Button, FileRow, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
   FormField, Icon, InformationLabel, MainMenuItem, MenuDivider, MenuItem, Notification, Overline, PageTemplate, PrimaryMenu, ProgressBar,
   Radio, RadioGroup, ScalarProvider, SecondaryMenu, SecondaryMenuItem, SegmentedControl, Select, SelectMenu, SelectMenuOption,
   SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, ToolSwitch, breakpoint, color, elevation, icons, radius, size, space, zIndex,
@@ -29,8 +29,9 @@ import {
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
 import { ExpiredLink } from './ExpiredLink.js';
+import { ExpressModeDialog, type ExpressPlan } from './ExpressMode.js';
 import { CATEGORIES_FOR, INTRODUCTION, REQUEST_META, seedFor } from './fixtures.js';
-import { byNumber, isResolved, matchesStatus, type RequestStatus, type StatusFilter } from './model.js';
+import { byNumber, formatBytes, isResolved, matchesStatus, requestNumber, type RequestStatus, type StatusFilter } from './model.js';
 import {
   ContactDialog, DelegateDialog, DueDateDialog, HelpDialog, LoginDialog, PrivacyDialog, type PortalDialog,
 } from './PortalModals.js';
@@ -113,6 +114,9 @@ export function RequestPortal({ state }: ScreenProps) {
   const [delegateIds, setDelegateIds] = useState<string[]>([]);
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const toastId = useRef(0);
+  // Express mode: files dropped on the list open it with those files already added.
+  const [express, setExpress] = useState<{ open: boolean; files: File[] }>({ open: false, files: [] });
+  const [dragging, setDragging] = useState(false);
 
   const notify = (tone: ToastItem['tone'], text: string) => {
     const id = ++toastId.current;
@@ -167,8 +171,60 @@ export function RequestPortal({ state }: ScreenProps) {
   };
   const openDelegate = (ids: string[]) => { setDelegateIds(ids); setDialog('delegate'); setBulkMenu(false); };
 
+  /* ---- Express mode: apply what the recipient confirmed, one save at a time, through the normal lifecycle ---- */
+  const applyExpress = async (plan: ExpressPlan, progress: (n: number) => void) => {
+    let saved = 0; let failed = 0; let n = 0;
+    const step = (ok: boolean) => { if (ok) saved += 1; else failed += 1; progress(++n); };
+    // Requests save side by side; files for the same request save one after another.
+    const jobs = new Map<string, (() => Promise<boolean>)[]>();
+    const add = (id: string, job: () => Promise<boolean>) => jobs.set(id, [...(jobs.get(id) ?? []), job]);
+    for (const { file, requestId } of plan.files) {
+      const req = every.find((r) => r.id === requestId);
+      add(requestId, async () => (req ? store.uploadFile(req, file, true) : false));
+    }
+    for (const { requestId, value } of plan.answers) {
+      const req = every.find((r) => r.id === requestId);
+      add(requestId, async () => (!req ? false : req.responseType === 'multiple_choice'
+        ? store.saveSelection(requestId, { optionIds: [value] }, [], true)
+        : store.saveAnswer(requestId, value, true)));
+    }
+    await Promise.all([...jobs.values()].map(async (chain) => { for (const job of chain) step(await job()); }));
+    const kept = plan.unsorted.length ? await store.addUnsorted(plan.unsorted) : 0;
+    setExpress({ open: false, files: [] });
+    setCategory('all');
+    const parts = [
+      saved && `${saved} item${saved === 1 ? '' : 's'} saved`,
+      kept && `${kept} file${kept === 1 ? '' : 's'} kept in Unsorted files`,
+    ].filter(Boolean).join(' · ');
+    if (parts) notify('positive', `Express mode: ${parts}.`);
+    if (failed) notify('negative', `${failed} item${failed === 1 ? '' : 's'} could not be saved and ${failed === 1 ? 'stays' : 'stay'} Pending. Open ${failed === 1 ? 'it' : 'them'} to try again.`);
+  };
+
+  // A drop on a request's own upload area stays with that request (its Dropzone handles it first).
+  const listDrop = {
+    onDragOver: (e: DragEvent) => {
+      if (!e.dataTransfer.types.includes('Files')) return;
+      const overRow = (e.target as HTMLElement).closest('.scalar-dropzone');
+      e.preventDefault();
+      setDragging(!overRow);
+    },
+    onDragLeave: (e: DragEvent) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragging(false); },
+    onDrop: (e: DragEvent) => {
+      setDragging(false);
+      if (e.defaultPrevented || !e.dataTransfer.files.length) return;
+      e.preventDefault();
+      setExpress({ open: true, files: [...e.dataTransfer.files] });
+    },
+  };
+
   const clearFilters = () => { setCategory('all'); setStatusFilter('all'); };
   const statusText = STATUS_OPTIONS.find((o) => o.value === statusFilter)!.label;
+
+  const expressButton = (
+    <Button size="s" variant="secondary" leadingIcon={<Icon size="s" tone="inherit"><icons.StarShine /></Icon>} onClick={() => setExpress({ open: true, files: [] })}>
+      Express mode
+    </Button>
+  );
 
   const engagement = (
     <Text as="span" step="s" weight="semiBold" style={{ whiteSpace: 'nowrap', paddingInline: mobile ? undefined : space.s }}>
@@ -315,6 +371,8 @@ export function RequestPortal({ state }: ScreenProps) {
     <TertiaryMenu
       label="Request tools"
       end={<>
+        {/* A phone's toolbar is full: there Express mode sits above the list instead. */}
+        {!isSender && !mobile && expressButton}
         <div style={{ position: 'relative' }}>
           {/* A phone has no room for the label beside Select All and Bulk actions: the icon carries it. */}
           <Button size="s" variant="tertiary" disabled={!visible.length} aria-haspopup="menu" aria-expanded={expandMenu}
@@ -476,6 +534,31 @@ export function RequestPortal({ state }: ScreenProps) {
     </div>
   );
 
+  // Files Express mode couldn't place, kept for the recipient (never sent to the analyst on their own).
+  const assignable = all.filter((r) => r.status === 'pending' && (r.responseType === 'file' || r.responseType === 'template_file'));
+  const unsortedTray = !isSender && store.unsorted.length > 0 && category === 'all' && (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m, borderBottom: `1px solid ${color.stroke.divider}` }}>
+      <Overline as="h2">{`Unsorted files (${store.unsorted.length})`}</Overline>
+      <Text step="s" tone="secondary">Express mode couldn’t match these. Assign each one to a request, or remove it.</Text>
+      {store.unsorted.map((f) => (
+        <div key={f.id} style={{ display: 'grid', gridTemplateColumns: mobile ? 'minmax(0, 1fr) auto' : 'minmax(0, 1fr) minmax(0, 1fr) auto', alignItems: 'center', gap: space.s }}>
+          <div style={{ minWidth: 0, gridColumn: mobile ? '1 / -1' : undefined }}><FileRow name={f.name} meta={[{ label: formatBytes(f.sizeBytes) }]} /></div>
+          <Select aria-label={`Assign ${f.name} to a request`} value=""
+            onChange={async (e) => {
+              const req = all.find((r) => r.id === e.currentTarget.value);
+              if (!req) return;
+              const ok = await store.assignUnsorted(f, req);
+              notify(ok ? 'positive' : 'negative', ok ? `${f.name} saved to request ${requestNumber(req)}.` : `${f.name} was not saved to request ${requestNumber(req)}. Open it to see why.`);
+            }}>
+            <option value="" disabled>Assign to…</option>
+            {assignable.map((r) => <option key={r.id} value={r.id}>{requestNumber(r)} {r.title}</option>)}
+          </Select>
+          <Button variant="tertiary" size="s" tone="negative" onClick={() => { store.removeUnsorted(f.id); notify('info', `${f.name} removed.`); }}>Remove</Button>
+        </div>
+      ))}
+    </div>
+  );
+
   const list = total === 0 ? (
     <EmptyState type="no-data" title="No requests yet" body={`${scenario.senderName} has not sent any requests for ${company.name} for this report date. You’ll get an email when they do.`} icon={<icons.Inbox />} />
   ) : visible.length === 0 ? (
@@ -544,10 +627,12 @@ export function RequestPortal({ state }: ScreenProps) {
                 </div>
               </aside>
             )}
-            <section aria-label="Requests" style={{ minHeight: 0, overflow: 'auto', border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
+            <section aria-label="Requests" {...(isSender ? {} : listDrop)}
+              style={{ minHeight: 0, overflow: 'auto', border: `1px solid ${dragging ? color.stroke.brand : color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
               {mobile && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m, borderBottom: `1px solid ${color.stroke.divider}` }}>
                   {engagement}
+                  {!isSender && <div>{expressButton}</div>}
                   <FormField label="Category">
                     <Select value={category} onChange={(e) => (e.currentTarget.value === 'intro' ? showIntro() : setCategory(e.currentTarget.value))}>
                       {intro.length > 0 && <option value="intro">Introduction</option>}
@@ -573,6 +658,14 @@ export function RequestPortal({ state }: ScreenProps) {
                   </Banner>
                 </div>
               )}
+              {dragging && (
+                <div style={{ position: 'sticky', top: 0, zIndex: zIndex.sticky, padding: space.m, background: color.bg.surface }}>
+                  <Alert tone="info" title="Drop to sort with Express mode" icon={<Icon size="m" tone="inherit"><icons.StarShine /></Icon>}>
+                    We’ll suggest which request each file answers. You review them before anything is saved.
+                  </Alert>
+                </div>
+              )}
+              {unsortedTray}
               {introduction}
               {list}
               {mobile && securityNote}
@@ -602,6 +695,14 @@ export function RequestPortal({ state }: ScreenProps) {
           onClose={() => setDialog(null)}
           dueDate={store.dueDate}
           onSave={(iso) => { store.setDueDate(iso); notify('positive', `Due date changed to ${fmt(iso)}.`); }}
+        />
+        <ExpressModeDialog
+          open={express.open}
+          onClose={() => setExpress({ open: false, files: [] })}
+          requests={every}
+          requestSet={requestSet}
+          initialFiles={express.files}
+          onApply={applyExpress}
         />
         <DelegateDialog
           open={dialog === 'delegate'}

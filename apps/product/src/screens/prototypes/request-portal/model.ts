@@ -35,6 +35,8 @@ export interface UploadedFile {
   uploadedAt: string;
   uploadedBy: string;
   version: number;
+  /** Placed on this request by Express mode (the recipient confirmed the match). */
+  viaExpress?: boolean;
 }
 
 /** One option of a multiple-choice request. `other` adds a required free-text box when picked. */
@@ -89,6 +91,8 @@ export interface InformationRequest {
   files?: UploadedFile[];
   delegatee?: string;
   updatedAt?: string;
+  /** The saved answer was drafted by Express mode from pasted text and confirmed by the recipient. */
+  answeredViaExpress?: boolean;
 }
 
 export const MAX_FILE_BYTES = 250 * 1024 * 1024;

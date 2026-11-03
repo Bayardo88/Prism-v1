@@ -22,6 +22,8 @@ export interface OpState { phase: Phase; progress?: number; error?: string; file
 interface Persisted {
   requests: InformationRequest[];
   dueDate: string;
+  /** Express mode files the recipient left unsorted. Bytes live in IndexedDB under the same id. */
+  unsorted?: UploadedFile[];
 }
 
 // v2: multiple choice, follow-ups and a seeded due date changed the stored shape.
@@ -119,26 +121,27 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
     setData((d) => ({ ...d, requests: d.requests.map((r) => (ids.includes(r.id) ? { ...fn(r), updatedAt: now() } : r)) })), []);
 
   /** Text / choice / date. Completes only after the save resolves. */
-  const saveAnswer = useCallback(async (id: string, answer: string) => {
-    if (inFlight.current.has(id)) return; // no duplicate submissions
+  const saveAnswer = useCallback(async (id: string, answer: string, viaExpress = false) => {
+    if (inFlight.current.has(id)) return false; // no duplicate submissions
     inFlight.current.add(id);
     setOp(id, { phase: 'saving' });
     await wait(LATENCY);
     inFlight.current.delete(id);
     if (failRef.current) {
       setOp(id, { phase: 'failed', error: 'Your answer was not saved. Check your connection and try again — what you typed is kept.' });
-      return;
+      return false;
     }
-    patch([id], (r) => ({ ...r, answer, status: 'complete' }));
+    patch([id], (r) => ({ ...r, answer, status: 'complete', answeredViaExpress: viaExpress || undefined }));
     setOp(id, null);
+    return true;
   }, [patch]);
 
   /** File / completed template: validate → upload (progress) → save → Complete. */
-  const uploadFile = useCallback(async (req: InformationRequest, file: File) => {
-    if (inFlight.current.has(req.id)) return;
+  const uploadFile = useCallback(async (req: InformationRequest, file: File, viaExpress = false) => {
+    if (inFlight.current.has(req.id)) return false;
     setOp(req.id, { phase: 'validating', fileName: file.name });
     const invalid = validateFile(file, req);
-    if (invalid) { setOp(req.id, { phase: 'failed', error: invalid, fileName: file.name }); return; }
+    if (invalid) { setOp(req.id, { phase: 'failed', error: invalid, fileName: file.name }); return false; }
     inFlight.current.add(req.id);
     for (const p of [15, 40, 65, 90]) {
       setOp(req.id, { phase: 'uploading', progress: p, fileName: file.name });
@@ -149,7 +152,7 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
     inFlight.current.delete(req.id);
     if (failRef.current) {
       setOp(req.id, { phase: 'failed', error: `${file.name} did not finish uploading, so this request is still pending. Try again.`, fileName: file.name });
-      return;
+      return false;
     }
     const meta: UploadedFile = {
       id: `f-${Math.random().toString(36).slice(2, 10)}`,
@@ -160,16 +163,21 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
       uploadedAt: now(),
       uploadedBy: REQUEST_META.respondent,
       version: (req.files?.length ?? 0) + 1,
+      viaExpress: viaExpress || undefined,
     };
     try {
       await putBytes(meta.id, file);
     } catch {
       setOp(req.id, { phase: 'failed', error: `${file.name} could not be stored in this browser. Try again.`, fileName: file.name });
-      return;
+      return false;
     }
     // A completed template replaces the previous submission; earlier versions stay listed for the audit trail.
-    patch([req.id], (r) => ({ ...r, files: [...(r.files ?? []), meta], status: 'complete' }));
+    patch([req.id], (r) => {
+      const files = r.files ?? [];
+      return { ...r, files: [...files, { ...meta, version: files.length + 1 }], status: 'complete' };
+    });
     setOp(req.id, null);
+    return true;
   }, [patch]);
 
   /**
@@ -177,25 +185,26 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
    * the new selection no longer calls for: their answers and files are removed
    * (the screen confirms that first) so a stale follow-up never counts.
    */
-  const saveSelection = useCallback(async (id: string, selection: ChoiceSelection, clearIds: readonly string[] = []) => {
-    if (inFlight.current.has(id)) return;
+  const saveSelection = useCallback(async (id: string, selection: ChoiceSelection, clearIds: readonly string[] = [], viaExpress = false) => {
+    if (inFlight.current.has(id)) return false;
     inFlight.current.add(id);
     setOp(id, { phase: 'saving' });
     await wait(LATENCY);
     inFlight.current.delete(id);
     if (failRef.current) {
       setOp(id, { phase: 'failed', error: 'Your answer was not saved. Check your connection and try again — your choices are kept.' });
-      return;
+      return false;
     }
     setData((d) => ({
       ...d,
       requests: d.requests.map((r) => {
-        if (r.id === id) return { ...r, selection, status: 'complete', updatedAt: now() };
+        if (r.id === id) return { ...r, selection, status: 'complete', answeredViaExpress: viaExpress || undefined, updatedAt: now() };
         if (clearIds.includes(r.id)) return { ...r, answer: undefined, selection: undefined, files: undefined, status: 'pending', updatedAt: now() };
         return r;
       }),
     }));
     setOp(id, null);
+    return true;
   }, []);
 
   const clearError = useCallback((id: string) => setOp(id, null), []);
@@ -228,6 +237,35 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
     patch(ids, (r) => ({ ...r, delegatee: email }));
   }, [patch]);
 
+  /* ---- Express mode: files the recipient left unsorted ---- */
+
+  /** Keep files no request matched, so the recipient can place them later. */
+  const addUnsorted = useCallback(async (files: readonly File[]) => {
+    const metas: UploadedFile[] = [];
+    for (const file of files) {
+      const meta: UploadedFile = {
+        id: `f-${Math.random().toString(36).slice(2, 10)}`, requestId: '', name: file.name,
+        mimeType: file.type || 'application/octet-stream', sizeBytes: file.size, uploadedAt: now(),
+        uploadedBy: REQUEST_META.respondent, version: 1, viaExpress: true,
+      };
+      try { await putBytes(meta.id, file); metas.push(meta); } catch { /* not stored: left out of the tray */ }
+    }
+    setData((d) => ({ ...d, unsorted: [...(d.unsorted ?? []), ...metas] }));
+    return metas.length;
+  }, []);
+
+  const removeUnsorted = useCallback((fileId: string) =>
+    setData((d) => ({ ...d, unsorted: (d.unsorted ?? []).filter((f) => f.id !== fileId) })), []);
+
+  /** Upload an unsorted file to a request. It leaves the tray only once the upload is saved. */
+  const assignUnsorted = useCallback(async (f: UploadedFile, req: InformationRequest) => {
+    const blob = await getBytes(f.id).catch(() => undefined);
+    if (!blob) return false;
+    const ok = await uploadFile(req, new File([blob], f.name, { type: f.mimeType }), true);
+    if (ok) removeUnsorted(f.id);
+    return ok;
+  }, [uploadFile, removeUnsorted]);
+
   /** The sender (Scalar or firm user) sets the due date directly; no request, no approval. */
   const setDueDate = useCallback((iso: string) => setData((d) => ({ ...d, dueDate: iso })), []);
 
@@ -239,9 +277,10 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   }, [key, seed]);
 
   return {
-    requests: current.requests, dueDate: current.dueDate, ops: fresh ? {} : ops,
+    requests: current.requests, dueDate: current.dueDate, unsorted: current.unsorted ?? [], ops: fresh ? {} : ops,
     simulateFailure, setSimulateFailure,
     saveAnswer, saveSelection, uploadFile, clearError, removeFile, downloadUpload, setStatus, reopen, delegate, setDueDate, reset,
+    addUnsorted, removeUnsorted, assignUnsorted,
   };
 }
 

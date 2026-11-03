@@ -13,6 +13,7 @@ import {
   MAX_FILE_BYTES, activeFollowUp, formatBytes, requestNumber, responseTypeLabel, shownStatus, statusLabel,
   type InformationRequest, type RequestStatus, type UploadedFile,
 } from './model.js';
+import { EXPRESS_NOTE } from './ExpressMode.js';
 import { downloadTemplate, type OpState, type PortalStore } from './store.js';
 
 const statusChip: Record<RequestStatus, { style: 'default' | 'positive' | 'info'; icon: JSX.Element }> = {
@@ -118,6 +119,10 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
           style={{ display: 'flex', flexDirection: 'column', gap: space.m, padding: `${space.xs} ${space.l} ${space.l}`, paddingLeft: mobile ? space.l : `calc(${space['2xl']} + ${space['3xl']})` }}
         >
           {req.description && <Text step="m" tone="secondary">{req.description}</Text>}
+          {/* Where the response came from stays visible, to the recipient and the sender. */}
+          {(req.answeredViaExpress || req.files?.[req.files.length - 1]?.viaExpress) && (
+            <div><Chip size="s" styleVariant="ai" leadingIcon={<Icon size="xs" tone="inherit"><icons.StarShine /></Icon>}>{EXPRESS_NOTE}</Chip></div>
+          )}
           {req.delegatee && mobile && <Text step="s" tone="secondary">Delegated to {req.delegatee}</Text>}
 
           {(req.status === 'na' || req.status === 'sent') && (
@@ -394,7 +399,7 @@ function UploadedList({ req, store, notify }: ResponseProps) {
         <FileRow
           name={f.name}
           meta={[
-            { label: current ? 'Uploaded by you' : `Earlier version ${f.version}` },
+            { label: current ? (f.viaExpress ? 'Uploaded by you with Express mode' : 'Uploaded by you') : `Earlier version ${f.version}` },
             { label: formatBytes(f.sizeBytes) },
             { label: fmtDate(f.uploadedAt) },
           ]}

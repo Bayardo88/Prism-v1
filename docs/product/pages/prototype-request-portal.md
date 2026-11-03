@@ -47,6 +47,13 @@ From the request email (no Scalar login). In the product: **Company › Document
 10. **Expand:** the Tertiary Menu's *Expand* menu offers Expand all · Expand all pending · Collapse all, acting on the visible rows (icon-only on a phone).
 11. **Access note (recipient only):** "Files are encrypted" and "Only approved users can access this request…" sit at the foot of the category column (end of the list on a phone).
 12. **Every control does something:** Login (signs in; opens an expired link), Contact Us, Privacy Policy, How do I use this?, the sender's due date and Delegate open dialogs that validate, confirm and can fail (with the failure toggle on).
+13. **Express mode** (branch `portal-express-mode`; recipient only). *Express mode* in the Tertiary Menu (above the list on a phone), or dropping files anywhere on the list, opens a large `Modal`: drop any number of files and/or paste notes → **Analyze** (`AiOutline` + `Spinner` and words) → **review** → **Apply N items**.
+    - **Suggest, never save:** `expressMatch.ts` (prototype stand-in for the AI service, deterministic) matches filename keywords per request and file type, and answers questions from pasted sentences (Yes/No, dates, text, single-choice). Only open, non-follow-up requests are targets. One file can go to several requests.
+    - **Review:** every suggestion has a checkbox, a request picker (or answer editor) and a confidence word (*Strong match* / *Check this* / *No match*), with the sentence each answer came from. Nothing is saved until Apply.
+    - **Apply** saves through the store's normal lifecycle (`uploadFile` / `saveAnswer` / `saveSelection`, flagged `viaExpress`): requests save in parallel, a failure stays Pending with its error, and a toast reports saved and failed counts.
+    - **Unsorted files:** unmatched files the recipient leaves unsorted sit in a tray at the top of *All requests* (bytes in IndexedDB) to assign or remove; they are never sent to the analyst on their own.
+    - **Provenance:** an applied request shows the `Chip styleVariant="ai"` *Matched by Express mode* (to the recipient and the sender), and its upload reads "Uploaded by you with Express mode". A manual re-save clears it.
+    - A drop on a single request's own Dropzone still uploads to that request only. *Try with sample files and text* fills the dialog for demos. Production needs a privacy / data-processing sign-off before client documents go to an AI service.
 
 ## Components
 
