@@ -1,7 +1,7 @@
 /**
  * Unified Request Portal — the request contract (brief §3).
  *
- * The wording of a request (`title`, `description`) is independent of how it is
+ * The wording of a request (`title`, `shortNote`, `details`) is independent of how it is
  * answered (`responseType`). A question can be answered with a file; a template
  * is an asset Scalar supplies, never the response. Numbering comes from
  * `categoryOrder` + `requestOrder` on the data, never from rendered position, so
@@ -37,6 +37,8 @@ export interface UploadedFile {
   version: number;
   /** Placed on this request by Express mode (the recipient confirmed the match). */
   viaExpress?: boolean;
+  /** Replaced by a newer upload. Kept for the audit trail, listed under "Earlier versions". */
+  replaced?: boolean;
 }
 
 /** One option of a multiple-choice request. `other` adds a required free-text box when picked. */
@@ -70,7 +72,13 @@ export interface InformationRequest {
   categoryOrder: number;
   requestOrder: number;
   title: string;
-  description?: string;
+  /**
+   * A few words shown inline after the title, on one line ("If available.").
+   * Placement comes from the content model, never from the text's length at render time.
+   */
+  shortNote?: string;
+  /** Longer guidance, shown below the title when the request is open. */
+  details?: string;
   responseType: ResponseType;
   template?: TemplateAsset;
   /** multiple_choice only. */
@@ -83,8 +91,12 @@ export interface InformationRequest {
    */
   parentId?: string;
   showWhen?: string[];
+  /** Accepted formats (request builder: `acceptedFormats`). Drives the requirements line, the picker's `accept` and validation. */
   allowedExtensions?: string[];
+  /** Size limit (request builder: `maxFileSize`, in MB). */
   maxFileSizeBytes?: number;
+  /** How many files the request takes, set by the requester. Default 1: a new upload replaces the file. */
+  maxFiles?: number;
   status: RequestStatus;
   /** text / choice ('yes' | 'no') / date (ISO yyyy-mm-dd). */
   answer?: string;
@@ -143,6 +155,34 @@ export const responseTypeLabel: Record<ResponseType, string> = {
   file: 'Upload document',
   template_file: 'Template',
 };
+
+/** The files that currently answer a request (not the replaced ones). */
+export const currentFiles = (r: Pick<InformationRequest, 'files'>) => (r.files ?? []).filter((f) => !f.replaced);
+export const maxFilesOf = (r: Pick<InformationRequest, 'maxFiles'>) => Math.max(1, r.maxFiles ?? 1);
+
+/** "Nov 2, 2026": the month in words avoids the US / international day-month ambiguity. */
+export const formatDay = (iso: string) => {
+  const [y, m, d] = iso.slice(0, 10).split('-').map(Number);
+  return new Date(y!, m! - 1, d!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const FORMAT_GROUPS: [label: string, exts: string[]][] = [
+  ['Excel', ['xlsx', 'xls']], ['Word', ['docx', 'doc']], ['PowerPoint', ['pptx', 'ppt']], ['PDF', ['pdf']], ['CSV', ['csv']],
+];
+
+/** The short requirements line: "Up to 250 MB · Office files, PDF, CSV". */
+export function requirementsLine(r: Pick<InformationRequest, 'allowedExtensions' | 'maxFileSizeBytes'>) {
+  const exts = r.allowedExtensions ?? DOC_EXTENSIONS;
+  const groups = FORMAT_GROUPS.filter(([, e]) => e.some((x) => exts.includes(x))).map(([l]) => l);
+  const office = ['Excel', 'Word', 'PowerPoint'].every((g) => groups.includes(g));
+  const named = office ? ['Office files', ...groups.filter((g) => !['Excel', 'Word', 'PowerPoint'].includes(g))] : groups;
+  const listed = new Set(FORMAT_GROUPS.flatMap(([, e]) => e));
+  const others = exts.filter((x) => !listed.has(x)).map((x) => x.toUpperCase());
+  return `Up to ${formatBytes(r.maxFileSizeBytes ?? MAX_FILE_BYTES)} · ${[...named, ...others].join(', ')}`;
+}
+
+/** Every accepted extension, for the tooltip and the picker's `accept`. */
+export const acceptedList = (r: Pick<InformationRequest, 'allowedExtensions'>) => (r.allowedExtensions ?? DOC_EXTENSIONS).map((e) => `.${e}`);
 
 export const fileExtension = (name: string) => (name.includes('.') ? name.split('.').pop()!.toLowerCase() : '');
 

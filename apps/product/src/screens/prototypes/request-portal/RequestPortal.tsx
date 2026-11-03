@@ -76,7 +76,7 @@ function useMobile() {
   return mobile;
 }
 
-interface ToastItem { id: number; tone: 'positive' | 'negative' | 'info'; text: string }
+interface ToastItem { id: number; tone: 'positive' | 'negative' | 'info'; text: string; action?: { label: string; onClick: () => void } }
 
 export function RequestPortal({ state }: ScreenProps) {
   const [config, setConfig] = usePrototypeConfig();
@@ -118,10 +118,12 @@ export function RequestPortal({ state }: ScreenProps) {
   const [express, setExpress] = useState<{ open: boolean; files: File[] }>({ open: false, files: [] });
   const [dragging, setDragging] = useState(false);
 
-  const notify = (tone: ToastItem['tone'], text: string) => {
+  const dropToast = (id: number) => setToasts((t) => t.filter((x) => x.id !== id));
+  /** A toast with an action (Undo) stays longer, so there is time to reach it (WCAG 2.2.1). */
+  const notify = (tone: ToastItem['tone'], text: string, action?: ToastItem['action']) => {
     const id = ++toastId.current;
-    setToasts((t) => [...t, { id, tone, text }]);
-    window.setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 4500);
+    setToasts((t) => [...t, { id, tone, text, action }]);
+    window.setTimeout(() => dropToast(id), action ? 10_000 : 4500);
   };
 
   /* ---- one derived model for every count (P1.3) ---- */
@@ -200,11 +202,11 @@ export function RequestPortal({ state }: ScreenProps) {
     if (failed) notify('negative', `${failed} item${failed === 1 ? '' : 's'} could not be saved and ${failed === 1 ? 'stays' : 'stay'} Pending. Open ${failed === 1 ? 'it' : 'them'} to try again.`);
   };
 
-  // A drop on a request's own upload area stays with that request (its Dropzone handles it first).
+  // A drop on a request card that takes files stays with that request (the card handles it first).
   const listDrop = {
     onDragOver: (e: DragEvent) => {
       if (!e.dataTransfer.types.includes('Files')) return;
-      const overRow = (e.target as HTMLElement).closest('.scalar-dropzone');
+      const overRow = (e.target as HTMLElement).closest('[data-file-drop], .scalar-dropzone');
       e.preventDefault();
       setDragging(!overRow);
     },
@@ -677,7 +679,14 @@ export function RequestPortal({ state }: ScreenProps) {
 
         <ToastViewport aria-label="Notifications">
           {toasts.map((t) => (
-            <Toast key={t.id} tone={t.tone} onDismiss={() => setToasts((x) => x.filter((y) => y.id !== t.id))}>{t.text}</Toast>
+            <Toast key={t.id} tone={t.tone} onDismiss={() => dropToast(t.id)}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s, flexWrap: 'wrap' }}>
+                {t.text}
+                {t.action && (
+                  <Button variant="tertiary" size="xs" onClick={() => { t.action!.onClick(); dropToast(t.id); }}>{t.action.label}</Button>
+                )}
+              </span>
+            </Toast>
           ))}
         </ToastViewport>
 

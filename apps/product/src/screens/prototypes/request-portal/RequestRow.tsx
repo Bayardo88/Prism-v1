@@ -4,14 +4,15 @@
  * The disclosure is a real button with `aria-expanded`; the checkbox and the
  * actions sit beside it, never inside it (P1.13).
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState, type DragEvent } from 'react';
 import {
-  Alert, Button, Checkbox, Chip, ConfirmationDialog, Dropzone, FileRow, FormField, Icon, Input, Label, Radio, RadioGroup,
+  Alert, Button, Checkbox, Chip, ConfirmationDialog, FileRow, FormField, Icon, Input, Label, Radio, RadioGroup,
   Text, Textarea, Tooltip, color, icons, radius, size, space,
 } from '@scalar/design-system';
+import { UploadBar, UploadedFiles, canUpload, useUploader, type Notify } from './FileUpload.js';
 import {
-  MAX_FILE_BYTES, activeFollowUp, formatBytes, requestNumber, responseTypeLabel, shownStatus, statusLabel,
-  type InformationRequest, type RequestStatus, type UploadedFile,
+  activeFollowUp, currentFiles, requestNumber, responseTypeLabel, shownStatus, statusLabel,
+  type InformationRequest, type RequestStatus,
 } from './model.js';
 import { EXPRESS_NOTE } from './ExpressMode.js';
 import { downloadTemplate, type OpState, type PortalStore } from './store.js';
@@ -56,7 +57,7 @@ interface RowProps {
   onSelect: (checked: boolean) => void;
   store: PortalStore;
   onDelegate: (id: string) => void;
-  notify: (tone: 'positive' | 'negative' | 'info', text: string) => void;
+  notify: Notify;
   mobile: boolean;
 }
 
@@ -69,13 +70,34 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
   const followUp = req.status === 'pending' || req.status === 'complete' ? activeFollowUp(req, all) : undefined;
   const status = shownStatus(req, all);
   const waitingOnFollowUp = req.status === 'complete' && status === 'pending';
+  const ids = { num: useId(), title: useId(), note: useId(), details: useId(), type: useId() };
+
+  // While a file is dragged over it, the whole request card is the drop target (the upload bar is small).
+  const [dragOver, setDragOver] = useState(false);
+  const upload = useUploader(req, store, notify);
+  const droppable = canUpload(req) && !(op && op.phase !== 'failed');
+  const cardDrop = droppable ? {
+    'data-file-drop': '',
+    onDragOver: (e: DragEvent) => { if (!e.dataTransfer.types.includes('Files')) return; e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; setDragOver(true); },
+    onDragLeave: (e: DragEvent) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setDragOver(false); },
+    onDrop: (e: DragEvent) => {
+      if (!e.dataTransfer.files.length) return;
+      e.preventDefault();
+      setDragOver(false);
+      if (!expanded) onToggle(); // open it, so progress and any error are visible
+      void upload([...e.dataTransfer.files]);
+    },
+  } : {};
 
   return (
     <li
+      {...cardDrop}
       style={{
         listStyle: 'none',
         borderBottom: `1px solid ${color.stroke.divider}`,
-        background: selected ? color.bg.brandSubtle : expanded ? color.bg.surface : undefined,
+        background: dragOver || selected ? color.bg.brandSubtle : expanded ? color.bg.surface : undefined,
+        outline: dragOver ? `2px dashed ${color.stroke.brand}` : undefined,
+        outlineOffset: dragOver ? `-${space['2xs']}` : undefined,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: space.s, paddingInline: space.s, minHeight: size.target.minimum }}>
@@ -85,6 +107,9 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
           onClick={onToggle}
           aria-expanded={expanded}
           aria-controls={panelId}
+          // Name: number and title. The short note and response type describe it (read after the name).
+          aria-labelledby={`${ids.num} ${ids.title}`}
+          aria-describedby={[req.shortNote && ids.note, ids.type].filter(Boolean).join(' ')}
           className="scalar-focusable"
           style={{
             flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: space.s, padding: `${space.xs} 0`,
@@ -92,10 +117,21 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
             minHeight: size.target.minimum,
           }}
         >
-          <Text as="span" step="s" weight="semiBold" tone="secondary" style={{ minWidth: space['2xl'], fontVariantNumeric: 'tabular-nums' }}>{num}</Text>
+          <Text as="span" id={ids.num} step="s" weight="semiBold" tone="secondary" style={{ minWidth: space['2xl'], fontVariantNumeric: 'tabular-nums' }}>{num}</Text>
           <span style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: mobile ? 'column' : 'row', alignItems: mobile ? 'flex-start' : 'center', gap: mobile ? space['2xs'] : space.m }}>
-            <Text as="span" step="m" weight={expanded ? 'semiBold' : 'regular'} style={{ flex: 1, minWidth: 0 }}>{req.title}</Text>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.xs, flex: 'none' }}>
+            {/* The title leads; the short note follows on the same line, muted, and truncates first. Open, it wraps in full (onto its own line if narrow). */}
+            <span style={{ flex: 1, minWidth: 0, maxWidth: '100%', display: 'flex', alignItems: 'baseline', gap: space.s, flexWrap: expanded ? 'wrap' : 'nowrap' }}>
+              <Text as="span" id={ids.title} step="m" weight={expanded ? 'semiBold' : 'regular'} style={{ flex: '0 1 auto', minWidth: 0 }}>{req.title}</Text>
+              {req.shortNote && (
+                <Tooltip content={req.shortNote} style={{ minWidth: 0, flex: expanded ? '1 1 24ch' : '1 1 0', display: 'flex' }}>
+                  <Text as="span" id={ids.note} step="s" tone="secondary"
+                    style={expanded ? undefined : { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
+                    <span aria-hidden>· </span>{req.shortNote}
+                  </Text>
+                </Tooltip>
+              )}
+            </span>
+            <span id={ids.type} style={{ display: 'inline-flex', alignItems: 'center', gap: space.xs, flex: 'none' }}>
               <Icon size="xs" tone="secondary">{typeIcon[req.responseType]}</Icon>
               <Text as="span" step="s" tone="secondary">{responseTypeLabel[req.responseType]}</Text>
             </span>
@@ -108,6 +144,7 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
         {op && op.phase !== 'idle' && op.phase !== 'failed' && (
           <Text as="span" step="s" tone="brand" role="status">{op.phase === 'saving' ? 'Saving…' : op.phase === 'validating' ? 'Checking…' : `Uploading ${op.progress ?? 0}%`}</Text>
         )}
+        {dragOver && !expanded && <Text as="span" step="s" tone="brand" weight="semiBold">Drop to upload</Text>}
         <StatusChip status={status} label={waitingOnFollowUp ? 'Follow-up needed' : undefined} />
       </div>
 
@@ -118,9 +155,9 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
           aria-label={`Request ${num}`}
           style={{ display: 'flex', flexDirection: 'column', gap: space.m, padding: `${space.xs} ${space.l} ${space.l}`, paddingLeft: mobile ? space.l : `calc(${space['2xl']} + ${space['3xl']})` }}
         >
-          {req.description && <Text step="m" tone="secondary">{req.description}</Text>}
+          {req.details && <Text id={ids.details} step="m" tone="secondary">{req.details}</Text>}
           {/* Where the response came from stays visible, to the recipient and the sender. */}
-          {(req.answeredViaExpress || req.files?.[req.files.length - 1]?.viaExpress) && (
+          {(req.answeredViaExpress || currentFiles(req).some((f) => f.viaExpress)) && (
             <div><Chip size="s" styleVariant="ai" leadingIcon={<Icon size="xs" tone="inherit"><icons.StarShine /></Icon>}>{EXPRESS_NOTE}</Chip></div>
           )}
           {req.delegatee && mobile && <Text step="s" tone="secondary">Delegated to {req.delegatee}</Text>}
@@ -133,7 +170,7 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
             </Alert>
           )}
 
-          <Response req={req} op={op} store={store} notify={notify} all={all} />
+          <Response req={req} op={op} store={store} notify={notify} all={all} dragOver={dragOver} onFiles={(fs) => void upload(fs)} />
 
           {op?.phase === 'failed' && (
             <Alert tone="negative" title="Not saved" onDismiss={() => store.clearError(req.id)} dismissLabel="Dismiss error">
@@ -177,14 +214,20 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
  * Response renderers — one per response type (P1.9)
  * ------------------------------------------------------------------------ */
 
-interface ResponseProps { req: InformationRequest; op?: OpState; store: PortalStore; notify: RowProps['notify']; all: readonly InformationRequest[] }
+interface ResponseProps {
+  req: InformationRequest; op?: OpState; store: PortalStore; notify: Notify; all: readonly InformationRequest[];
+  /** Upload within the request's file limit (shared with the card's drop target). */
+  onFiles: (files: File[]) => void;
+  dragOver: boolean;
+}
 
 /**
  * A follow-up, shown inside its parent once the parent's saved answer calls for
  * it. Any response type; it has its own number (2.5a), save and errors.
  */
-function FollowUp({ req, store, notify, all }: Omit<ResponseProps, 'op'>) {
+function FollowUp({ req, store, notify, all }: Omit<ResponseProps, 'op' | 'onFiles' | 'dragOver'>) {
   const op = store.ops[req.id];
+  const upload = useUploader(req, store, notify);
   const num = requestNumber(req);
   return (
     <section
@@ -195,9 +238,9 @@ function FollowUp({ req, store, notify, all }: Omit<ResponseProps, 'op'>) {
         <Text as="span" step="s" weight="semiBold" tone="secondary">Follow-up {num}</Text>
         <StatusChip status={req.status} />
       </div>
-      <Text step="m" weight="semiBold">{req.title}</Text>
-      {req.description && <Text step="s" tone="secondary">{req.description}</Text>}
-      <Response req={req} op={op} store={store} notify={notify} all={all} />
+      <Text step="m" weight="semiBold">{req.title}{req.shortNote && <Text as="span" step="s" tone="secondary"> · {req.shortNote}</Text>}</Text>
+      {req.details && <Text step="s" tone="secondary">{req.details}</Text>}
+      <Response req={req} op={op} store={store} notify={notify} all={all} onFiles={(fs) => void upload(fs)} dragOver={false} />
       {op?.phase === 'failed' && (
         <Alert tone="negative" title="Not saved" onDismiss={() => store.clearError(req.id)} dismissLabel="Dismiss error">{op.error}</Alert>
       )}
@@ -367,73 +410,14 @@ function ChoiceResponse({ req, op, store, all }: ResponseProps) {
   );
 }
 
-function hintFor(req: InformationRequest) {
-  const exts = (req.allowedExtensions ?? []).map((e) => e.toUpperCase()).join(', ');
-  return `${exts} · ${formatBytes(req.maxFileSizeBytes ?? MAX_FILE_BYTES)} max`;
-}
-
-function UploadArea({ req, op, store, label }: ResponseProps & { label?: string }) {
-  const busy = op && (op.phase === 'uploading' || op.phase === 'saving' || op.phase === 'validating');
+function FileResponse({ req, op, store, notify, onFiles, dragOver, label }: ResponseProps & { label?: string }) {
+  const num = requestNumber(req);
+  // N/A and "sent another way" show what was saved, but take no new file until reopened.
+  const editable = canUpload(req);
   return (
-    <Dropzone
-      onFiles={(files) => { if (files[0]) void store.uploadFile(req, files[0]); }}
-      // No `accept`: the Dropzone silently discards a dropped file that doesn't match it, and the
-      // respondent must be told why a file was refused (P0.5). `validateFile` checks type and size.
-      hint={hintFor(req)}
-      state={busy ? 'uploading' : op?.phase === 'failed' ? 'error' : 'default'}
-      progress={busy ? op?.progress : undefined}
-      message={busy ? (op?.phase === 'saving' ? `Saving ${op.fileName}` : `Uploading ${op?.fileName}`) : op?.phase === 'failed' ? 'Not uploaded — see the message below.' : undefined}
-      prompt={label ? (browse) => <>Drag & drop {label} or {browse('select a file')}</> : undefined}
-      disabled={busy}
-    />
-  );
-}
-
-function UploadedList({ req, store, notify }: ResponseProps) {
-  const files = req.files ?? [];
-  if (!files.length) return null;
-  const latest = files[files.length - 1]!;
-  const row = (f: UploadedFile, current: boolean) => (
-    <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: space.xs }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <FileRow
-          name={f.name}
-          meta={[
-            { label: current ? (f.viaExpress ? 'Uploaded by you with Express mode' : 'Uploaded by you') : `Earlier version ${f.version}` },
-            { label: formatBytes(f.sizeBytes) },
-            { label: fmtDate(f.uploadedAt) },
-          ]}
-          onDownload={async () => { if (!(await store.downloadUpload(f))) notify('negative', `${f.name} is not stored in this browser any more.`); }}
-        />
-      </div>
-      {current && (
-        <Button variant="tertiary" size="s" tone="negative" onClick={() => { store.removeFile(req.id, f.id); notify('info', `${f.name} removed.`); }}>
-          Remove
-        </Button>
-      )}
-    </div>
-  );
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
-      <Text step="s" tone="secondary">{req.responseType === 'template_file' ? 'Your completed file' : 'Your upload'}</Text>
-      {row(latest, true)}
-      {files.slice(0, -1).reverse().map((f) => row(f, false))}
-    </div>
-  );
-}
-
-function FileResponse(props: ResponseProps) {
-  const { req } = props;
-  const [replacing, setReplacing] = useState(false);
-  const hasFile = (req.files?.length ?? 0) > 0;
-  const fileCount = req.files?.length ?? 0;
-  useEffect(() => { setReplacing(false); }, [fileCount]);
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
-      <UploadedList {...props} />
-      {req.status === 'pending' || replacing || props.op ? <UploadArea {...props} /> : hasFile && req.status === 'complete' && (
-        <div><Button variant="secondary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.SwapHoriz /></Icon>} onClick={() => setReplacing(true)}>Replace file</Button></div>
-      )}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, minWidth: 0 }}>
+      <UploadedFiles req={req} store={store} notify={notify} num={num} editable={editable && !(op && op.phase !== 'failed')} />
+      {editable && <UploadBar req={req} op={op} store={store} notify={notify} onFiles={onFiles} dragOver={dragOver} num={num} label={label} />}
     </div>
   );
 }
@@ -466,7 +450,7 @@ function TemplateResponse(props: ResponseProps) {
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
         <Text step="s" tone="secondary">Step 2 · Upload the completed template</Text>
-        <FileResponse {...props} />
+        <FileResponse {...props} label="the completed template" />
       </div>
     </div>
   );
