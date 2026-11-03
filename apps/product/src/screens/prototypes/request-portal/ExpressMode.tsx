@@ -239,7 +239,7 @@ export function ExpressModeDialog({ open, onClose, requests, requestSet, initial
     <>
       <Text step="s" tone="tertiary" style={{ marginRight: 'auto' }}>Prototype: matching is simulated in your browser.</Text>
       <Button variant="secondary" onClick={onClose}>Cancel</Button>
-      <Button leadingIcon={<Icon size="s" tone="inherit"><glyphs.AiMark /></Icon>} disabled={!files.length && !text.trim()} onClick={run}>Analyze</Button>
+      <Button style={AI_BUTTON_STYLE} leadingIcon={<Icon size="s" tone="inherit"><glyphs.AiMark /></Icon>} disabled={!files.length && !text.trim()} onClick={run}>Analyze</Button>
     </>
   ) : step === 'review' ? (
     <>
