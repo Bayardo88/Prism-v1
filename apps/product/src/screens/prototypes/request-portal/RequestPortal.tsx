@@ -75,7 +75,7 @@ function useMobile() {
   return mobile;
 }
 
-interface ToastItem { id: number; tone: 'positive' | 'negative' | 'info'; text: string }
+interface ToastItem { id: number; tone: 'positive' | 'negative' | 'info'; text: string; action?: { label: string; onClick: () => void } }
 
 export function RequestPortal({ state }: ScreenProps) {
   const [config, setConfig] = usePrototypeConfig();
@@ -114,10 +114,12 @@ export function RequestPortal({ state }: ScreenProps) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const toastId = useRef(0);
 
-  const notify = (tone: ToastItem['tone'], text: string) => {
+  const dropToast = (id: number) => setToasts((t) => t.filter((x) => x.id !== id));
+  /** A toast with an action (Undo) stays longer, so there is time to reach it (WCAG 2.2.1). */
+  const notify = (tone: ToastItem['tone'], text: string, action?: ToastItem['action']) => {
     const id = ++toastId.current;
-    setToasts((t) => [...t, { id, tone, text }]);
-    window.setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 4500);
+    setToasts((t) => [...t, { id, tone, text, action }]);
+    window.setTimeout(() => dropToast(id), action ? 10_000 : 4500);
   };
 
   /* ---- one derived model for every count (P1.3) ---- */
@@ -584,7 +586,14 @@ export function RequestPortal({ state }: ScreenProps) {
 
         <ToastViewport aria-label="Notifications">
           {toasts.map((t) => (
-            <Toast key={t.id} tone={t.tone} onDismiss={() => setToasts((x) => x.filter((y) => y.id !== t.id))}>{t.text}</Toast>
+            <Toast key={t.id} tone={t.tone} onDismiss={() => dropToast(t.id)}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s, flexWrap: 'wrap' }}>
+                {t.text}
+                {t.action && (
+                  <Button variant="tertiary" size="xs" onClick={() => { t.action!.onClick(); dropToast(t.id); }}>{t.action.label}</Button>
+                )}
+              </span>
+            </Toast>
           ))}
         </ToastViewport>
 

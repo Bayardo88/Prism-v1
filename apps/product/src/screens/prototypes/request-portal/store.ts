@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { REQUEST_META, seedDueDate } from './fixtures.js';
 import {
-  validateFile, type ChoiceSelection, type InformationRequest, type RequestStatus, type UploadedFile,
+  currentFiles, maxFilesOf, validateFile, type ChoiceSelection, type InformationRequest, type RequestStatus, type UploadedFile,
 } from './model.js';
 
 export type Phase = 'idle' | 'validating' | 'uploading' | 'saving' | 'failed';
@@ -24,8 +24,8 @@ interface Persisted {
   dueDate: string;
 }
 
-// v2: multiple choice, follow-ups and a seeded due date changed the stored shape.
-const KEY = (key: string) => `scalar.request-portal.v2.${key}`;
+// v3: shortNote / details / maxFiles and replaced versions changed the stored shape.
+const KEY = (key: string) => `scalar.request-portal.v3.${key}`;
 const LATENCY = 700;
 
 function load(key: string, seed: () => InformationRequest[]): Persisted {
@@ -109,6 +109,7 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   const failRef = useRef(simulateFailure);
   failRef.current = simulateFailure;
   const inFlight = useRef(new Set<string>());
+  const cancelled = useRef(new Set<string>());
 
   useEffect(() => { if (loadedKey === key) persist(key, data); }, [key, loadedKey, data]);
 
@@ -140,9 +141,12 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
     const invalid = validateFile(file, req);
     if (invalid) { setOp(req.id, { phase: 'failed', error: invalid, fileName: file.name }); return; }
     inFlight.current.add(req.id);
+    cancelled.current.delete(req.id);
     for (const p of [15, 40, 65, 90]) {
       setOp(req.id, { phase: 'uploading', progress: p, fileName: file.name });
       await wait(LATENCY / 4);
+      // Cancel stops before the save: nothing is attached and the request keeps its state.
+      if (cancelled.current.has(req.id)) { cancelled.current.delete(req.id); inFlight.current.delete(req.id); setOp(req.id, null); return false; }
     }
     setOp(req.id, { phase: 'saving', progress: 100, fileName: file.name });
     await wait(LATENCY / 2);
@@ -167,8 +171,14 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
       setOp(req.id, { phase: 'failed', error: `${file.name} could not be stored in this browser. Try again.`, fileName: file.name });
       return;
     }
-    // A completed template replaces the previous submission; earlier versions stay listed for the audit trail.
-    patch([req.id], (r) => ({ ...r, files: [...(r.files ?? []), meta], status: 'complete' }));
+    // At the request's file limit the new upload replaces the oldest current file; replaced files stay for the audit trail.
+    patch([req.id], (r) => {
+      const all = r.files ?? [];
+      const current = currentFiles(r);
+      const replaceId = current.length >= maxFilesOf(r) ? current[0]?.id : undefined;
+      const kept = all.map((f) => (f.id === replaceId ? { ...f, replaced: true } : f));
+      return { ...r, files: [...kept, { ...meta, version: all.length + 1 }], status: 'complete' };
+    });
     setOp(req.id, null);
   }, [patch]);
 
@@ -200,11 +210,18 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
 
   const clearError = useCallback((id: string) => setOp(id, null), []);
 
+  /** Stops an upload before it is saved. */
+  const cancelUpload = useCallback((id: string) => { if (inFlight.current.has(id)) cancelled.current.add(id); }, []);
+
+  /** Removing the last current file returns a completed request to Pending. Undo puts both back (`restoreFile`). */
   const removeFile = useCallback((reqId: string, fileId: string) =>
     patch([reqId], (r) => {
       const files = (r.files ?? []).filter((f) => f.id !== fileId);
-      return { ...r, files, status: files.length || r.status !== 'complete' ? r.status : 'pending' };
+      return { ...r, files, status: currentFiles({ files }).length || r.status !== 'complete' ? r.status : 'pending' };
     }), [patch]);
+
+  const restoreFile = useCallback((reqId: string, file: UploadedFile, status: RequestStatus) =>
+    patch([reqId], (r) => ({ ...r, files: [...(r.files ?? []), file].sort((a, b) => a.version - b.version), status })), [patch]);
 
   const downloadUpload = useCallback(async (f: UploadedFile) => {
     const blob = await getBytes(f.id).catch(() => undefined);
@@ -241,7 +258,7 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   return {
     requests: current.requests, dueDate: current.dueDate, ops: fresh ? {} : ops,
     simulateFailure, setSimulateFailure,
-    saveAnswer, saveSelection, uploadFile, clearError, removeFile, downloadUpload, setStatus, reopen, delegate, setDueDate, reset,
+    saveAnswer, saveSelection, uploadFile, cancelUpload, clearError, removeFile, restoreFile, downloadUpload, setStatus, reopen, delegate, setDueDate, reset,
   };
 }
 
