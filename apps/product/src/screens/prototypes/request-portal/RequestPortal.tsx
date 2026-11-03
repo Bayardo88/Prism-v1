@@ -21,7 +21,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
-  Avatar, Banner, Button, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
+  Alert, Avatar, Banner, Button, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
   FormField, Icon, InformationLabel, MainMenuItem, MenuDivider, MenuItem, Notification, Overline, PageTemplate, PrimaryMenu, ProgressBar,
   Radio, RadioGroup, ScalarProvider, SecondaryMenu, SecondaryMenuItem, SegmentedControl, Select, SelectMenu, SelectMenuOption,
   SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, ToolSwitch, breakpoint, color, elevation, icons, radius, size, space, zIndex,
@@ -98,10 +98,11 @@ export function RequestPortal({ state }: ScreenProps) {
   // An expired link shows nothing of the request until the recipient logs in.
   const expired = config.link === 'expired' && !loggedIn && !isSender;
   const mobile = useMobile();
-  // With instructions from the analyst, the page opens on them ("Introduction"); any category hides them.
+  // The analyst's instructions sit above All requests, with the list. Dismissing hides them; "Introduction" in the nav brings them back.
   const intro = INTRODUCTION.map((p) => p.replace('{company}', company.name).replace('{sender}', scenario.senderName));
-  const firstCategory = intro.length ? 'intro' : 'all';
-  const [category, setCategory] = useState<string>(firstCategory);
+  const [introOpen, setIntroOpen] = useState(true);
+  const [category, setCategory] = useState<string>('all');
+  const showIntro = () => { setCategory('all'); setIntroOpen(true); };
   const [expandMenu, setExpandMenu] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [statusMenu, setStatusMenu] = useState(false);
@@ -127,7 +128,7 @@ export function RequestPortal({ state }: ScreenProps) {
   const total = all.length;
   const resolvedCount = all.filter(done).length;
   const remaining = total - resolvedCount;
-  const visible = category === 'intro' ? [] : all.filter((r) => (category === 'all' || r.categoryId === category) && matchesStatus(r, statusFilter, every));
+  const visible = all.filter((r) => (category === 'all' || r.categoryId === category) && matchesStatus(r, statusFilter, every));
   const visibleIds = visible.map((r) => r.id);
   const categoriesInUse = CATEGORIES.filter((c) => all.some((r) => r.categoryId === c.id));
 
@@ -142,7 +143,7 @@ export function RequestPortal({ state }: ScreenProps) {
   }, [visibleKey]);
 
   // A different company's (or scenario's) list starts with nothing selected or open.
-  useEffect(() => { setSelected(new Set()); setExpanded(new Set()); setCategory(firstCategory); }, [company.id, scenario.id, firstCategory]);
+  useEffect(() => { setSelected(new Set()); setExpanded(new Set()); setCategory('all'); setIntroOpen(true); }, [company.id, scenario.id]);
 
   const selectedVisible = visible.filter((r) => selected.has(r.id));
   const allChecked = visible.length > 0 && selectedVisible.length === visible.length;
@@ -396,7 +397,7 @@ export function RequestPortal({ state }: ScreenProps) {
   const categoryNav = (
     <nav aria-label="Categories" style={{ display: 'flex', flexDirection: 'column', gap: space['2xs'] }}>
       {intro.length > 0 && (
-        <SubmenuItem current={category === 'intro'} onClick={() => setCategory('intro')}>Introduction</SubmenuItem>
+        <SubmenuItem onClick={showIntro}>Introduction</SubmenuItem>
       )}
       <SubmenuItem current={category === 'all'} onClick={() => setCategory('all')}>
         <span style={{ display: 'flex', justifyContent: 'space-between', gap: space.s, width: '100%' }}>
@@ -465,18 +466,17 @@ export function RequestPortal({ state }: ScreenProps) {
     </div>
   );
 
-  const introduction = (
-    <section aria-labelledby="request-intro" style={{ display: 'flex', flexDirection: 'column', gap: space.m, padding: space.l, maxWidth: '75ch' }}>
-      <Text as="h2" id="request-intro" step="l" weight="semiBold" style={{ margin: 0 }}>Introduction</Text>
-      {intro.map((p) => <Text as="p" key={p} step="m" style={{ margin: 0 }}>{p}</Text>)}
-      <Text as="p" step="m" tone="secondary" style={{ margin: 0 }}>
-        {`${total} request${total === 1 ? '' : 's'} · ${remaining} remaining`}
-      </Text>
-      <div><Button size="s" onClick={() => setCategory('all')}>View requests</Button></div>
-    </section>
+  const introduction = intro.length > 0 && introOpen && category === 'all' && (
+    <div style={{ padding: space.m, borderBottom: `1px solid ${color.stroke.divider}` }}>
+      <Alert tone="info" title={`Introduction from ${scenario.senderName}`} onDismiss={() => setIntroOpen(false)} dismissLabel="Dismiss introduction">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, maxWidth: '90ch' }}>
+          {intro.map((p) => <Text as="p" key={p} step="m" style={{ margin: 0 }}>{p}</Text>)}
+        </div>
+      </Alert>
+    </div>
   );
 
-  const list = category === 'intro' ? introduction : total === 0 ? (
+  const list = total === 0 ? (
     <EmptyState type="no-data" title="No requests yet" body={`${scenario.senderName} has not sent any requests for ${company.name} for this report date. You’ll get an email when they do.`} icon={<icons.Inbox />} />
   ) : visible.length === 0 ? (
     <EmptyState
@@ -549,7 +549,7 @@ export function RequestPortal({ state }: ScreenProps) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m, borderBottom: `1px solid ${color.stroke.divider}` }}>
                   {engagement}
                   <FormField label="Category">
-                    <Select value={category} onChange={(e) => setCategory(e.currentTarget.value)}>
+                    <Select value={category} onChange={(e) => (e.currentTarget.value === 'intro' ? showIntro() : setCategory(e.currentTarget.value))}>
                       {intro.length > 0 && <option value="intro">Introduction</option>}
                       <option value="all">All requests ({resolvedCount}/{total})</option>
                       {categoriesInUse.map((c) => {
@@ -573,6 +573,7 @@ export function RequestPortal({ state }: ScreenProps) {
                   </Banner>
                 </div>
               )}
+              {introduction}
               {list}
               {mobile && securityNote}
               {mobile && prototypeControls}
