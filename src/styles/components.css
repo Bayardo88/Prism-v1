@@ -2591,8 +2591,11 @@ button.scalar-breadcrumb-item { background: none; border: 0; padding: 0; cursor:
 .scalar-value-cell__flag { position: absolute; top: 0; right: 0; border-style: solid; border-width: 0 8px 8px 0; border-color: transparent var(--color-icon-secondary) transparent transparent; }
 .scalar-value-cell--error .scalar-value-cell__flag { border-right-color: var(--color-icon-negative); }
 
-.scalar-incell-cell { display: flex; align-items: stretch; min-width: 0; }
-.scalar-incell { justify-content: flex-end; width: 100%; border-top: 0; border-left: 0; border-right: 0; color: var(--color-text-editable); cursor: pointer; }
+/* The cell fills its grid item (or a flex wrapper such as a popover anchor), so
+ * the trigger spans the row height and its value sits centred. The trigger is
+ * clear at rest: the row's zebra/hover shows through; hover, open and error paint. */
+.scalar-incell-cell { display: flex; flex: 1 1 auto; align-items: stretch; min-width: 0; }
+.scalar-incell { justify-content: flex-end; width: 100%; border-top: 0; border-left: 0; border-right: 0; background: transparent; color: var(--color-text-editable); cursor: pointer; }
 .scalar-incell:hover { background: var(--color-bg-brand-subtle); }
 .scalar-incell--open { background: var(--color-bg-brand-subtle); outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
 .scalar-incell:focus-visible { outline: 2px solid var(--color-stroke-focus); outline-offset: -2px; }
@@ -2942,8 +2945,7 @@ button.scalar-task-pill:focus-visible { outline: 2px solid var(--color-stroke-fo
  * ------------------------------------------------------------------------- */
 .scalar-row > .scalar-cell:not(.scalar-cell--error, .scalar-cell--draft, .scalar-cell--total, .scalar-cell--group),
 .scalar-row > .scalar-row-label:is(.scalar-row-label--line-item, .scalar-row-label--child, .scalar-row-label--subtotal),
-.scalar-row > .scalar-value-cell:is(.scalar-value-cell--default, .scalar-value-cell--placeholder, .scalar-value-cell--focused):not(.scalar-value-cell--total),
-.scalar-row > .scalar-incell-cell > .scalar-incell:not(.scalar-incell--open, .scalar-incell--error, :hover) { background-color: transparent; }
+.scalar-row > .scalar-value-cell:is(.scalar-value-cell--default, .scalar-value-cell--placeholder, .scalar-value-cell--focused):not(.scalar-value-cell--total) { background-color: transparent; }
 .scalar-grid .scalar-row--divider { min-height: 1px; }
 
 /* In-cell control, error state. */

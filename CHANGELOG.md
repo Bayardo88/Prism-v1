@@ -1,6 +1,12 @@
 # Changelog
 
 ## Unreleased
+- **In-cell controls are clear and centred wherever they sit.** `InCellControl` (select, date, currency) is
+  transparent at rest, so the row's zebra and hover show through; hover, open and error still paint. Its cell
+  now fills a flex wrapper (such as the product's popover `Anchor`), so the trigger spans the row height and
+  its value is vertically centred. Before, only a control directly inside `.scalar-row` went clear, and a
+  wrapped one showed a white band at the top of the row (Cap Table, Fund Ownership, Cash Flow Ledger,
+  Waterfalls, Backsolve).
 - **AI outline is now a moving comet that leaves the surface alone.** `AiOutline` draws a 3px ring on its own
   `::before` layer over the host's edge (the border-beam technique), so a card keeps its own background and
   border while AI works. While `active` a short comet of the AI gradient orbits the edge every 3s, with a matching glow just outside the edge; `active={false}`
