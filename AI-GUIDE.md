@@ -464,7 +464,9 @@ wrapper inside the slot. Full guide: `docs/page-template.md`.
 - `Stepper`: show every step from the start. Never mark one complete until it
   is.
 - `FilterDropdown` shows **the value in force**, not the filter's name.
-- `Notification`'s dot means *unread*, not urgent, and carries no count.
+- `Notification`'s dot means *unread*, not urgent, and carries no count. `working` puts the orbiting
+  AI outline on the bell while AI runs a job the user will be notified about, and appends `workingLabel`
+  ("AI working") to its name.
 
 ### Table
 
@@ -770,10 +772,10 @@ Rules:
 `GlobalSearch` · `SearchResultRow` · `SearchSectionHeader` · `SearchScopeChip` · `KeyHint`
 
 - `Skeleton` must match the layout it replaces. Under 300ms, show nothing.
-- **`AiOutline`** — `{ active?: boolean (default true), asChild? }` + div attributes. A 2px outline in
-  `color.gradient.ai.*`. While `active` the colours orbit it every 6s; `active={false}` holds it still; reduced
-  motion stops it. It paints `--ai-outline-fill` (default `bg.surface`) inside, so don't set a background on it.
-  Decorative: pair it with words or a `Spinner` (R8). Full guide: [docs/ai-outline.md](docs/ai-outline.md).
+- **`AiOutline`** — `{ active?: boolean (default true), asChild? }` + div attributes. A 3px ring in
+  `color.gradient.ai.*` drawn over the host's edge on its own layer, so the host keeps its own background and
+  border. While `active` a comet of the gradient orbits it every 3s with a matching glow just outside the edge; `active={false}` and reduced motion show
+  the whole ring still. Decorative: pair it with words or a `Spinner` (R8). Full guide: [docs/ai-outline.md](docs/ai-outline.md).
 - `ProgressBar` with no `value` is indeterminate — use it only when the total
   genuinely is unknown.
 - `Modal` traps focus, closes on Escape, returns focus to its trigger.

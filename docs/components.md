@@ -88,7 +88,7 @@ Legend: **=** direct mapping · **⊕** several Figma sets merged into one expor
 | Valuations sub-menu | State | ⊕ `SectionSubMenu` | `header/Menus.tsx` |
 | Filter dropdown | — | = `FilterDropdown` | `header/Controls.tsx` |
 | Search bar | — | = `SearchBar` | `header/Controls.tsx` |
-| Notification | — | = `Notification` | `header/Controls.tsx` |
+| Notification | — | = `Notification` (＋ `working`: the AI outline orbits the bell) | `header/Controls.tsx` |
 | Badge | — | = `Badge` | `header/Controls.tsx` |
 | Combo tag | — | = `ComboTag` | `header/Controls.tsx` |
 | Currency Selector | — | = `CurrencySelector` (picker trigger, or a Hundreds → Thousands → Millions unit cycle with `unit` / `onUnitChange`; with `currencies` the code opens a searchable world-currency list, `onCurrencyChange`; `formatCurrencyDisplayUnit` / `currencySymbol` re-express figures) | `header/Controls.tsx` |
@@ -328,7 +328,7 @@ provenance and in-cell editing. See known gap 8.
 |---|---|---|---|
 | Banner | Style (5) | = `Banner` | `feedback-patterns/Status.tsx` |
 | Spinner | Size (3) | = `Spinner` | `feedback-patterns/Status.tsx` |
-| AI Outline | State (2) | ＋ `AiOutline` (`active`, `asChild`) — the AI gradient orbiting an outline while AI works (Figma `1753:95`, page 24; guide `docs/ai-outline.md`) | `feedback-patterns/AiOutline.tsx` |
+| AI Outline | State (2) | ＋ `AiOutline` (`active`, `asChild`) — a comet of the AI gradient orbiting a 3px ring over the host's edge while AI works (Figma `1753:95`, page 24; guide `docs/ai-outline.md`) | `feedback-patterns/AiOutline.tsx` |
 | Progress Ring | Value (5) | = `ProgressRing` (continuous `value` / `max`) | `feedback-patterns/Status.tsx` |
 | Data Freshness | State (3) | = `DataFreshness` | `feedback-patterns/Status.tsx` |
 | Save State | State (5) | = `SaveState` | `feedback-patterns/Status.tsx` |

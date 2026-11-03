@@ -84,17 +84,31 @@ export const AiOutlines: StoryObj<typeof AiOutline> = {
   name: 'AiOutline',
   render: () => (
     <div style={{ display: 'grid', gap: 'var(--space-l)', maxWidth: 360 }}>
-      <AiOutline data-testid="active" style={{ padding: 'var(--space-m)' }}>
+      {/* The ring and its glow ride over the card's edge; its fill and border stay as they are. */}
+      <AiOutline
+        data-testid="active"
+        style={{ padding: 'var(--space-m)', background: 'var(--color-bg-surface)', border: '1px solid var(--color-stroke-ai)' }}
+      >
         <Spinner size="s" label="Reading Annual Report 2026.pdf…" />
       </AiOutline>
-      <AiOutline active={false} data-testid="still" style={{ padding: 'var(--space-m)' }}>
+      <AiOutline
+        active={false}
+        data-testid="still"
+        style={{ padding: 'var(--space-m)', background: 'var(--color-bg-subtle)' }}
+      >
         Annual Report 2026.pdf has been analyzed and categorized.
       </AiOutline>
     </div>
   ),
   play: async ({ canvas }) => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    await expect(canvas.getByTestId('active').getAnimations()).toHaveLength(reduce ? 0 : 1);
-    await expect(canvas.getByTestId('still').getAnimations()).toHaveLength(0);
+    // The orbit runs on the ::before ring, so look through the subtree (past the Spinner's own spin).
+    const orbits = (el: HTMLElement) =>
+      el.getAnimations({ subtree: true }).filter((a) => (a as CSSAnimation).animationName === 'scalar-ai-outline-orbit');
+    // Two orbits: the ring (::before) and its glow (::after), in step.
+    await expect(orbits(canvas.getByTestId('active'))).toHaveLength(reduce ? 0 : 2);
+    await expect(orbits(canvas.getByTestId('still'))).toHaveLength(0);
+    // The ring never paints the surface.
+    await expect(getComputedStyle(canvas.getByTestId('active')).backgroundColor).not.toBe('rgba(0, 0, 0, 0)');
   },
 };

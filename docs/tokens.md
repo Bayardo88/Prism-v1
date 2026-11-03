@@ -302,7 +302,7 @@ The Workboard Deal card (`DealCard tone="deal"`): `background` is its fill (Teal
 
 ### Gradient: AI
 
-The stops of the AI working outline (`AiOutline`), in order round the card: violet → blue → teal → pink. Graphic only (≥ 3:1 on page and surface), never text or status. They share values with the AI fill and three PRISM primaries but are separate tokens, because PRISM states what an item is (R11). Figma: *Semantic: Color › Gradient/AI/\** (known gap 15).
+The stops of the AI working outline (`AiOutline`), in order along the orbiting comet: violet → blue → teal → pink. Graphic only (≥ 3:1 on page and surface), never text or status. They share values with the AI fill and three PRISM primaries but are separate tokens, because PRISM states what an item is (R11). Figma: *Semantic: Color › Gradient/AI/\** (known gap 15).
 
 | Token | Light | Dark |
 |---|---|---|

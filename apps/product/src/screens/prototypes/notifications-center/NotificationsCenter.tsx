@@ -129,6 +129,7 @@ export function NotificationsCenter({ state, params }: ScreenProps) {
   const overrides: GlobalMenuOverrides = useMemo(() => ({
     menus: MENUS,
     unread: visible.some((n) => !n.read),
+    aiWorking: visible.some((n) => n.inProgress),
     openMenu: openMenuFor[state],
     onMenuChange,
   }), [visible, state, onMenuChange]);

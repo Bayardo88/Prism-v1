@@ -5,8 +5,8 @@
  *   toast `animate-in slide-in-from-bottom-5 fade-in duration-300`
  *     → fade + rise from `space.l`, `motion.moderate` + `motion.decelerate`
  *
- * The AI card's orbiting outline is the DS `AiOutline` (known gap 15), built
- * from GOOGLE_AI_STUDIO_GRADIENT_INPUT_ANIMATION.md.
+ * The AI card's and the bell's orbiting outline is the DS `AiOutline` (known
+ * gap 15), a border-beam comet in the AI gradient.
  */
 import { useEffect, useState, type CSSProperties } from 'react';
 import { motion, space } from '@scalar/design-system';

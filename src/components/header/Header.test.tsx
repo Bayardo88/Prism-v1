@@ -250,6 +250,16 @@ describe('triggers', () => {
     expect(screen.getByRole('button', { name: 'Avisos sin leer' })).toBeTruthy();
   });
 
+  it('Notification working wears the AI outline and says so in its name', () => {
+    const { rerender } = render(<Notification unread working />);
+    const bell = screen.getByRole('button', { name: 'Notifications, unread, AI working' });
+    expect(bell).toHaveClass('scalar-notification', 'scalar-ai-outline', 'scalar-ai-outline--active');
+    rerender(<Notification unread />);
+    // Same element, so focus survives the job ending.
+    expect(screen.getByRole('button', { name: 'Notifications, unread' })).toBe(bell);
+    expect(bell).not.toHaveClass('scalar-ai-outline');
+  });
+
   it('AITool input is uncontrolled by default, submits on Enter, forwards ref', async () => {
     const onSubmit = vi.fn();
     const ref = createRef<HTMLInputElement & HTMLButtonElement>();

@@ -16,7 +16,7 @@ The bell in the Primary Menu, on the Cap Table. The prototype composes the real 
 
 1. **An event is emitted** with `type`, `priority` (normal | high) and optional `actor`, `context`, `link` and `display` (spec 13.2 and 13.3).
 2. **Filters:** scope (all firms, all companies in the firm, or only the company in view) and *Only my changes* (`actor` is you). Failing items stay in the feed, hidden, and come back when the filters widen. System announcements always pass.
-3. **The bell** shows the unread dot while any visible item is unread.
+3. **The bell** shows the unread dot while any visible item is unread, and the orbiting AI outline while a visible AI job runs.
 4. **Delivery:** with the panel closed, a toast appears (`ToastViewport`; the result toast hides after 8 s and pauses on hover). With the panel open, the item lands on top with a **New** chip and a coloured edge (AI items get `stroke.ai`, others `stroke.brand`).
 5. **Closing the panel** marks what was seen as read. Running jobs stay live.
 6. **Actions:** *Dismiss* (×) removes an `alert`. `activity` items (someone's change) can't be dismissed and stay as a log. *View results* or *View change* navigates to `link`.
@@ -27,13 +27,13 @@ The bell in the Primary Menu, on the Cap Table. The prototype composes the real 
 | AI Studio (`src/App.tsx`) | Here |
 |---|---|
 | Toast `animate-in slide-in-from-bottom-5 fade-in duration-300` | Fade + rise from `space.l`, `motion.moderate` + `motion.decelerate` (`motion.ts`, a transition, so reduced motion turns it off) |
-| `animate-gradient` (fuchsia → blue → emerald, background-position 0 → 200%, 3 s linear, infinite) on the in-progress card's border | Replaced by the DS **`AiOutline`** (`<AiOutline asChild>` on the card), built from `GOOGLE_AI_STUDIO_GRADIENT_INPUT_ANIMATION.md`: a 2px outline in `color.gradient.ai.*` (violet → blue → teal → pink, the AI fill plus Global Search's blue, teal and pink as their own tokens). The colours orbit it every 6 s, following the corners, with no seam (a `@property` angle on a conic gradient). It stops under reduced motion, and comes off when the job completes. |
+| `animate-gradient` (fuchsia → blue → emerald, background-position 0 → 200%, 3 s linear, infinite) on the in-progress card's border | Replaced by the DS **`AiOutline`** (`<AiOutline asChild>` on the card): a 3px ring in `color.gradient.ai.*` (violet → blue → teal → pink) drawn over the card's edge, so the card keeps its own fill and border. A comet of the gradient, with a matching glow just outside the edge, orbits it every 3 s, following the corners, with no seam (the border-beam technique: a `@property` angle on a masked conic gradient). Reduced motion shows the whole ring still, and it comes off when the job completes. |
 | The same gradient filling the "Reading Documents" chip | Kept the DS `Chip styleVariant="ai"` (a tint). A gradient fill with white text would restyle the chip. |
-| The same gradient on the bell while AI runs (15 s) | **Not built.** DS `Notification` has no busy or AI state, so this needs a DS addition. The "AI processing" toast stands in. |
+| The same gradient on the bell while AI runs (15 s) | DS `Notification working`: the same orbiting `AiOutline` on the bell, driven by `GlobalMenuOverrides.aiWorking` while any visible item is in progress. Its name becomes "Notifications, unread, AI working". |
 | Toggle knob slide and colour transitions | Not built. The DS `Switch` snaps, and animating it is a DS change. |
 | AI job 15 s, then a toast that hides after 8 s | Same timings (`JOB_MS`, `TOAST_MS`) |
 
-**Figma:** the AI gradient is the library's *Gradient/AI/\** variables (known gap 15, now published). The panel and card are proposed in the components file as **Notification Panel** (`1754:502`) and **Notification Item** (`1751:267`), page *25 · Overlays & Panels*, with **AI Outline** (`1753:95`) on page 24. The markdown's Google palette (green, red, amber) is left out because those are status colours here, and its outer glow is not built because there is no glow token beyond the elevation ladder (R9).
+**Figma:** the AI gradient is the library's *Gradient/AI/\** variables (known gap 15, now published). The panel and card are proposed in the components file as **Notification Panel** (`1754:502`) and **Notification Item** (`1751:267`), page *25 · Overlays & Panels*, with **AI Outline** (`1753:95`) on page 24. The markdown's Google palette (green, red, amber) is left out because those are status colours here, and its outer glow is now the `AiOutline` glow (a blurred comet outside the edge, an R9 exception).
 
 ## States
 

@@ -63,6 +63,17 @@ export const NotificationStates: Story = {
   ),
 };
 
+/** AI is working on a job the user will hear about: the bell's AI outline orbits and its name says so. */
+export const NotificationAiWorking: Story = {
+  name: 'Notification AI Working',
+  render: () => (
+    <>
+      <Notification working />
+      <Notification unread working />
+    </>
+  ),
+};
+
 export const ComboTags: Story = {
   render: () => (
     <>

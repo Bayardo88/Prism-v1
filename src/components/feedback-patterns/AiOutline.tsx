@@ -3,23 +3,24 @@ import { Slot, cx, type AsChildProps } from '../../utils/index.js';
 
 export interface AiOutlineProps extends HTMLAttributes<HTMLDivElement>, AsChildProps {
   /**
-   * The colour travels round the outline while AI works on the item. `false`
-   * holds the outline still (the item is AI-made but nothing is running).
-   * Default `true`.
+   * A comet of the AI gradient travels round the outline while AI works on
+   * the item. `false` holds the whole ring still (the item is AI-made but
+   * nothing is running). Default `true`.
    */
   active?: boolean;
   children?: ReactNode;
 }
 
 /**
- * AI Outline — a 2px outline painted with the AI gradient (violet → blue →
- * teal → pink, `color.gradient.ai.*`). While `active`, the colours orbit the
- * outline once every 6s, following the corners, and a full turn ends where it
- * began. Reduced motion holds it still.
+ * AI Outline — a 3px ring in the AI gradient (violet → blue → teal → pink,
+ * `color.gradient.ai.*`), drawn on its own layer over the edge of the surface
+ * it wraps. While `active`, a short comet of the gradient orbits the edge once
+ * every 3s with a matching glow just outside the edge, following the corners, and a full turn ends where it began. Still,
+ * or under reduced motion, the whole ring shows at rest.
  *
- * It wraps a surface (a card, a notification) and paints that surface's fill
- * inside the outline; set `--ai-outline-fill` to change it from
- * `bg.surface`. Use `asChild` to put the outline on your own element.
+ * The surface keeps its own fill and border: the ring never paints them. Use
+ * `asChild` to put the outline on your own element (a card, the bell); it
+ * follows that element's corner radius.
  *
  * Decorative: the outline never says "working" on its own (R8), so pair it
  * with words or a `Spinner`. Figma: AI Outline (components file, page 24). Guide: docs/ai-outline.md.
