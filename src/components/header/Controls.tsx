@@ -163,6 +163,14 @@ export interface NotificationProps extends ButtonHTMLAttributes<HTMLButtonElemen
   label?: string;
   /** Accessible name when unread. Default "Notifications, unread". */
   unreadLabel?: string;
+  /**
+   * AI is working on something the user will be notified about: the bell
+   * wears the orbiting AI outline (`AiOutline`) and its name gains
+   * `workingLabel`, since the outline alone says nothing (R8).
+   */
+  working?: boolean;
+  /** Appended to the accessible name while `working`. Default "AI working". */
+  workingLabel?: string;
 }
 
 /**
@@ -178,15 +186,21 @@ export interface NotificationProps extends ButtonHTMLAttributes<HTMLButtonElemen
  * with its own live region; this control is static.
  */
 export const Notification = forwardRef<HTMLButtonElement, NotificationProps>(function Notification(
-  { unread, label = 'Notifications', unreadLabel = 'Notifications, unread', className, ...rest },
+  {
+    unread, label = 'Notifications', unreadLabel = 'Notifications, unread',
+    working, workingLabel = 'AI working', className, ...rest
+  },
   ref,
 ) {
+  const name = unread ? unreadLabel : label;
+  // The AiOutline classes go straight on the button, so the bell isn't
+  // remounted (and doesn't lose focus) when the work starts or ends.
   return (
     <button
       ref={ref}
       type="button"
-      aria-label={unread ? unreadLabel : label}
-      className={cx('scalar-notification', className)}
+      aria-label={working ? `${name}, ${workingLabel}` : name}
+      className={cx('scalar-notification', working && 'scalar-ai-outline scalar-ai-outline--active', className)}
       {...rest}
     >
       <Icon size="s" tone="inherit"><Bell /></Icon>

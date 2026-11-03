@@ -29,13 +29,15 @@ import { usePinnedTableHead } from './usePinnedTableHead.js';
 
 /**
  * Prototype hook: lets a prototype swap a global menu's surface, drive the
- * bell's unread dot and know which menu is open, while composing a real screen
+ * bell's unread dot and AI-working outline, and know which menu is open, while composing a real screen
  * unchanged. Product screens never provide it, so the defaults apply.
  */
 export interface GlobalMenuOverrides {
   menus?: Partial<Record<GlobalMenu, ComponentType<OverlayProps>>>;
   /** The bell's unread dot. Default on. */
   unread?: boolean;
+  /** AI is working on a job the user will be notified about: the bell's outline orbits. Default off. */
+  aiWorking?: boolean;
   /** Menu open on first render, when the screen passes none. */
   openMenu?: GlobalMenu;
   onMenuChange?: (menu: GlobalMenu | undefined) => void;
@@ -90,7 +92,7 @@ export function AppFrame({ area, company, date, openMenu, overlay, children }: A
                 readOnly
                 onFocus={() => { if (Date.now() - closedAt.current > 300) setOpen('search'); }}
               />
-              <Notification unread={overrides.unread ?? true} onClick={toggle('notifications')} />
+              <Notification unread={overrides.unread ?? true} working={overrides.aiWorking} onClick={toggle('notifications')} />
               <ToolSwitch value={tool} onChange={setTool} />
               <button
                 type="button"

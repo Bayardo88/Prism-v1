@@ -323,12 +323,16 @@ is (R11) and must not be borrowed for decoration, so the gradient can move
 without touching Global Search. Each stop is drawn as a 2px stroke, so
 `npm run lint:contrast` checks it at 3:1 on page and surface, Light and Dark.
 
-`AiOutline` paints them as a conic gradient on the border box and turns the
-start angle (`@property --scalar-ai-outline-angle`, 6s linear, infinite), so the
-colours follow the outline. Reduced motion stops it. The motion is from
-`GOOGLE_AI_STUDIO_GRADIENT_INPUT_ANIMATION.md` (supplied with the
-Notifications Center prototype). Its outer glow is not built, because there is no
-glow token beyond the elevation ladder (R9).
+`AiOutline` paints them as a conic gradient on a masked `::before` ring over the
+host's edge, and turns the start angle (`@property --scalar-ai-outline-angle`,
+3s linear, infinite), so a comet of the gradient follows the outline. Reduced
+motion shows the whole ring still. The comet is the border-beam technique
+(supplied 2026-11 as `border-beam-both-modes-3px`). Its glow is built as a
+blurred copy of the comet masked to outside the edge: a deliberate exception to
+"no glow beyond the elevation ladder" (R9), with literal blur and opacity values
+because no glow token exists. Its hex palettes are not built; the colours are
+the AI tokens. The Figma **AI Outline**
+component still shows the earlier 2px full-gradient stroke.
 
 **Status (2026-10-23):** the four variables exist in the tokens file
 (`anrnTIJKgu27zV224h7vON`, *Semantic: Color*) as `Gradient/AI/Violet`, `Blue`,

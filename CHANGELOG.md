@@ -1,6 +1,19 @@
 # Changelog
 
 ## Unreleased
+- **AI outline is now a moving comet that leaves the surface alone.** `AiOutline` draws a 3px ring on its own
+  `::before` layer over the host's edge (the border-beam technique), so a card keeps its own background and
+  border while AI works. While `active` a short comet of the AI gradient orbits the edge every 3s, with a matching glow just outside the edge; `active={false}`
+  and reduced motion show the full ring still. `--ai-outline-fill` is gone: set the host's own `background`.
+  The glow is the comet blurred outward and masked to a `space.m` band outside the host, so it never tints the
+  fill; it is a deliberate exception to "no glow beyond the elevation ladder" (R9), asked for by design. On the bell
+  it is tighter and stronger so it reads on navy, and it replaces the bell's extended hit area while working (the
+  32px bell is still a full target). The Figma **AI Outline** component (`1753:95`) still shows
+  the 2px stroke.
+- **`Notification` `working`.** The bell wears the orbiting AI outline while AI runs a job the user will be told
+  about, and its name gains `workingLabel` ("AI working"). The classes go on the button itself, so focus survives
+  the job ending. `AppFrame` takes it as `GlobalMenuOverrides.aiWorking`; the Notifications Center prototype turns
+  it on while its AI job runs. Story *Header › Controls › Notification AI Working*.
 - **AI tool opens into a prompt field.** Clicking `AITool` now switches it to the Figma `State=AI-Input-Field`
   (466:3115): a white field with a subtle rule, the purple AI mark, "How can I help you?" and a "Press ↵" submit
   chip. The field takes focus, so the user can type straight away; Enter or the chip submits (`onSubmit`).

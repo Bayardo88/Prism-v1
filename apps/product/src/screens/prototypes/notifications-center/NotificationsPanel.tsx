@@ -53,7 +53,7 @@ export function NotificationCard({ n, onDismiss }: { n: AppNotification; onDismi
   // A new or running item is outlined in its family colour; read alerts get the container edge; activity is a quiet log.
   const edge = activity ? 'transparent' : !n.read || n.inProgress ? (ai ? color.stroke.ai : color.stroke.brand) : color.stroke.default;
   const who = n.actor && (n.actor.isYou ? 'You' : n.actor.name);
-  // A running AI job wears the DS AI outline (its colours orbit) until it completes.
+  // A running AI job wears the DS AI outline (a comet orbits its edge) until it completes; the card keeps its own fill and edge.
   const orbiting = !!n.inProgress && ai;
 
   const card = (
@@ -62,7 +62,7 @@ export function NotificationCard({ n, onDismiss }: { n: AppNotification; onDismi
       style={{
         display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m,
         borderRadius: radius.m,
-        ...(!orbiting && { border: `1px solid ${edge}`, background: activity ? color.bg.subtle : color.bg.surface }),
+        border: `1px solid ${edge}`, background: activity ? color.bg.subtle : color.bg.surface,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: space.s }}>
