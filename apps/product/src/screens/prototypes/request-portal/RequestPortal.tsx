@@ -7,7 +7,7 @@
  * three tiers of PageTemplate: Login (1) · Information Request, help links and
  * progress (2) · engagement, status filter, Select All and bulk actions (3).
  *
- * Every count — the ring, "N remaining", the category tallies, the filters —
+ * Every count — the progress bar, "N remaining", the category tallies, the filters —
  * derives from the same `requests` array (P1.3). Bulk actions act only on
  * requests that are selected AND visible AND eligible (P1.1, P1.2).
  *
@@ -16,7 +16,9 @@
  * Prototype switches (scenario.ts, kept in the URL): who sent the request
  * (Scalar → company, Scalar → fund admin, firm → portfolio company), who is
  * looking (the responder, or the sender's own user, who may change the due
- * date), and whether the link has expired (then only ExpiredLink shows, until
+ * date, and sees the platform's design: request progress as on Company ›
+ * Documents, a "Sent to" filter under the categories, and Info Request at the
+ * end of Tier 3), and whether the link has expired (then only ExpiredLink shows, until
  * the recipient logs in).
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from 'react';
@@ -44,6 +46,9 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'pending', label: 'Pending' },
   { value: 'completed', label: 'Completed' },
 ];
+
+/** The platform's request builder (Company › Documents › Info Request), deployed with the Company Documents prototype. */
+const INFO_REQUEST_BUILDER = 'https://scalar-company-documents-requests.netlify.app/apps/product/index.html';
 
 const fmt = (iso: string) => { const [y, m, d] = iso.split('-'); return `${m}/${d}/${y}`; };
 
@@ -103,6 +108,8 @@ export function RequestPortal({ state }: ScreenProps) {
   const intro = INTRODUCTION.map((p) => p.replace('{company}', company.name).replace('{sender}', scenario.senderName));
   const [introOpen, setIntroOpen] = useState(true);
   const [category, setCategory] = useState<string>('all');
+  // Sender only: whose requests the list shows ("Sent to" under the categories).
+  const [recipient, setRecipient] = useState<string>('all');
   const showIntro = () => { setCategory('all'); setIntroOpen(true); };
   const [expandMenu, setExpandMenu] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -134,7 +141,11 @@ export function RequestPortal({ state }: ScreenProps) {
   const total = all.length;
   const resolvedCount = all.filter(done).length;
   const remaining = total - resolvedCount;
-  const visible = all.filter((r) => (category === 'all' || r.categoryId === category) && matchesStatus(r, statusFilter, every));
+  // Who a request is with: the original recipient, or whoever it was delegated to.
+  const recipientOf = (r: (typeof all)[number]) => r.delegatee ?? scenario.recipient.name;
+  const recipients = [scenario.recipient.name, ...[...new Set(all.map((r) => r.delegatee).filter((d): d is string => !!d))]];
+  const forRecipient = (r: (typeof all)[number]) => !isSender || recipient === 'all' || recipientOf(r) === recipient;
+  const visible = all.filter((r) => (category === 'all' || r.categoryId === category) && forRecipient(r) && matchesStatus(r, statusFilter, every));
   const visibleIds = visible.map((r) => r.id);
   const categoriesInUse = CATEGORIES.filter((c) => all.some((r) => r.categoryId === c.id));
 
@@ -149,7 +160,7 @@ export function RequestPortal({ state }: ScreenProps) {
   }, [visibleKey]);
 
   // A different company's (or scenario's) list starts with nothing selected or open.
-  useEffect(() => { setSelected(new Set()); setExpanded(new Set()); setCategory('all'); setIntroOpen(true); }, [company.id, scenario.id]);
+  useEffect(() => { setSelected(new Set()); setExpanded(new Set()); setCategory('all'); setRecipient('all'); setIntroOpen(true); }, [company.id, scenario.id]);
 
   const selectedVisible = visible.filter((r) => selected.has(r.id));
   const allChecked = visible.length > 0 && selectedVisible.length === visible.length;
@@ -219,7 +230,7 @@ export function RequestPortal({ state }: ScreenProps) {
     },
   };
 
-  const clearFilters = () => { setCategory('all'); setStatusFilter('all'); };
+  const clearFilters = () => { setCategory('all'); setRecipient('all'); setStatusFilter('all'); };
   const statusText = STATUS_OPTIONS.find((o) => o.value === statusFilter)!.label;
 
   const expressButton = (
@@ -325,7 +336,23 @@ export function RequestPortal({ state }: ScreenProps) {
 
   // A thin determinate bar (AI-GUIDE §5: progress with a known total) fits the 32px tier; the ring did not.
   const pct = total > 0 ? Math.round((resolvedCount / total) * 100) : 0;
-  const progress = (
+  // The sender's own user sees the platform's request progress (Company › Documents): slim bar, done/total, counts in words.
+  const senderProgress = (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s, flex: 'none' }}>
+      <ProgressBar
+        value={pct}
+        label="Information requests resolved"
+        style={{ width: `calc(${size.control.l} * 3)` }}
+      />
+      <Text as="span" step="s" tone="secondary" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+        {resolvedCount}/{total}
+      </Text>
+      <Text as="span" step="s" tone="secondary" aria-live="polite" style={{ whiteSpace: 'nowrap' }}>
+        {`Requests: ${total} sent, ${resolvedCount} resolved, ${remaining} pending`}
+      </Text>
+    </span>
+  );
+  const progress = isSender && !mobile ? senderProgress : (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s, flex: 'none' }}>
       <Text as="span" step="s" weight="semiBold" style={{ whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
         {resolvedCount}/{total}
@@ -447,6 +474,17 @@ export function RequestPortal({ state }: ScreenProps) {
             </div>
           )}
         </div>
+        {/* The sender starts a new request from here, as on Company › Documents in the platform. */}
+        {isSender && !mobile && (
+          <Button
+            size="xs"
+            variant="primary"
+            leadingIcon={<Icon size="s" tone="inherit"><icons.Mail /></Icon>}
+            onClick={() => window.open(`${INFO_REQUEST_BUILDER}#/companies/${company.id}/documents/information-request`, '_blank', 'noopener')}
+          >
+            Info Request
+          </Button>
+        )}
       </>}
     >
       {!mobile && engagement}
@@ -474,6 +512,30 @@ export function RequestPortal({ state }: ScreenProps) {
               <Text as="span" step="s" tone={doneCount === items.length ? 'positive' : 'secondary'}>
                 {doneCount}/{items.length}<span className="scalar-visually-hidden"> resolved</span>
               </Text>
+            </span>
+          </SubmenuItem>
+        );
+      })}
+    </nav>
+  );
+
+  // Sender only: the people the request is with, and what each still owes. Picking one filters the list.
+  const sentToNav = isSender && (
+    <nav aria-label="Sent to" style={{ display: 'flex', flexDirection: 'column', gap: space['2xs'], padding: space.s, borderTop: `1px solid ${color.stroke.divider}` }}>
+      <Overline as="h2" style={{ padding: `${space.xs} ${space.s}` }}>Sent to</Overline>
+      <SubmenuItem current={recipient === 'all'} onClick={() => setRecipient('all')}>
+        <span style={{ display: 'flex', justifyContent: 'space-between', gap: space.s, width: '100%' }}>
+          <span>Everyone</span><Text as="span" step="s" tone="secondary">{remaining} pending</Text>
+        </span>
+      </SubmenuItem>
+      {recipients.map((name) => {
+        const theirs = all.filter((r) => recipientOf(r) === name);
+        const open = theirs.filter((r) => !done(r)).length;
+        return (
+          <SubmenuItem key={name} current={recipient === name} onClick={() => setRecipient(name)}>
+            <span style={{ display: 'flex', justifyContent: 'space-between', gap: space.s, width: '100%' }}>
+              <span style={{ overflowWrap: 'anywhere' }}>{name}</span>
+              <Text as="span" step="s" tone={open ? 'secondary' : 'positive'} style={{ whiteSpace: 'nowrap' }}>{open ? `${open} pending` : 'Done'}</Text>
             </span>
           </SubmenuItem>
         );
@@ -567,7 +629,7 @@ export function RequestPortal({ state }: ScreenProps) {
     <EmptyState
       type="no-results"
       title={statusFilter === 'pending' && category === 'all' ? 'Nothing left to do' : 'No requests match these filters'}
-      body={`Showing ${statusText.toLowerCase()} requests${category === 'all' ? '' : ` in ${CATEGORIES.find((c) => c.id === category)?.name}`}.`}
+      body={`Showing ${statusText.toLowerCase()} requests${isSender && recipient !== 'all' ? ` sent to ${recipient}` : ''}${category === 'all' ? '' : ` in ${CATEGORIES.find((c) => c.id === category)?.name}`}.`}
       icon={<icons.FilterAlt />}
       actions={<Button variant="secondary" size="s" onClick={clearFilters}>Clear filters</Button>}
     />
@@ -619,9 +681,12 @@ export function RequestPortal({ state }: ScreenProps) {
           <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: mobile ? 'minmax(0, 1fr)' : 'minmax(min-content, 1fr) minmax(0, 4fr)', gap: space.l, paddingBlock: space.m }}>
             {!mobile && (
               <aside style={{ minHeight: 0, overflow: 'auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
-                <div style={{ padding: space.s }}>
-                  <Overline as="h2" style={{ padding: `${space.xs} ${space.s}` }}>Categories</Overline>
-                  {categoryNav}
+                <div>
+                  <div style={{ padding: space.s }}>
+                    <Overline as="h2" style={{ padding: `${space.xs} ${space.s}` }}>Categories</Overline>
+                    {categoryNav}
+                  </div>
+                  {sentToNav}
                 </div>
                 <div>
                   {securityNote}
