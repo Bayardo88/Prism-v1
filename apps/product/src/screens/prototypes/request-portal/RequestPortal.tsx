@@ -651,6 +651,8 @@ export function RequestPortal({ state }: ScreenProps) {
               onDelegate={(id) => openDelegate([id])}
               notify={notify}
               mobile={mobile}
+              viewer={isSender ? 'sender' : 'recipient'}
+              respondent={scenario.recipient.name}
             />
           </RequestRowWithHeader>
         );

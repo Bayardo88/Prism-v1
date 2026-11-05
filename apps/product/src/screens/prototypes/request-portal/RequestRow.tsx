@@ -4,14 +4,14 @@
  * The disclosure is a real button with `aria-expanded`; the checkbox and the
  * actions sit beside it, never inside it (P1.13).
  */
-import { useEffect, useId, useState, type DragEvent } from 'react';
+import { useEffect, useId, useState, type DragEvent, type ReactNode } from 'react';
 import {
   Alert, Button, Checkbox, Chip, ConfirmationDialog, FileRow, FormField, Icon, Input, Label, Radio, RadioGroup,
   Text, Textarea, Tooltip, color, glyphs, icons, radius, size, space,
 } from '@scalar/design-system';
 import { UploadBar, UploadedFiles, canUpload, useUploader, type Notify } from './FileUpload.js';
 import {
-  activeFollowUp, currentFiles, requestNumber, responseTypeLabel, shownStatus, statusLabel,
+  activeFollowUp, currentFiles, formatDay, requestNumber, responseTypeLabel, shownStatus, statusLabel,
   type InformationRequest, type RequestStatus,
 } from './model.js';
 import { EXPRESS_NOTE } from './ExpressMode.js';
@@ -35,11 +35,13 @@ const typeIcon: Record<InformationRequest['responseType'], JSX.Element> = {
 
 export function StatusChip({ status, label }: { status: RequestStatus; label?: string }) {
   const s = statusChip[status];
-  return (
+  const chip = (
     <Chip size="s" styleVariant={s.style} leadingIcon={<Icon size="xs" tone="inherit">{s.icon}</Icon>}>
       {label ?? statusLabel[status]}
     </Chip>
   );
+  // "Complete" in blue is completed outside the portal; the tooltip says so, and the row's answer slot repeats it in words.
+  return status === 'sent' && !label ? <Tooltip content="Completed outside the portal">{chip}</Tooltip> : chip;
 }
 
 const fmtDate = (iso: string) => {
@@ -59,9 +61,54 @@ interface RowProps {
   onDelegate: (id: string) => void;
   notify: Notify;
   mobile: boolean;
+  /**
+   * Whose screen this is. `recipient` (the portal, default): the description
+   * stays under the title — it is the instruction. `sender` (the analyst):
+   * a collapsed row shows the answer in the description's place, and the
+   * answer reads "Answered by …" instead of "Your saved answer".
+   */
+  viewer?: 'recipient' | 'sender';
+  /** Who answered, for the sender's wording. */
+  respondent?: string;
 }
 
-export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, store, onDelegate, notify, mobile }: RowProps) {
+/**
+ * What came back, in one line for a collapsed row (sender view): the value of
+ * a Yes / No, the options picked, a date, the first line of a written answer,
+ * the file name, or how it was resolved without one. Null while nothing has.
+ */
+export function answerSummary(req: InformationRequest): { node: ReactNode; text: string } | null {
+  if (req.status === 'na') return { node: 'N/A', text: 'N/A' };
+  if (req.status === 'sent') return { node: 'Sent another way', text: 'Sent another way' };
+  switch (req.responseType) {
+    case 'choice': {
+      if (!req.answer) return null;
+      const v = req.answer === 'yes' ? 'Yes' : 'No';
+      return { node: <Chip size="s">{v}</Chip>, text: v };
+    }
+    case 'multiple_choice': {
+      const sel = req.selection;
+      if (!sel?.optionIds.length) return null;
+      const labels = (req.choice?.options ?? []).filter((o) => sel.optionIds.includes(o.id))
+        .map((o) => (o.other && sel.otherText ? `${o.label}: ${sel.otherText}` : o.label));
+      const text = labels.length > 2 ? `${labels.slice(0, 2).join(', ')} +${labels.length - 2}` : labels.join(', ');
+      return { node: text, text: labels.join(', ') };
+    }
+    case 'date': return req.answer ? { node: formatDay(req.answer), text: formatDay(req.answer) } : null;
+    case 'text': return req.answer ? { node: req.answer.split('\n')[0], text: req.answer } : null;
+    default: {
+      const files = currentFiles(req);
+      if (!files.length) return null;
+      const more = files.length > 1 ? ` +${files.length - 1} file${files.length > 2 ? 's' : ''}` : '';
+      return {
+        node: <Chip size="s" leadingIcon={<Icon size="xs" tone="inherit"><icons.Description /></Icon>}>{`${files[0]!.name}${more}`}</Chip>,
+        text: files.map((f) => f.name).join(', '),
+      };
+    }
+  }
+}
+
+export function RequestRow({ req, all, expanded, onToggle, selected = false, onSelect, store, onDelegate, notify, mobile, viewer = 'recipient', respondent }: RowProps) {
   const num = requestNumber(req);
   const panelId = `req-panel-${req.id}`;
   const op = store.ops[req.id];
@@ -70,6 +117,10 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
   const followUp = req.status === 'pending' || req.status === 'complete' ? activeFollowUp(req, all) : undefined;
   const status = shownStatus(req, all);
   const waitingOnFollowUp = req.status === 'complete' && status === 'pending';
+  // The sender reads answers without opening rows: the answer takes the description's slot while collapsed.
+  const answer = viewer === 'sender' && !expanded ? answerSummary(req) : null;
+  const when = req.updatedAt ?? currentFiles(req)[0]?.uploadedAt;
+  const savedLabel = viewer === 'sender' ? `Answered by ${respondent ?? 'the recipient'}${when ? ` · ${formatDay(when)}` : ''}` : undefined;
   const ids = { num: useId(), title: useId(), note: useId(), details: useId(), type: useId() };
 
   // While a file is dragged over it, the whole request card is the drop target (the upload bar is small).
@@ -109,7 +160,7 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
           aria-controls={panelId}
           // Name: number and title. The short note and response type describe it (read after the name).
           aria-labelledby={`${ids.num} ${ids.title}`}
-          aria-describedby={[req.shortNote && ids.note, ids.type].filter(Boolean).join(' ')}
+          aria-describedby={[(answer || req.shortNote) && ids.note, ids.type].filter(Boolean).join(' ')}
           className="scalar-focusable"
           style={{
             flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: space.s, padding: `${space.xs} 0`,
@@ -122,7 +173,14 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
             {/* The title leads; the short note follows on the same line, muted, and truncates first. Open, it wraps in full (onto its own line if narrow). */}
             <span style={{ flex: 1, minWidth: 0, maxWidth: '100%', display: 'flex', alignItems: 'baseline', gap: space.s, flexWrap: expanded ? 'wrap' : 'nowrap' }}>
               <Text as="span" id={ids.title} step="m" weight={expanded ? 'semiBold' : 'regular'} style={{ flex: '0 1 auto', minWidth: 0 }}>{req.title}</Text>
-              {req.shortNote && (
+              {answer ? (
+                <Tooltip content={answer.text} style={{ minWidth: 0, flex: '1 1 0', display: 'flex' }}>
+                  <Text as="span" id={ids.note} step="s" tone="primary" style={{ display: 'inline-flex', alignItems: 'center', gap: space.xs, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
+                    <span aria-hidden>· </span><span className="scalar-visually-hidden">Answer: </span>
+                    <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{answer.node}</span>
+                  </Text>
+                </Tooltip>
+              ) : req.shortNote && (
                 <Tooltip content={req.shortNote} style={{ minWidth: 0, flex: expanded ? '1 1 24ch' : '1 1 0', display: 'flex' }}>
                   <Text as="span" id={ids.note} step="s" tone="secondary"
                     style={expanded ? undefined : { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
@@ -166,11 +224,13 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
             <Alert tone="info" title={req.status === 'na' ? 'Marked as not applicable' : 'Marked complete — sent another way'}>
               {req.status === 'na'
                 ? 'No response is expected for this request. Reopen it if that changes.'
-                : 'You told the analyst this was delivered outside the portal. No file was uploaded here.'}
+                : viewer === 'sender'
+                  ? `Marked complete by ${respondent ?? 'the recipient'} · sent outside the portal.`
+                  : 'You told the analyst this was delivered outside the portal. No file was uploaded here.'}
             </Alert>
           )}
 
-          <Response req={req} op={op} store={store} notify={notify} all={all} dragOver={dragOver} onFiles={(fs) => void upload(fs)} />
+          <Response req={req} op={op} store={store} notify={notify} all={all} dragOver={dragOver} onFiles={(fs) => void upload(fs)} savedLabel={savedLabel} />
 
           {op?.phase === 'failed' && (
             <Alert tone="negative" title="Not saved" onDismiss={() => store.clearError(req.id)} dismissLabel="Dismiss error">
@@ -200,9 +260,12 @@ export function RequestRow({ req, all, expanded, onToggle, selected, onSelect, s
                 </Tooltip>
               </>
             )}
-            <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.PersonAdd /></Icon>} onClick={() => onDelegate(req.id)}>
-              {req.delegatee ? 'Change delegate' : 'Delegate'}
-            </Button>
+            {/* Nothing is left to delegate once a request is resolved, until it is reopened. */}
+            {!resolved && (
+              <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.PersonAdd /></Icon>} onClick={() => onDelegate(req.id)}>
+                {req.delegatee ? 'Change delegate' : 'Delegate'}
+              </Button>
+            )}
           </div>
         </div>
       )}
@@ -219,6 +282,8 @@ interface ResponseProps {
   /** Upload within the request's file limit (shared with the card's drop target). */
   onFiles: (files: File[]) => void;
   dragOver: boolean;
+  /** Heading over a saved answer. Default "Your saved answer" (the recipient's wording). */
+  savedLabel?: string;
 }
 
 /**
@@ -266,7 +331,8 @@ function Response(props: ResponseProps) {
   }
 }
 
-function AnswerResponse({ req, op, store, kind }: ResponseProps & { kind: 'text' | 'choice' | 'date' }) {
+function AnswerResponse({ req, op, store, kind, savedLabel = 'Your saved answer' }: ResponseProps & { kind: 'text' | 'choice' | 'date' }) {
+  const labelId = useId();
   // Restores the saved value when reopened (P1.4); what was typed survives a failed save.
   const [draft, setDraft] = useState(req.answer ?? '');
   useEffect(() => { setDraft(req.answer ?? ''); }, [req.answer]);
@@ -278,7 +344,7 @@ function AnswerResponse({ req, op, store, kind }: ResponseProps & { kind: 'text'
     const shown = kind === 'choice' ? (req.answer === 'yes' ? 'Yes' : 'No') : kind === 'date' ? fmtDate(req.answer) : req.answer;
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
-        <Text step="s" tone="secondary">Your saved answer</Text>
+        <Text step="s" tone="secondary">{savedLabel}</Text>
         <Text step="m" style={{ whiteSpace: 'pre-wrap' }}>{shown}</Text>
       </div>
     );
@@ -290,12 +356,16 @@ function AnswerResponse({ req, op, store, kind }: ResponseProps & { kind: 'text'
         <Textarea rows={3} value={draft} onChange={(e) => setDraft(e.currentTarget.value)} disabled={saving} />
       </FormField>
     ) : kind === 'choice' ? (
-      <RadioGroup label="Your answer" value={draft || undefined} onValueChange={setDraft} disabled={saving}>
-        <div style={{ display: 'flex', gap: space.l }}>
-          <Radio value="yes">Yes</Radio>
-          <Radio value="no">No</Radio>
-        </div>
-      </RadioGroup>
+      // The S radio and a 14px label, matching the row checkboxes.
+      <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
+        <Label as="span" step="m" id={labelId}>Your answer</Label>
+        <RadioGroup aria-labelledby={labelId} size="s" value={draft || undefined} onValueChange={setDraft} disabled={saving}>
+          <div style={{ display: 'flex', gap: space.l }}>
+            <Radio value="yes"><Text as="span" step="m">Yes</Text></Radio>
+            <Radio value="no"><Text as="span" step="m">No</Text></Radio>
+          </div>
+        </RadioGroup>
+      </div>
     ) : (
       <FormField label="Date" helperText="MM/DD/YYYY">
         <Input type="date" value={draft} onChange={(e) => setDraft(e.currentTarget.value)} disabled={saving} />
@@ -319,7 +389,7 @@ function AnswerResponse({ req, op, store, kind }: ResponseProps & { kind: 'text'
  * An "Other" option asks for text. Saving can add a follow-up; a change that
  * drops a follow-up which already has an answer asks first, then clears it.
  */
-function ChoiceResponse({ req, op, store, all }: ResponseProps) {
+function ChoiceResponse({ req, op, store, all, savedLabel = 'Your saved answer' }: ResponseProps) {
   const cfg = req.choice!;
   const [ids, setIds] = useState<string[]>(req.selection?.optionIds ?? []);
   const [other, setOther] = useState(req.selection?.otherText ?? '');
@@ -341,7 +411,7 @@ function ChoiceResponse({ req, op, store, all }: ResponseProps) {
       .map((o) => (o.other && req.selection!.otherText ? `${o.label}: ${req.selection!.otherText}` : o.label));
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
-        <Text step="s" tone="secondary">Your saved answer</Text>
+        <Text step="s" tone="secondary">{savedLabel}</Text>
         {labels.map((l) => <Text key={l} step="m">{l}</Text>)}
       </div>
     );
@@ -434,6 +504,8 @@ function TemplateResponse(props: ResponseProps) {
     setError(err);
     if (!err) notify('positive', `${t.fileName} downloaded. Fill it in, then upload it here.`);
   };
+  // Once resolved (any way) the steps are done: show only what was uploaded. Reopen brings them back.
+  if (req.status !== 'pending') return <FileResponse {...props} />;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: space.m }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: space.xs }}>
