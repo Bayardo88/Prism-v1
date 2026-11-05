@@ -9,6 +9,8 @@
  * The sender's own user is signed in to the platform, so their tiers are the
  * product's: the main menu with Documents current (1) · All documents ·
  * Requests (2) · the company, Open company and progress, then the tools (3).
+ * Info Request opens the New Information Request builder in place (NewRequest.tsx):
+ * the tiers stay, and sending adds the requests to this list as Pending.
  *
  * Every count — the progress bar, "N remaining", the category tallies, the filters —
  * derives from the same `requests` array (P1.3). Bulk actions act only on
@@ -44,6 +46,7 @@ import { byNumber, formatBytes, isResolved, matchesStatus, requestNumber, type R
 import {
   ContactDialog, DelegateDialog, DueDateDialog, HelpDialog, LoginDialog, PrivacyDialog, type PortalDialog,
 } from './PortalModals.js';
+import { NewRequestView } from './NewRequest.js';
 import { RequestRow } from './RequestRow.js';
 import { SCENARIOS, SCENARIO_IDS, usePrototypeConfig, type LinkState, type Viewer } from './scenario.js';
 import { peekRequests, usePortalStore } from './store.js';
@@ -54,8 +57,6 @@ const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'completed', label: 'Completed' },
 ];
 
-/** The platform's request builder (Company › Documents › Info Request), deployed with the Company Documents prototype. */
-const INFO_REQUEST_BUILDER = 'https://scalar-company-documents-requests.netlify.app/apps/product/index.html';
 
 const fmt = (iso: string) => { const [y, m, d] = iso.split('-'); return `${m}/${d}/${y}`; };
 
@@ -108,6 +109,8 @@ export function RequestPortal({ state }: ScreenProps) {
   // The sender's own user (Scalar or firm) is signed in to the platform, so an expired link never stops them.
   const isSender = config.viewer === 'sender';
   const [tool, setTool] = useState<ToolSwitchValue>('valuations');
+  // Info Request opens the builder here, in the portal's own chrome; it never leaves the page.
+  const [building, setBuilding] = useState(false);
   // An expired link shows nothing of the request until the recipient logs in.
   const expired = config.link === 'expired' && !loggedIn && !isSender;
   const mobile = useMobile();
@@ -539,7 +542,7 @@ export function RequestPortal({ state }: ScreenProps) {
             size="xs"
             variant="primary"
             leadingIcon={<Icon size="s" tone="inherit"><icons.Mail /></Icon>}
-            onClick={() => window.open(`${INFO_REQUEST_BUILDER}#/companies/${company.id}/documents/information-request`, '_blank', 'noopener')}
+            onClick={() => setBuilding(true)}
           >
             Info Request
           </Button>
@@ -743,6 +746,25 @@ export function RequestPortal({ state }: ScreenProps) {
               </div>
             )}
           </PageTemplate>
+        ) : building ? (
+          <NewRequestView
+            navigation={navigation}
+            companyInfo={companyInfo}
+            company={company}
+            categories={CATEGORIES}
+            requestSet={requestSet}
+            existing={every}
+            dueDate={store.dueDate}
+            senderName={scenario.senderName}
+            recipient={scenario.recipient.name}
+            onCancel={() => setBuilding(false)}
+            onSent={(added, due, to) => {
+              store.addRequests(added, due);
+              setBuilding(false);
+              setCategory('all');
+              notify('positive', `${added.length} request${added.length === 1 ? '' : 's'} sent to ${to.join(', ')}, due ${fmt(due)}. They show as Pending until each one is answered.`);
+            }}
+          />
         ) : (
         <PageTemplate fullHeight={false} navigation={navigation} companyInfo={companyInfo} subNavigation={subNavigation}>
           <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: mobile ? 'minmax(0, 1fr)' : 'minmax(min-content, 1fr) minmax(0, 4fr)', gap: space.l, paddingBlock: space.m }}>

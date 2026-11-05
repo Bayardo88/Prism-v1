@@ -285,6 +285,10 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   /** The sender (Scalar or firm user) sets the due date directly; no request, no approval. */
   const setDueDate = useCallback((iso: string) => setData((d) => ({ ...d, dueDate: iso })), []);
 
+  /** The sender's new request (Info Request): its requests join the list as Pending, under the new due date. */
+  const addRequests = useCallback((added: InformationRequest[], dueDate: string) =>
+    setData((d) => ({ ...d, requests: [...d.requests, ...added], dueDate })), []);
+
   /** Clears every stored company of this fixture, so the fund-admin menu resets too. */
   const reset = useCallback((keys: readonly string[] = [key]) => {
     try { keys.forEach((k) => window.localStorage.removeItem(KEY(k))); } catch { /* ignore */ }
@@ -295,7 +299,7 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   return {
     requests: current.requests, dueDate: current.dueDate, unsorted: current.unsorted ?? [], ops: fresh ? {} : ops,
     simulateFailure, setSimulateFailure,
-    saveAnswer, saveSelection, uploadFile, cancelUpload, clearError, removeFile, restoreFile, downloadUpload, setStatus, reopen, delegate, setDueDate, reset,
+    saveAnswer, saveSelection, uploadFile, cancelUpload, clearError, removeFile, restoreFile, downloadUpload, setStatus, reopen, delegate, setDueDate, addRequests, reset,
     addUnsorted, removeUnsorted, assignUnsorted,
   };
 }
