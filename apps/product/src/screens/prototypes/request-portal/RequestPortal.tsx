@@ -6,6 +6,9 @@
  * category column filters it; it is never a second list. Navigation is the
  * three tiers of PageTemplate: Login (1) · Information Request, help links and
  * progress (2) · engagement, status filter, Select All and bulk actions (3).
+ * The sender's own user is signed in to the platform, so their tiers are the
+ * product's: the main menu with Documents current (1) · All documents ·
+ * Requests (2) · the company, Open company and progress, then the tools (3).
  *
  * Every count — the progress bar, "N remaining", the category tallies, the filters —
  * derives from the same `requests` array (P1.3). Bulk actions act only on
@@ -24,12 +27,16 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import {
   Alert, Avatar, Banner, Button, FileRow, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
-  FormField, Icon, InformationLabel, MainMenuItem, MenuDivider, MenuItem, Notification, Overline, PageTemplate, PrimaryMenu, ProgressBar,
+  FormField, Icon, InformationLabel, Link, MainMenuItem, MenuDivider, MenuItem, Notification, Overline, PageTemplate, PrimaryMenu, ProgressBar,
   Radio, RadioGroup, ScalarProvider, SecondaryMenu, SecondaryMenuItem, SegmentedControl, Select, SelectMenu, SelectMenuOption,
-  SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, ToolSwitch, breakpoint, color, elevation, icons, radius, size, space, zIndex,
+  SearchBar, Selector, SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, ToolSwitch, breakpoint, color, elevation, icons, radius, size, space, zIndex,
   glyphs, type ToolSwitchValue,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../../types.js';
+import { href } from '../../../router.js';
+import { routes } from '../../../routes.js';
+import { PageHeader } from '../../../shell/PageHeader.js';
+import { ToolbarKebab } from '../../../shell/Toolbar.js';
 import { ExpiredLink } from './ExpiredLink.js';
 import { AI_BUTTON_STYLE, ExpressModeDialog, type ExpressPlan } from './ExpressMode.js';
 import { CATEGORIES_FOR, INTRODUCTION, REQUEST_META, seedFor } from './fixtures.js';
@@ -301,7 +308,45 @@ export function RequestPortal({ state }: ScreenProps) {
     </span>
   );
 
-  const navigation = (
+  // The sender's own user is signed in to the platform: Tier 1 is the product's own bar (AppFrame), Documents current.
+  const platformNavigation = (
+    <PrimaryMenu
+      logo={
+        <a href={href(routes.home)} aria-label="Scalar home" style={{ display: 'inline-flex' }}>
+          <img className="scalar-primary-menu__logo" src="./assets/firm-logo.jpg" alt="" />
+        </a>
+      }
+      end={
+        <>
+          <SearchBar readOnly onClick={() => notify('info', 'Search is not part of this prototype.')} />
+          <Notification unread onClick={() => notify('info', 'Notifications are not part of this prototype.')} />
+          <ToolSwitch value={tool} onChange={setTool} />
+          <button type="button" aria-label={`${scenario.senderUser.name} — user menu`} title={scenario.senderUser.name}
+            onClick={() => notify('info', `Signed in as ${scenario.senderUser.name} (${scenario.senderRole}).`)}
+            style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer' }}>
+            <Avatar size="s" className="scalar-avatar--ringed" initials={scenario.senderUser.initials} alt={scenario.senderUser.name} />
+          </button>
+          <button type="button" className="scalar-primary-menu__more" aria-label="More actions"
+            onClick={() => notify('info', 'The actions menu is not part of this prototype.')}>
+            <Icon size="l" tone="inherit"><icons.MoreVert /></Icon>
+          </button>
+        </>
+      }
+    >
+      <MainMenuItem href={href(routes.intelligence.summaries)}>Intelligence</MainMenuItem>
+      <MainMenuItem href={href(routes.valuations)}>Valuations</MainMenuItem>
+      <MainMenuItem href={href(routes.waterfalls)}>Waterfalls</MainMenuItem>
+      <MainMenuItem current href={href(routes.documents)}>Documents</MainMenuItem>
+      <MainMenuItem href={href(routes.reports)}>Reports</MainMenuItem>
+      {companySwitcher || (
+        <CompanyDropdown onClick={() => notify('info', 'The company picker is not part of this prototype.')}>Companies</CompanyDropdown>
+      )}
+      {/* The request's own report date, so the bar and the engagement agree. */}
+      <Selector label="Measurement Date" value={REQUEST_META.reportDate} onClick={() => notify('info', 'The date picker is not part of this prototype.')} />
+    </PrimaryMenu>
+  );
+
+  const navigation = isSender ? platformNavigation : (
     <PrimaryMenu
       navLabel="Portal"
       logo={logo}
@@ -375,7 +420,16 @@ export function RequestPortal({ state }: ScreenProps) {
     </span>
   );
 
-  const companyInfo = (
+  // The sender's Tier 2 is the platform's Documents tabs, Requests current, as on Documents › Requests.
+  const here = window.location.hash.replace(/^#/, '');
+  const companyInfo = isSender ? (
+    <PageHeader
+      title={<span className="scalar-visually-hidden">{`Documents — Requests · ${company.name}`}</span>}
+      tabs={[{ key: 'all', label: 'All documents', to: routes.documents }, { key: 'requests', label: 'Requests', to: here }]}
+      current="requests"
+      trailing={<ToolbarKebab />}
+    />
+  ) : (
     <CompanyInfo
       name={company.name}
       end={expired ? undefined : <>
@@ -474,6 +528,7 @@ export function RequestPortal({ state }: ScreenProps) {
             </div>
           )}
         </div>
+        {isSender && deadline}
         {/* The sender starts a new request from here, as on Company › Documents in the platform. */}
         {isSender && !mobile && (
           <Button
@@ -487,7 +542,13 @@ export function RequestPortal({ state }: ScreenProps) {
         )}
       </>}
     >
-      {!mobile && engagement}
+      {isSender ? (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.m, minWidth: 0 }}>
+          <Text as="span" step="m" weight="semiBold" style={{ whiteSpace: 'nowrap' }}>{company.name}</Text>
+          <Link href={href(routes.company.documents(company.id))} size="s">Open company</Link>
+          {!mobile && progress}
+        </span>
+      ) : !mobile && engagement}
     </TertiaryMenu>
   );
 
