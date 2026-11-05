@@ -309,8 +309,11 @@ export function RequestPortal({ state }: ScreenProps) {
   );
 
   // The sender's own user is signed in to the platform: Tier 1 is the product's own bar (AppFrame), Documents current.
+  // Tier 1 never shrinks: in PageTemplate's column a long request list would squeeze it below the product's 48px.
+  const navStyle = { flexShrink: 0 } as const;
   const platformNavigation = (
     <PrimaryMenu
+      style={navStyle}
       logo={
         <a href={href(routes.home)} aria-label="Scalar home" style={{ display: 'inline-flex' }}>
           <img className="scalar-primary-menu__logo" src="./assets/firm-logo.jpg" alt="" />
@@ -348,6 +351,7 @@ export function RequestPortal({ state }: ScreenProps) {
 
   const navigation = isSender ? platformNavigation : (
     <PrimaryMenu
+      style={navStyle}
       navLabel="Portal"
       logo={logo}
       end={isSender ? (
