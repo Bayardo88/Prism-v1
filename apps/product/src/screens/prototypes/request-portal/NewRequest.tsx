@@ -28,7 +28,7 @@
  * the portal's chrome and mounts it only while building, so each Info Request
  * starts fresh.
  */
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { forwardRef, useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   Alert, Button, ButtonIcon, Checkbox, Chip, ComboboxPanel, FormField, Heading, Icon, Input, Link, Modal, Overline, PageTemplate,
   Select, SelectMenu, SelectMenuOption, SubmenuItem, TertiaryMenu, Text, Textarea, color, glyphs, icons, motion, radius, size, space, zIndex,
@@ -126,6 +126,7 @@ const SAVED_TEMPLATES: RequestTemplate[] = [
 
 const fmt = (iso: string) => { const [y, m, d] = iso.split('-'); return `${m}/${d}/${y}`; };
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const templateLabel = (t: RequestTemplate) => `${t.name} — ${plural(t.requests.length, 'request')}${t.updatedAt ? ` · edited ${formatDay(t.updatedAt)}` : ''}`;
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 let keySeq = 0;
@@ -243,7 +244,14 @@ export function useNewRequest({
   const [baseline, setBaseline] = useState(() => snapshot(drafts, intro));
   const edited = snapshot(drafts, intro) !== baseline;
   const contacts = [...new Set([recipient, ...responsibles.map((r) => r.name)])];
-  const templateField = useRef<HTMLSelectElement>(null);
+  const templateField = useRef<HTMLButtonElement>(null);
+  const templateWrap = useRef<HTMLDivElement>(null);
+  const templateMenu = useRef<HTMLDivElement>(null);
+  const templateMenuId = useId();
+  const [templateOpen, setTemplateOpen] = useState(false);
+  const closeTemplate = useCallback(() => { setTemplateOpen(false); templateField.current?.focus(); }, []);
+  useDismiss(templateWrap, templateOpen, closeTemplate);
+  useEffect(() => { if (templateOpen) templateMenu.current?.focus(); }, [templateOpen]);
   useEffect(() => { if (start?.focusTemplate) templateField.current?.focus(); }, [start?.focusTemplate]);
 
   const mergeInto = (current: DraftRequest[], adding: TemplateRequest[]) => {
@@ -501,18 +509,30 @@ export function useNewRequest({
   const sendTo = (
     <section aria-labelledby="nr-send-to" style={{ display: 'flex', flexDirection: 'column', gap: space.m, padding: space.m, borderBottom: `1px solid ${color.stroke.divider}` }}>
       <FormField label="Template" helperText="Sets the requests, their descriptions and the introduction; every row starts included. Recipients and the due date stay as they are.">
-        <Select ref={templateField} value={templateId} onChange={(e) => pickTemplate(e.currentTarget.value)}>
-          {templates.map((t) => (
-            <option key={t.id} value={t.id}>
-              {`${t.name} — ${plural(t.requests.length, 'request')}${t.updatedAt ? ` · edited ${formatDay(t.updatedAt)}` : ''}`}
-            </option>
-          ))}
-        </Select>
+        <div ref={templateWrap} style={{ position: 'relative' }}>
+          <FieldTrigger ref={templateField} open={templateOpen} controls={templateMenuId}
+            label={`Template: ${templateLabel(templates.find((t) => t.id === templateId)!)}`} onToggle={() => setTemplateOpen((o) => !o)}>
+            {templateLabel(templates.find((t) => t.id === templateId)!)}
+          </FieldTrigger>
+          {templateOpen && (
+            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: zIndex.overlay, marginTop: space.xs }}>
+              <SelectMenu ref={templateMenu} id={templateMenuId} label="Template" onEscape={closeTemplate}>
+                {templates.map((t) => (
+                  <SelectMenuOption key={t.id} selected={t.id === templateId}
+                    description={t.updatedAt ? `${plural(t.requests.length, 'request')} · edited ${formatDay(t.updatedAt)}` : plural(t.requests.length, 'request')}
+                    onSelect={() => { closeTemplate(); pickTemplate(t.id); }}>
+                    {t.name}
+                  </SelectMenuOption>
+                ))}
+              </SelectMenu>
+            </div>
+          )}
+        </div>
       </FormField>
       <Heading level={2} step="m" id="nr-send-to">Send to</Heading>
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)', gap: space.l, alignItems: 'start' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: space.s }}>
-          <div style={{ position: 'relative' }} data-popover-trigger="">
+          <div>
             <FormField
               label="Recipients"
               state={tried && !recipients.length ? 'error' : undefined}
@@ -520,43 +540,39 @@ export function useNewRequest({
                 ? 'Choose at least one recipient.'
                 : 'Each person gets their own email and link. Pick a contact or type an email address.'}
             >
-              <Input
-                readOnly
-                placeholder="Select a responsible or add a new one"
-                value=""
-                aria-haspopup="listbox"
-                aria-expanded={pickerOpen}
-                onClick={() => setPickerOpen((o) => !o)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'ArrowDown') { e.preventDefault(); setPickerOpen(true); } }}
-                leadingIcon={<Icon size="s" tone="secondary"><icons.PersonAdd /></Icon>}
-                trailingIcon={<Icon size="s" tone="secondary">{pickerOpen ? <icons.KeyboardArrowUp /> : <icons.KeyboardArrowDown />}</Icon>}
-              />
-            </FormField>
-            {pickerOpen && (
-              <div ref={panelRef} style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay }}>
-                <ComboboxPanel
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus
-                  multiple
-                  label="Recipients"
-                  searchPlaceholder="Find a person or type an email"
-                  items={pickerItems}
-                  value={recipients}
-                  query={query}
-                  onQueryChange={setQuery}
-                  onSelect={(v) => {
-                    setRecipients((r) => (r.includes(v) ? r.filter((x) => x !== v) : [...r, v]));
-                    setQuery('');
-                  }}
-                  footer={
-                    <Button variant="tertiary" size="s" disabled={!EMAIL.test(typed)} leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
-                      onClick={() => { addRecipient(typed); setQuery(''); }}>
-                      Add a new responsible
-                    </Button>
-                  }
-                />
+              {/* The panel opens right under the field, above the helper text. */}
+              <div style={{ position: 'relative' }} data-popover-trigger="">
+                <FieldTrigger open={pickerOpen} placeholder label="Recipients: select a responsible or add a new one"
+                  invalid={tried && !recipients.length} icon={<icons.PersonAdd />} onToggle={() => setPickerOpen((o) => !o)}>
+                  Select a responsible or add a new one
+                </FieldTrigger>
+                {pickerOpen && (
+                  <div ref={panelRef} style={{ position: 'absolute', top: '100%', left: 0, zIndex: zIndex.overlay, marginTop: space.xs }}>
+                    <ComboboxPanel
+                      // eslint-disable-next-line jsx-a11y/no-autofocus
+                      autoFocus
+                      multiple
+                      label="Recipients"
+                      searchPlaceholder="Find a person or type an email"
+                      items={pickerItems}
+                      value={recipients}
+                      query={query}
+                      onQueryChange={setQuery}
+                      onSelect={(v) => {
+                        setRecipients((r) => (r.includes(v) ? r.filter((x) => x !== v) : [...r, v]));
+                        setQuery('');
+                      }}
+                      footer={
+                        <Button variant="tertiary" size="s" disabled={!EMAIL.test(typed)} leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>}
+                          onClick={() => { addRecipient(typed); setQuery(''); }}>
+                          Add a new responsible
+                        </Button>
+                      }
+                    />
+                  </div>
+                )}
               </div>
-            )}
+            </FormField>
           </div>
           {recipients.length > 0 && (
             <div aria-label="Selected recipients" role="group" style={{ display: 'flex', flexWrap: 'wrap', gap: space.xs }}>
@@ -827,24 +843,10 @@ function TypePicker({ label, value, onChange }: { label: string; value: BuilderT
   useEffect(() => { if (open) menu.current?.focus(); }, [open]);
   return (
     <div ref={wrap} style={{ position: 'relative' }}>
-      {/* One trigger: the whole field, chevron included, opens the menu. */}
-      <button
-        ref={trigger}
-        type="button"
-        className="scalar-field"
-        data-state="default"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-controls={open ? menuId : undefined}
-        aria-label={`${label}: ${responseTypeLabel[value]}`}
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={(e) => { if (e.key === 'ArrowDown' && !open) { e.preventDefault(); setOpen(true); } }}
-        style={{ cursor: 'pointer', textAlign: 'left' }}
-      >
-        <Icon size="s" tone="secondary">{typeIcon[value]}</Icon>
-        <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{responseTypeLabel[value]}</span>
-        <Icon size="s" tone="secondary" className={open ? 'scalar-rotate-180' : undefined}><glyphs.ChevronDown /></Icon>
-      </button>
+      <FieldTrigger ref={trigger} open={open} controls={menuId} label={`${label}: ${responseTypeLabel[value]}`}
+        icon={typeIcon[value]} onToggle={() => setOpen((o) => !o)}>
+        {responseTypeLabel[value]}
+      </FieldTrigger>
       {open && (
         <div style={{ position: 'absolute', top: '100%', right: 0, minWidth: '100%', zIndex: zIndex.overlay, marginTop: space.xs }}>
           <SelectMenu ref={menu} id={menuId} label={label} onEscape={close}>
@@ -860,3 +862,46 @@ function TypePicker({ label, value, onChange }: { label: string; value: BuilderT
     </div>
   );
 }
+
+/**
+ * A form field that opens a Scalar panel (SelectMenu or ComboboxPanel) below
+ * it. The whole field is one button, so a click on the text or the chevron
+ * opens the same panel; ↓ opens it from the keyboard. The browser's native
+ * list is never used.
+ */
+const FieldTrigger = forwardRef<HTMLButtonElement, {
+  open: boolean;
+  /** The panel's id while it is open. */
+  controls?: string;
+  /** Accessible name, ending with the visible value. */
+  label: string;
+  icon?: ReactNode;
+  /** Shows the text as a placeholder (nothing chosen yet). */
+  placeholder?: boolean;
+  invalid?: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}>(function FieldTrigger({ open, controls, label, icon, placeholder, invalid, onToggle, children }, ref) {
+  return (
+    <button
+      ref={ref}
+      type="button"
+      className="scalar-field"
+      data-state={invalid ? 'error' : 'default'}
+      aria-haspopup="listbox"
+      aria-expanded={open}
+      aria-controls={open ? controls : undefined}
+      aria-label={label}
+      onClick={onToggle}
+      onKeyDown={(e) => { if (e.key === 'ArrowDown' && !open) { e.preventDefault(); onToggle(); } }}
+      style={{ cursor: 'pointer', textAlign: 'left' }}
+    >
+      {icon && <Icon size="s" tone="secondary">{icon}</Icon>}
+      <Text as="span" step="m" tone={placeholder ? 'tertiary' : undefined}
+        style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {children}
+      </Text>
+      <Icon size="s" tone="secondary" className={open ? 'scalar-rotate-180' : undefined}><glyphs.ChevronDown /></Icon>
+    </button>
+  );
+});
