@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { REQUEST_META, seedDueDate } from './fixtures.js';
 import {
-  currentFiles, maxFilesOf, validateFile, type ChoiceSelection, type InformationRequest, type RequestStatus, type UploadedFile,
+  currentFiles, maxFilesOf, validateFile, type Category, type ChoiceSelection, type InformationRequest, type RequestStatus, type UploadedFile,
 } from './model.js';
 
 export type Phase = 'idle' | 'validating' | 'uploading' | 'saving' | 'failed';
@@ -24,7 +24,26 @@ interface Persisted {
   dueDate: string;
   /** Express mode files the recipient left unsorted. Bytes live in IndexedDB under the same id. */
   unsorted?: UploadedFile[];
+  /** Categories the sender added (Add category). The company's default list: every later request offers them. */
+  categories?: Category[];
+  /** The latest send: the email as reviewed, and one link per recipient. */
+  outreach?: Outreach;
 }
+
+/** PROTOTYPE: a request link is a token in the portal URL. The real one is a magic link made before sending. */
+export interface Invite { recipient: string; token: string; emailSentAt: string | null }
+export interface Outreach {
+  subject: string;
+  note: string;
+  createdAt: string;
+  invites: Invite[];
+  /** What the email said, kept as sent. */
+  introduction: string[];
+  summary: { name: string; count: number }[];
+  dueDate: string;
+}
+
+export const newToken = () => Math.random().toString(36).slice(2, 10);
 
 // v3: shortNote / details / maxFiles and replaced versions changed the stored shape.
 // v4: seeded due dates vary per list, so a firm-wide sort by due date has something to sort.
@@ -285,9 +304,30 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
   /** The sender (Scalar or firm user) sets the due date directly; no request, no approval. */
   const setDueDate = useCallback((iso: string) => setData((d) => ({ ...d, dueDate: iso })), []);
 
-  /** The sender's new request (Info Request): its requests join the list as Pending, under the new due date. */
-  const addRequests = useCallback((added: InformationRequest[], dueDate: string) =>
-    setData((d) => ({ ...d, requests: [...d.requests, ...added], dueDate })), []);
+  /**
+   * The sender's new request (Info Request): its requests join the list as Pending, under the new due date.
+   * New categories join the company's default list; the review step's email and links are kept for "Email & link".
+   */
+  const addRequests = useCallback((added: InformationRequest[], dueDate: string, extra: { categories?: Category[]; outreach?: Outreach } = {}) =>
+    setData((d) => {
+      // Merge by id: a renamed category keeps its id and number, and takes the new name.
+      const merged = new Map((d.categories ?? []).map((c) => [c.id, c]));
+      (extra.categories ?? []).forEach((c) => merged.set(c.id, c));
+      return {
+        ...d,
+        requests: [...d.requests, ...added],
+        dueDate,
+        categories: [...merged.values()],
+        outreach: extra.outreach ?? d.outreach,
+      };
+    }), []);
+
+  /** Resend to one recipient: a fresh link replaces the old one (an expired link stops working), and the email is logged as sent. */
+  const resendEmail = useCallback((recipient: string) =>
+    setData((d) => (d.outreach ? {
+      ...d,
+      outreach: { ...d.outreach, invites: d.outreach.invites.map((i) => (i.recipient === recipient ? { ...i, token: newToken(), emailSentAt: now() } : i)) },
+    } : d)), []);
 
   /** Clears every stored company of this fixture, so the fund-admin menu resets too. */
   const reset = useCallback((keys: readonly string[] = [key]) => {
@@ -298,8 +338,9 @@ export function usePortalStore(key: string, seed: () => InformationRequest[]) {
 
   return {
     requests: current.requests, dueDate: current.dueDate, unsorted: current.unsorted ?? [], ops: fresh ? {} : ops,
+    categories: current.categories ?? [], outreach: current.outreach,
     simulateFailure, setSimulateFailure,
-    saveAnswer, saveSelection, uploadFile, cancelUpload, clearError, removeFile, restoreFile, downloadUpload, setStatus, reopen, delegate, setDueDate, addRequests, reset,
+    saveAnswer, saveSelection, uploadFile, cancelUpload, clearError, removeFile, restoreFile, downloadUpload, setStatus, reopen, delegate, setDueDate, addRequests, resendEmail, reset,
     addUnsorted, removeUnsorted, assignUnsorted,
   };
 }

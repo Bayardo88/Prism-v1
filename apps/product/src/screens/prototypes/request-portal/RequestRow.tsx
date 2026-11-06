@@ -119,6 +119,8 @@ export function RequestRow({ req, all, expanded, onToggle, selected = false, onS
   const waitingOnFollowUp = req.status === 'complete' && status === 'pending';
   // The sender reads answers without opening rows: the answer takes the description's slot while collapsed.
   const answer = viewer === 'sender' && !expanded ? answerSummary(req) : null;
+  // The short note, or else the description as a one-line hint while the row is closed (open, it shows in full below).
+  const hint = req.shortNote ?? (expanded ? undefined : req.details);
   const when = req.updatedAt ?? currentFiles(req)[0]?.uploadedAt;
   const savedLabel = viewer === 'sender' ? `Answered by ${respondent ?? 'the recipient'}${when ? ` · ${formatDay(when)}` : ''}` : undefined;
   const ids = { num: useId(), title: useId(), note: useId(), details: useId(), type: useId() };
@@ -160,7 +162,7 @@ export function RequestRow({ req, all, expanded, onToggle, selected = false, onS
           aria-controls={panelId}
           // Name: number and title. The short note and response type describe it (read after the name).
           aria-labelledby={`${ids.num} ${ids.title}`}
-          aria-describedby={[(answer || req.shortNote) && ids.note, ids.type].filter(Boolean).join(' ')}
+          aria-describedby={[(answer || hint) && ids.note, ids.type].filter(Boolean).join(' ')}
           className="scalar-focusable"
           style={{
             flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: space.s, padding: `${space.xs} 0`,
@@ -180,11 +182,11 @@ export function RequestRow({ req, all, expanded, onToggle, selected = false, onS
                     <span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{answer.node}</span>
                   </Text>
                 </Tooltip>
-              ) : req.shortNote && (
-                <Tooltip content={req.shortNote} style={{ minWidth: 0, flex: expanded ? '1 1 24ch' : '1 1 0', display: 'flex' }}>
+              ) : hint && (
+                <Tooltip content={hint} style={{ minWidth: 0, flex: expanded ? '1 1 24ch' : '1 1 0', display: 'flex' }}>
                   <Text as="span" id={ids.note} step="s" tone="secondary"
                     style={expanded ? undefined : { whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>
-                    <span aria-hidden>· </span>{req.shortNote}
+                    <span aria-hidden>· </span>{hint}
                   </Text>
                 </Tooltip>
               )}

@@ -11,6 +11,11 @@
  * Requests (2) · the company, Open company and progress, then the tools (3).
  * Info Request opens the New Information Request builder in place (NewRequest.tsx):
  * the tiers stay, and sending adds the requests to this list as Pending.
+ * After a send, "Email & link" (Tier 3) reopens the email, copies each
+ * recipient's link and resends. A company with no requests (`state=empty`)
+ * shows one centred empty state: New Info Request (Blank) or Start from a
+ * template for the sender, a line of copy for the responder. Categories the
+ * sender added join the set's own (the company's default list).
  *
  * Every count — the progress bar, "N remaining", the category tallies, the filters —
  * derives from the same `requests` array (P1.3). Bulk actions act only on
@@ -28,7 +33,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import {
-  Alert, Avatar, Banner, Button, FileRow, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
+  Alert, Avatar, Badge, Banner, Button, FileRow, Checkbox, CompanyDropdown, CompanyDropdownPanel, CompanyInfo, ContextMenu, EmptyState, FilterDropdown,
   FormField, Icon, InformationLabel, Link, MainMenuItem, MenuDivider, MenuItem, Notification, Overline, PageTemplate, PrimaryMenu, ProgressBar,
   Radio, RadioGroup, ScalarProvider, SecondaryMenu, SecondaryMenuItem, SegmentedControl, Select, SelectMenu, SelectMenuOption,
   SearchBar, Selector, SubmenuItem, TertiaryMenu, Text, Toast, ToastViewport, ToolSwitch, breakpoint, color, elevation, icons, radius, size, space, zIndex,
@@ -46,6 +51,7 @@ import { byNumber, formatBytes, isResolved, matchesStatus, requestNumber, type R
 import {
   ContactDialog, DelegateDialog, DueDateDialog, HelpDialog, LoginDialog, PrivacyDialog, type PortalDialog,
 } from './PortalModals.js';
+import { EmailLinkDialog } from './EmailReview.js';
 import { NewRequestView } from './NewRequest.js';
 import { RequestRow } from './RequestRow.js';
 import { SCENARIOS, SCENARIO_IDS, usePrototypeConfig, type LinkState, type Viewer } from './scenario.js';
@@ -101,16 +107,28 @@ export function RequestPortal({ state }: ScreenProps) {
   // A company from another scenario never carries over.
   useEffect(() => { setCompanyId(SCENARIOS[config.scenario].companies[0]!.id); }, [config.scenario]);
   const requestSet = scenario.requestSet;
-  const CATEGORIES = CATEGORIES_FOR[requestSet];
   const seed = useCallback(() => seedFor(state, companyIndex, requestSet), [state, companyIndex, requestSet]);
   const store = usePortalStore(storeKey(state, scenario.id, company.id), seed);
+  // The set's categories, then any the sender added (Add category): the company's default list.
+  const CATEGORIES = useMemo(() => [
+    ...CATEGORIES_FOR[requestSet],
+    ...store.categories.filter((c) => !CATEGORIES_FOR[requestSet].some((b) => b.id === c.id)),
+  ].sort((a, b) => a.order - b.order), [requestSet, store.categories]);
   const [loggedIn, setLoggedIn] = useState<string | null>(null);
   const [companyMenu, setCompanyMenu] = useState(false);
   // The sender's own user (Scalar or firm) is signed in to the platform, so an expired link never stops them.
   const isSender = config.viewer === 'sender';
+  /** PROTOTYPE: a recipient's link is this request's responder view plus their token. The real one is a magic link. */
+  const linkFor = (token: string) => {
+    const path = window.location.hash.replace(/^#/, '').split('?')[0] ?? '';
+    const q = new URLSearchParams({ state, scenario: scenario.id, viewer: 'responder', link: 'active', controls: 'off', invite: token });
+    return `${window.location.origin}${window.location.pathname}#${path}?${q.toString()}`;
+  };
   const [tool, setTool] = useState<ToolSwitchValue>('valuations');
   // Info Request opens the builder here, in the portal's own chrome; it never leaves the page.
-  const [building, setBuilding] = useState(false);
+  // `start`: the empty state opens it on Blank, or with the template field focused.
+  const [building, setBuilding] = useState<null | { template?: string; focusTemplate?: boolean }>(null);
+  const [emailOpen, setEmailOpen] = useState(false);
   // An expired link shows nothing of the request until the recipient logs in.
   const expired = config.link === 'expired' && !loggedIn && !isSender;
   const mobile = useMobile();
@@ -301,7 +319,9 @@ export function RequestPortal({ state }: ScreenProps) {
               name: (
                 <span style={{ display: 'flex', justifyContent: 'space-between', gap: space.l, width: '100%' }}>
                   <span>{x.company.name}</span>
-                  <Text as="span" step="s" tone={x.complete ? 'positive' : 'secondary'}>{x.complete ? 'Complete' : `${x.resolved}/${x.total}`}</Text>
+                  {x.total === 0
+                    ? <Badge aria-label="No requests">0</Badge>
+                    : <Text as="span" step="s" tone={x.complete ? 'positive' : 'secondary'}>{x.complete ? 'Complete' : `${x.resolved}/${x.total}`}</Text>}
                 </span>
               ),
             }))}
@@ -439,7 +459,7 @@ export function RequestPortal({ state }: ScreenProps) {
   ) : (
     <CompanyInfo
       name={company.name}
-      end={expired ? undefined : <>
+      end={expired || total === 0 ? undefined : <>
         {!mobile && deadline}
         {progress}
       </>}
@@ -460,7 +480,7 @@ export function RequestPortal({ state }: ScreenProps) {
   const subNavigation = (
     <TertiaryMenu
       label="Request tools"
-      end={<>
+      end={total === 0 ? undefined : <>
         {/* A phone's toolbar is full: there Express mode sits above the list instead. */}
         {!isSender && !mobile && expressButton}
         <div style={{ position: 'relative' }}>
@@ -536,13 +556,19 @@ export function RequestPortal({ state }: ScreenProps) {
           )}
         </div>
         {isSender && deadline}
+        {/* The latest send's email and links: reopen the preview, copy a link again, resend. */}
+        {isSender && !mobile && store.outreach && (
+          <Button size="xs" variant="tertiary" leadingIcon={<Icon size="s" tone="inherit"><icons.Link /></Icon>} onClick={() => setEmailOpen(true)}>
+            Email &amp; link
+          </Button>
+        )}
         {/* The sender starts a new request from here, as on Company › Documents in the platform. */}
         {isSender && !mobile && (
           <Button
             size="xs"
             variant="primary"
             leadingIcon={<Icon size="s" tone="inherit"><icons.Mail /></Icon>}
-            onClick={() => setBuilding(true)}
+            onClick={() => setBuilding({})}
           >
             Info Request
           </Button>
@@ -553,7 +579,7 @@ export function RequestPortal({ state }: ScreenProps) {
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.m, minWidth: 0 }}>
           <Text as="span" step="m" weight="semiBold" style={{ whiteSpace: 'nowrap' }}>{company.name}</Text>
           <Link href={href(routes.company.documents(company.id))} size="s">Open company</Link>
-          {!mobile && progress}
+          {!mobile && total > 0 && progress}
         </span>
       ) : !mobile && engagement}
     </TertiaryMenu>
@@ -611,6 +637,14 @@ export function RequestPortal({ state }: ScreenProps) {
     </nav>
   );
 
+  /** The screen state lives in the hash (`state=empty` is a company with no requests). */
+  const setScreenState = (next: string) => {
+    const [path = '', search = ''] = window.location.hash.replace(/^#/, '').split('?');
+    const q = new URLSearchParams(search);
+    q.set('state', next);
+    window.location.hash = `${path}?${q.toString()}`;
+  };
+
   const resetAll = () => {
     store.reset(scenario.companies.map((c) => storeKey(state, scenario.id, c.id)));
     setSelected(new Set()); setExpanded(new Set());
@@ -634,6 +668,9 @@ export function RequestPortal({ state }: ScreenProps) {
         onChange={(v) => setConfig({ link: v })}
         options={[{ value: 'active', label: 'Active link' }, { value: 'expired', label: 'Expired link' }]}
       />
+      <Checkbox size="s" checked={state === 'empty'} onChange={(e) => setScreenState(e.currentTarget.checked ? 'empty' : 'default')}>
+        <Text as="span" step="s">Company with no requests</Text>
+      </Checkbox>
       <Text step="s" tone="secondary">Answers and files are kept in this browser only. Nothing is uploaded or encrypted.</Text>
       <Checkbox size="s" checked={store.simulateFailure} onChange={(e) => store.setSimulateFailure(e.currentTarget.checked)}>
         <Text as="span" step="s">Simulate save / upload failure</Text>
@@ -751,20 +788,56 @@ export function RequestPortal({ state }: ScreenProps) {
             navigation={navigation}
             companyInfo={companyInfo}
             company={company}
-            categories={CATEGORIES}
+            baseCategories={CATEGORIES_FOR[requestSet]}
+            companyCategories={store.categories}
             requestSet={requestSet}
             existing={every}
             dueDate={store.dueDate}
+            brand={scenario.brand}
             senderName={scenario.senderName}
+            senderUser={scenario.senderUser.name}
             recipient={scenario.recipient.name}
-            onCancel={() => setBuilding(false)}
-            onSent={(added, due, to) => {
-              store.addRequests(added, due);
-              setBuilding(false);
+            start={building}
+            linkFor={linkFor}
+            onCancel={() => setBuilding(null)}
+            onSent={(added, due, extra, how) => {
+              store.addRequests(added, due, extra);
+              setBuilding(null);
               setCategory('all');
-              notify('positive', `${added.length} request${added.length === 1 ? '' : 's'} sent to ${to.join(', ')}, due ${fmt(due)}. They show as Pending until each one is answered.`);
+              const to = extra.outreach.invites.map((i) => i.recipient).join(', ');
+              const n = `${added.length} request${added.length === 1 ? '' : 's'}`;
+              notify('positive', how === 'email'
+                ? `${n} sent to ${to}, due ${fmt(due)}. They show as Pending until each one is answered.`
+                : `${n} created for ${to}, due ${fmt(due)}. No email went out: the link is copied. Email & link has every link.`);
             }}
           />
+        ) : total === 0 ? (
+          // A company with no requests: one centred empty state, never an empty list (plan item 1).
+          <PageTemplate fullHeight={false} navigation={navigation} companyInfo={companyInfo} subNavigation={subNavigation}>
+            <div style={{ flex: 1, minHeight: 0, overflow: 'auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: space.l, paddingBlock: space.xl }}>
+              <EmptyState
+                type="no-data"
+                icon={<Icon size="xl" tone="secondary"><icons.Inbox /></Icon>}
+                title={`No requests yet for ${company.name}`}
+                body={isSender
+                  ? 'Send an information request to collect documents and answers for this valuation.'
+                  : `There’s nothing to answer yet. You’ll get an email when ${scenario.senderName} sends a request.`}
+                actions={isSender ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.m }}>
+                    <Button variant="primary" leadingIcon={<Icon size="s" tone="inherit"><icons.Mail /></Icon>} onClick={() => setBuilding({ template: 'blank' })}>
+                      New Info Request
+                    </Button>
+                    <Link href="#" onClick={(e) => { e.preventDefault(); setBuilding({ focusTemplate: true }); }}>Start from a template</Link>
+                  </span>
+                ) : undefined}
+              />
+              {prototypeControls && (
+                <div style={{ width: '100%', maxWidth: '60ch', border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, background: color.bg.surface }}>
+                  {prototypeControls}
+                </div>
+              )}
+            </div>
+          </PageTemplate>
         ) : (
         <PageTemplate fullHeight={false} navigation={navigation} companyInfo={companyInfo} subNavigation={subNavigation}>
           <div style={{ flex: 1, minHeight: 0, display: 'grid', gridTemplateColumns: mobile ? 'minmax(0, 1fr)' : 'minmax(min-content, 1fr) minmax(0, 4fr)', gap: space.l, paddingBlock: space.m }}>
@@ -831,6 +904,16 @@ export function RequestPortal({ state }: ScreenProps) {
         </PageTemplate>
         )}
 
+        {isSender && store.outreach && (
+          <EmailLinkDialog
+            open={emailOpen}
+            onClose={() => setEmailOpen(false)}
+            outreach={store.outreach}
+            email={{ from: `${scenario.senderName} on behalf of ${scenario.senderUser.name}`, brand: scenario.brand, senderName: scenario.senderName, companyName: company.name }}
+            linkFor={linkFor}
+            onResend={(who) => { store.resendEmail(who); notify('positive', `Email resent to ${who} with a new link. The old link no longer works.`); }}
+          />
+        )}
         <ToastViewport aria-label="Notifications">
           {toasts.map((t) => (
             <Toast key={t.id} tone={t.tone} onDismiss={() => dropToast(t.id)}>

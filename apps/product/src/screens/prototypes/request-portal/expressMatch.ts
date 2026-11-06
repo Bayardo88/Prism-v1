@@ -68,9 +68,22 @@ const tokens = (name: string) =>
     // "FY2025" is kept whole as well as split, so both spellings match.
     .concat(name.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean));
 
+const STOP = new Set(['the', 'and', 'for', 'with', 'from', 'your', 'this', 'that', 'what', 'which', 'have', 'there', 'been', 'last', 'any', 'all', 'are', 'its', 'our', 'per', 'including', 'available', 'preferred', 'where', 'over', 'their', 'since', 'every']);
+/**
+ * A request the analyst wrote in the builder has no hand-tuned keywords: its
+ * title and description supply them (every distinctive word supports a match),
+ * so a description like "Excel preferred, FY2025" helps place a dropped file.
+ */
+function derivedKeywords(req: InformationRequest): Keyword[] {
+  const words = `${req.title} ${req.details ?? ''}`.toLowerCase().split(/[^a-z0-9]+/).filter((w) => w.length > 2 && !STOP.has(w));
+  return [...new Set(words)].map((w) => [w, 1]);
+}
+
 function scoreFile(name: string, req: InformationRequest): number {
   const have = new Set(tokens(name));
-  return (FILE_KEYWORDS[req.id] ?? []).reduce((sum, [terms, w]) => (terms.split(' ').every((t) => have.has(t)) ? sum + w : sum), 0);
+  // Seeded requests keep their tuned keywords; builder-made ones (`n-…`, file requests only) derive theirs.
+  const keywords = FILE_KEYWORDS[req.id] ?? (req.id.startsWith('n-') && req.responseType === 'file' ? derivedKeywords(req) : []);
+  return keywords.reduce((sum, [terms, w]) => (terms.split(' ').every((t) => have.has(t)) ? sum + w : sum), 0);
 }
 
 const accepts = (req: InformationRequest, file: File) =>
