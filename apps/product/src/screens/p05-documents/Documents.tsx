@@ -356,13 +356,6 @@ export function Documents({ state }: ScreenProps) {
         tabs={[{ key: 'all', label: 'All documents', to: routes.documents }, { key: 'requests', label: 'Requests', to: requestsTabHref() }]}
         current="all"
         trailing={<ToolbarKebab />}
-        actions={
-          <>
-            <Button variant="secondary" size="xs" leadingIcon={<Icon size="s" tone="inherit"><icons.Description /></Icon>}>Request Document</Button>
-            <Button variant="primary" size="xs" leadingIcon={<Icon size="s" tone="inherit"><icons.UploadFile /></Icon>}>Upload Document</Button>
-            <Button variant="primary" tone="positive" size="xs">Request Information</Button>
-          </>
-        }
       />
       <TertiaryMenu
         end={
@@ -381,8 +374,16 @@ export function Documents({ state }: ScreenProps) {
           </>
         }
       >
-        <TertiaryMenuItem current={!company} menu={false} onClick={() => { setCompanyId(undefined); setFileId(undefined); }}>All Documents</TertiaryMenuItem>
-        {company && <TertiaryMenuItem current menu={false}>{company.name}</TertiaryMenuItem>}
+        {/* "All documents" is the Tier 2 tab, so Tier 3 names only a picked company, with the way back to all of them. */}
+        {company && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s }}>
+            <Button variant="tertiary" size="xs" leadingIcon={<Icon size="s" tone="inherit"><icons.ArrowBack /></Icon>}
+              onClick={() => { setCompanyId(undefined); setFileId(undefined); }}>
+              All companies
+            </Button>
+            <TertiaryMenuItem current menu={false}>{company.name}</TertiaryMenuItem>
+          </span>
+        )}
       </TertiaryMenu>
 
       <main style={{ ...scrollBody, display: 'flex', gap: space.l, padding: space.l, alignItems: 'flex-start' }}>
