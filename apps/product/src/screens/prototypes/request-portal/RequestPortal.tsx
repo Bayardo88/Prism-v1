@@ -51,6 +51,7 @@ import { byNumber, formatBytes, isResolved, matchesStatus, requestNumber, type R
 import {
   ContactDialog, DelegateDialog, DueDateDialog, HelpDialog, LoginDialog, PrivacyDialog, type PortalDialog,
 } from './PortalModals.js';
+import { rememberRequestsTab } from './requestsTab.js';
 import { EmailLinkDialog } from './EmailReview.js';
 import { NewRequestView } from './NewRequest.js';
 import { RequestRow } from './RequestRow.js';
@@ -449,6 +450,7 @@ export function RequestPortal({ state }: ScreenProps) {
 
   // The sender's Tier 2 is the platform's Documents tabs, Requests current, as on Documents › Requests.
   const here = window.location.hash.replace(/^#/, '');
+  useEffect(() => { if (isSender) rememberRequestsTab(here); }, [isSender, here]);
   const companyInfo = isSender ? (
     <PageHeader
       title={<span className="scalar-visually-hidden">{`Documents — Requests · ${company.name}`}</span>}

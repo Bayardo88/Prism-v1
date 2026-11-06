@@ -17,6 +17,7 @@ import { href, navigate } from '../../router.js';
 import { routes } from '../../routes.js';
 import { AppFrame, scrollBody } from '../../shell/AppFrame.js';
 import { PageHeader } from '../../shell/PageHeader.js';
+import { requestsTabHref } from '../prototypes/request-portal/requestsTab.js';
 import { ToolbarKebab } from '../../shell/Toolbar.js';
 import { useDismiss } from '../p04-waterfalls/useDismiss.js';
 import {
@@ -349,8 +350,11 @@ export function Documents({ state }: ScreenProps) {
         )
       }
     >
+      {/* Same Tier 2 as the portal's sender view: All documents · Requests, so Requests is always one click away. */}
       <PageHeader
-        title="Documents"
+        title={<span className="scalar-visually-hidden">Documents — All documents</span>}
+        tabs={[{ key: 'all', label: 'All documents', to: routes.documents }, { key: 'requests', label: 'Requests', to: requestsTabHref() }]}
+        current="all"
         trailing={<ToolbarKebab />}
         actions={
           <>
