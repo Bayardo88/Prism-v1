@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   Badge, Button, ButtonIcon, Checkbox, CheckboxItem, Chip, ComboboxPanel, DocumentViewerHeader, EmptyState,
   FileRow, FilterDropdown, FormField, Heading, Icon, Input, Link, Modal, PageStepper, ScrollHintPill, Spinner,
-  TertiaryMenu, TertiaryMenuItem, Text, TreeItem, ZoomControl, color, elevation, icons, radius, space,
+  TertiaryMenu, Text, TreeItem, ZoomControl, color, elevation, icons, radius, space,
 } from '@scalar/design-system';
 import type { ScreenProps } from '../../types.js';
 import { href, navigate } from '../../router.js';
@@ -374,16 +374,7 @@ export function Documents({ state }: ScreenProps) {
           </>
         }
       >
-        {/* "All documents" is the Tier 2 tab, so Tier 3 names only a picked company, with the way back to all of them. */}
-        {company && (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: space.s }}>
-            <Button variant="tertiary" size="xs" leadingIcon={<Icon size="s" tone="inherit"><icons.ArrowBack /></Icon>}
-              onClick={() => { setCompanyId(undefined); setFileId(undefined); }}>
-              All companies
-            </Button>
-            <TertiaryMenuItem current menu={false}>{company.name}</TertiaryMenuItem>
-          </span>
-        )}
+        {/* Tier 3 holds only the document tools: "All documents" is the Tier 2 tab and the company list shows which company is picked. */}
       </TertiaryMenu>
 
       <main style={{ ...scrollBody, display: 'flex', gap: space.l, padding: space.l, alignItems: 'flex-start' }}>
@@ -408,7 +399,8 @@ export function Documents({ state }: ScreenProps) {
                 fund={c.fund}
                 count={c.count}
                 selected={c.id === companyId}
-                onClick={() => { setCompanyId(c.id); setFileId(undefined); setLoading(false); }}
+                // A second click on the picked company clears it, back to every company's documents.
+                onClick={() => { setCompanyId(c.id === companyId ? undefined : c.id); setFileId(undefined); setLoading(false); }}
               />
             ))}
             {shownCompanies.length > VISIBLE_COMPANIES && (
