@@ -3,7 +3,11 @@
  * (Scalar or firm) gets from "Info Request". The same builder as the platform's
  * Company › Documents › Requests (Template, Send to, Due date, Introduction,
  * then one numbered list by category), but it never leaves this page: the
- * portal keeps its tiers, and Add request, Cancel and Send sit in Tier 3.
+ * portal keeps its tiers, and Cancel and Send sit in Tier 3.
+ *
+ * Each row's answer type is a Scalar SelectMenu opened from the field and its
+ * chevron, never the browser's own list. Multiple choice takes the options
+ * the sender writes; the responder selects as many as apply.
  *
  * Stakeholder feedback (Request Portal plan, Nov 5 2026):
  * - #2 Every row has an include checkbox (the template's rows start ticked; a
@@ -11,8 +15,7 @@
  *   description the responder sees. Only included rows are sent, numbered
  *   without gaps. Send reads "Send 12 of 17 requests".
  * - #3 Every category shows, empty ones too, each with Add question and Add
- *   document; Tier 3 has "Add request" (type, then category: the one in view).
- *   A new row fades in, scrolls into view and takes focus; Enter in a title
+ *   document. A new row fades in, scrolls into view and takes focus; Enter in a title
  *   adds a row of the same type below it.
  * - #4 Send opens a review step: the email each recipient gets (subject and a
  *   personal note editable), one link per recipient with Copy link, then Send
@@ -25,10 +28,10 @@
  * the portal's chrome and mounts it only while building, so each Info Request
  * starts fresh.
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   Alert, Button, ButtonIcon, Checkbox, Chip, ComboboxPanel, FormField, Heading, Icon, Input, Link, Modal, Overline, PageTemplate,
-  Select, SubmenuItem, TertiaryMenu, Text, Textarea, color, elevation, icons, motion, radius, size, space, zIndex,
+  Select, SelectMenu, SelectMenuOption, SubmenuItem, TertiaryMenu, Text, Textarea, color, glyphs, icons, motion, radius, size, space, zIndex,
 } from '@scalar/design-system';
 import type { Company } from '../../../data/fixtures.js';
 import { href } from '../../../router.js';
@@ -39,19 +42,21 @@ import { CopyLink, EmailPreview, RecipientSwitch, defaultSubject, type EmailCont
 import { INTRODUCTION, type RequestSet } from './fixtures.js';
 import { DOC_EXTENSIONS, formatDay, responseTypeLabel, type Category, type InformationRequest, type ResponseType } from './model.js';
 import { DueDateDialog } from './PortalModals.js';
+import { typeIcon } from './RequestRow.js';
 import { newToken, type Outreach } from './store.js';
 
-type BuilderType = 'choice' | 'text' | 'date' | 'file';
-const BUILDER_TYPES: BuilderType[] = ['file', 'text', 'choice', 'date'];
-const toBuilderType = (t: ResponseType): BuilderType =>
-  (BUILDER_TYPES as ResponseType[]).includes(t) ? t as BuilderType : t === 'multiple_choice' ? 'choice' : 'file';
+type BuilderType = 'choice' | 'multiple_choice' | 'text' | 'date' | 'file';
+const BUILDER_TYPES: BuilderType[] = ['file', 'text', 'choice', 'multiple_choice', 'date'];
+const toBuilderType = (t: ResponseType): BuilderType => ((BUILDER_TYPES as ResponseType[]).includes(t) ? t as BuilderType : 'file');
+/** A multiple-choice request starts with two empty options; it needs two written ones to send. */
+const MIN_OPTIONS = 2;
 const DESCRIPTION_MAX = 500;
 /** One light line until there is more to say; the field grows with the text (`field-sizing` is newer than the CSS types). */
 const DESCRIPTION_STYLE = { fieldSizing: 'content', resize: 'none', minHeight: size.control.s } as CSSProperties;
 
-interface TemplateRequest { title: string; categoryId: string; responseType: BuilderType; description?: string }
+interface TemplateRequest { title: string; categoryId: string; responseType: BuilderType; description?: string; options?: string[] }
 interface RequestTemplate { id: string; name: string; updatedAt: string; introduction: string[]; requests: TemplateRequest[] }
-interface DraftRequest extends TemplateRequest { key: string; description: string; included: boolean }
+interface DraftRequest extends TemplateRequest { key: string; description: string; included: boolean; options: string[] }
 /** A category as the builder holds it: `saved` ones are the company's own (kept by number), `draft` ones are new here. */
 interface BuilderCategory extends Category { custom?: 'saved' | 'draft' }
 
@@ -72,6 +77,10 @@ const STANDARD: TemplateRequest[] = [
   { title: defaultQuestions[0]!, categoryId: 'transactions', responseType: 'date' },
   { title: defaultQuestions[1]!, categoryId: 'transactions', responseType: 'text' },
   { title: defaultQuestions[4]!, categoryId: 'transactions', responseType: 'choice' },
+  {
+    title: 'Which of these events occurred since the last valuation?', categoryId: 'transactions', responseType: 'multiple_choice',
+    options: ['Acquisition of another company', 'New financing round', 'Departure of a key executive', 'Restructuring or layoffs'],
+  },
   { title: defaultDocumentRequests[0]!, categoryId: 'other', responseType: 'file' },
   { title: defaultQuestions[9]!, categoryId: 'other', responseType: 'text' },
 ];
@@ -121,10 +130,15 @@ const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 let keySeq = 0;
 const newKey = () => `nd${++keySeq}`;
-const withKeys = (rs: TemplateRequest[]): DraftRequest[] => rs.map((d) => ({ ...d, description: d.description ?? '', included: true, key: newKey() }));
+const blankOptions = () => Array.from({ length: MIN_OPTIONS }, () => '');
+const withKeys = (rs: TemplateRequest[]): DraftRequest[] => rs.map((d) => ({
+  ...d, description: d.description ?? '', included: true, key: newKey(),
+  options: d.options ? [...d.options] : d.responseType === 'multiple_choice' ? blankOptions() : [],
+}));
+const writtenOptions = (d: DraftRequest) => d.options.map((o) => o.trim()).filter(Boolean);
 /** What counts as an edit: the requests (wording, type, category, description, included) and the introduction. */
 const snapshot = (drafts: DraftRequest[], intro: string) =>
-  JSON.stringify([drafts.map((d) => [d.categoryId, d.title, d.responseType, d.description, d.included]), intro]);
+  JSON.stringify([drafts.map((d) => [d.categoryId, d.title, d.responseType, d.description, d.included, d.options]), intro]);
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** "Add question" asks for a written answer; "Add document" for an upload. The type can still change after. */
@@ -159,7 +173,7 @@ export interface NewRequestOptions {
 
 /**
  * The builder as a page: the portal's Tier 1 and Tier 2 stay, Tier 3 names the
- * company and holds Add request, Cancel and Send.
+ * company and holds Cancel and Send.
  */
 export function NewRequestView({ navigation, companyInfo, ...options }: NewRequestOptions & { navigation: ReactNode; companyInfo: ReactNode }) {
   const { body, overlay, actions } = useNewRequest(options);
@@ -205,7 +219,10 @@ export function useNewRequest({
 
   /* ---- templates ---- */
   const templates = useMemo<RequestTemplate[]>(() => {
-    const last = existing.filter((r) => !r.parentId).map((r) => ({ title: r.title, categoryId: r.categoryId, responseType: toBuilderType(r.responseType), description: r.details }));
+    const last = existing.filter((r) => !r.parentId).map((r) => ({ title: r.title, categoryId: r.categoryId, responseType: toBuilderType(r.responseType), description: r.details,
+      ...(r.choice?.mode === 'multiple' ? { options: r.choice.options.filter((o) => !o.other).map((o) => o.label) } : {}) }))
+      // Single-pick lists are not offered by the builder; they come back as Yes / No only when they were Yes / No.
+      .map((d) => (d.responseType === 'multiple_choice' && !d.options ? { ...d, responseType: 'choice' as const } : d));
     return [
       ...(last.length ? [{ id: 'last', name: 'Last request sent to this company', updatedAt: '', introduction: INTRODUCTION, requests: last }] : []),
       { id: 'blank', name: 'Blank', updatedAt: '', introduction: [], requests: [] },
@@ -256,10 +273,12 @@ export function useNewRequest({
   /* ---- what will be sent ---- */
   const included = drafts.filter((d) => d.included);
   const blank = included.filter((d) => !d.title.trim());
+  const fewOptions = included.filter((d) => d.responseType === 'multiple_choice' && writtenOptions(d).length < MIN_OPTIONS);
   const problems = [
     !recipients.length && 'Choose at least one person to send the request to.',
     !included.length && 'Include at least one request.',
     blank.length > 0 && `${blank.length} included request${blank.length === 1 ? ' has' : 's have'} no wording. Write it, untick it or remove it.`,
+    fewOptions.length > 0 && `${fewOptions.length} multiple-choice request${fewOptions.length === 1 ? ' needs' : 's need'} at least ${MIN_OPTIONS} options.`,
   ].filter((p): p is string => !!p);
   const usedCategories = new Set(included.map((d) => d.categoryId)).size;
   const sendLabel = included.length === drafts.length ? `Send ${plural(drafts.length, 'request')}` : `Send ${included.length} of ${plural(drafts.length, 'request')}`;
@@ -278,7 +297,7 @@ export function useNewRequest({
       const order = catOrder(categoryId);
       const idx = after >= 0 ? after + 1 : all.findIndex((d) => catOrder(d.categoryId) > order);
       const next = [...all];
-      next.splice(idx < 0 ? all.length : idx, 0, { key, categoryId, title: '', description: '', responseType: type, included: true });
+      next.splice(idx < 0 ? all.length : idx, 0, { key, categoryId, title: '', description: '', responseType: type, included: true, options: type === 'multiple_choice' ? blankOptions() : [] });
       return next;
     });
     if (category !== 'all' && category !== categoryId) setCategory('all');
@@ -296,31 +315,22 @@ export function useNewRequest({
       el.style.transform = '';
     });
   };
-  /** The category the analyst is looking at: the filtered one, else the last section header above the middle of the view. */
-  const categoryInView = () => {
-    if (category !== 'all') return category;
-    const box = scrollRef.current?.getBoundingClientRect();
-    const heads = [...(scrollRef.current?.querySelectorAll<HTMLElement>('[data-category]') ?? [])];
-    if (!box || !heads.length) return categories[0]!.id;
-    const above = heads.filter((h) => h.getBoundingClientRect().top <= box.top + box.height / 3);
-    return (above[above.length - 1] ?? heads[0]!).dataset.category!;
-  };
   const scrollToCategory = (id: string) => window.requestAnimationFrame(() =>
     scrollRef.current?.querySelector(`[data-category="${id}"]`)?.scrollIntoView({ block: 'start', behavior: reducedMotion() ? 'auto' : 'smooth' }));
 
   const update = (key: string, patch: Partial<DraftRequest>) => setDrafts((all) => all.map((d) => (d.key === key ? { ...d, ...patch } : d)));
+  /** Switching to multiple choice keeps any options already written, topped up to two. */
+  const setType = (d: DraftRequest, responseType: BuilderType) => update(d.key, {
+    responseType,
+    ...(responseType === 'multiple_choice' && d.options.length < MIN_OPTIONS ? { options: [...d.options, ...blankOptions()].slice(0, Math.max(MIN_OPTIONS, d.options.length)) } : {}),
+  });
+  const setOption = (d: DraftRequest, i: number, value: string) => update(d.key, { options: d.options.map((o, j) => (j === i ? value : o)) });
+  const addOption = (d: DraftRequest) => { optionFocus.current = `${d.key}:${d.options.length}`; update(d.key, { options: [...d.options, ''] }); };
+  const removeOption = (d: DraftRequest, i: number) => update(d.key, { options: d.options.filter((_, j) => j !== i) });
+  const optionFocus = useRef<string | null>(null);
   const remove = (key: string) => setDrafts((all) => all.filter((d) => d.key !== key));
   const includeCategory = (id: string, on: boolean) => setDrafts((all) => all.map((d) => (d.categoryId === id ? { ...d, included: on } : d)));
   const addRecipient = (name: string) => { if (name && !recipients.includes(name)) setRecipients((r) => [...r, name]); };
-
-  /* ---- Add request (Tier 3): type, then category ---- */
-  const [addMenu, setAddMenu] = useState(false);
-  const [addType, setAddType] = useState<BuilderType>('file');
-  const [addCategory, setAddCategory] = useState('');
-  const addMenuRef = useRef<HTMLDivElement>(null);
-  const closeAddMenu = useCallback(() => setAddMenu(false), []);
-  useDismiss(addMenuRef, addMenu, closeAddMenu);
-  const openAddMenu = () => { setAddCategory(categoryInView()); setAddMenu((o) => !o); };
 
   /* ---- Add category, rename, delete (custom categories only) ---- */
   const [naming, setNaming] = useState<{ id: string | null; value: string; error?: string } | null>(null);
@@ -398,6 +408,10 @@ export function useNewRequest({
         responseType: d.responseType,
         status: 'pending',
         ...(d.responseType === 'file' ? { allowedExtensions: DOC_EXTENSIONS, maxFiles: 5 } : {}),
+        ...(d.responseType === 'multiple_choice' ? {
+          shortNote: 'Select all that apply.',
+          choice: { mode: 'multiple', options: writtenOptions(d).map((label, j) => ({ id: `o${j + 1}`, label })) },
+        } : {}),
       } as InformationRequest;
     });
     const sentAt = new Date().toISOString();
@@ -580,6 +594,35 @@ export function useNewRequest({
       ))}
     </span>
   );
+  /** Multiple choice: the options the responder picks from, as many as apply. */
+  const optionsEditor = (d: DraftRequest, label: string, short: boolean) => (
+    <div role="group" aria-label={`Options for ${label}`} style={{ display: 'flex', flexDirection: 'column', gap: space.xs, paddingTop: space.xs }}>
+      <Text as="span" step="s" tone={short ? 'negative' : 'secondary'}>
+        {short ? `Write at least ${MIN_OPTIONS} options.` : 'Options. The responder can select as many as apply.'}
+      </Text>
+      {d.options.map((o, i) => (
+        // Options have no id until sent; position is their identity here.
+        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: space.s }}>
+          <Icon size="s" tone="disabled"><icons.CheckBoxOutlineBlank /></Icon>
+          <Input
+            aria-label={`Option ${i + 1} for ${label}`}
+            placeholder={`Option ${i + 1}`}
+            value={o}
+            ref={(el) => { if (el && optionFocus.current === `${d.key}:${i}`) { el.focus(); optionFocus.current = null; } }}
+            onChange={(e) => setOption(d, i, e.target.value)}
+            // Enter adds the next option below the last one.
+            onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); if (i === d.options.length - 1) addOption(d); } }}
+            style={{ flex: 1, minWidth: 0 }}
+          />
+          <ButtonIcon variant="tertiary" size="s" label={`Remove option ${i + 1}`} disabled={d.options.length <= MIN_OPTIONS}
+            onClick={() => removeOption(d, i)} icon={<Icon size="s" tone="inherit"><icons.Close /></Icon>} />
+        </div>
+      ))}
+      <div>
+        <Button variant="tertiary" size="s" leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>} onClick={() => addOption(d)}>Add option</Button>
+      </div>
+    </div>
+  );
   const list = (
     <ul aria-label="Requests to send" style={{ margin: 0, padding: 0 }}>
       {shownCategories.map((c) => {
@@ -629,11 +672,9 @@ export function useNewRequest({
                       style={DESCRIPTION_STYLE}
                     />
                   </FormField>
+                  {d.responseType === 'multiple_choice' && optionsEditor(d, label, tried && d.included && writtenOptions(d).length < MIN_OPTIONS)}
                 </div>
-                <Select aria-label={`How ${label} is answered`} value={d.responseType}
-                  onChange={(e) => update(d.key, { responseType: e.currentTarget.value as BuilderType })}>
-                  {BUILDER_TYPES.map((t) => <option key={t} value={t}>{responseTypeLabel[t]}</option>)}
-                </Select>
+                <TypePicker label={`How ${label} is answered`} value={d.responseType} onChange={(t) => setType(d, t)} />
                 <ButtonIcon variant="tertiary" size="s" label={`Remove ${label}`} onClick={() => remove(d.key)}
                   icon={<Icon size="s" tone="inherit"><icons.Delete /></Icon>} />
               </li>
@@ -761,33 +802,61 @@ export function useNewRequest({
 
   const actions = (
     <>
-      <div ref={addMenuRef} style={{ position: 'relative' }}>
-        <Button variant="secondary" size="xs" aria-haspopup="dialog" aria-expanded={addMenu}
-          leadingIcon={<Icon size="s" tone="inherit"><icons.Add /></Icon>} trailingIcon={<Icon size="s" tone="inherit"><icons.ArrowDropDown /></Icon>}
-          onClick={openAddMenu}>
-          Add request
-        </Button>
-        {addMenu && (
-          <div role="dialog" aria-label="Add a request" style={{ position: 'absolute', top: '100%', right: 0, zIndex: zIndex.overlay, marginTop: space.xs, display: 'flex', flexDirection: 'column', gap: space.s, padding: space.m, minWidth: 'max-content', background: color.bg.surface, border: `1px solid ${color.stroke.default}`, borderRadius: radius.s, boxShadow: elevation.overlay }}>
-            <FormField label="Type">
-              {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
-              <Select autoFocus value={addType} onChange={(e) => setAddType(e.currentTarget.value as BuilderType)}>
-                {BUILDER_TYPES.map((t) => <option key={t} value={t}>{responseTypeLabel[t]}</option>)}
-              </Select>
-            </FormField>
-            <FormField label="Category">
-              <Select value={addCategory} onChange={(e) => setAddCategory(e.currentTarget.value)}>
-                {categories.map((c) => <option key={c.id} value={c.id}>{`${c.order}. ${c.name}`}</option>)}
-              </Select>
-            </FormField>
-            <Button variant="primary" size="s" onClick={() => { add(addCategory, addType); setAddMenu(false); }}>Add</Button>
-          </div>
-        )}
-      </div>
       <Button variant="tertiary" size="xs" onClick={onCancel}>Cancel</Button>
       <Button variant="primary" size="xs" trailingIcon={<Icon size="s" tone="inherit"><icons.Send /></Icon>} onClick={send}>{sendLabel}</Button>
     </>
   );
 
   return { body, overlay, actions };
+}
+
+/**
+ * The answer type of one request: a field that opens the Scalar SelectMenu
+ * (click the field or its chevron, or ↓ / Enter / Space from the keyboard),
+ * never the browser's native list. Esc or a click outside closes it and
+ * returns focus to the field.
+ */
+function TypePicker({ label, value, onChange }: { label: string; value: BuilderType; onChange: (t: BuilderType) => void }) {
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  const close = useCallback(() => { setOpen(false); trigger.current?.focus(); }, []);
+  useDismiss(wrap, open, close);
+  useEffect(() => { if (open) menu.current?.focus(); }, [open]);
+  return (
+    <div ref={wrap} style={{ position: 'relative' }}>
+      {/* One trigger: the whole field, chevron included, opens the menu. */}
+      <button
+        ref={trigger}
+        type="button"
+        className="scalar-field"
+        data-state="default"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={open ? menuId : undefined}
+        aria-label={`${label}: ${responseTypeLabel[value]}`}
+        onClick={() => setOpen((o) => !o)}
+        onKeyDown={(e) => { if (e.key === 'ArrowDown' && !open) { e.preventDefault(); setOpen(true); } }}
+        style={{ cursor: 'pointer', textAlign: 'left' }}
+      >
+        <Icon size="s" tone="secondary">{typeIcon[value]}</Icon>
+        <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{responseTypeLabel[value]}</span>
+        <Icon size="s" tone="secondary" className={open ? 'scalar-rotate-180' : undefined}><glyphs.ChevronDown /></Icon>
+      </button>
+      {open && (
+        <div style={{ position: 'absolute', top: '100%', right: 0, minWidth: '100%', zIndex: zIndex.overlay, marginTop: space.xs }}>
+          <SelectMenu ref={menu} id={menuId} label={label} onEscape={close}>
+            {BUILDER_TYPES.map((t) => (
+              <SelectMenuOption key={t} selected={t === value} icon={<Icon size="s" tone="inherit">{typeIcon[t]}</Icon>}
+                onSelect={() => { onChange(t); close(); }}>
+                {responseTypeLabel[t]}
+              </SelectMenuOption>
+            ))}
+          </SelectMenu>
+        </div>
+      )}
+    </div>
+  );
 }

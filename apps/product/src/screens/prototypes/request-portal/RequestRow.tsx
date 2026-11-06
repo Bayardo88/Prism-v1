@@ -24,7 +24,7 @@ const statusChip: Record<RequestStatus, { style: 'default' | 'positive' | 'info'
   sent: { style: 'info', icon: <icons.Send /> },
 };
 
-const typeIcon: Record<InformationRequest['responseType'], JSX.Element> = {
+export const typeIcon: Record<InformationRequest['responseType'], JSX.Element> = {
   text: <icons.EditNote />,
   choice: <icons.Rule />,
   multiple_choice: <icons.FormatListBulleted />,
